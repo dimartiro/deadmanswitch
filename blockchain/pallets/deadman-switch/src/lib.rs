@@ -2,14 +2,15 @@
 //!
 //! A deadman switch pallet that allows users to lock funds with a periodic
 //! heartbeat requirement. If the owner fails to send a heartbeat before the
-//! expiry block, anyone can trigger the switch to release funds to the beneficiary.
+//! expiry block, anyone can trigger the switch to release funds to multiple
+//! beneficiaries.
 //!
 //! ## Overview
 //!
-//! - `create_switch`: Lock deposit + trigger reward and set a beneficiary + block interval
+//! - `create_switch`: Lock funds for a list of beneficiaries + trigger reward
 //! - `heartbeat`: Owner resets the expiry block (proves they are still active)
-//! - `trigger`: Anyone calls this after expiry block passes — deposit goes to beneficiary,
-//!   reward goes to the caller as economic incentive
+//! - `trigger`: Anyone calls this after expiry block passes — each beneficiary
+//!   receives their designated amount, caller receives the trigger reward
 //! - `cancel`: Owner cancels and reclaims all held funds (only while active)
 
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -50,6 +51,10 @@ pub mod pallet {
 
 		/// Overarching hold reason.
 		type RuntimeHoldReason: From<HoldReason>;
+
+		/// Maximum number of beneficiaries per switch.
+		#[pallet::constant]
+		type MaxBeneficiaries: Get<u32>;
 	}
 
 	/// Reason for holding funds.
@@ -61,6 +66,16 @@ pub mod pallet {
 
 	/// Unique identifier for each switch.
 	pub type SwitchId = u64;
+
+	/// A beneficiary entry with their designated amount.
+	#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	#[scale_info(skip_type_params(T))]
+	pub struct Beneficiary<T: Config> {
+		/// The account that receives funds.
+		pub account: T::AccountId,
+		/// The amount designated for this beneficiary.
+		pub amount: T::Balance,
+	}
 
 	/// Status of a deadman switch.
 	#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
@@ -77,10 +92,10 @@ pub mod pallet {
 	pub struct Switch<T: Config> {
 		/// The account that created and controls the switch.
 		pub owner: T::AccountId,
-		/// The account that receives funds when the switch triggers.
-		pub beneficiary: T::AccountId,
-		/// The amount of funds destined for the beneficiary.
-		pub deposit: T::Balance,
+		/// The list of beneficiaries and their designated amounts.
+		pub beneficiaries: BoundedVec<Beneficiary<T>, T::MaxBeneficiaries>,
+		/// The total deposit (sum of all beneficiary amounts).
+		pub total_deposit: T::Balance,
 		/// The reward offered to whoever triggers the switch.
 		pub trigger_reward: T::Balance,
 		/// The block interval for the heartbeat period.
@@ -107,19 +122,18 @@ pub mod pallet {
 		SwitchCreated {
 			id: SwitchId,
 			owner: T::AccountId,
-			beneficiary: T::AccountId,
-			deposit: T::Balance,
+			total_deposit: T::Balance,
 			trigger_reward: T::Balance,
+			beneficiary_count: u32,
 			expiry_block: BlockNumberFor<T>,
 		},
 		/// The owner sent a heartbeat, resetting the expiry block.
 		HeartbeatReceived { id: SwitchId, new_expiry_block: BlockNumberFor<T> },
-		/// The switch was triggered — deposit sent to beneficiary, reward to caller.
+		/// The switch was triggered — funds distributed to beneficiaries, reward to caller.
 		SwitchTriggered {
 			id: SwitchId,
 			caller: T::AccountId,
-			beneficiary: T::AccountId,
-			deposit: T::Balance,
+			total_deposit: T::Balance,
 			caller_reward: T::Balance,
 		},
 		/// The switch was cancelled by the owner.
@@ -136,52 +150,85 @@ pub mod pallet {
 		SwitchNotActive,
 		/// The switch has not yet expired (expiry block not passed).
 		NotYetExpired,
+		/// The switch has already expired.
+		SwitchExpired,
 		/// The block interval must be greater than zero.
 		InvalidInterval,
-		/// The beneficiary cannot be the same as the owner.
+		/// The block interval is too large and would cause overflow.
+		BlockIntervalTooLarge,
+		/// A beneficiary cannot be the same as the owner.
 		BeneficiaryIsOwner,
-		/// The deposit must be greater than zero.
+		/// Each beneficiary amount must be greater than zero.
 		DepositTooLow,
+		/// The beneficiary list is empty.
+		NoBeneficiaries,
+		/// Too many beneficiaries (exceeds MaxBeneficiaries).
+		TooManyBeneficiaries,
+		/// Duplicate beneficiary in the list.
+		DuplicateBeneficiary,
 	}
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		/// Create a new deadman switch.
+		/// Create a new deadman switch with multiple beneficiaries.
 		///
-		/// Holds `deposit + trigger_reward` from the caller. The deposit goes
-		/// to the beneficiary on trigger, and the reward goes to whoever
-		/// calls trigger as economic incentive.
+		/// Holds the sum of all beneficiary amounts + trigger_reward from the
+		/// caller. On trigger, each beneficiary receives their designated
+		/// amount, and the caller receives the trigger reward.
 		#[pallet::call_index(0)]
 		#[pallet::weight(T::WeightInfo::create_switch())]
 		pub fn create_switch(
 			origin: OriginFor<T>,
-			beneficiary: T::AccountId,
+			beneficiaries_input: Vec<(T::AccountId, T::Balance)>,
 			block_interval: BlockNumberFor<T>,
-			deposit: T::Balance,
 			trigger_reward: T::Balance,
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			ensure!(block_interval > Zero::zero(), Error::<T>::InvalidInterval);
-			ensure!(deposit > Zero::zero(), Error::<T>::DepositTooLow);
-			ensure!(beneficiary != who, Error::<T>::BeneficiaryIsOwner);
+			ensure!(!beneficiaries_input.is_empty(), Error::<T>::NoBeneficiaries);
+			ensure!(
+				beneficiaries_input.len() <= T::MaxBeneficiaries::get() as usize,
+				Error::<T>::TooManyBeneficiaries,
+			);
 
-			let total_hold = deposit + trigger_reward;
+			let mut total_deposit = T::Balance::zero();
+			let mut beneficiaries = BoundedVec::new();
 
-			// Hold deposit + trigger reward from the owner
+			for (account, amount) in beneficiaries_input {
+				ensure!(amount > Zero::zero(), Error::<T>::DepositTooLow);
+				ensure!(account != who, Error::<T>::BeneficiaryIsOwner);
+				// Check for duplicates
+				ensure!(
+					!beneficiaries.iter().any(|b: &Beneficiary<T>| b.account == account),
+					Error::<T>::DuplicateBeneficiary,
+				);
+				total_deposit = total_deposit + amount;
+				beneficiaries
+					.try_push(Beneficiary { account, amount })
+					.map_err(|_| Error::<T>::TooManyBeneficiaries)?;
+			}
+
+			let total_hold = total_deposit + trigger_reward;
+
+			// Hold total deposit + trigger reward from the owner
 			T::Currency::hold(&HoldReason::DeadmanSwitch.into(), &who, total_hold)?;
 
 			let current_block = frame_system::Pallet::<T>::block_number();
-			let expiry_block = current_block + block_interval;
+			let expiry_block = current_block
+				.checked_add(&block_interval)
+				.ok_or(Error::<T>::BlockIntervalTooLarge)?;
 
 			let id = NextSwitchId::<T>::get();
 			NextSwitchId::<T>::put(id + 1);
+
+			let beneficiary_count = beneficiaries.len() as u32;
 
 			Switches::<T>::insert(
 				id,
 				Switch {
 					owner: who.clone(),
-					beneficiary: beneficiary.clone(),
-					deposit,
+					beneficiaries,
+					total_deposit,
 					trigger_reward,
 					block_interval,
 					expiry_block,
@@ -192,9 +239,9 @@ pub mod pallet {
 			Self::deposit_event(Event::SwitchCreated {
 				id,
 				owner: who,
-				beneficiary,
-				deposit,
+				total_deposit,
 				trigger_reward,
+				beneficiary_count,
 				expiry_block,
 			});
 			Ok(())
@@ -214,9 +261,11 @@ pub mod pallet {
 			ensure!(switch.status == SwitchStatus::Active, Error::<T>::SwitchNotActive);
 
 			let current_block = frame_system::Pallet::<T>::block_number();
-			ensure!(current_block <= switch.expiry_block, Error::<T>::NotYetExpired);
+			ensure!(current_block <= switch.expiry_block, Error::<T>::SwitchExpired);
 
-			let new_expiry_block = current_block + switch.block_interval;
+			let new_expiry_block = current_block
+				.checked_add(&switch.block_interval)
+				.ok_or(Error::<T>::BlockIntervalTooLarge)?;
 			switch.expiry_block = new_expiry_block;
 			Switches::<T>::insert(id, switch);
 
@@ -226,9 +275,9 @@ pub mod pallet {
 
 		/// Trigger an expired switch.
 		///
-		/// Anyone can call this once the expiry block has passed. The full
-		/// deposit is transferred to the beneficiary, and the trigger reward
-		/// is transferred to the caller.
+		/// Anyone can call this once the expiry block has passed. Each
+		/// beneficiary receives their designated amount from the hold,
+		/// and the caller receives the trigger reward.
 		#[pallet::call_index(2)]
 		#[pallet::weight(T::WeightInfo::trigger())]
 		pub fn trigger(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
@@ -240,21 +289,21 @@ pub mod pallet {
 			let current_block = frame_system::Pallet::<T>::block_number();
 			ensure!(current_block > switch.expiry_block, Error::<T>::NotYetExpired);
 
-			let deposit = switch.deposit;
-			let caller_reward = switch.trigger_reward;
-
-			// Transfer full deposit from hold to beneficiary
-			T::Currency::transfer_on_hold(
-				&HoldReason::DeadmanSwitch.into(),
-				&switch.owner,
-				&switch.beneficiary,
-				deposit,
-				frame::traits::tokens::Precision::BestEffort,
-				frame::traits::tokens::Restriction::Free,
-				frame::traits::tokens::Fortitude::Polite,
-			)?;
+			// Transfer each beneficiary's amount from hold
+			for beneficiary in &switch.beneficiaries {
+				T::Currency::transfer_on_hold(
+					&HoldReason::DeadmanSwitch.into(),
+					&switch.owner,
+					&beneficiary.account,
+					beneficiary.amount,
+					frame::traits::tokens::Precision::BestEffort,
+					frame::traits::tokens::Restriction::Free,
+					frame::traits::tokens::Fortitude::Polite,
+				)?;
+			}
 
 			// Transfer trigger reward from hold to caller
+			let caller_reward = switch.trigger_reward;
 			if caller_reward > Zero::zero() {
 				T::Currency::transfer_on_hold(
 					&HoldReason::DeadmanSwitch.into(),
@@ -267,14 +316,14 @@ pub mod pallet {
 				)?;
 			}
 
+			let total_deposit = switch.total_deposit;
 			switch.status = SwitchStatus::Executed;
-			Switches::<T>::insert(id, switch.clone());
+			Switches::<T>::insert(id, switch);
 
 			Self::deposit_event(Event::SwitchTriggered {
 				id,
 				caller,
-				beneficiary: switch.beneficiary,
-				deposit,
+				total_deposit,
 				caller_reward,
 			});
 			Ok(())
@@ -283,7 +332,7 @@ pub mod pallet {
 		/// Cancel an active switch and reclaim all held funds.
 		///
 		/// Only the owner can cancel. The switch must be active.
-		/// Both the deposit and trigger reward are released back to the owner.
+		/// The total deposit and trigger reward are released back to the owner.
 		#[pallet::call_index(3)]
 		#[pallet::weight(T::WeightInfo::cancel())]
 		pub fn cancel(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
@@ -293,8 +342,8 @@ pub mod pallet {
 			ensure!(switch.owner == who, Error::<T>::NotOwner);
 			ensure!(switch.status == SwitchStatus::Active, Error::<T>::SwitchNotActive);
 
-			// Release deposit + trigger reward back to the owner
-			let returned = switch.deposit + switch.trigger_reward;
+			// Release total deposit + trigger reward back to the owner
+			let returned = switch.total_deposit + switch.trigger_reward;
 			T::Currency::release(
 				&HoldReason::DeadmanSwitch.into(),
 				&who,

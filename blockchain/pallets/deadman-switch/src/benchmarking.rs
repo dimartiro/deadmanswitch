@@ -10,15 +10,24 @@ mod benchmarks {
 	use crate::pallet::Pallet as DeadmanSwitch;
 	use frame_system::RawOrigin;
 
+	fn make_beneficiaries<T: Config>(n: u32) -> Vec<(T::AccountId, T::Balance)> {
+		(0..n)
+			.map(|i| {
+				let acc: T::AccountId = account("beneficiary", i, 0);
+				let amount: T::Balance = 100u32.into();
+				(acc, amount)
+			})
+			.collect()
+	}
+
 	#[benchmark]
 	fn create_switch() {
 		let caller: T::AccountId = whitelisted_caller();
-		let beneficiary: T::AccountId = account("beneficiary", 0, 0);
+		let beneficiaries = make_beneficiaries::<T>(1);
 		let interval: BlockNumberFor<T> = 100u32.into();
-		let deposit: T::Balance = 1000u32.into();
-		let trigger_reward: T::Balance = 100u32.into();
+		let trigger_reward: T::Balance = 10u32.into();
 		#[extrinsic_call]
-		create_switch(RawOrigin::Signed(caller.clone()), beneficiary, interval, deposit, trigger_reward);
+		create_switch(RawOrigin::Signed(caller.clone()), beneficiaries, interval, trigger_reward);
 
 		assert!(Switches::<T>::contains_key(0));
 	}
@@ -29,13 +38,17 @@ mod benchmarks {
 		let beneficiary: T::AccountId = account("beneficiary", 0, 0);
 		let interval: BlockNumberFor<T> = 100u32.into();
 		let current_block = frame_system::Pallet::<T>::block_number();
+		let mut beneficiaries = BoundedVec::new();
+		beneficiaries
+			.try_push(Beneficiary { account: beneficiary, amount: 100u32.into() })
+			.unwrap();
 		Switches::<T>::insert(
 			0u64,
 			Switch {
 				owner: caller.clone(),
-				beneficiary,
-				deposit: 1000u32.into(),
-				trigger_reward: 100u32.into(),
+				beneficiaries,
+				total_deposit: 100u32.into(),
+				trigger_reward: 10u32.into(),
 				block_interval: interval,
 				expiry_block: current_block + interval,
 				status: SwitchStatus::Active,
@@ -50,13 +63,17 @@ mod benchmarks {
 	fn trigger() {
 		let caller: T::AccountId = whitelisted_caller();
 		let beneficiary: T::AccountId = account("beneficiary", 0, 0);
+		let mut beneficiaries = BoundedVec::new();
+		beneficiaries
+			.try_push(Beneficiary { account: beneficiary, amount: 100u32.into() })
+			.unwrap();
 		Switches::<T>::insert(
 			0u64,
 			Switch {
 				owner: caller.clone(),
-				beneficiary,
-				deposit: 1000u32.into(),
-				trigger_reward: 100u32.into(),
+				beneficiaries,
+				total_deposit: 100u32.into(),
+				trigger_reward: 10u32.into(),
 				block_interval: 10u32.into(),
 				expiry_block: 0u32.into(),
 				status: SwitchStatus::Active,
@@ -74,13 +91,17 @@ mod benchmarks {
 		let beneficiary: T::AccountId = account("beneficiary", 0, 0);
 		let interval: BlockNumberFor<T> = 100u32.into();
 		let current_block = frame_system::Pallet::<T>::block_number();
+		let mut beneficiaries = BoundedVec::new();
+		beneficiaries
+			.try_push(Beneficiary { account: beneficiary, amount: 100u32.into() })
+			.unwrap();
 		Switches::<T>::insert(
 			0u64,
 			Switch {
 				owner: caller.clone(),
-				beneficiary,
-				deposit: 1000u32.into(),
-				trigger_reward: 100u32.into(),
+				beneficiaries,
+				total_deposit: 100u32.into(),
+				trigger_reward: 10u32.into(),
 				block_interval: interval,
 				expiry_block: current_block + interval,
 				status: SwitchStatus::Active,

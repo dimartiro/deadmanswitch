@@ -292,6 +292,7 @@ impl pallet_deadman_switch::Config for Runtime {
 	type Currency = Balances;
 	type Balance = Balance;
 	type RuntimeHoldReason = RuntimeHoldReason;
+	type MaxBeneficiaries = ConstU32<10>;
 }
 
 // ── pallet-revive (EVM + PVM smart contracts) ──────────────────────────

@@ -45,11 +45,16 @@ impl pallet_balances::Config for Test {
 	type AccountStore = System;
 }
 
+parameter_types! {
+	pub const MaxBeneficiaries: u32 = 10;
+}
+
 impl crate::Config for Test {
 	type WeightInfo = ();
 	type Currency = Balances;
 	type Balance = u64;
 	type RuntimeHoldReason = RuntimeHoldReason;
+	type MaxBeneficiaries = MaxBeneficiaries;
 }
 
 /// Build genesis storage with funded accounts.
@@ -60,6 +65,7 @@ pub fn new_test_ext() -> TestState {
 			(1, 1_000_000),
 			(2, 1_000_000),
 			(3, 1_000_000),
+			(4, 1_000_000),
 		],
 		dev_accounts: None,
 	}
