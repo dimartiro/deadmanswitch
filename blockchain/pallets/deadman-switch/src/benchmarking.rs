@@ -16,8 +16,9 @@ mod benchmarks {
 		let beneficiary: T::AccountId = account("beneficiary", 0, 0);
 		let interval: BlockNumberFor<T> = 100u32.into();
 		let deposit: T::Balance = 1000u32.into();
+		let trigger_reward: T::Balance = 100u32.into();
 		#[extrinsic_call]
-		create_switch(RawOrigin::Signed(caller.clone()), beneficiary, interval, deposit);
+		create_switch(RawOrigin::Signed(caller.clone()), beneficiary, interval, deposit, trigger_reward);
 
 		assert!(Switches::<T>::contains_key(0));
 	}
@@ -34,6 +35,7 @@ mod benchmarks {
 				owner: caller.clone(),
 				beneficiary,
 				deposit: 1000u32.into(),
+				trigger_reward: 100u32.into(),
 				block_interval: interval,
 				expiry_block: current_block + interval,
 				status: SwitchStatus::Active,
@@ -54,6 +56,7 @@ mod benchmarks {
 				owner: caller.clone(),
 				beneficiary,
 				deposit: 1000u32.into(),
+				trigger_reward: 100u32.into(),
 				block_interval: 10u32.into(),
 				expiry_block: 0u32.into(),
 				status: SwitchStatus::Active,
@@ -77,6 +80,7 @@ mod benchmarks {
 				owner: caller.clone(),
 				beneficiary,
 				deposit: 1000u32.into(),
+				trigger_reward: 100u32.into(),
 				block_interval: interval,
 				expiry_block: current_block + interval,
 				status: SwitchStatus::Active,

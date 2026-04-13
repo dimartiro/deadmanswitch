@@ -3,9 +3,11 @@ use frame::testing_prelude::*;
 use frame::runtime::prelude::TokenError;
 
 const DEPOSIT: u64 = 100_000;
+const REWARD: u64 = 1_000;
+const TOTAL_HOLD: u64 = DEPOSIT + REWARD;
 
 #[test]
-fn create_switch_works() {
+fn create_switch_holds_deposit_plus_reward() {
 	new_test_ext().execute_with(|| {
 		let free_before = Balances::free_balance(1);
 		assert_ok!(DeadmanSwitch::create_switch(
@@ -13,14 +15,32 @@ fn create_switch_works() {
 			2,
 			10,
 			DEPOSIT,
+			REWARD,
 		));
 		let switch = Switches::<Test>::get(0).unwrap();
 		assert_eq!(switch.owner, 1);
 		assert_eq!(switch.beneficiary, 2);
 		assert_eq!(switch.deposit, DEPOSIT);
+		assert_eq!(switch.trigger_reward, REWARD);
 		assert_eq!(switch.block_interval, 10);
 		assert_eq!(switch.status, SwitchStatus::Active);
-		// Funds are held
+		// deposit + trigger reward are held
+		assert_eq!(Balances::free_balance(1), free_before - TOTAL_HOLD);
+	});
+}
+
+#[test]
+fn create_switch_with_zero_reward() {
+	new_test_ext().execute_with(|| {
+		let free_before = Balances::free_balance(1);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1),
+			2,
+			10,
+			DEPOSIT,
+			0, // no reward
+		));
+		// Only deposit is held
 		assert_eq!(Balances::free_balance(1), free_before - DEPOSIT);
 	});
 }
@@ -29,7 +49,7 @@ fn create_switch_works() {
 fn create_switch_fails_with_zero_interval() {
 	new_test_ext().execute_with(|| {
 		assert_noop!(
-			DeadmanSwitch::create_switch(RuntimeOrigin::signed(1), 2, 0, DEPOSIT),
+			DeadmanSwitch::create_switch(RuntimeOrigin::signed(1), 2, 0, DEPOSIT, REWARD),
 			Error::<Test>::InvalidInterval,
 		);
 	});
@@ -39,7 +59,7 @@ fn create_switch_fails_with_zero_interval() {
 fn create_switch_fails_with_zero_deposit() {
 	new_test_ext().execute_with(|| {
 		assert_noop!(
-			DeadmanSwitch::create_switch(RuntimeOrigin::signed(1), 2, 10, 0),
+			DeadmanSwitch::create_switch(RuntimeOrigin::signed(1), 2, 10, 0, REWARD),
 			Error::<Test>::DepositTooLow,
 		);
 	});
@@ -49,7 +69,7 @@ fn create_switch_fails_with_zero_deposit() {
 fn create_switch_fails_if_beneficiary_is_owner() {
 	new_test_ext().execute_with(|| {
 		assert_noop!(
-			DeadmanSwitch::create_switch(RuntimeOrigin::signed(1), 1, 10, DEPOSIT),
+			DeadmanSwitch::create_switch(RuntimeOrigin::signed(1), 1, 10, DEPOSIT, REWARD),
 			Error::<Test>::BeneficiaryIsOwner,
 		);
 	});
@@ -59,7 +79,7 @@ fn create_switch_fails_if_beneficiary_is_owner() {
 fn create_switch_fails_if_insufficient_balance() {
 	new_test_ext().execute_with(|| {
 		assert_noop!(
-			DeadmanSwitch::create_switch(RuntimeOrigin::signed(1), 2, 10, 10_000_000),
+			DeadmanSwitch::create_switch(RuntimeOrigin::signed(1), 2, 10, 10_000_000, REWARD),
 			TokenError::FundsUnavailable,
 		);
 	});
@@ -70,17 +90,12 @@ fn heartbeat_resets_expiry_block() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			2,
-			10,
-			DEPOSIT,
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, REWARD,
 		));
-		// expiry_block = 1 + 10 = 11
 
 		System::set_block_number(5);
 		assert_ok!(DeadmanSwitch::heartbeat(RuntimeOrigin::signed(1), 0));
 		let switch = Switches::<Test>::get(0).unwrap();
-		// new expiry_block = 5 + 10 = 15
 		assert_eq!(switch.expiry_block, 15);
 	});
 }
@@ -89,10 +104,7 @@ fn heartbeat_resets_expiry_block() {
 fn heartbeat_fails_if_not_owner() {
 	new_test_ext().execute_with(|| {
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			2,
-			10,
-			DEPOSIT,
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, REWARD,
 		));
 		assert_noop!(
 			DeadmanSwitch::heartbeat(RuntimeOrigin::signed(2), 0),
@@ -106,12 +118,8 @@ fn heartbeat_fails_if_expired() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			2,
-			10,
-			DEPOSIT,
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, REWARD,
 		));
-		// expiry_block = 11, move past it
 		System::set_block_number(12);
 		assert_noop!(
 			DeadmanSwitch::heartbeat(RuntimeOrigin::signed(1), 0),
@@ -121,27 +129,63 @@ fn heartbeat_fails_if_expired() {
 }
 
 #[test]
-fn trigger_works_after_expiry_block() {
+fn trigger_sends_deposit_to_beneficiary_and_reward_to_caller() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
-		let beneficiary_balance_before = Balances::free_balance(2);
+		let beneficiary_before = Balances::free_balance(2);
+		let caller_before = Balances::free_balance(3);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			2,
-			10,
-			DEPOSIT,
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, REWARD,
 		));
-		// expiry_block = 11
 		System::set_block_number(12);
-		// Anyone (account 3) can trigger
+		// Account 3 triggers and earns the reward
 		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
 		let switch = Switches::<Test>::get(0).unwrap();
 		assert_eq!(switch.status, SwitchStatus::Executed);
-		// Beneficiary received the funds
-		assert_eq!(
-			Balances::free_balance(2),
-			beneficiary_balance_before + DEPOSIT
-		);
+		// Beneficiary gets the full deposit
+		assert_eq!(Balances::free_balance(2), beneficiary_before + DEPOSIT);
+		// Caller gets the trigger reward
+		assert_eq!(Balances::free_balance(3), caller_before + REWARD);
+	});
+}
+
+#[test]
+fn trigger_with_zero_reward() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		let beneficiary_before = Balances::free_balance(2);
+		let caller_before = Balances::free_balance(3);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, 0,
+		));
+		System::set_block_number(12);
+		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
+		// Beneficiary gets the full deposit
+		assert_eq!(Balances::free_balance(2), beneficiary_before + DEPOSIT);
+		// Caller gets nothing
+		assert_eq!(Balances::free_balance(3), caller_before);
+	});
+}
+
+#[test]
+fn owner_can_trigger_own_switch_and_receives_reward() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		let owner_before = Balances::free_balance(1);
+		let beneficiary_before = Balances::free_balance(2);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, REWARD,
+		));
+		// Owner held deposit + reward
+		assert_eq!(Balances::free_balance(1), owner_before - TOTAL_HOLD);
+
+		System::set_block_number(12);
+		// Owner triggers their own switch
+		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(1), 0));
+		// Owner gets the reward back (lost the deposit)
+		assert_eq!(Balances::free_balance(1), owner_before - DEPOSIT);
+		// Beneficiary gets the full deposit
+		assert_eq!(Balances::free_balance(2), beneficiary_before + DEPOSIT);
 	});
 }
 
@@ -150,10 +194,7 @@ fn trigger_fails_before_expiry_block() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			2,
-			10,
-			DEPOSIT,
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, REWARD,
 		));
 		System::set_block_number(5);
 		assert_noop!(
@@ -168,10 +209,7 @@ fn trigger_fails_if_already_executed() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			2,
-			10,
-			DEPOSIT,
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, REWARD,
 		));
 		System::set_block_number(12);
 		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
@@ -183,20 +221,17 @@ fn trigger_fails_if_already_executed() {
 }
 
 #[test]
-fn cancel_works_and_returns_funds() {
+fn cancel_returns_deposit_plus_reward() {
 	new_test_ext().execute_with(|| {
 		let free_before = Balances::free_balance(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			2,
-			10,
-			DEPOSIT,
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, REWARD,
 		));
-		assert_eq!(Balances::free_balance(1), free_before - DEPOSIT);
+		assert_eq!(Balances::free_balance(1), free_before - TOTAL_HOLD);
 
 		assert_ok!(DeadmanSwitch::cancel(RuntimeOrigin::signed(1), 0));
 		assert!(Switches::<Test>::get(0).is_none());
-		// Funds returned
+		// Full amount returned (deposit + reward)
 		assert_eq!(Balances::free_balance(1), free_before);
 	});
 }
@@ -205,10 +240,7 @@ fn cancel_works_and_returns_funds() {
 fn cancel_fails_if_not_owner() {
 	new_test_ext().execute_with(|| {
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			2,
-			10,
-			DEPOSIT,
+			RuntimeOrigin::signed(1), 2, 10, DEPOSIT, REWARD,
 		));
 		assert_noop!(
 			DeadmanSwitch::cancel(RuntimeOrigin::signed(2), 0),
@@ -221,7 +253,7 @@ fn cancel_fails_if_not_owner() {
 fn unsigned_origin_is_rejected() {
 	new_test_ext().execute_with(|| {
 		assert_noop!(
-			DeadmanSwitch::create_switch(RuntimeOrigin::none(), 2, 10, DEPOSIT),
+			DeadmanSwitch::create_switch(RuntimeOrigin::none(), 2, 10, DEPOSIT, REWARD),
 			DispatchError::BadOrigin,
 		);
 	});

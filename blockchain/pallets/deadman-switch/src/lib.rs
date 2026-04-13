@@ -2,14 +2,15 @@
 //!
 //! A deadman switch pallet that allows users to lock funds with a periodic
 //! heartbeat requirement. If the owner fails to send a heartbeat before the
-//! expiry_block, anyone can trigger the switch to release funds to the beneficiary.
+//! expiry block, anyone can trigger the switch to release funds to the beneficiary.
 //!
 //! ## Overview
 //!
-//! - `create_switch`: Lock a deposit and set a beneficiary + block interval
-//! - `heartbeat`: Owner resets the expiry_block (proves they are still active)
-//! - `trigger`: Anyone calls this after expiry_block passes to release funds
-//! - `cancel`: Owner cancels and reclaims funds (only while active)
+//! - `create_switch`: Lock deposit + trigger reward and set a beneficiary + block interval
+//! - `heartbeat`: Owner resets the expiry block (proves they are still active)
+//! - `trigger`: Anyone calls this after expiry block passes — deposit goes to beneficiary,
+//!   reward goes to the caller as economic incentive
+//! - `cancel`: Owner cancels and reclaims all held funds (only while active)
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -78,11 +79,13 @@ pub mod pallet {
 		pub owner: T::AccountId,
 		/// The account that receives funds when the switch triggers.
 		pub beneficiary: T::AccountId,
-		/// The amount of funds locked.
+		/// The amount of funds destined for the beneficiary.
 		pub deposit: T::Balance,
+		/// The reward offered to whoever triggers the switch.
+		pub trigger_reward: T::Balance,
 		/// The block interval for the heartbeat period.
 		pub block_interval: BlockNumberFor<T>,
-		/// The block number expiry_block — heartbeat must arrive before this.
+		/// The block number by which the owner must send a heartbeat.
 		pub expiry_block: BlockNumberFor<T>,
 		/// Current status.
 		pub status: SwitchStatus,
@@ -106,15 +109,18 @@ pub mod pallet {
 			owner: T::AccountId,
 			beneficiary: T::AccountId,
 			deposit: T::Balance,
+			trigger_reward: T::Balance,
 			expiry_block: BlockNumberFor<T>,
 		},
-		/// The owner sent a heartbeat, resetting the expiry_block.
+		/// The owner sent a heartbeat, resetting the expiry block.
 		HeartbeatReceived { id: SwitchId, new_expiry_block: BlockNumberFor<T> },
-		/// The switch was triggered and funds released to the beneficiary.
+		/// The switch was triggered — deposit sent to beneficiary, reward to caller.
 		SwitchTriggered {
 			id: SwitchId,
+			caller: T::AccountId,
 			beneficiary: T::AccountId,
-			amount: T::Balance,
+			deposit: T::Balance,
+			caller_reward: T::Balance,
 		},
 		/// The switch was cancelled by the owner.
 		SwitchCancelled { id: SwitchId, returned: T::Balance },
@@ -128,7 +134,7 @@ pub mod pallet {
 		NotOwner,
 		/// The switch is not in Active status.
 		SwitchNotActive,
-		/// The switch has not yet expired (expiry_block not passed).
+		/// The switch has not yet expired (expiry block not passed).
 		NotYetExpired,
 		/// The block interval must be greater than zero.
 		InvalidInterval,
@@ -142,8 +148,9 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// Create a new deadman switch.
 		///
-		/// The caller becomes the owner. Funds are held from the caller's
-		/// account. The expiry_block is set to `current_block + block_interval`.
+		/// Holds `deposit + trigger_reward` from the caller. The deposit goes
+		/// to the beneficiary on trigger, and the reward goes to whoever
+		/// calls trigger as economic incentive.
 		#[pallet::call_index(0)]
 		#[pallet::weight(T::WeightInfo::create_switch())]
 		pub fn create_switch(
@@ -151,14 +158,17 @@ pub mod pallet {
 			beneficiary: T::AccountId,
 			block_interval: BlockNumberFor<T>,
 			deposit: T::Balance,
+			trigger_reward: T::Balance,
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			ensure!(block_interval > Zero::zero(), Error::<T>::InvalidInterval);
 			ensure!(deposit > Zero::zero(), Error::<T>::DepositTooLow);
 			ensure!(beneficiary != who, Error::<T>::BeneficiaryIsOwner);
 
-			// Hold funds from the owner
-			T::Currency::hold(&HoldReason::DeadmanSwitch.into(), &who, deposit)?;
+			let total_hold = deposit + trigger_reward;
+
+			// Hold deposit + trigger reward from the owner
+			T::Currency::hold(&HoldReason::DeadmanSwitch.into(), &who, total_hold)?;
 
 			let current_block = frame_system::Pallet::<T>::block_number();
 			let expiry_block = current_block + block_interval;
@@ -172,6 +182,7 @@ pub mod pallet {
 					owner: who.clone(),
 					beneficiary: beneficiary.clone(),
 					deposit,
+					trigger_reward,
 					block_interval,
 					expiry_block,
 					status: SwitchStatus::Active,
@@ -183,15 +194,16 @@ pub mod pallet {
 				owner: who,
 				beneficiary,
 				deposit,
+				trigger_reward,
 				expiry_block,
 			});
 			Ok(())
 		}
 
-		/// Send a heartbeat to reset the switch expiry_block.
+		/// Send a heartbeat to reset the switch expiry block.
 		///
 		/// Only the owner can call this. The switch must be active and
-		/// the expiry_block must not have passed yet.
+		/// the expiry block must not have passed yet.
 		#[pallet::call_index(1)]
 		#[pallet::weight(T::WeightInfo::heartbeat())]
 		pub fn heartbeat(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
@@ -212,14 +224,15 @@ pub mod pallet {
 			Ok(())
 		}
 
-		/// Trigger an expired switch, releasing funds to the beneficiary.
+		/// Trigger an expired switch.
 		///
-		/// Anyone can call this once the expiry_block has passed. The held funds
-		/// are released from the owner and transferred to the beneficiary.
+		/// Anyone can call this once the expiry block has passed. The full
+		/// deposit is transferred to the beneficiary, and the trigger reward
+		/// is transferred to the caller.
 		#[pallet::call_index(2)]
 		#[pallet::weight(T::WeightInfo::trigger())]
 		pub fn trigger(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
-			let _who = ensure_signed(origin)?;
+			let caller = ensure_signed(origin)?;
 			let mut switch = Switches::<T>::get(id).ok_or(Error::<T>::SwitchNotFound)?;
 
 			ensure!(switch.status == SwitchStatus::Active, Error::<T>::SwitchNotActive);
@@ -227,33 +240,50 @@ pub mod pallet {
 			let current_block = frame_system::Pallet::<T>::block_number();
 			ensure!(current_block > switch.expiry_block, Error::<T>::NotYetExpired);
 
-			// Transfer directly from hold to beneficiary (atomic, no intermediate free state)
-			let amount = switch.deposit;
+			let deposit = switch.deposit;
+			let caller_reward = switch.trigger_reward;
+
+			// Transfer full deposit from hold to beneficiary
 			T::Currency::transfer_on_hold(
 				&HoldReason::DeadmanSwitch.into(),
 				&switch.owner,
 				&switch.beneficiary,
-				amount,
+				deposit,
 				frame::traits::tokens::Precision::BestEffort,
 				frame::traits::tokens::Restriction::Free,
 				frame::traits::tokens::Fortitude::Polite,
 			)?;
+
+			// Transfer trigger reward from hold to caller
+			if caller_reward > Zero::zero() {
+				T::Currency::transfer_on_hold(
+					&HoldReason::DeadmanSwitch.into(),
+					&switch.owner,
+					&caller,
+					caller_reward,
+					frame::traits::tokens::Precision::BestEffort,
+					frame::traits::tokens::Restriction::Free,
+					frame::traits::tokens::Fortitude::Polite,
+				)?;
+			}
 
 			switch.status = SwitchStatus::Executed;
 			Switches::<T>::insert(id, switch.clone());
 
 			Self::deposit_event(Event::SwitchTriggered {
 				id,
+				caller,
 				beneficiary: switch.beneficiary,
-				amount,
+				deposit,
+				caller_reward,
 			});
 			Ok(())
 		}
 
-		/// Cancel an active switch and reclaim funds.
+		/// Cancel an active switch and reclaim all held funds.
 		///
 		/// Only the owner can cancel. The switch must be active.
-		/// Held funds are released back to the owner.
+		/// Both the deposit and trigger reward are released back to the owner.
 		#[pallet::call_index(3)]
 		#[pallet::weight(T::WeightInfo::cancel())]
 		pub fn cancel(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
@@ -263,8 +293,8 @@ pub mod pallet {
 			ensure!(switch.owner == who, Error::<T>::NotOwner);
 			ensure!(switch.status == SwitchStatus::Active, Error::<T>::SwitchNotActive);
 
-			// Release held funds back to the owner
-			let returned = switch.deposit;
+			// Release deposit + trigger reward back to the owner
+			let returned = switch.deposit + switch.trigger_reward;
 			T::Currency::release(
 				&HoldReason::DeadmanSwitch.into(),
 				&who,
