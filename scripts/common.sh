@@ -8,7 +8,7 @@ set -euo pipefail
 COMMON_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$COMMON_DIR/.." && pwd)"
 CHAIN_SPEC="$ROOT_DIR/blockchain/chain_spec.json"
-RUNTIME_WASM="$ROOT_DIR/target/release/wbuild/stack-template-runtime/stack_template_runtime.compact.compressed.wasm"
+RUNTIME_WASM="$ROOT_DIR/target/release/wbuild/deadman-switch-runtime/deadman_switch_runtime.compact.compressed.wasm"
 STACK_PORT_OFFSET="${STACK_PORT_OFFSET:-0}"
 STACK_SUBSTRATE_RPC_PORT="${STACK_SUBSTRATE_RPC_PORT:-$((9944 + STACK_PORT_OFFSET))}"
 STACK_ETH_RPC_PORT="${STACK_ETH_RPC_PORT:-$((8545 + STACK_PORT_OFFSET))}"
@@ -177,15 +177,15 @@ validate_full_stack_ports() {
 }
 
 build_runtime() {
-    cargo build -p stack-template-runtime --release
+    cargo build -p deadman-switch-runtime --release
 }
 
 generate_chain_spec() {
     chain-spec-builder \
         -c "$CHAIN_SPEC" \
         create \
-        --chain-name "Polkadot Stack Template" \
-        --chain-id "polkadot-stack-template" \
+        --chain-name "Deadman Switch" \
+        --chain-id "deadman-switch" \
         -t development \
         --relay-chain rococo-local \
         --para-id 1000 \

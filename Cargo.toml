@@ -2,20 +2,17 @@
 resolver = "2"
 members = [
 	"blockchain/runtime",
-	"blockchain/pallets/template",
-	"cli",
+	"blockchain/pallets/deadman-switch",
 ]
 
 [workspace.package]
 license = "MIT"
-authors = ["Polkadot Stack Template Contributors"]
-homepage = "https://github.com/parity-Asia/polkadot-stack-template"
-repository = "https://github.com/parity-Asia/polkadot-stack-template.git"
+authors = ["Diego"]
 edition = "2021"
 
 [workspace.dependencies]
 # Local crates
-pallet-template = { path = "./blockchain/pallets/template", default-features = false }
+pallet-deadman-switch = { path = "./blockchain/pallets/deadman-switch", default-features = false }
 
 # Common dependencies
 codec = { version = "3.7.4", default-features = false, package = "parity-scale-codec" }
@@ -39,12 +36,6 @@ frame = { version = "0.14.0", default-features = false, package = "polkadot-sdk-
 sp-core = { version = "39.0.0" }
 sp-io = { version = "44.0.0", default-features = false }
 sp-statement-store = { version = "24.0.0" }
-
-# CLI dependencies
-subxt = { version = "0.38" }
-subxt-signer = { version = "0.38", features = ["sr25519", "subxt"] }
-tokio = { version = "1", features = ["full"] }
-alloy = { version = "1.8", features = ["contract", "provider-http", "signer-local"] }
 
 # Patch pallet-revive-proc-macro to 0.7.1 from polkadot-sdk stable2512-3.
 # Version 0.7.2 on crates.io has a compilation bug with #[stable] host function attributes.

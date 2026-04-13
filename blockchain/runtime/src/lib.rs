@@ -250,7 +250,7 @@ mod runtime {
 	pub type Statement = pallet_statement;
 
 	#[runtime::pallet_index(50)]
-	pub type TemplatePallet = pallet_template;
+	pub type DeadmanSwitchPallet = pallet_deadman_switch;
 
 	// Smart contracts (EVM + PVM via pallet-revive)
 	#[runtime::pallet_index(90)]
@@ -435,13 +435,13 @@ pallet_revive::impl_runtime_apis_plus_revive_traits!(
 
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: alloc::borrow::Cow::Borrowed("stack-template-runtime"),
-	impl_name: alloc::borrow::Cow::Borrowed("stack-template-runtime"),
+	spec_name: alloc::borrow::Cow::Borrowed("deadman-switch-runtime"),
+	impl_name: alloc::borrow::Cow::Borrowed("deadman-switch-runtime"),
 	authoring_version: 1,
-	spec_version: 3,
+	spec_version: 1,
 	impl_version: 0,
 	apis: RUNTIME_API_VERSIONS,
-	transaction_version: 2,
+	transaction_version: 1,
 	system_version: 1,
 };
 

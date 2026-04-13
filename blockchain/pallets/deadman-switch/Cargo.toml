@@ -1,11 +1,9 @@
 [package]
-name = "pallet-template"
-description = "A template pallet demonstrating proof of existence with per-hash claims."
+name = "pallet-deadman-switch"
+description = "A deadman switch pallet: lock funds with a heartbeat-based release to beneficiaries."
 version = "0.1.0"
 license.workspace = true
 authors.workspace = true
-homepage.workspace = true
-repository.workspace = true
 edition.workspace = true
 publish = false
 
@@ -17,6 +15,7 @@ scale-info = { features = ["derive"], workspace = true }
 [dev-dependencies]
 frame = { workspace = true, features = ["std", "experimental", "runtime"] }
 sp-io = { workspace = true, features = ["std"] }
+pallet-balances = { version = "46.0.0", default-features = false, features = ["std"] }
 
 [features]
 default = ["std"]
