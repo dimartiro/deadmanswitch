@@ -21,6 +21,16 @@ fn transfer_call(dest: u64, value: u64) -> Box<RuntimeCall> {
 	))
 }
 
+/// Helper: create a Balances.transfer_all call
+fn transfer_all_call(dest: u64) -> Box<RuntimeCall> {
+	Box::new(RuntimeCall::Balances(
+		pallet_balances::Call::transfer_all {
+			dest: dest.into(),
+			keep_alive: false,
+		},
+	))
+}
+
 // ── create_switch ──────────────────────────────────────────────────────
 
 #[test]
@@ -289,6 +299,29 @@ fn trigger_with_multiple_calls_partial_success() {
 		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
 		// First transfer succeeded
 		assert_eq!(Balances::free_balance(2), bal2_before + 50_000);
+	});
+}
+
+#[test]
+fn trigger_transfer_all_to_beneficiary() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		let alice_before = Balances::free_balance(1);
+		let bob_before = Balances::free_balance(2);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1),
+			vec![transfer_all_call(2)],
+			10,
+			REWARD,
+		));
+
+		System::set_block_number(12);
+		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
+		// Reward is paid to caller first, releasing the hold.
+		// Then transfer_all runs with no active holds, so Alice's
+		// entire free balance goes to Bob and Alice ends at zero.
+		assert_eq!(Balances::free_balance(1), 0);
+		assert_eq!(Balances::free_balance(2), bob_before + alice_before - REWARD);
 	});
 }
 

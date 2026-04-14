@@ -26,6 +26,8 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+extern crate alloc;
+
 pub use pallet::*;
 
 #[cfg(test)]
@@ -41,6 +43,7 @@ mod benchmarking;
 
 #[frame::pallet]
 pub mod pallet {
+	use alloc::{boxed::Box, vec::Vec};
 	use crate::weights::WeightInfo;
 	use frame::prelude::*;
 	use frame::traits::fungible::{Inspect, Mutate, MutateHold};
@@ -315,6 +318,22 @@ pub mod pallet {
 			let current_block = frame_system::Pallet::<T>::block_number();
 			ensure!(current_block > switch.expiry_block, Error::<T>::NotYetExpired);
 
+			// Transfer trigger reward from hold to caller FIRST,
+			// so the owner has no active holds when calls execute.
+			// This ensures transfer_all and similar calls work correctly.
+			let caller_reward = switch.trigger_reward;
+			if caller_reward > Zero::zero() {
+				T::Currency::transfer_on_hold(
+					&HoldReason::DeadmanSwitch.into(),
+					&switch.owner,
+					&caller,
+					caller_reward,
+					frame::traits::tokens::Precision::BestEffort,
+					frame::traits::tokens::Restriction::Free,
+					frame::traits::tokens::Fortitude::Polite,
+				)?;
+			}
+
 			// Execute stored calls as the owner (best-effort)
 			let mut calls_executed = 0u32;
 			let mut calls_failed = 0u32;
@@ -348,20 +367,6 @@ pub mod pallet {
 						},
 					}
 				}
-			}
-
-			// Transfer trigger reward from hold to caller
-			let caller_reward = switch.trigger_reward;
-			if caller_reward > Zero::zero() {
-				T::Currency::transfer_on_hold(
-					&HoldReason::DeadmanSwitch.into(),
-					&switch.owner,
-					&caller,
-					caller_reward,
-					frame::traits::tokens::Precision::BestEffort,
-					frame::traits::tokens::Restriction::Free,
-					frame::traits::tokens::Fortitude::Polite,
-				)?;
 			}
 
 			switch.status = SwitchStatus::Executed;
