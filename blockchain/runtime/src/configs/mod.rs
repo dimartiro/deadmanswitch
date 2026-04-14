@@ -23,8 +23,9 @@ use parachains_common::message_queue::{NarrowOriginToSibling, ParaIdToSibling};
 use polkadot_runtime_common::{
 	xcm_sender::NoPriceForMessageDelivery, BlockHashCount, SlowAdjustingFeeUpdate,
 };
+use codec::{Encode, Decode, MaxEncodedLen};
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_runtime::Perbill;
+use sp_runtime::{traits::BlakeTwo256, Perbill, RuntimeDebug};
 use sp_version::RuntimeVersion;
 use xcm::latest::prelude::BodyId;
 
@@ -292,7 +293,94 @@ impl pallet_deadman_switch::Config for Runtime {
 	type Currency = Balances;
 	type Balance = Balance;
 	type RuntimeHoldReason = RuntimeHoldReason;
-	type MaxBeneficiaries = ConstU32<10>;
+	type RuntimeCall = RuntimeCall;
+	type MaxCalls = ConstU32<5>;
+	type MaxCallSize = ConstU32<1024>;
+}
+
+// ── pallet-proxy ──────────────────────────────────────────────────────
+
+/// Proxy types available in the runtime.
+#[derive(
+	Copy,
+	Clone,
+	Eq,
+	PartialEq,
+	Ord,
+	PartialOrd,
+	Encode,
+	Decode,
+	codec::DecodeWithMemTracking,
+	RuntimeDebug,
+	MaxEncodedLen,
+	scale_info::TypeInfo,
+)]
+pub enum ProxyType {
+	/// Unrestricted — can execute any call.
+	Any,
+	/// Can only execute balance transfers.
+	Transfers,
+}
+
+impl Default for ProxyType {
+	fn default() -> Self {
+		Self::Any
+	}
+}
+
+impl frame_support::traits::InstanceFilter<RuntimeCall> for ProxyType {
+	fn filter(&self, _c: &RuntimeCall) -> bool {
+		match self {
+			ProxyType::Any => true,
+			ProxyType::Transfers => {
+				matches!(
+					_c,
+					RuntimeCall::Balances(..)
+				)
+			},
+		}
+	}
+}
+
+parameter_types! {
+	pub const ProxyDepositBase: Balance = EXISTENTIAL_DEPOSIT;
+	pub const ProxyDepositFactor: Balance = EXISTENTIAL_DEPOSIT;
+	pub const AnnouncementDepositBase: Balance = EXISTENTIAL_DEPOSIT;
+	pub const AnnouncementDepositFactor: Balance = EXISTENTIAL_DEPOSIT;
+}
+
+impl pallet_proxy::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type Currency = Balances;
+	type ProxyType = ProxyType;
+	type ProxyDepositBase = ProxyDepositBase;
+	type ProxyDepositFactor = ProxyDepositFactor;
+	type MaxProxies = ConstU32<16>;
+	type WeightInfo = ();
+	type MaxPending = ConstU32<16>;
+	type CallHasher = BlakeTwo256;
+	type AnnouncementDepositBase = AnnouncementDepositBase;
+	type AnnouncementDepositFactor = AnnouncementDepositFactor;
+	type BlockNumberProvider = System;
+}
+
+// ── pallet-multisig ───────────────────────────────────────────────────
+
+parameter_types! {
+	pub const MultisigDepositBase: Balance = EXISTENTIAL_DEPOSIT;
+	pub const MultisigDepositFactor: Balance = EXISTENTIAL_DEPOSIT;
+}
+
+impl pallet_multisig::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type Currency = Balances;
+	type DepositBase = MultisigDepositBase;
+	type DepositFactor = MultisigDepositFactor;
+	type MaxSignatories = ConstU32<10>;
+	type WeightInfo = ();
+	type BlockNumberProvider = System;
 }
 
 // ── pallet-revive (EVM + PVM smart contracts) ──────────────────────────

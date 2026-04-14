@@ -8945,6 +8945,8 @@ name = "pallet-deadman-switch"
 version = "0.1.0"
 dependencies = [
  "pallet-balances",
+ "pallet-multisig",
+ "pallet-proxy",
  "parity-scale-codec",
  "polkadot-sdk-frame",
  "scale-info",

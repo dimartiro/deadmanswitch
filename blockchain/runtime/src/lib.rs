@@ -252,6 +252,11 @@ mod runtime {
 	#[runtime::pallet_index(50)]
 	pub type DeadmanSwitchPallet = pallet_deadman_switch;
 
+	#[runtime::pallet_index(60)]
+	pub type Proxy = pallet_proxy;
+	#[runtime::pallet_index(61)]
+	pub type Multisig = pallet_multisig;
+
 	// Smart contracts (EVM + PVM via pallet-revive)
 	#[runtime::pallet_index(90)]
 	pub type Revive = pallet_revive;

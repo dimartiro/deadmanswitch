@@ -16,6 +16,8 @@ scale-info = { features = ["derive"], workspace = true }
 frame = { workspace = true, features = ["std", "experimental", "runtime"] }
 sp-io = { workspace = true, features = ["std"] }
 pallet-balances = { version = "46.0.0", default-features = false, features = ["std"] }
+pallet-proxy = { version = "45.0.0", default-features = false, features = ["std"] }
+pallet-multisig = { version = "45.0.0", default-features = false, features = ["std"] }
 
 [features]
 default = ["std"]

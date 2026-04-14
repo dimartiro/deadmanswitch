@@ -5,6 +5,37 @@ use frame::{
 	testing_prelude::*,
 };
 
+/// Proxy type for the mock runtime.
+#[derive(
+	Copy,
+	Clone,
+	Eq,
+	PartialEq,
+	Ord,
+	PartialOrd,
+	Encode,
+	Decode,
+	codec::DecodeWithMemTracking,
+	RuntimeDebug,
+	MaxEncodedLen,
+	scale_info::TypeInfo,
+)]
+pub enum ProxyType {
+	Any,
+}
+
+impl Default for ProxyType {
+	fn default() -> Self {
+		Self::Any
+	}
+}
+
+impl frame::traits::InstanceFilter<RuntimeCall> for ProxyType {
+	fn filter(&self, _c: &RuntimeCall) -> bool {
+		true
+	}
+}
+
 // Configure a mock runtime to test the pallet.
 #[frame_construct_runtime]
 mod test_runtime {
@@ -29,6 +60,10 @@ mod test_runtime {
 	pub type Balances = pallet_balances;
 	#[runtime::pallet_index(2)]
 	pub type DeadmanSwitch = crate;
+	#[runtime::pallet_index(3)]
+	pub type Proxy = pallet_proxy;
+	#[runtime::pallet_index(4)]
+	pub type Multisig = pallet_multisig;
 }
 
 #[derive_impl(frame_system::config_preludes::TestDefaultConfig)]
@@ -46,7 +81,8 @@ impl pallet_balances::Config for Test {
 }
 
 parameter_types! {
-	pub const MaxBeneficiaries: u32 = 10;
+	pub const MaxCalls: u32 = 5;
+	pub const MaxCallSize: u32 = 512;
 }
 
 impl crate::Config for Test {
@@ -54,7 +90,36 @@ impl crate::Config for Test {
 	type Currency = Balances;
 	type Balance = u64;
 	type RuntimeHoldReason = RuntimeHoldReason;
-	type MaxBeneficiaries = MaxBeneficiaries;
+	type RuntimeCall = RuntimeCall;
+	type MaxCalls = MaxCalls;
+	type MaxCallSize = MaxCallSize;
+}
+
+impl pallet_proxy::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type Currency = Balances;
+	type ProxyType = ProxyType;
+	type ProxyDepositBase = ConstU64<1>;
+	type ProxyDepositFactor = ConstU64<1>;
+	type MaxProxies = ConstU32<16>;
+	type WeightInfo = ();
+	type MaxPending = ConstU32<16>;
+	type CallHasher = frame::deps::sp_runtime::traits::BlakeTwo256;
+	type AnnouncementDepositBase = ConstU64<1>;
+	type AnnouncementDepositFactor = ConstU64<1>;
+	type BlockNumberProvider = System;
+}
+
+impl pallet_multisig::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type Currency = Balances;
+	type DepositBase = ConstU64<1>;
+	type DepositFactor = ConstU64<1>;
+	type MaxSignatories = ConstU32<10>;
+	type WeightInfo = ();
+	type BlockNumberProvider = System;
 }
 
 /// Build genesis storage with funded accounts.
