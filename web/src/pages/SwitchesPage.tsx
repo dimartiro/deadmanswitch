@@ -123,7 +123,7 @@ export default function SwitchesPage() {
 			<div className="space-y-2">
 				<h1 className="page-title">Dashboard</h1>
 				<p className="text-text-secondary">
-					View all deadman switches. Send heartbeats, trigger expired ones, or
+					View all dedman switches. Send heartbeats, trigger expired ones, or
 					cancel your own.
 				</p>
 			</div>

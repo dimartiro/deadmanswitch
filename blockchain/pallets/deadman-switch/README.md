@@ -1,4 +1,4 @@
-# Deadman Switch Pallet
+# Dedman Switch Pallet
 
 A FRAME pallet that lets users store arbitrary runtime calls that execute on their behalf if they fail to send periodic heartbeats. Calls are dispatched as `Signed(owner)` on a best-effort basis — each may succeed or fail independently.
 

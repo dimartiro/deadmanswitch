@@ -33,17 +33,9 @@ export default function App() {
 			<nav className="sticky top-0 z-50 border-b border-white/[0.06] backdrop-blur-xl bg-surface-950/80">
 				<div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-6">
 					<Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-						<div className="w-7 h-7 rounded-lg bg-gradient-to-br from-polka-500 to-polka-700 flex items-center justify-center shadow-glow transition-shadow group-hover:shadow-glow-lg">
-							<svg viewBox="0 0 16 16" className="w-4 h-4" fill="white">
-								<circle cx="8" cy="3" r="2" />
-								<circle cx="3" cy="8" r="2" />
-								<circle cx="13" cy="8" r="2" />
-								<circle cx="8" cy="13" r="2" />
-								<circle cx="8" cy="8" r="1.5" opacity="0.6" />
-							</svg>
-						</div>
+						<img src="/ded.png" alt="Dedman Switch" className="w-7 h-7 rounded-lg shadow-glow transition-shadow group-hover:shadow-glow-lg" />
 						<span className="text-base font-semibold text-text-primary font-display tracking-tight">
-							Deadman Switch
+							Dedman Switch
 						</span>
 					</Link>
 

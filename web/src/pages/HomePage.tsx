@@ -46,7 +46,7 @@ export default function HomePage() {
 			{/* Hero */}
 			<div className="space-y-3">
 				<h1 className="page-title">
-					Deadman{" "}
+					Dedman{" "}
 					<span className="bg-gradient-to-r from-polka-400 to-polka-600 bg-clip-text text-transparent">
 						Switch
 					</span>
@@ -113,7 +113,7 @@ export default function HomePage() {
 						Dashboard
 					</h3>
 					<p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-						View all deadman switches, send heartbeats, or trigger expired ones
+						View all dedman switches, send heartbeats, or trigger expired ones
 						to earn rewards.
 					</p>
 				</a>
@@ -122,7 +122,7 @@ export default function HomePage() {
 						Create
 					</h3>
 					<p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-						Set up a new deadman switch with custom calls, interval, and trigger
+						Set up a new dedman switch with custom calls, interval, and trigger
 						reward.
 					</p>
 				</a>
