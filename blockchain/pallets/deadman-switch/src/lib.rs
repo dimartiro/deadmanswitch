@@ -168,13 +168,6 @@ pub mod pallet {
 		},
 		/// The switch was cancelled by the owner.
 		SwitchCancelled { id: SwitchId, returned: T::Balance },
-		/// The switch was updated by the owner.
-		SwitchUpdated {
-			id: SwitchId,
-			new_call_count: Option<u32>,
-			new_expiry_block: Option<BlockNumberFor<T>>,
-			new_trigger_reward: Option<T::Balance>,
-		},
 	}
 
 	#[pallet::error]
@@ -199,8 +192,6 @@ pub mod pallet {
 		TooManyCalls,
 		/// A call exceeds the maximum encoded size.
 		CallTooLarge,
-		/// Nothing to update — all fields are None.
-		NothingToUpdate,
 	}
 
 	#[pallet::call]
@@ -422,107 +413,5 @@ pub mod pallet {
 			Ok(())
 		}
 
-		/// Update an active switch.
-		///
-		/// Only the owner can update. At least one field must be provided.
-		/// - `new_calls`: replaces the stored calls entirely.
-		/// - `new_block_interval`: updates the interval and recalculates expiry
-		///   from the current block.
-		/// - `new_trigger_reward`: adjusts the held reward (holds more or
-		///   releases the difference).
-		#[pallet::call_index(4)]
-		#[pallet::weight(T::WeightInfo::update_switch())]
-		pub fn update_switch(
-			origin: OriginFor<T>,
-			id: SwitchId,
-			new_calls: Option<Vec<Box<<T as Config>::RuntimeCall>>>,
-			new_block_interval: Option<BlockNumberFor<T>>,
-			new_trigger_reward: Option<T::Balance>,
-		) -> DispatchResult {
-			let who = ensure_signed(origin)?;
-			let mut switch = Switches::<T>::get(id).ok_or(Error::<T>::SwitchNotFound)?;
-
-			ensure!(switch.owner == who, Error::<T>::NotOwner);
-			ensure!(switch.status == SwitchStatus::Active, Error::<T>::SwitchNotActive);
-			ensure!(
-				new_calls.is_some()
-					|| new_block_interval.is_some()
-					|| new_trigger_reward.is_some(),
-				Error::<T>::NothingToUpdate,
-			);
-
-			let mut event_call_count = None;
-			let mut event_expiry_block = None;
-			let mut event_trigger_reward = None;
-
-			// Update calls
-			if let Some(calls) = new_calls {
-				ensure!(!calls.is_empty(), Error::<T>::NoCalls);
-				ensure!(
-					calls.len() <= T::MaxCalls::get() as usize,
-					Error::<T>::TooManyCalls,
-				);
-				let mut encoded_calls = BoundedVec::new();
-				for call in &calls {
-					let encoded: BoundedVec<u8, T::MaxCallSize> = call
-						.encode()
-						.try_into()
-						.map_err(|_| Error::<T>::CallTooLarge)?;
-					encoded_calls
-						.try_push(encoded)
-						.map_err(|_| Error::<T>::TooManyCalls)?;
-				}
-				switch.call_count = encoded_calls.len() as u32;
-				SwitchCalls::<T>::insert(id, encoded_calls);
-				event_call_count = Some(switch.call_count);
-			}
-
-			// Update block interval and recalculate expiry
-			if let Some(interval) = new_block_interval {
-				ensure!(interval > Zero::zero(), Error::<T>::InvalidInterval);
-				let current_block = frame_system::Pallet::<T>::block_number();
-				let expiry_block = current_block
-					.checked_add(&interval)
-					.ok_or(Error::<T>::BlockIntervalTooLarge)?;
-				switch.block_interval = interval;
-				switch.expiry_block = expiry_block;
-				event_expiry_block = Some(expiry_block);
-			}
-
-			// Update trigger reward
-			if let Some(reward) = new_trigger_reward {
-				let old_reward = switch.trigger_reward;
-				if reward > old_reward {
-					// Hold the additional amount
-					let diff = reward - old_reward;
-					T::Currency::hold(
-						&HoldReason::DeadmanSwitch.into(),
-						&who,
-						diff,
-					)?;
-				} else if reward < old_reward {
-					// Release the difference
-					let diff = old_reward - reward;
-					T::Currency::release(
-						&HoldReason::DeadmanSwitch.into(),
-						&who,
-						diff,
-						frame::traits::tokens::Precision::BestEffort,
-					)?;
-				}
-				switch.trigger_reward = reward;
-				event_trigger_reward = Some(reward);
-			}
-
-			Switches::<T>::insert(id, switch);
-
-			Self::deposit_event(Event::SwitchUpdated {
-				id,
-				new_call_count: event_call_count,
-				new_expiry_block: event_expiry_block,
-				new_trigger_reward: event_trigger_reward,
-			});
-			Ok(())
-		}
 	}
 }
