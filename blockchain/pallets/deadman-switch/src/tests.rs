@@ -683,6 +683,178 @@ fn trigger_remark_then_create_second_switch_with_later_remark() {
 	});
 }
 
+// ── update_switch ──────────────────────────────────────────────────────
+
+#[test]
+fn update_switch_calls() {
+	new_test_ext().execute_with(|| {
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"old")], 10, REWARD,
+		));
+		assert_eq!(Switches::<Test>::get(0).unwrap().call_count, 1);
+
+		assert_ok!(DeadmanSwitch::update_switch(
+			RuntimeOrigin::signed(1),
+			0,
+			Some(vec![remark_call(b"new1"), remark_call(b"new2")]),
+			None,
+			None,
+		));
+		let switch = Switches::<Test>::get(0).unwrap();
+		assert_eq!(switch.call_count, 2);
+		let stored = SwitchCalls::<Test>::get(0).unwrap();
+		assert_eq!(stored.len(), 2);
+	});
+}
+
+#[test]
+fn update_switch_interval() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, REWARD,
+		));
+		assert_eq!(Switches::<Test>::get(0).unwrap().expiry_block, 11);
+
+		System::set_block_number(5);
+		assert_ok!(DeadmanSwitch::update_switch(
+			RuntimeOrigin::signed(1), 0, None, Some(20), None,
+		));
+		let switch = Switches::<Test>::get(0).unwrap();
+		assert_eq!(switch.block_interval, 20);
+		assert_eq!(switch.expiry_block, 25); // 5 + 20
+	});
+}
+
+#[test]
+fn update_switch_increase_reward() {
+	new_test_ext().execute_with(|| {
+		let free_before = Balances::free_balance(1);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, REWARD,
+		));
+		assert_eq!(Balances::free_balance(1), free_before - REWARD);
+
+		let new_reward = REWARD + 500;
+		assert_ok!(DeadmanSwitch::update_switch(
+			RuntimeOrigin::signed(1), 0, None, None, Some(new_reward),
+		));
+		assert_eq!(Switches::<Test>::get(0).unwrap().trigger_reward, new_reward);
+		// Extra 500 held
+		assert_eq!(Balances::free_balance(1), free_before - new_reward);
+	});
+}
+
+#[test]
+fn update_switch_decrease_reward() {
+	new_test_ext().execute_with(|| {
+		let free_before = Balances::free_balance(1);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, REWARD,
+		));
+
+		let new_reward = REWARD - 500;
+		assert_ok!(DeadmanSwitch::update_switch(
+			RuntimeOrigin::signed(1), 0, None, None, Some(new_reward),
+		));
+		assert_eq!(Switches::<Test>::get(0).unwrap().trigger_reward, new_reward);
+		// 500 released
+		assert_eq!(Balances::free_balance(1), free_before - new_reward);
+	});
+}
+
+#[test]
+fn update_switch_all_fields() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"old")], 10, REWARD,
+		));
+
+		System::set_block_number(3);
+		assert_ok!(DeadmanSwitch::update_switch(
+			RuntimeOrigin::signed(1),
+			0,
+			Some(vec![transfer_call(2, 1000)]),
+			Some(50),
+			Some(2000),
+		));
+		let switch = Switches::<Test>::get(0).unwrap();
+		assert_eq!(switch.call_count, 1);
+		assert_eq!(switch.block_interval, 50);
+		assert_eq!(switch.expiry_block, 53); // 3 + 50
+		assert_eq!(switch.trigger_reward, 2000);
+	});
+}
+
+#[test]
+fn update_switch_fails_if_not_owner() {
+	new_test_ext().execute_with(|| {
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, REWARD,
+		));
+		assert_noop!(
+			DeadmanSwitch::update_switch(RuntimeOrigin::signed(2), 0, None, Some(20), None),
+			Error::<Test>::NotOwner,
+		);
+	});
+}
+
+#[test]
+fn update_switch_fails_if_not_active() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, REWARD,
+		));
+		System::set_block_number(12);
+		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
+		assert_noop!(
+			DeadmanSwitch::update_switch(RuntimeOrigin::signed(1), 0, None, Some(20), None),
+			Error::<Test>::SwitchNotActive,
+		);
+	});
+}
+
+#[test]
+fn update_switch_fails_if_nothing_to_update() {
+	new_test_ext().execute_with(|| {
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, REWARD,
+		));
+		assert_noop!(
+			DeadmanSwitch::update_switch(RuntimeOrigin::signed(1), 0, None, None, None),
+			Error::<Test>::NothingToUpdate,
+		);
+	});
+}
+
+#[test]
+fn update_switch_fails_with_zero_interval() {
+	new_test_ext().execute_with(|| {
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, REWARD,
+		));
+		assert_noop!(
+			DeadmanSwitch::update_switch(RuntimeOrigin::signed(1), 0, None, Some(0), None),
+			Error::<Test>::InvalidInterval,
+		);
+	});
+}
+
+#[test]
+fn update_switch_fails_with_empty_calls() {
+	new_test_ext().execute_with(|| {
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, REWARD,
+		));
+		assert_noop!(
+			DeadmanSwitch::update_switch(RuntimeOrigin::signed(1), 0, Some(vec![]), None, None),
+			Error::<Test>::NoCalls,
+		);
+	});
+}
+
 // ── misc ───────────────────────────────────────────────────────────────
 
 #[test]
