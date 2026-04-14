@@ -102,11 +102,14 @@ export default function SwitchesPage() {
 
 	const currentAccount = devAccounts[selectedAccount].address;
 
-	const mySwitches = switches.filter(
-		(s) => s.owner === currentAccount && s.status === "Active",
+	const mySwitchesActive = switches.filter(
+		(s) => s.owner === currentAccount && s.status === "Active" && blockNumber <= s.expiryBlock,
 	);
 	const expiredSwitches = switches.filter(
 		(s) => s.status === "Active" && blockNumber > s.expiryBlock,
+	);
+	const otherActive = switches.filter(
+		(s) => s.owner !== currentAccount && s.status === "Active" && blockNumber <= s.expiryBlock,
 	);
 	const executedSwitches = switches.filter((s) => s.status === "Executed");
 
@@ -159,10 +162,27 @@ export default function SwitchesPage() {
 			)}
 
 			{/* My active switches */}
-			{mySwitches.length > 0 && (
+			{mySwitchesActive.length > 0 && (
 				<div className="space-y-3">
 					<h2 className="section-title">My Switches</h2>
-					{mySwitches.map((sw) => (
+					{mySwitchesActive.map((sw) => (
+						<SwitchCard
+							key={Number(sw.id)}
+							sw={sw}
+							blockNumber={blockNumber}
+							currentAccount={currentAccount}
+							onAction={handleAction}
+							actionStatus={actionStatus}
+						/>
+					))}
+				</div>
+			)}
+
+			{/* Other active switches */}
+			{otherActive.length > 0 && (
+				<div className="space-y-3">
+					<h2 className="section-title">Other Active Switches</h2>
+					{otherActive.map((sw) => (
 						<SwitchCard
 							key={Number(sw.id)}
 							sw={sw}
