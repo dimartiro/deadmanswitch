@@ -10,8 +10,6 @@ import {
 	type InjectedPolkadotAccount,
 } from "polkadot-api/pjs-signer";
 import { injectSpektrExtension, SpektrExtensionName } from "@novasamatech/product-sdk";
-import { getSs58AddressInfo, Keccak256 } from "@polkadot-api/substrate-bindings";
-
 type HostEnvironment = "desktop-webview" | "web-iframe" | "standalone";
 
 function detectHostEnvironment(): HostEnvironment {
@@ -30,22 +28,9 @@ function isInHost(): boolean {
 	return detectHostEnvironment() !== "standalone";
 }
 
-function ss58ToH160(ss58Address: string): `0x${string}` {
-	const info = getSs58AddressInfo(ss58Address);
-	if (!info.isValid) return "0x0000000000000000000000000000000000000000";
-	const pub = info.publicKey;
-	const isEthDerived = pub.slice(20).every((b) => b === 0xee);
-	const ethBytes = isEthDerived ? pub.slice(0, 20) : Keccak256(pub).slice(-20);
-	const hex = Array.from(ethBytes)
-		.map((b) => b.toString(16).padStart(2, "0"))
-		.join("");
-	return `0x${hex}`;
-}
-
 interface DisplayAccount {
 	name: string;
 	ss58: string;
-	eth: string;
 	type: "dev" | "extension" | "spektr";
 }
 
@@ -107,7 +92,6 @@ export default function AccountsPage() {
 	const devDisplayAccounts: DisplayAccount[] = devAccounts.map((acc) => ({
 		name: acc.name,
 		ss58: acc.address,
-		eth: ss58ToH160(acc.address),
 		type: "dev",
 	}));
 
@@ -376,7 +360,7 @@ export default function AccountsPage() {
 								account={{
 									name: acc.name || "Host Account",
 									ss58: acc.address,
-									eth: ss58ToH160(acc.address),
+				
 									type: "spektr",
 								}}
 								info={accountInfos[acc.address]}
@@ -416,7 +400,7 @@ export default function AccountsPage() {
 									account={{
 										name: acc.name || "Unnamed",
 										ss58: acc.address,
-										eth: ss58ToH160(acc.address),
+					
 										type: "extension",
 									}}
 									info={accountInfos[acc.address]}
@@ -514,7 +498,6 @@ function AccountCard({
 			</div>
 			<div className="space-y-1">
 				<CopyableAddress label="SS58" address={account.ss58} />
-				<CopyableAddress label="ETH" address={account.eth} />
 			</div>
 		</div>
 	);
