@@ -279,7 +279,7 @@ export default function CreateSwitchPage() {
 	const [calls, setCalls] = useState<CallEntry[]>([
 		{ id: nextCallId++, type: "transfer_all" },
 	]);
-	const [blockInterval, setBlockInterval] = useState("100");
+	const [blockInterval, setBlockInterval] = useState("10");
 	const [triggerReward, setTriggerReward] = useState("1");
 	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
