@@ -65,9 +65,19 @@ export function useConnectionManagement() {
 			return;
 		}
 
+		const setBlockTime = useChainStore.getState().setBlockTime;
+		let lastTimestamp = 0;
 		const client = getClient(wsUrl);
 		const subscription = client.finalizedBlock$.subscribe((block) => {
 			setBlockNumber(block.number);
+			const now = Date.now();
+			if (lastTimestamp > 0) {
+				const elapsed = (now - lastTimestamp) / 1000;
+				if (elapsed > 0.5 && elapsed < 30) {
+					setBlockTime(Math.round(elapsed));
+				}
+			}
+			lastTimestamp = now;
 		});
 
 		return () => {

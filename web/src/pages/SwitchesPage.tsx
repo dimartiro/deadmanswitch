@@ -4,7 +4,7 @@ import { devAccounts } from "../hooks/useAccount";
 import { useAllAccounts } from "../hooks/useAllAccounts";
 import { getClient } from "../hooks/useChain";
 import { stack_template } from "@polkadot-api/descriptors";
-import { formatDispatchError } from "../utils/format";
+import { formatDispatchError, formatDuration } from "../utils/format";
 
 interface SwitchData {
 	id: bigint;
@@ -261,8 +261,8 @@ function SwitchCard({
 	const isActive = sw.status === "Active";
 	const isExpired = isActive && blockNumber > sw.expiryBlock;
 	const blocksLeft = isActive ? sw.expiryBlock - blockNumber : 0;
-	const secondsLeft = Math.max(0, blocksLeft * 6);
-	const minutesLeft = Math.round(secondsLeft / 60);
+	const blockTime = useChainStore((s) => s.blockTime);
+	const secondsLeft = Math.max(0, blocksLeft * blockTime);
 
 	const devAccount = devAccounts.find((a) => a.address === sw.owner);
 	const ownerLabel = devAccount ? devAccount.name : truncateAddress(sw.owner);
@@ -332,7 +332,7 @@ function SwitchCard({
 							? "—"
 							: isExpired
 								? `Expired ${Math.abs(blocksLeft)} blocks ago`
-								: `${blocksLeft} blocks (~${minutesLeft > 0 ? `${minutesLeft}m` : `${secondsLeft}s`})`}
+								: `${blocksLeft} blocks (~${formatDuration(secondsLeft)})`}
 					</p>
 				</div>
 			</div>

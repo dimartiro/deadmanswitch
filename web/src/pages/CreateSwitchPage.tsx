@@ -4,7 +4,7 @@ import { devAccounts } from "../hooks/useAccount";
 import { useAllAccounts } from "../hooks/useAllAccounts";
 import { getClient } from "../hooks/useChain";
 import { stack_template } from "@polkadot-api/descriptors";
-import { formatDispatchError } from "../utils/format";
+import { formatDispatchError, formatDuration } from "../utils/format";
 import { getSs58AddressInfo } from "@polkadot-api/substrate-bindings";
 import { ss58Address } from "@polkadot-labs/hdkd-helpers";
 import { blake2b } from "blakejs";
@@ -256,8 +256,8 @@ export default function CreateSwitchPage() {
 		}
 	}
 
-	const estimatedTime = Math.round((parseInt(blockInterval) || 0) * 6);
-	const estimatedMinutes = Math.round(estimatedTime / 60);
+	const blockTime = useChainStore((s) => s.blockTime);
+	const estimatedTime = Math.round((parseInt(blockInterval) || 0) * blockTime);
 
 	return (
 		<div className="space-y-6 animate-fade-in">
@@ -497,7 +497,7 @@ export default function CreateSwitchPage() {
 							className="input-field w-full"
 						/>
 						<p className="text-xs text-text-muted mt-1">
-							~{estimatedMinutes > 0 ? `${estimatedMinutes} min` : `${estimatedTime}s`} at 6s/block
+							~{formatDuration(estimatedTime)} at {blockTime}s/block
 						</p>
 					</div>
 					<div>

@@ -1,3 +1,10 @@
+import prettyMs from "pretty-ms";
+
+/// Format seconds into a human-readable duration string.
+export function formatDuration(seconds: number): string {
+	return prettyMs(seconds * 1000, { compact: true });
+}
+
 /// Format a PAPI dispatch error into a human-readable string.
 export function formatDispatchError(err: unknown): string {
 	if (!err) return "Transaction failed";
