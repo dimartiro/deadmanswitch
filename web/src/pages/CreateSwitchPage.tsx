@@ -22,8 +22,13 @@ function AccountSelect({
 	label: string;
 	placeholder?: string;
 }) {
-	const isDevAccount = devAccounts.some((a) => a.address === value);
-	const isCustom = value !== "" && !isDevAccount;
+	const walletAccounts = useChainStore((s) => s.walletAccounts);
+	const allKnown = [
+		...devAccounts.map((a) => ({ name: a.name, address: a.address })),
+		...walletAccounts.map((a) => ({ name: `${a.name} (${a.source})`, address: a.address })),
+	];
+	const isKnown = allKnown.some((a) => a.address === value);
+	const isCustom = value !== "" && !isKnown;
 	const [showCustom, setShowCustom] = useState(isCustom);
 
 	function handleSelect(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -48,9 +53,9 @@ function AccountSelect({
 				<option value="" disabled>
 					Select account...
 				</option>
-				{devAccounts.map((acc) => (
+				{allKnown.map((acc) => (
 					<option key={acc.address} value={acc.address}>
-						{acc.name} ({acc.address.slice(0, 8)}...{acc.address.slice(-6)})
+						{acc.name}
 					</option>
 				))}
 				<option value={CUSTOM_VALUE}>Custom address...</option>
