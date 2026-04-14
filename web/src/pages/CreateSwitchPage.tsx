@@ -5,7 +5,6 @@ import { useAllAccounts } from "../hooks/useAllAccounts";
 import { getClient } from "../hooks/useChain";
 import { stack_template } from "@polkadot-api/descriptors";
 import { formatDispatchError } from "../utils/format";
-import { Binary } from "polkadot-api";
 import { getSs58AddressInfo } from "@polkadot-api/substrate-bindings";
 import { ss58Address } from "@polkadot-labs/hdkd-helpers";
 import { blake2b } from "blakejs";
@@ -94,14 +93,12 @@ function deriveMultisigAccount(addresses: string[], threshold: number): string {
 	return ss58Address(new Uint8Array(hash));
 }
 
-type CallType = "remark" | "transfer" | "transfer_all" | "add_proxy" | "multisig_proxy" | "multisig_transfer";
+type CallType = "transfer" | "transfer_all" | "add_proxy" | "multisig_proxy" | "multisig_transfer";
 
 interface CallEntry {
 	id: number;
 	type: CallType;
-	// remark
-	message?: string;
-	// transfer / transfer_all / add_proxy / remove_proxy
+	// transfer / transfer_all / add_proxy
 	dest?: string;
 	// transfer
 	amount?: string;
@@ -119,10 +116,6 @@ function multiAddr(addr: string) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildRuntimeCall(api: any, entry: CallEntry) {
 	switch (entry.type) {
-		case "remark":
-			return api.tx.System.remark({
-				remark: Binary.fromText(entry.message || ""),
-			});
 		case "transfer":
 			return api.tx.Balances.transfer_allow_death({
 				dest: multiAddr(entry.dest || ""),
@@ -173,7 +166,7 @@ export default function CreateSwitchPage() {
 	const { wsUrl, connected, selectedAccount } = useChainStore();
 	const { accounts, selected } = useAllAccounts();
 	const [calls, setCalls] = useState<CallEntry[]>([
-		{ id: nextCallId++, type: "remark", message: "" },
+		{ id: nextCallId++, type: "transfer_all" },
 	]);
 	const [blockInterval, setBlockInterval] = useState("100");
 	const [triggerReward, setTriggerReward] = useState("1");
@@ -246,7 +239,7 @@ export default function CreateSwitchPage() {
 			if (result.ok) {
 				setStatus(`Switch created in block #${result.block.number}`);
 				// Reset form
-				setCalls([{ id: nextCallId++, type: "remark", message: "" }]);
+				setCalls([{ id: nextCallId++, type: "transfer_all" }]);
 			} else {
 				setStatus(`Error: ${formatDispatchError(result.dispatchError)}`);
 			}
@@ -300,9 +293,6 @@ export default function CreateSwitchPage() {
 				<div className="flex items-center justify-between">
 					<h2 className="section-title">Calls (executed on trigger)</h2>
 					<div className="flex flex-wrap gap-2">
-						<button onClick={() => addCall("remark")} className="btn-secondary text-xs">
-							+ Remark
-						</button>
 						<button onClick={() => addCall("transfer")} className="btn-secondary text-xs">
 							+ Transfer
 						</button>
@@ -340,21 +330,6 @@ export default function CreateSwitchPage() {
 									</button>
 								)}
 							</div>
-
-							{call.type === "remark" && (
-								<div>
-									<label className="label">Message</label>
-									<input
-										type="text"
-										value={call.message || ""}
-										onChange={(e) =>
-											updateCall(call.id, { message: e.target.value })
-										}
-										placeholder="Your on-chain message..."
-										className="input-field w-full"
-									/>
-								</div>
-							)}
 
 							{call.type === "transfer" && (
 								<>
