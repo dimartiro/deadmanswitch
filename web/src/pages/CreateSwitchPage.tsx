@@ -73,6 +73,112 @@ function AccountSelect({
 	);
 }
 
+function SignatoriesSelect({
+	value,
+	onChange,
+	label,
+}: {
+	value: string;
+	onChange: (v: string) => void;
+	label: string;
+}) {
+	const walletAccounts = useChainStore((s) => s.walletAccounts);
+	const [customInput, setCustomInput] = useState("");
+	const [showCustom, setShowCustom] = useState(false);
+	const allKnown = [
+		...devAccounts.map((a) => ({ name: a.name, address: a.address })),
+		...walletAccounts.map((a) => ({ name: `${a.name} (${a.source})`, address: a.address })),
+	];
+
+	const addresses = value
+		.split(",")
+		.map((s) => s.trim())
+		.filter(Boolean);
+
+	function addAddress(addr: string) {
+		if (!addr || addresses.includes(addr)) return;
+		onChange([...addresses, addr].join(", "));
+		setShowCustom(false);
+		setCustomInput("");
+	}
+
+	function removeAddress(index: number) {
+		onChange(addresses.filter((_, i) => i !== index).join(", "));
+	}
+
+	function handleSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+		const v = e.target.value;
+		if (v === CUSTOM_VALUE) {
+			setShowCustom(true);
+		} else if (v) {
+			addAddress(v);
+		}
+	}
+
+	return (
+		<div>
+			<label className="label">{label}</label>
+			<div className="space-y-2">
+				{addresses.map((addr, i) => {
+					const known = allKnown.find((a) => a.address === addr);
+					return (
+						<div
+							key={i}
+							className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-1.5"
+						>
+							<span className="text-sm text-text-primary flex-1">
+								{known ? known.name : `${addr.slice(0, 8)}...${addr.slice(-6)}`}
+							</span>
+							<button
+								onClick={() => removeAddress(i)}
+								className="text-xs text-accent-red hover:text-accent-red/80"
+							>
+								Remove
+							</button>
+						</div>
+					);
+				})}
+				<select
+					value=""
+					onChange={handleSelect}
+					className="input-field w-full"
+				>
+					<option value="">Add signatory...</option>
+					{allKnown
+						.filter((a) => !addresses.includes(a.address))
+						.map((acc) => (
+							<option key={acc.address} value={acc.address}>
+								{acc.name}
+							</option>
+						))}
+					<option value={CUSTOM_VALUE}>Custom address...</option>
+				</select>
+				{showCustom && (
+					<div className="flex gap-2">
+						<input
+							type="text"
+							value={customInput}
+							onChange={(e) => setCustomInput(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" && customInput) addAddress(customInput);
+							}}
+							placeholder="5Grwva..."
+							className="input-field flex-1"
+						/>
+						<button
+							onClick={() => addAddress(customInput)}
+							disabled={!customInput}
+							className="btn-secondary text-xs"
+						>
+							Add
+						</button>
+					</div>
+				)}
+			</div>
+		</div>
+	);
+}
+
 function deriveMultisigAccount(addresses: string[], threshold: number): string {
 	const pubkeys = addresses.map((addr) => {
 		const info = getSs58AddressInfo(addr);
@@ -390,21 +496,14 @@ export default function CreateSwitchPage() {
 
 							{call.type === "multisig_proxy" && (
 								<>
-									<div>
-										<label className="label">Signatories (SS58, comma-separated)</label>
-										<input
-											type="text"
-											value={call.signatories || ""}
-											onChange={(e) =>
-												updateCall(call.id, { signatories: e.target.value })
-											}
-											placeholder="5FHne..., 5FLSi..."
-											className="input-field w-full"
-										/>
-										<p className="text-xs text-text-muted mt-1">
-											These accounts will control your account via multisig + proxy
-										</p>
-									</div>
+									<SignatoriesSelect
+										label="Signatories"
+										value={call.signatories || ""}
+										onChange={(v) => updateCall(call.id, { signatories: v })}
+									/>
+									<p className="text-xs text-text-muted">
+										These accounts will control your account via multisig + proxy
+									</p>
 									<div>
 										<label className="label">Threshold</label>
 										<input
@@ -424,18 +523,11 @@ export default function CreateSwitchPage() {
 
 							{call.type === "multisig_transfer" && (
 								<>
-									<div>
-										<label className="label">Other Signatories (SS58, comma-separated)</label>
-										<input
-											type="text"
-											value={call.signatories || ""}
-											onChange={(e) =>
-												updateCall(call.id, { signatories: e.target.value })
-											}
-											placeholder="5FHne..., 5FLSi..."
-											className="input-field w-full"
-										/>
-									</div>
+									<SignatoriesSelect
+										label="Other Signatories"
+										value={call.signatories || ""}
+										onChange={(v) => updateCall(call.id, { signatories: v })}
+									/>
 									<div>
 										<label className="label">Threshold (min 2)</label>
 										<input
