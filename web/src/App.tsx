@@ -4,18 +4,15 @@ import { useConnectionManagement } from "./hooks/useConnection";
 
 export default function App() {
 	const location = useLocation();
-	const pallets = useChainStore((s) => s.pallets);
 	const connected = useChainStore((s) => s.connected);
 
 	useConnectionManagement();
 
 	const navItems = [
-		{ path: "/", label: "Home", enabled: true },
-		{ path: "/pallet", label: "Pallet PoE", enabled: pallets.templatePallet === true },
-		{ path: "/evm", label: "EVM PoE", enabled: pallets.revive === true },
-		{ path: "/pvm", label: "PVM PoE", enabled: pallets.revive === true },
-		{ path: "/statements", label: "Statements", enabled: true },
-		{ path: "/accounts", label: "Accounts", enabled: true },
+		{ path: "/", label: "Home" },
+		{ path: "/switches", label: "Switches" },
+		{ path: "/create", label: "Create" },
+		{ path: "/accounts", label: "Accounts" },
 	];
 
 	return (
@@ -44,37 +41,27 @@ export default function App() {
 							</svg>
 						</div>
 						<span className="text-base font-semibold text-text-primary font-display tracking-tight">
-							Polkadot Stack
+							Deadman Switch
 						</span>
 					</Link>
 
 					<div className="flex gap-0.5 overflow-x-auto">
-						{navItems.map((item) =>
-							item.enabled ? (
-								<Link
-									key={item.path}
-									to={item.path}
-									className={`relative px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-										location.pathname === item.path
-											? "text-white"
-											: "text-text-secondary hover:text-text-primary hover:bg-white/[0.04]"
-									}`}
-								>
-									{location.pathname === item.path && (
-										<span className="absolute inset-0 rounded-lg bg-polka-500/15 border border-polka-500/25" />
-									)}
-									<span className="relative">{item.label}</span>
-								</Link>
-							) : (
-								<span
-									key={item.path}
-									className="px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted cursor-not-allowed whitespace-nowrap"
-									title="Pallet not available on connected chain"
-								>
-									{item.label}
-								</span>
-							),
-						)}
+						{navItems.map((item) => (
+							<Link
+								key={item.path}
+								to={item.path}
+								className={`relative px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+									location.pathname === item.path
+										? "text-white"
+										: "text-text-secondary hover:text-text-primary hover:bg-white/[0.04]"
+								}`}
+							>
+								{location.pathname === item.path && (
+									<span className="absolute inset-0 rounded-lg bg-polka-500/15 border border-polka-500/25" />
+								)}
+								<span className="relative">{item.label}</span>
+							</Link>
+						))}
 					</div>
 
 					{/* Connection indicator */}

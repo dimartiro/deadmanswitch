@@ -5,11 +5,9 @@ import App from "./App";
 import "./index.css";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
-const PalletPage = lazy(() => import("./pages/PalletPage"));
-const EvmContractPage = lazy(() => import("./pages/EvmContractPage"));
-const PvmContractPage = lazy(() => import("./pages/PvmContractPage"));
+const SwitchesPage = lazy(() => import("./pages/SwitchesPage"));
+const CreateSwitchPage = lazy(() => import("./pages/CreateSwitchPage"));
 const AccountsPage = lazy(() => import("./pages/AccountsPage"));
-const StatementStorePage = lazy(() => import("./pages/StatementStorePage"));
 
 const routeFallback = (
 	<div className="card animate-pulse">
@@ -32,26 +30,18 @@ createRoot(document.getElementById("root")!).render(
 						}
 					/>
 					<Route
-						path="pallet"
+						path="switches"
 						element={
 							<Suspense fallback={routeFallback}>
-								<PalletPage />
+								<SwitchesPage />
 							</Suspense>
 						}
 					/>
 					<Route
-						path="evm"
+						path="create"
 						element={
 							<Suspense fallback={routeFallback}>
-								<EvmContractPage />
-							</Suspense>
-						}
-					/>
-					<Route
-						path="pvm"
-						element={
-							<Suspense fallback={routeFallback}>
-								<PvmContractPage />
+								<CreateSwitchPage />
 							</Suspense>
 						}
 					/>
@@ -60,14 +50,6 @@ createRoot(document.getElementById("root")!).render(
 						element={
 							<Suspense fallback={routeFallback}>
 								<AccountsPage />
-							</Suspense>
-						}
-					/>
-					<Route
-						path="statements"
-						element={
-							<Suspense fallback={routeFallback}>
-								<StatementStorePage />
 							</Suspense>
 						}
 					/>
