@@ -116,6 +116,8 @@ pub mod pallet {
 		pub expiry_block: BlockNumberFor<T>,
 		/// Current status.
 		pub status: SwitchStatus,
+		/// The block number where the switch was triggered (0 if not yet triggered).
+		pub executed_block: BlockNumberFor<T>,
 	}
 
 	/// Auto-incrementing ID for the next switch.
@@ -260,6 +262,7 @@ pub mod pallet {
 					block_interval,
 					expiry_block,
 					status: SwitchStatus::Active,
+				executed_block: Zero::zero(),
 				},
 			);
 
@@ -337,7 +340,7 @@ pub mod pallet {
 			// Execute stored calls as the owner (best-effort)
 			let mut calls_executed = 0u32;
 			let mut calls_failed = 0u32;
-			if let Some(stored_calls) = SwitchCalls::<T>::take(id) {
+			if let Some(stored_calls) = SwitchCalls::<T>::get(id) {
 				let owner_origin: T::RuntimeOrigin =
 					frame_system::RawOrigin::Signed(switch.owner.clone()).into();
 				for (i, encoded_call) in stored_calls.iter().enumerate() {
@@ -370,6 +373,7 @@ pub mod pallet {
 			}
 
 			switch.status = SwitchStatus::Executed;
+			switch.executed_block = current_block;
 			Switches::<T>::insert(id, switch);
 
 			Self::deposit_event(Event::SwitchTriggered {

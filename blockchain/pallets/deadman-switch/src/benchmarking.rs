@@ -37,6 +37,7 @@ mod benchmarks {
 				block_interval: interval,
 				expiry_block: current_block + interval,
 				status: SwitchStatus::Active,
+			executed_block: 0u32.into(),
 			},
 		);
 		NextSwitchId::<T>::put(1u64);
@@ -56,6 +57,7 @@ mod benchmarks {
 				block_interval: 10u32.into(),
 				expiry_block: 0u32.into(),
 				status: SwitchStatus::Active,
+			executed_block: 0u32.into(),
 			},
 		);
 		NextSwitchId::<T>::put(1u64);
@@ -78,6 +80,7 @@ mod benchmarks {
 				block_interval: interval,
 				expiry_block: current_block + interval,
 				status: SwitchStatus::Active,
+			executed_block: 0u32.into(),
 			},
 		);
 		NextSwitchId::<T>::put(1u64);

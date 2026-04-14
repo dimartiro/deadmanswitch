@@ -233,8 +233,8 @@ fn trigger_executes_remark_call_and_pays_reward() {
 		assert_eq!(switch.status, SwitchStatus::Executed);
 		// Caller got the reward
 		assert_eq!(Balances::free_balance(3), caller_before + REWARD);
-		// Stored calls cleaned up
-		assert!(SwitchCalls::<Test>::get(0).is_none());
+		// Stored calls preserved for querying
+		assert!(SwitchCalls::<Test>::get(0).is_some());
 	});
 }
 
