@@ -82,7 +82,7 @@ impl pallet_balances::Config for Test {
 
 parameter_types! {
 	pub const MaxCalls: u32 = 5;
-	pub const MaxCallSize: u32 = 512;
+	pub const MaxCallSize: u32 = 1024;
 }
 
 impl crate::Config for Test {
