@@ -2845,7 +2845,7 @@ export type I53esa2ms463bk = {
     "heap": Binary;
 };
 export type Ib4jhb8tt3uung = [Anonymize<Iejeo53sea6n4q>, number];
-export type I2r2e76crvridm = {
+export type Ifkp6g5ns4l6fh = {
     "owner": SS58String;
     "trigger_reward": bigint;
     "call_count": number;
@@ -2855,6 +2855,7 @@ export type I2r2e76crvridm = {
         "Active": undefined;
         "Executed": undefined;
     }>;
+    "executed_block": number;
 };
 export type I8qbv05tr0tcrs = [Array<{
     "delegate": SS58String;
