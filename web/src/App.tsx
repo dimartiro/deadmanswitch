@@ -1,16 +1,18 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useChainStore } from "./store/chainStore";
 import { useConnectionManagement } from "./hooks/useConnection";
+import { useWalletAutoConnect } from "./hooks/useWalletAutoConnect";
 
 export default function App() {
 	const location = useLocation();
 	const connected = useChainStore((s) => s.connected);
 
 	useConnectionManagement();
+	useWalletAutoConnect();
 
 	const navItems = [
 		{ path: "/", label: "Home" },
-		{ path: "/switches", label: "Switches" },
+		{ path: "/dashboard", label: "Dashboard" },
 		{ path: "/create", label: "Create" },
 		{ path: "/accounts", label: "Accounts" },
 	];

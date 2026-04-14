@@ -264,7 +264,7 @@ export default function CreateSwitchPage() {
 	return (
 		<div className="space-y-6 animate-fade-in">
 			<div className="space-y-2">
-				<h1 className="page-title">Create Switch</h1>
+				<h1 className="page-title">Create</h1>
 				<p className="text-text-secondary">
 					Set up calls to execute if you stop sending heartbeats.
 				</p>
@@ -553,7 +553,7 @@ export default function CreateSwitchPage() {
 					disabled={submitting || !connected}
 					className="btn-primary w-full py-3"
 				>
-					{submitting ? "Creating..." : "Create Switch"}
+					{submitting ? "Creating..." : "Create"}
 				</button>
 
 				{status && (

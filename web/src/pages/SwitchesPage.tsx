@@ -114,12 +114,14 @@ export default function SwitchesPage() {
 	const otherActive = switches.filter(
 		(s) => s.owner !== currentAccount && s.status === "Active" && blockNumber <= s.expiryBlock,
 	);
-	const executedSwitches = switches.filter((s) => s.status === "Executed");
+	const executedSwitches = switches.filter(
+		(s) => s.status === "Executed" && s.owner === currentAccount,
+	);
 
 	return (
 		<div className="space-y-6 animate-fade-in">
 			<div className="space-y-2">
-				<h1 className="page-title">Switches</h1>
+				<h1 className="page-title">Dashboard</h1>
 				<p className="text-text-secondary">
 					View all deadman switches. Send heartbeats, trigger expired ones, or
 					cancel your own.

@@ -30,7 +30,7 @@ createRoot(document.getElementById("root")!).render(
 						}
 					/>
 					<Route
-						path="switches"
+						path="dashboard"
 						element={
 							<Suspense fallback={routeFallback}>
 								<SwitchesPage />

@@ -108,9 +108,9 @@ export default function HomePage() {
 
 			{/* Feature cards */}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<a href="#/switches" className="card-hover block group hover:border-accent-blue/20">
+				<a href="#/dashboard" className="card-hover block group hover:border-accent-blue/20">
 					<h3 className="text-lg font-semibold mb-2 font-display text-accent-blue">
-						Switches
+						Dashboard
 					</h3>
 					<p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
 						View all deadman switches, send heartbeats, or trigger expired ones
@@ -119,7 +119,7 @@ export default function HomePage() {
 				</a>
 				<a href="#/create" className="card-hover block group hover:border-accent-purple/20">
 					<h3 className="text-lg font-semibold mb-2 font-display text-accent-purple">
-						Create Switch
+						Create
 					</h3>
 					<p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
 						Set up a new deadman switch with custom calls, interval, and trigger
