@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
+import { useAllAccounts } from "../hooks/useAllAccounts";
 import { getClient } from "../hooks/useChain";
 import { stack_template } from "@polkadot-api/descriptors";
 import { formatDispatchError } from "../utils/format";
@@ -29,6 +30,7 @@ function truncateAddress(addr: string): string {
 
 export default function SwitchesPage() {
 	const { wsUrl, connected, blockNumber, selectedAccount } = useChainStore();
+	const { accounts, selected } = useAllAccounts();
 	const [switches, setSwitches] = useState<SwitchData[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [actionStatus, setActionStatus] = useState<Record<string, string>>({});
@@ -69,9 +71,10 @@ export default function SwitchesPage() {
 		const key = `${switchId}-${action}`;
 		setActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
 		try {
+			if (!selected) throw new Error("No account selected");
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
-			const signer = devAccounts[selectedAccount].signer;
+			const signer = selected.signer;
 
 			let tx;
 			if (action === "heartbeat") {
@@ -100,7 +103,7 @@ export default function SwitchesPage() {
 		}
 	}
 
-	const currentAccount = devAccounts[selectedAccount].address;
+	const currentAccount = selected?.address ?? "";
 
 	const mySwitchesActive = switches.filter(
 		(s) => s.owner === currentAccount && s.status === "Active" && blockNumber <= s.expiryBlock,
@@ -126,10 +129,10 @@ export default function SwitchesPage() {
 			{/* Account selector */}
 			<div className="card space-y-3">
 				<h2 className="section-title">Viewing as</h2>
-				<div className="flex gap-2">
-					{devAccounts.map((acc, i) => (
+				<div className="flex flex-wrap gap-2">
+					{accounts.map((acc, i) => (
 						<button
-							key={i}
+							key={acc.address}
 							onClick={() => useChainStore.getState().setSelectedAccount(i)}
 							className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
 								selectedAccount === i
@@ -141,6 +144,11 @@ export default function SwitchesPage() {
 						</button>
 					))}
 				</div>
+				{selected && (
+					<p className="text-xs text-text-muted font-mono">
+						{selected.address}
+					</p>
+				)}
 			</div>
 
 			{loading && switches.length === 0 && (

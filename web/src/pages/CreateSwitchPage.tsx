@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
+import { useAllAccounts } from "../hooks/useAllAccounts";
 import { getClient } from "../hooks/useChain";
 import { stack_template } from "@polkadot-api/descriptors";
 import { formatDispatchError } from "../utils/format";
@@ -170,6 +171,7 @@ function buildRuntimeCall(api: any, entry: CallEntry) {
 
 export default function CreateSwitchPage() {
 	const { wsUrl, connected, selectedAccount } = useChainStore();
+	const { accounts, selected } = useAllAccounts();
 	const [calls, setCalls] = useState<CallEntry[]>([
 		{ id: nextCallId++, type: "remark", message: "" },
 	]);
@@ -180,17 +182,16 @@ export default function CreateSwitchPage() {
 	const [ownerBalance, setOwnerBalance] = useState<number>(0);
 
 	const fetchBalance = useCallback(async () => {
-		if (!connected) return;
+		if (!connected || !selected) return;
 		try {
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
-			const addr = devAccounts[selectedAccount].address;
-			const info = await api.query.System.Account.getValue(addr);
+			const info = await api.query.System.Account.getValue(selected.address);
 			setOwnerBalance(Number(info.data.free) / 1e12);
 		} catch {
 			setOwnerBalance(0);
 		}
-	}, [connected, wsUrl, selectedAccount]);
+	}, [connected, wsUrl, selected?.address]);
 
 	useEffect(() => {
 		fetchBalance();
@@ -219,9 +220,10 @@ export default function CreateSwitchPage() {
 		setStatus("Submitting...");
 
 		try {
+			if (!selected) throw new Error("No account selected");
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
-			const signer = devAccounts[selectedAccount].signer;
+			const signer = selected.signer;
 
 			const runtimeCalls = calls.map((entry) => {
 				const tx = buildRuntimeCall(api, entry);
@@ -271,10 +273,10 @@ export default function CreateSwitchPage() {
 			{/* Account selector */}
 			<div className="card space-y-3">
 				<h2 className="section-title">Owner Account</h2>
-				<div className="flex gap-2">
-					{devAccounts.map((acc, i) => (
+				<div className="flex flex-wrap gap-2">
+					{accounts.map((acc, i) => (
 						<button
-							key={i}
+							key={acc.address}
 							onClick={() => useChainStore.getState().setSelectedAccount(i)}
 							className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
 								selectedAccount === i
@@ -286,6 +288,11 @@ export default function CreateSwitchPage() {
 						</button>
 					))}
 				</div>
+				{selected && (
+					<p className="text-xs text-text-muted font-mono">
+						{selected.address}
+					</p>
+				)}
 			</div>
 
 			{/* Calls */}

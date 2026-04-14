@@ -180,15 +180,19 @@ export default function AccountsPage() {
 		};
 	}, []);
 
-	// Detect available browser extension wallets on mount
+	// Detect available browser extension wallets and auto-reconnect on mount
 	useEffect(() => {
 		try {
 			const wallets = getInjectedExtensions().filter((name) => name !== SpektrExtensionName);
 			setAvailableWallets(wallets);
+			const saved = localStorage.getItem("connected-wallet");
+			if (saved && wallets.includes(saved)) {
+				connectWallet(saved);
+			}
 		} catch {
 			// No injected extensions available
 		}
-	}, []);
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	async function connectWallet(name: string) {
 		try {
@@ -196,9 +200,12 @@ export default function AccountsPage() {
 			const accounts = ext.getAccounts();
 			setExtensionAccounts(accounts);
 			setConnectedWallet(name);
+			localStorage.setItem("connected-wallet", name);
+			syncWalletAccounts(accounts, name);
 			extensionUnsubscribeRef.current?.();
 			extensionUnsubscribeRef.current = ext.subscribe((updated) => {
 				setExtensionAccounts(updated);
+				syncWalletAccounts(updated, name);
 			});
 		} catch (e) {
 			console.error("Failed to connect wallet:", e);
@@ -206,11 +213,24 @@ export default function AccountsPage() {
 		}
 	}
 
+	function syncWalletAccounts(accounts: InjectedPolkadotAccount[], source: string) {
+		useChainStore.getState().setWalletAccounts(
+			accounts.map((a) => ({
+				name: a.name || "Unnamed",
+				address: a.address,
+				signer: a.polkadotSigner,
+				source,
+			})),
+		);
+	}
+
 	function disconnectWallet() {
 		extensionUnsubscribeRef.current?.();
 		extensionUnsubscribeRef.current = null;
 		setExtensionAccounts([]);
 		setConnectedWallet(null);
+		localStorage.removeItem("connected-wallet");
+		useChainStore.getState().setWalletAccounts([]);
 	}
 
 	useEffect(() => {
