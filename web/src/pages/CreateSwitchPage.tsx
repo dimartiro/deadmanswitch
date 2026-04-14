@@ -111,6 +111,10 @@ interface CallEntry {
 
 let nextCallId = 0;
 
+function multiAddr(addr: string) {
+	return { type: "Id" as const, value: addr };
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildRuntimeCall(api: any, entry: CallEntry) {
 	switch (entry.type) {
@@ -120,17 +124,17 @@ function buildRuntimeCall(api: any, entry: CallEntry) {
 			});
 		case "transfer":
 			return api.tx.Balances.transfer_allow_death({
-				dest: entry.dest || "",
+				dest: multiAddr(entry.dest || ""),
 				value: BigInt(Math.floor(parseFloat(entry.amount || "0") * 1e12)),
 			});
 		case "transfer_all":
 			return api.tx.Balances.transfer_all({
-				dest: entry.dest || "",
+				dest: multiAddr(entry.dest || ""),
 				keep_alive: false,
 			});
 		case "add_proxy":
 			return api.tx.Proxy.add_proxy({
-				delegate: entry.dest || "",
+				delegate: multiAddr(entry.dest || ""),
 				proxy_type: { type: "Any", value: undefined },
 				delay: 0,
 			});
@@ -139,7 +143,7 @@ function buildRuntimeCall(api: any, entry: CallEntry) {
 			const threshold = parseInt(entry.threshold || "2");
 			const multisigAddr = deriveMultisigAccount(sigList, threshold);
 			return api.tx.Proxy.add_proxy({
-				delegate: multisigAddr,
+				delegate: multiAddr(multisigAddr),
 				proxy_type: { type: "Any", value: undefined },
 				delay: 0,
 			});
@@ -148,7 +152,7 @@ function buildRuntimeCall(api: any, entry: CallEntry) {
 			const sigList = (entry.signatories || "").split(",").map((s) => s.trim()).filter(Boolean);
 			const threshold = Math.max(2, parseInt(entry.threshold || "2"));
 			const innerCall = api.tx.Balances.transfer_allow_death({
-				dest: entry.dest || "",
+				dest: multiAddr(entry.dest || ""),
 				value: BigInt(Math.floor(parseFloat(entry.amount || "0") * 1e12)),
 			});
 			return api.tx.Multisig.as_multi({
