@@ -25,7 +25,7 @@ use polkadot_runtime_common::{
 };
 use codec::{Encode, Decode, MaxEncodedLen};
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_runtime::{traits::BlakeTwo256, Perbill, RuntimeDebug};
+use sp_runtime::{traits::{BlakeTwo256, Hash as _}, Perbill, RuntimeDebug};
 use sp_version::RuntimeVersion;
 use xcm::latest::prelude::BodyId;
 
@@ -287,6 +287,21 @@ impl pallet_statement::Config for Runtime {
 	type MaxAllowedBytes = MaxAllowedBytes;
 }
 
+/// Randomness derived from the parent block hash.
+/// Suitable for non-security-critical use cases like opaque reward splits.
+pub struct ParentBlockRandomness;
+impl frame_support::traits::Randomness<crate::Hash, crate::BlockNumber>
+	for ParentBlockRandomness
+{
+	fn random(subject: &[u8]) -> (crate::Hash, crate::BlockNumber) {
+		let block_number = frame_system::Pallet::<Runtime>::block_number();
+		let parent_hash = frame_system::Pallet::<Runtime>::parent_hash();
+		let mut data = parent_hash.as_ref().to_vec();
+		data.extend_from_slice(subject);
+		(BlakeTwo256::hash(&data), block_number)
+	}
+}
+
 /// Configure the deadman switch pallet.
 impl pallet_deadman_switch::Config for Runtime {
 	type WeightInfo = pallet_deadman_switch::weights::SubstrateWeight<Runtime>;
@@ -294,6 +309,7 @@ impl pallet_deadman_switch::Config for Runtime {
 	type Balance = Balance;
 	type RuntimeHoldReason = RuntimeHoldReason;
 	type RuntimeCall = RuntimeCall;
+	type Randomness = ParentBlockRandomness;
 	type MaxCalls = ConstU32<5>;
 	type MaxCallSize = ConstU32<1024>;
 }

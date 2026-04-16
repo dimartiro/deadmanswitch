@@ -47,6 +47,7 @@ pub mod pallet {
 	use crate::weights::WeightInfo;
 	use frame::prelude::*;
 	use frame::traits::fungible::{Inspect, Mutate, MutateHold};
+	use frame::traits::Randomness;
 
 	#[pallet::pallet]
 	pub struct Pallet<T>(_);
@@ -71,6 +72,14 @@ pub mod pallet {
 		type RuntimeCall: Parameter
 			+ Dispatchable<RuntimeOrigin = <Self as frame_system::Config>::RuntimeOrigin>
 			+ GetDispatchInfo;
+
+		/// Source of on-chain randomness for opaque rewards.
+		/// At trigger time, a random fraction of `max_reward` is paid to the
+		/// caller and the remainder is burned — nobody knows the split in advance.
+		type Randomness: Randomness<
+			<Self as frame_system::Config>::Hash,
+			BlockNumberFor<Self>,
+		>;
 
 		/// Maximum number of stored calls per switch.
 		#[pallet::constant]
@@ -106,8 +115,9 @@ pub mod pallet {
 	pub struct Switch<T: Config> {
 		/// The account that created and controls the switch.
 		pub owner: T::AccountId,
-		/// The reward offered to whoever triggers the switch.
-		pub trigger_reward: T::Balance,
+		/// Maximum reward held — the actual payout is determined randomly at
+		/// trigger time so that nobody can predict the incentive in advance.
+		pub max_reward: T::Balance,
 		/// The number of stored calls.
 		pub call_count: u32,
 		/// The block interval for the heartbeat period.
@@ -148,17 +158,18 @@ pub mod pallet {
 		SwitchCreated {
 			id: SwitchId,
 			owner: T::AccountId,
-			trigger_reward: T::Balance,
 			call_count: u32,
 			expiry_block: BlockNumberFor<T>,
 		},
 		/// The owner sent a heartbeat, resetting the expiry block.
 		HeartbeatReceived { id: SwitchId, new_expiry_block: BlockNumberFor<T> },
-		/// The switch was triggered — calls dispatched, reward paid to caller.
+		/// The switch was triggered — calls dispatched, random reward paid to
+		/// caller, remainder burned.
 		SwitchTriggered {
 			id: SwitchId,
 			caller: T::AccountId,
 			caller_reward: T::Balance,
+			burned: T::Balance,
 			calls_executed: u32,
 			calls_failed: u32,
 		},
@@ -200,9 +211,9 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// Create a new deadman switch with stored calls.
 		///
-		/// Holds `trigger_reward` from the caller. On trigger, stored calls
-		/// are dispatched as `Signed(owner)` (best-effort) and the caller
-		/// receives the trigger reward.
+		/// Holds `max_reward` from the caller. On trigger, a random fraction
+		/// of the held amount is paid to the caller and the rest is burned —
+		/// nobody can predict the payout in advance.
 		///
 		/// Stored calls are encoded at creation time. A runtime upgrade may
 		/// invalidate them — cancel and recreate the switch if needed.
@@ -212,7 +223,7 @@ pub mod pallet {
 			origin: OriginFor<T>,
 			calls: Vec<Box<<T as Config>::RuntimeCall>>,
 			block_interval: BlockNumberFor<T>,
-			trigger_reward: T::Balance,
+			max_reward: T::Balance,
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			ensure!(block_interval > Zero::zero(), Error::<T>::InvalidInterval);
@@ -234,12 +245,12 @@ pub mod pallet {
 					.map_err(|_| Error::<T>::TooManyCalls)?;
 			}
 
-			// Hold trigger reward from the owner
-			if trigger_reward > Zero::zero() {
+			// Hold max reward from the owner
+			if max_reward > Zero::zero() {
 				T::Currency::hold(
 					&HoldReason::DeadmanSwitch.into(),
 					&who,
-					trigger_reward,
+					max_reward,
 				)?;
 			}
 
@@ -257,7 +268,7 @@ pub mod pallet {
 				id,
 				Switch {
 					owner: who.clone(),
-					trigger_reward,
+					max_reward,
 					call_count,
 					block_interval,
 					expiry_block,
@@ -271,7 +282,6 @@ pub mod pallet {
 			Self::deposit_event(Event::SwitchCreated {
 				id,
 				owner: who,
-				trigger_reward,
 				call_count,
 				expiry_block,
 			});
@@ -308,8 +318,8 @@ pub mod pallet {
 		///
 		/// Anyone can call this once the expiry block has passed. Stored
 		/// calls are dispatched as `Signed(owner)` — each call may succeed
-		/// or fail independently (best-effort). The caller receives the
-		/// trigger reward.
+		/// or fail independently (best-effort). The caller receives a
+		/// random fraction of the held reward; the remainder is burned.
 		#[pallet::call_index(2)]
 		#[pallet::weight(T::WeightInfo::trigger())]
 		pub fn trigger(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
@@ -321,21 +331,47 @@ pub mod pallet {
 			let current_block = frame_system::Pallet::<T>::block_number();
 			ensure!(current_block > switch.expiry_block, Error::<T>::NotYetExpired);
 
-			// Transfer trigger reward from hold to caller FIRST,
-			// so the owner has no active holds when calls execute.
-			// This ensures transfer_all and similar calls work correctly.
-			let caller_reward = switch.trigger_reward;
-			if caller_reward > Zero::zero() {
-				T::Currency::transfer_on_hold(
-					&HoldReason::DeadmanSwitch.into(),
-					&switch.owner,
-					&caller,
-					caller_reward,
-					frame::traits::tokens::Precision::BestEffort,
-					frame::traits::tokens::Restriction::Free,
-					frame::traits::tokens::Fortitude::Polite,
-				)?;
-			}
+			// Determine a random reward between 0 and max_reward.
+			// The remainder is burned so that nobody can predict the payout.
+			let max_reward = switch.max_reward;
+			let (caller_reward, burned) = if max_reward > Zero::zero() {
+				let (hash, _) = T::Randomness::random(
+					&(b"deadman-switch-reward", id).encode(),
+				);
+				let raw = u32::decode(&mut hash.as_ref()).unwrap_or(0);
+				let ratio = Perbill::from_rational(raw, u32::MAX);
+				let reward = ratio * max_reward;
+				let burn = max_reward.saturating_sub(reward);
+
+				// Transfer random reward to caller FIRST,
+				// so the owner has no active holds when calls execute.
+				if reward > Zero::zero() {
+					T::Currency::transfer_on_hold(
+						&HoldReason::DeadmanSwitch.into(),
+						&switch.owner,
+						&caller,
+						reward,
+						frame::traits::tokens::Precision::BestEffort,
+						frame::traits::tokens::Restriction::Free,
+						frame::traits::tokens::Fortitude::Polite,
+					)?;
+				}
+
+				// Burn the remainder from hold
+				if burn > Zero::zero() {
+					T::Currency::burn_held(
+						&HoldReason::DeadmanSwitch.into(),
+						&switch.owner,
+						burn,
+						frame::traits::tokens::Precision::BestEffort,
+						frame::traits::tokens::Fortitude::Force,
+					)?;
+				}
+
+				(reward, burn)
+			} else {
+				(Zero::zero(), Zero::zero())
+			};
 
 			// Execute stored calls as the owner (best-effort)
 			let mut calls_executed = 0u32;
@@ -380,6 +416,7 @@ pub mod pallet {
 				id,
 				caller,
 				caller_reward,
+				burned,
 				calls_executed,
 				calls_failed,
 			});
@@ -399,8 +436,8 @@ pub mod pallet {
 			ensure!(switch.owner == who, Error::<T>::NotOwner);
 			ensure!(switch.status == SwitchStatus::Active, Error::<T>::SwitchNotActive);
 
-			// Release trigger reward back to the owner
-			let returned = switch.trigger_reward;
+			// Release max reward back to the owner
+			let returned = switch.max_reward;
 			if returned > Zero::zero() {
 				T::Currency::release(
 					&HoldReason::DeadmanSwitch.into(),

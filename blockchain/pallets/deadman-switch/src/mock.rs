@@ -1,9 +1,11 @@
+use core::cell::RefCell;
 use frame::{
 	deps::{frame_support::weights::constants::RocksDbWeight, frame_system::GenesisConfig},
 	prelude::*,
 	runtime::prelude::*,
 	testing_prelude::*,
 };
+use frame::hashing::H256;
 
 /// Proxy type for the mock runtime.
 #[derive(
@@ -85,12 +87,35 @@ parameter_types! {
 	pub const MaxCallSize: u32 = 1024;
 }
 
+// Controllable mock randomness for tests.
+thread_local! {
+	static MOCK_RANDOM: RefCell<H256> = RefCell::new(H256::from([0xff; 32]));
+}
+
+pub struct MockRandomness;
+
+impl MockRandomness {
+	/// Set the random value returned by this mock.
+	/// - `H256([0xff; 32])` → u32::MAX → Perbill ≈ 100% → full reward
+	/// - `H256::zero()` → 0 → Perbill = 0% → zero reward, all burned
+	pub fn set(value: H256) {
+		MOCK_RANDOM.with(|v| *v.borrow_mut() = value);
+	}
+}
+
+impl frame::traits::Randomness<H256, u64> for MockRandomness {
+	fn random(_subject: &[u8]) -> (H256, u64) {
+		MOCK_RANDOM.with(|v| (*v.borrow(), 0))
+	}
+}
+
 impl crate::Config for Test {
 	type WeightInfo = ();
 	type Currency = Balances;
 	type Balance = u64;
 	type RuntimeHoldReason = RuntimeHoldReason;
 	type RuntimeCall = RuntimeCall;
+	type Randomness = MockRandomness;
 	type MaxCalls = MaxCalls;
 	type MaxCallSize = MaxCallSize;
 }

@@ -16,9 +16,9 @@ mod benchmarks {
 		let call = frame_system::Call::<T>::remark { remark: vec![0u8; 32] };
 		let calls = vec![Box::new(call.into())];
 		let interval: BlockNumberFor<T> = 100u32.into();
-		let trigger_reward: T::Balance = 10u32.into();
+		let max_reward: T::Balance = 10u32.into();
 		#[extrinsic_call]
-		create_switch(RawOrigin::Signed(caller.clone()), calls, interval, trigger_reward);
+		create_switch(RawOrigin::Signed(caller.clone()), calls, interval, max_reward);
 
 		assert!(Switches::<T>::contains_key(0));
 	}
@@ -32,7 +32,7 @@ mod benchmarks {
 			0u64,
 			Switch {
 				owner: caller.clone(),
-				trigger_reward: 10u32.into(),
+				max_reward: 10u32.into(),
 				call_count: 0,
 				block_interval: interval,
 				expiry_block: current_block + interval,
@@ -52,7 +52,7 @@ mod benchmarks {
 			0u64,
 			Switch {
 				owner: caller.clone(),
-				trigger_reward: 10u32.into(),
+				max_reward: 10u32.into(),
 				call_count: 0,
 				block_interval: 10u32.into(),
 				expiry_block: 0u32.into(),
@@ -75,7 +75,7 @@ mod benchmarks {
 			0u64,
 			Switch {
 				owner: caller.clone(),
-				trigger_reward: 10u32.into(),
+				max_reward: 10u32.into(),
 				call_count: 0,
 				block_interval: interval,
 				expiry_block: current_block + interval,
