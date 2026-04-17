@@ -142,6 +142,16 @@ impl pallet_sudo::Config for Runtime {
 	type WeightInfo = ();
 }
 
+// ── pallet-skip-feeless-payment ───────────────────────────────────────
+//
+// Wraps `pallet-transaction-payment` so that calls annotated with
+// `#[pallet::feeless_if(...)]` pay no fee when the predicate returns true.
+// Used by `pallet-deadman-switch` to make heartbeat-by-owner free.
+
+impl pallet_skip_feeless_payment::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+}
+
 // ── pallet-scheduler ──────────────────────────────────────────────────
 //
 // Used by pallet-deadman-switch to auto-execute switches at expiry.

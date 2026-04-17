@@ -312,8 +312,20 @@ pub mod pallet {
 		///
 		/// Only the owner can call this. The switch must be active and the
 		/// expiry block must not have passed yet.
+		///
+		/// This call is **feeless** when the signer is the current owner of
+		/// an active switch — keeping your own switch alive never costs fee,
+		/// so you can never run out of UNIT and lose your deadman protection.
+		/// Any other caller (or heartbeat against a non-existent / executed
+		/// switch) pays normal fees.
 		#[pallet::call_index(1)]
 		#[pallet::weight(T::WeightInfo::heartbeat())]
+		#[pallet::feeless_if(|origin: &OriginFor<T>, id: &SwitchId| -> bool {
+			let Ok(who) = ensure_signed(origin.clone()) else { return false; };
+			Switches::<T>::get(id)
+				.map(|s| s.owner == who && s.status == SwitchStatus::Active)
+				.unwrap_or(false)
+		})]
 		pub fn heartbeat(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			let mut switch = Switches::<T>::get(id).ok_or(Error::<T>::SwitchNotFound)?;

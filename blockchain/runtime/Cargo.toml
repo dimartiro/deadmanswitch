@@ -38,6 +38,7 @@ polkadot-sdk = { workspace = true, features = [
 	"pallet-revive",
 	"pallet-scheduler",
 	"pallet-session",
+	"pallet-skip-feeless-payment",
 	"pallet-statement",
 	"pallet-sudo",
 	"pallet-timestamp",
