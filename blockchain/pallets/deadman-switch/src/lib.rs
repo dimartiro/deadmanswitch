@@ -1,22 +1,32 @@
 //! # Deadman Switch Pallet
 //!
-//! A deadman switch pallet that allows users to store arbitrary runtime calls
-//! that execute on their behalf if they fail to send periodic heartbeats.
+//! A deadman switch pallet that stores arbitrary runtime calls and executes
+//! them on the owner's behalf if they fail to send periodic heartbeats.
 //!
 //! ## Overview
 //!
-//! - `create_switch`: Store calls to execute on trigger + hold a trigger reward
-//! - `heartbeat`: Owner resets the expiry block (proves they are still active)
-//! - `trigger`: Anyone calls this after expiry block passes — stored calls are
-//!   dispatched as the owner (best-effort), caller receives the trigger reward
-//! - `cancel`: Owner cancels and reclaims the trigger reward (only while active)
+//! - `create_switch`: Store calls and schedule their auto-execution via
+//!   `pallet-scheduler` at `expiry_block + 1`.
+//! - `heartbeat`: Owner resets the expiry block and reschedules the task.
+//! - `execute_switch`: Internal call invoked by the scheduler at expiry.
+//!   Dispatches the stored calls as `Signed(owner)` on a best-effort basis.
+//!   Only callable with Root origin (i.e. by the scheduler or governance).
+//! - `cancel`: Owner cancels the switch and removes the scheduled task.
+//!
+//! ## Why Scheduler Instead of Permissionless Trigger
+//!
+//! An earlier design let anyone call `trigger` after expiry and paid a random
+//! reward. That created a keeper market but also an attack vector: a
+//! high-reward switch became a target to coerce the owner into missing
+//! heartbeats. Switching to scheduler-driven execution removes the
+//! third-party incentive entirely — no reward is held, no caller is
+//! rewarded, execution happens deterministically in `on_initialize`.
 //!
 //! ## Best-Effort Execution
 //!
-//! Stored calls are dispatched as `Signed(owner)` at trigger time. Each call
-//! may succeed or fail independently — failures are logged via events but do
-//! not revert the trigger. Call success depends on the owner's state at
-//! trigger time (e.g. sufficient balance for transfers).
+//! Stored calls are dispatched as `Signed(owner)` at execution time. Each
+//! call may succeed or fail independently — failures are logged via events
+//! but do not revert the overall execution.
 //!
 //! ## Runtime Upgrade Warning
 //!
@@ -45,9 +55,11 @@ mod benchmarking;
 pub mod pallet {
 	use alloc::{boxed::Box, vec::Vec};
 	use crate::weights::WeightInfo;
+	use codec::Codec;
 	use frame::prelude::*;
-	use frame::traits::fungible::{Inspect, Mutate, MutateHold};
-	use frame::traits::Randomness;
+	use frame::traits::schedule::v3::Named as ScheduleNamed;
+	use frame::traits::schedule::DispatchTime;
+	use frame::deps::frame_support::traits::Bounded as PreimageBounded;
 
 	#[pallet::pallet]
 	pub struct Pallet<T>(_);
@@ -56,29 +68,28 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		type WeightInfo: WeightInfo;
 
-		/// The fungible type for holding the trigger reward.
-		type Currency: Inspect<Self::AccountId, Balance = Self::Balance>
-			+ Mutate<Self::AccountId>
-			+ MutateHold<Self::AccountId, Reason = Self::RuntimeHoldReason>;
-
-		/// The balance type (must match Currency).
-		type Balance: frame::traits::tokens::Balance;
-
-		/// Overarching hold reason.
-		type RuntimeHoldReason: From<HoldReason>;
-
-		/// The overarching call type. Stored calls are dispatched as `Signed(owner)`
-		/// when the switch is triggered.
+		/// The overarching call type. Stored calls are dispatched as
+		/// `Signed(owner)` when the switch executes. This type must also be
+		/// able to wrap our own `Call<Self>` so we can schedule
+		/// `execute_switch` via `pallet-scheduler`.
 		type RuntimeCall: Parameter
 			+ Dispatchable<RuntimeOrigin = <Self as frame_system::Config>::RuntimeOrigin>
-			+ GetDispatchInfo;
+			+ GetDispatchInfo
+			+ From<Call<Self>>
+			+ From<frame_system::Call<Self>>;
 
-		/// Source of on-chain randomness for opaque rewards.
-		/// At trigger time, a random fraction of `max_reward` is paid to the
-		/// caller and the remainder is burned — nobody knows the split in advance.
-		type Randomness: Randomness<
-			<Self as frame_system::Config>::Hash,
+		/// Origin type passed to the scheduler. The runtime aggregates all
+		/// pallet origins into this type via `construct_runtime!`.
+		type PalletsOrigin: From<frame_system::RawOrigin<Self::AccountId>>
+			+ Parameter
+			+ MaxEncodedLen
+			+ Codec;
+
+		/// On-chain task scheduler used to auto-execute switches at expiry.
+		type Scheduler: ScheduleNamed<
 			BlockNumberFor<Self>,
+			<Self as Config>::RuntimeCall,
+			Self::PalletsOrigin,
 		>;
 
 		/// Maximum number of stored calls per switch.
@@ -90,22 +101,23 @@ pub mod pallet {
 		type MaxCallSize: Get<u32>;
 	}
 
-	/// Reason for holding funds.
-	#[pallet::composite_enum]
-	pub enum HoldReason {
-		/// Trigger reward locked in a deadman switch.
-		DeadmanSwitch,
-	}
-
 	/// Unique identifier for each switch.
 	pub type SwitchId = u64;
+
+	/// Priority used when scheduling the auto-execution task.
+	const SCHEDULER_PRIORITY: u8 = 100;
+
+	/// Deterministic scheduler task name for a given switch.
+	pub(crate) fn task_name(switch_id: SwitchId) -> [u8; 32] {
+		frame::hashing::blake2_256(&(b"deadman_switch", switch_id).encode())
+	}
 
 	/// Status of a deadman switch.
 	#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 	pub enum SwitchStatus {
 		/// The switch is active and awaiting heartbeats.
 		Active,
-		/// The switch has been triggered and calls executed.
+		/// The switch has been executed and stored calls dispatched.
 		Executed,
 	}
 
@@ -115,18 +127,17 @@ pub mod pallet {
 	pub struct Switch<T: Config> {
 		/// The account that created and controls the switch.
 		pub owner: T::AccountId,
-		/// Maximum reward held — the actual payout is determined randomly at
-		/// trigger time so that nobody can predict the incentive in advance.
-		pub max_reward: T::Balance,
 		/// The number of stored calls.
 		pub call_count: u32,
 		/// The block interval for the heartbeat period.
 		pub block_interval: BlockNumberFor<T>,
-		/// The block number by which the owner must send a heartbeat.
+		/// The block by which the owner must send a heartbeat. Auto-execution
+		/// is scheduled for `expiry_block + 1` so a heartbeat at
+		/// `expiry_block` itself is still valid.
 		pub expiry_block: BlockNumberFor<T>,
 		/// Current status.
 		pub status: SwitchStatus,
-		/// The block number where the switch was triggered (0 if not yet triggered).
+		/// The block where the switch was executed (zero if never).
 		pub executed_block: BlockNumberFor<T>,
 	}
 
@@ -140,8 +151,7 @@ pub mod pallet {
 		StorageMap<_, Blake2_128Concat, SwitchId, Switch<T>, OptionQuery>;
 
 	/// Stored calls for each switch, keyed by SwitchId.
-	/// Calls are stored as encoded bytes because RuntimeCall does not implement
-	/// MaxEncodedLen. Each inner BoundedVec holds one encoded call.
+	/// Each inner BoundedVec holds one encoded call.
 	#[pallet::storage]
 	pub type SwitchCalls<T: Config> = StorageMap<
 		_,
@@ -154,33 +164,29 @@ pub mod pallet {
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
-		/// A new deadman switch was created.
+		/// A new deadman switch was created and its auto-execution scheduled.
 		SwitchCreated {
 			id: SwitchId,
 			owner: T::AccountId,
 			call_count: u32,
 			expiry_block: BlockNumberFor<T>,
 		},
-		/// The owner sent a heartbeat, resetting the expiry block.
+		/// The owner sent a heartbeat; expiry and scheduled execution moved.
 		HeartbeatReceived { id: SwitchId, new_expiry_block: BlockNumberFor<T> },
-		/// The switch was triggered — calls dispatched, random reward paid to
-		/// caller, remainder burned.
-		SwitchTriggered {
+		/// The switch executed — stored calls dispatched (best-effort).
+		SwitchExecuted {
 			id: SwitchId,
-			caller: T::AccountId,
-			caller_reward: T::Balance,
-			burned: T::Balance,
 			calls_executed: u32,
 			calls_failed: u32,
 		},
-		/// A stored call was dispatched during trigger.
+		/// A stored call was dispatched during execution.
 		CallDispatched {
 			id: SwitchId,
 			call_index: u32,
 			result: DispatchResult,
 		},
 		/// The switch was cancelled by the owner.
-		SwitchCancelled { id: SwitchId, returned: T::Balance },
+		SwitchCancelled { id: SwitchId },
 	}
 
 	#[pallet::error]
@@ -191,9 +197,7 @@ pub mod pallet {
 		NotOwner,
 		/// The switch is not in Active status.
 		SwitchNotActive,
-		/// The switch has not yet expired (expiry block not passed).
-		NotYetExpired,
-		/// The switch has already expired.
+		/// The switch has already expired — heartbeat rejected.
 		SwitchExpired,
 		/// The block interval must be greater than zero.
 		InvalidInterval,
@@ -205,25 +209,23 @@ pub mod pallet {
 		TooManyCalls,
 		/// A call exceeds the maximum encoded size.
 		CallTooLarge,
+		/// The scheduler refused to schedule or reschedule the task.
+		ScheduleFailed,
 	}
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
 		/// Create a new deadman switch with stored calls.
 		///
-		/// Holds `max_reward` from the caller. On trigger, a random fraction
-		/// of the held amount is paid to the caller and the rest is burned —
-		/// nobody can predict the payout in advance.
-		///
-		/// Stored calls are encoded at creation time. A runtime upgrade may
-		/// invalidate them — cancel and recreate the switch if needed.
+		/// Schedules `execute_switch(id)` at `expiry_block + 1` via
+		/// `pallet-scheduler`. No reward or hold is required — the owner only
+		/// pays the transaction fee.
 		#[pallet::call_index(0)]
 		#[pallet::weight(T::WeightInfo::create_switch())]
 		pub fn create_switch(
 			origin: OriginFor<T>,
 			calls: Vec<Box<<T as Config>::RuntimeCall>>,
 			block_interval: BlockNumberFor<T>,
-			max_reward: T::Balance,
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			ensure!(block_interval > Zero::zero(), Error::<T>::InvalidInterval);
@@ -245,18 +247,12 @@ pub mod pallet {
 					.map_err(|_| Error::<T>::TooManyCalls)?;
 			}
 
-			// Hold max reward from the owner
-			if max_reward > Zero::zero() {
-				T::Currency::hold(
-					&HoldReason::DeadmanSwitch.into(),
-					&who,
-					max_reward,
-				)?;
-			}
-
 			let current_block = frame_system::Pallet::<T>::block_number();
 			let expiry_block = current_block
 				.checked_add(&block_interval)
+				.ok_or(Error::<T>::BlockIntervalTooLarge)?;
+			let dispatch_at = expiry_block
+				.checked_add(&One::one())
 				.ok_or(Error::<T>::BlockIntervalTooLarge)?;
 
 			let id = NextSwitchId::<T>::get();
@@ -268,16 +264,39 @@ pub mod pallet {
 				id,
 				Switch {
 					owner: who.clone(),
-					max_reward,
 					call_count,
 					block_interval,
 					expiry_block,
 					status: SwitchStatus::Active,
-				executed_block: Zero::zero(),
+					executed_block: Zero::zero(),
 				},
 			);
-
 			SwitchCalls::<T>::insert(id, encoded_calls);
+
+			let execute_call: <T as Config>::RuntimeCall =
+				Call::<T>::execute_switch { id }.into();
+			let pallets_origin: T::PalletsOrigin =
+				frame_system::RawOrigin::Root.into();
+			let bounded_call: PreimageBounded<
+				<T as Config>::RuntimeCall,
+				<T::Scheduler as ScheduleNamed<
+					BlockNumberFor<T>,
+					<T as Config>::RuntimeCall,
+					T::PalletsOrigin,
+				>>::Hasher,
+			> = PreimageBounded::Inline(
+				BoundedVec::try_from(execute_call.encode())
+					.map_err(|_| Error::<T>::ScheduleFailed)?,
+			);
+			T::Scheduler::schedule_named(
+				task_name(id),
+				DispatchTime::At(dispatch_at),
+				None,
+				SCHEDULER_PRIORITY,
+				pallets_origin,
+				bounded_call,
+			)
+			.map_err(|_| Error::<T>::ScheduleFailed)?;
 
 			Self::deposit_event(Event::SwitchCreated {
 				id,
@@ -288,10 +307,11 @@ pub mod pallet {
 			Ok(())
 		}
 
-		/// Send a heartbeat to reset the switch expiry block.
+		/// Send a heartbeat to reset the switch expiry and reschedule the
+		/// auto-execution task.
 		///
-		/// Only the owner can call this. The switch must be active and
-		/// the expiry block must not have passed yet.
+		/// Only the owner can call this. The switch must be active and the
+		/// expiry block must not have passed yet.
 		#[pallet::call_index(1)]
 		#[pallet::weight(T::WeightInfo::heartbeat())]
 		pub fn heartbeat(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
@@ -307,73 +327,31 @@ pub mod pallet {
 			let new_expiry_block = current_block
 				.checked_add(&switch.block_interval)
 				.ok_or(Error::<T>::BlockIntervalTooLarge)?;
+			let dispatch_at = new_expiry_block
+				.checked_add(&One::one())
+				.ok_or(Error::<T>::BlockIntervalTooLarge)?;
+
 			switch.expiry_block = new_expiry_block;
 			Switches::<T>::insert(id, switch);
+
+			T::Scheduler::reschedule_named(task_name(id), DispatchTime::At(dispatch_at))
+				.map_err(|_| Error::<T>::ScheduleFailed)?;
 
 			Self::deposit_event(Event::HeartbeatReceived { id, new_expiry_block });
 			Ok(())
 		}
 
-		/// Trigger an expired switch.
-		///
-		/// Anyone can call this once the expiry block has passed. Stored
-		/// calls are dispatched as `Signed(owner)` — each call may succeed
-		/// or fail independently (best-effort). The caller receives a
-		/// random fraction of the held reward; the remainder is burned.
+		/// Execute the switch: dispatch stored calls as the owner
+		/// (best-effort). Only callable with `Root` origin — the scheduler
+		/// invokes this at the scheduled block, and governance/sudo can
+		/// also force-execute if needed.
 		#[pallet::call_index(2)]
-		#[pallet::weight(T::WeightInfo::trigger())]
-		pub fn trigger(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
-			let caller = ensure_signed(origin)?;
+		#[pallet::weight(T::WeightInfo::execute_switch())]
+		pub fn execute_switch(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
+			ensure_root(origin)?;
 			let mut switch = Switches::<T>::get(id).ok_or(Error::<T>::SwitchNotFound)?;
-
 			ensure!(switch.status == SwitchStatus::Active, Error::<T>::SwitchNotActive);
 
-			let current_block = frame_system::Pallet::<T>::block_number();
-			ensure!(current_block > switch.expiry_block, Error::<T>::NotYetExpired);
-
-			// Determine a random reward between 0 and max_reward.
-			// The remainder is burned so that nobody can predict the payout.
-			let max_reward = switch.max_reward;
-			let (caller_reward, burned) = if max_reward > Zero::zero() {
-				let (hash, _) = T::Randomness::random(
-					&(b"deadman-switch-reward", id).encode(),
-				);
-				let raw = u32::decode(&mut hash.as_ref()).unwrap_or(0);
-				let ratio = Perbill::from_rational(raw, u32::MAX);
-				let reward = ratio * max_reward;
-				let burn = max_reward.saturating_sub(reward);
-
-				// Transfer random reward to caller FIRST,
-				// so the owner has no active holds when calls execute.
-				if reward > Zero::zero() {
-					T::Currency::transfer_on_hold(
-						&HoldReason::DeadmanSwitch.into(),
-						&switch.owner,
-						&caller,
-						reward,
-						frame::traits::tokens::Precision::BestEffort,
-						frame::traits::tokens::Restriction::Free,
-						frame::traits::tokens::Fortitude::Polite,
-					)?;
-				}
-
-				// Burn the remainder from hold
-				if burn > Zero::zero() {
-					T::Currency::burn_held(
-						&HoldReason::DeadmanSwitch.into(),
-						&switch.owner,
-						burn,
-						frame::traits::tokens::Precision::BestEffort,
-						frame::traits::tokens::Fortitude::Force,
-					)?;
-				}
-
-				(reward, burn)
-			} else {
-				(Zero::zero(), Zero::zero())
-			};
-
-			// Execute stored calls as the owner (best-effort)
 			let mut calls_executed = 0u32;
 			let mut calls_failed = 0u32;
 			if let Some(stored_calls) = SwitchCalls::<T>::get(id) {
@@ -409,24 +387,23 @@ pub mod pallet {
 			}
 
 			switch.status = SwitchStatus::Executed;
-			switch.executed_block = current_block;
+			switch.executed_block = frame_system::Pallet::<T>::block_number();
 			Switches::<T>::insert(id, switch);
 
-			Self::deposit_event(Event::SwitchTriggered {
+			Self::deposit_event(Event::SwitchExecuted {
 				id,
-				caller,
-				caller_reward,
-				burned,
 				calls_executed,
 				calls_failed,
 			});
 			Ok(())
 		}
 
-		/// Cancel an active switch and reclaim the trigger reward.
+		/// Cancel an active switch.
 		///
-		/// Only the owner can cancel. The switch must be active.
-		/// Stored calls are removed from storage.
+		/// Only the owner can cancel. The scheduled auto-execution is
+		/// cancelled and the stored calls are removed. Any scheduler error
+		/// is ignored — if the task is already gone, the switch is still
+		/// cleaned up.
 		#[pallet::call_index(3)]
 		#[pallet::weight(T::WeightInfo::cancel())]
 		pub fn cancel(origin: OriginFor<T>, id: SwitchId) -> DispatchResult {
@@ -436,23 +413,13 @@ pub mod pallet {
 			ensure!(switch.owner == who, Error::<T>::NotOwner);
 			ensure!(switch.status == SwitchStatus::Active, Error::<T>::SwitchNotActive);
 
-			// Release max reward back to the owner
-			let returned = switch.max_reward;
-			if returned > Zero::zero() {
-				T::Currency::release(
-					&HoldReason::DeadmanSwitch.into(),
-					&who,
-					returned,
-					frame::traits::tokens::Precision::BestEffort,
-				)?;
-			}
+			let _ = T::Scheduler::cancel_named(task_name(id));
 
 			Switches::<T>::remove(id);
 			SwitchCalls::<T>::remove(id);
 
-			Self::deposit_event(Event::SwitchCancelled { id, returned });
+			Self::deposit_event(Event::SwitchCancelled { id });
 			Ok(())
 		}
-
 	}
 }

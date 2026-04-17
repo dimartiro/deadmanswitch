@@ -16,21 +16,12 @@ interface DecodedCall {
 interface SwitchData {
 	id: bigint;
 	owner: string;
-	triggerReward: bigint;
 	callCount: number;
 	blockInterval: number;
 	expiryBlock: number;
 	executedBlock: number;
 	status: string;
 	calls: DecodedCall[];
-}
-
-function formatBalance(planck: bigint): string {
-	const whole = planck / 1_000_000_000_000n;
-	const frac = planck % 1_000_000_000_000n;
-	if (frac === 0n) return whole.toLocaleString();
-	const fracStr = frac.toString().padStart(12, "0").replace(/0+$/, "");
-	return `${whole.toLocaleString()}.${fracStr}`;
 }
 
 function formatCallArgs(args: Record<string, unknown>): string {
@@ -145,7 +136,7 @@ export default function SwitchesPage() {
 				Balances: { 0: "transfer_allow_death", 1: "force_transfer", 3: "transfer_keep_alive", 4: "transfer_all" },
 				Proxy: { 0: "proxy", 1: "add_proxy", 2: "remove_proxy" },
 				Multisig: { 0: "as_multi_threshold_1", 1: "as_multi", 2: "approve_as_multi" },
-				DeadmanSwitchPallet: { 0: "create_switch", 1: "heartbeat", 2: "trigger", 3: "cancel" },
+				DeadmanSwitchPallet: { 0: "create_switch", 1: "heartbeat", 2: "execute_switch", 3: "cancel" },
 			};
 
 			const callsMap = new Map<string, DecodedCall[]>();
@@ -176,7 +167,6 @@ export default function SwitchesPage() {
 				return {
 					id,
 					owner: entry.value.owner as string,
-					triggerReward: entry.value.trigger_reward as bigint,
 					callCount: entry.value.call_count as number,
 					blockInterval: entry.value.block_interval as number,
 					expiryBlock: entry.value.expiry_block as number,
@@ -201,7 +191,7 @@ export default function SwitchesPage() {
 
 	async function handleAction(
 		switchId: bigint,
-		action: "heartbeat" | "trigger" | "cancel",
+		action: "heartbeat" | "cancel",
 	) {
 		const key = `${switchId}-${action}`;
 		setActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
@@ -211,14 +201,10 @@ export default function SwitchesPage() {
 			const api = client.getTypedApi(stack_template);
 			const signer = selected.signer;
 
-			let tx;
-			if (action === "heartbeat") {
-				tx = api.tx.DeadmanSwitchPallet.heartbeat({ id: switchId });
-			} else if (action === "trigger") {
-				tx = api.tx.DeadmanSwitchPallet.trigger({ id: switchId });
-			} else {
-				tx = api.tx.DeadmanSwitchPallet.cancel({ id: switchId });
-			}
+			const tx =
+				action === "heartbeat"
+					? api.tx.DeadmanSwitchPallet.heartbeat({ id: switchId })
+					: api.tx.DeadmanSwitchPallet.cancel({ id: switchId });
 
 			const result = await tx.signAndSubmit(signer);
 			if (result.ok) {
@@ -258,8 +244,8 @@ export default function SwitchesPage() {
 			<div className="space-y-2">
 				<h1 className="page-title">Dashboard</h1>
 				<p className="text-text-secondary">
-					View all dedman switches. Send heartbeats, trigger expired ones, or
-					cancel your own.
+					View all dedman switches. Send heartbeats or cancel your own —
+					expired switches auto-execute via the on-chain scheduler.
 				</p>
 			</div>
 
@@ -340,11 +326,11 @@ export default function SwitchesPage() {
 				</div>
 			)}
 
-			{/* Expired — trigger opportunities */}
+			{/* Expired — awaiting scheduler */}
 			{expiredSwitches.length > 0 && (
 				<div className="space-y-3">
-					<h2 className="section-title text-accent-red">
-						Expired — Trigger to earn reward
+					<h2 className="section-title text-accent-yellow">
+						Expired — Awaiting Scheduled Execution
 					</h2>
 					{expiredSwitches.map((sw) => (
 						<SwitchCard
@@ -389,7 +375,7 @@ function SwitchCard({
 	sw: SwitchData;
 	blockNumber: number;
 	currentAccount: string;
-	onAction: (id: bigint, action: "heartbeat" | "trigger" | "cancel") => void;
+	onAction: (id: bigint, action: "heartbeat" | "cancel") => void;
 	actionStatus: Record<string, string>;
 }) {
 	const [expanded, setExpanded] = useState(false);
@@ -438,7 +424,7 @@ function SwitchCard({
 				</span>
 			</div>
 
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+			<div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
 				<div
 					onClick={() => sw.calls.length > 0 && setExpanded(!expanded)}
 					className={sw.calls.length > 0 ? "cursor-pointer group" : ""}
@@ -451,12 +437,6 @@ function SwitchCard({
 								{expanded ? "▲" : "▼"}
 							</span>
 						)}
-					</p>
-				</div>
-				<div>
-					<span className="text-text-muted">Trigger Reward</span>
-					<p className="font-mono text-text-primary">
-						{formatBalance(sw.triggerReward)} UNIT
 					</p>
 				</div>
 				<div>
@@ -512,9 +492,9 @@ function SwitchCard({
 			)}
 
 			{/* Actions */}
-			{isActive && (
+			{isActive && isOwner && (
 				<div className="flex gap-2 pt-1">
-					{isOwner && !isExpired && (
+					{!isExpired && (
 						<button
 							onClick={() => onAction(sw.id, "heartbeat")}
 							className="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/20 hover:bg-accent-green/20 transition-colors"
@@ -522,27 +502,17 @@ function SwitchCard({
 							Heartbeat
 						</button>
 					)}
-					{isExpired && (
-						<button
-							onClick={() => onAction(sw.id, "trigger")}
-							className="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-red/10 text-accent-red border border-accent-red/20 hover:bg-accent-red/20 transition-colors"
-						>
-							Trigger — earn {formatBalance(sw.triggerReward)} UNIT
-						</button>
-					)}
-					{isOwner && (
-						<button
-							onClick={() => onAction(sw.id, "cancel")}
-							className="px-3 py-1.5 rounded-lg text-xs font-medium bg-text-muted/10 text-text-secondary border border-text-muted/20 hover:bg-text-muted/20 transition-colors"
-						>
-							Cancel
-						</button>
-					)}
+					<button
+						onClick={() => onAction(sw.id, "cancel")}
+						className="px-3 py-1.5 rounded-lg text-xs font-medium bg-text-muted/10 text-text-secondary border border-text-muted/20 hover:bg-text-muted/20 transition-colors"
+					>
+						Cancel
+					</button>
 				</div>
 			)}
 
 			{/* Action status */}
-			{["heartbeat", "trigger", "cancel"].map((action) => {
+			{["heartbeat", "cancel"].map((action) => {
 				const key = `${sw.id}-${action}`;
 				const status = actionStatus[key];
 				if (!status) return null;

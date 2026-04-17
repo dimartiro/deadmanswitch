@@ -1,5 +1,5 @@
 import { StorageDescriptor, PlainDescriptor, TxDescriptor, RuntimeDescriptor, Enum, ApisFromDef, QueryFromPalletsDef, TxFromPalletsDef, EventsFromPalletsDef, ErrorsFromPalletsDef, ConstFromPalletsDef, ViewFnsFromPalletsDef, SS58String, FixedSizeBinary, Binary, FixedSizeArray } from "polkadot-api";
-import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, Ip33dasgb3vr3, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, Iae97qb3heev3a, I9bin2jc70qt6q, TransactionPaymentReleases, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, Ifkp6g5ns4l6fh, I8qbv05tr0tcrs, I9p9lq3rej5bhc, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I834nfrf667ag1, I14i9pui8lc778, I8t4pajubp34g3, I10nrsmn0hji4l, I3oiqcurom3m43, I20ichc5j0l1u7, I1p16diuhde12h, Id4f5q01qh34o3, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, I3viv7peatsfn5, I8op0lqnpk3l0j, I8k3rnvpeeh4hv, I9283or271m3j, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, Ibde2r5jq660dc, I4ov6e94l79mbg, I11uimnk6a6nc3, Ifdtopefat0s6c, I2oa98tva0dcti, I8mjeo5oecbivt, I2eb501t8s6hsq, Ianmuoljk2sk1u, I2d94pt3emu90g, Ibikp6ubme8ces, I7cs7bea8fsmg1, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, Ida37oe44osb06, I6v02o6j4snahe, I27569neuh5t1o, Id92o6smntb9m5, I5nmb2hfkgk9ol, Iav55bcqlrqn51, I6o0473jchq0rn, I10ra4g1rl6k2f, I1uihehkdsggvp, Ia82mnkmeo2rhc, I4os89d3facqn6, Icbccs0ug47ilf, I855j4i3kr8ko1, I1restk9ts7lm8, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, I6jg6l5h5npvh5, I2jmih40lhlepi, I63acq8em4ic0p, Iph9c4rn81ub2, Ier2cke86dqbr2, I3b3beditib7cu, I5rtkmhm2dng4u, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I3uua81e9uvgnp, I6o83l7nvtm748, I7p099b5deqg11, I3nnlc4gk4povb, I9ekov8c3nr2cb, I51t9t70vnfsr2, Iadmn3p796mg65, I30an4pagav86d, I5si6c5m867t60, I2ur0oeqg495j8, Idg3gs8jbk37mt, I1bhd210c3phjj, Iep27ialq4a7o7, Iasu5jvoqr43mv, Icct89ak0s3l4o, I5qolde99acmd1, I8gtde5abn1g9a, I7svbvm6hg57aj, I8jhsbaiultviu, Ies5bskjnq2gqb, I5r8t4iaend96p, I5uect53ett682, I176ch6ftnp6d1, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I4gil44d08grh, I7u915mvkdsb08, I9llufrmculbl9, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Ic1d4u2opv3fst, Ico18ks790i2bl, I815pbp5omtss, I3ju6ot8lfmk90, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, I4totqt881mlti, I4s6vifaf8k998, I35p85j063s0il, Icq8o3dr41hprf, I9sijb8gfrns29, If0mcc5aqlg3hg, I6f9v7emp7t5ba, Ida7d8eqrkav55, Idmrtv8jbbitnu, I8bqtpa86m82mv, Ib1fsqnio4hgeh, I63nhnkgg114n5, I1l7ajs6s9ur3a, Ice9mpbhevl5b7, Idt5popft6i714, I512dtcl0pn07c, I4271lm07voush } from "./common-types";
+import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, I4nf04e99tcfuj, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, I63lqt6dl3kn9k, I9bin2jc70qt6q, TransactionPaymentReleases, I35oke5aiccrn, I56u24ncejr5kt, I9jd27rnpm8ttv, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, Ibaom22dafmpl9, I8qbv05tr0tcrs, I9p9lq3rej5bhc, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I834nfrf667ag1, I14i9pui8lc778, I8t4pajubp34g3, I10nrsmn0hji4l, I3oiqcurom3m43, I20ichc5j0l1u7, I1p16diuhde12h, Id4f5q01qh34o3, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, Ibkq5v106bii9j, Id98u33o8us3d0, I8k3rnvpeeh4hv, I8luvq62vpuu0o, Ibafdae48jdgnv, I5n4sebgkfr760, I8i0d5otitssqk, Ifs1i5fk9cqvr6, Idhol49b8qjrv6, I27usevlt661lf, Ieg3fd8p4pkt10, I8kg5ll427kfqq, I467333262q1l9, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, I9kaf2tq6nfqdd, I4ov6e94l79mbg, I8ddjmnp4sm534, Ifdtopefat0s6c, I2oa98tva0dcti, I8mjeo5oecbivt, I2eb501t8s6hsq, Ianmuoljk2sk1u, Iabnmr81d3mkje, I38o2cud14hobo, I99ss6qonfolni, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, Ida37oe44osb06, I6v02o6j4snahe, I27569neuh5t1o, Id92o6smntb9m5, I5nmb2hfkgk9ol, Iav55bcqlrqn51, I82215q5d4hr2n, I10ra4g1rl6k2f, I1uihehkdsggvp, Ia82mnkmeo2rhc, Ibb2b764ndvl9v, Icbccs0ug47ilf, I855j4i3kr8ko1, Ia04u6da14g2db, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, I2sjgp7v0b4kr7, Iq8n5b8q00vqa, Iaa6lo6ksjs4p7, Iph9c4rn81ub2, Ier2cke86dqbr2, Ibpqcc5kelu55o, I5rtkmhm2dng4u, I1vise5o3ej4qg, Ia3c82eadg79bj, Ienusoeb625ftq, Ibtsa3docbr9el, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I3uua81e9uvgnp, I988rcg6i83vkj, I7p099b5deqg11, I1gteqdarll3mu, I6mcddm4b7uoc9, I1soc9rs3i4flh, I30an4pagav86d, I5si6c5m867t60, I2ur0oeqg495j8, Idg3gs8jbk37mt, I1bhd210c3phjj, Iep27ialq4a7o7, Iasu5jvoqr43mv, I8li559csa4plo, I5qolde99acmd1, I8gtde5abn1g9a, I7svbvm6hg57aj, I8jhsbaiultviu, I7s6iuhisri047, I5r8t4iaend96p, I499p2pv04ifaa, I176ch6ftnp6d1, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I4gil44d08grh, I7u915mvkdsb08, Ilp64o5619hec, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Ic1d4u2opv3fst, Ico18ks790i2bl, I815pbp5omtss, I3ju6ot8lfmk90, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, I4totqt881mlti, I4s6vifaf8k998, I35p85j063s0il, Idr7radp9l4j8a, I9sijb8gfrns29, I58r6vld2cue8t, I6f9v7emp7t5ba, Ida7d8eqrkav55, Idmrtv8jbbitnu, I8rgjrbglep213, I4savqaufcv48q, I63nhnkgg114n5, I1l7ajs6s9ur3a, Ice9mpbhevl5b7, Idt5popft6i714, I512dtcl0pn07c, I2tb1gol5cq2da } from "./common-types";
 type AnonymousEnum<T extends {}> = T & {
     __anonymous: true;
 };
@@ -61,7 +61,7 @@ type IStorage = {
          * Events have a large in-memory size. Box the events to not go out-of-memory
          * just in case someone still reads them from within the runtime.
          */
-        Events: StorageDescriptor<[], Anonymize<Ip33dasgb3vr3>, false, never>;
+        Events: StorageDescriptor<[], Anonymize<I4nf04e99tcfuj>, false, never>;
         /**
          * The number of events in the `Events<T>` list.
          */
@@ -361,7 +361,7 @@ type IStorage = {
         /**
          * Holds on account balances.
          */
-        Holds: StorageDescriptor<[Key: SS58String], Anonymize<Iae97qb3heev3a>, false, never>;
+        Holds: StorageDescriptor<[Key: SS58String], Anonymize<I63lqt6dl3kn9k>, false, never>;
         /**
          * Freeze locks on account balances.
          */
@@ -388,6 +388,27 @@ type IStorage = {
          * The `AccountId` of the sudo key.
          */
         Key: StorageDescriptor<[], SS58String, true, never>;
+    };
+    Scheduler: {
+        /**
+         * Block number at which the agenda began incomplete execution.
+         */
+        IncompleteSince: StorageDescriptor<[], number, true, never>;
+        /**
+         * Items to be executed, indexed by the block number that they should be executed on.
+         */
+        Agenda: StorageDescriptor<[Key: number], Anonymize<I35oke5aiccrn>, false, never>;
+        /**
+         * Retry configurations for items to be executed, indexed by task address.
+         */
+        Retries: StorageDescriptor<[Key: Anonymize<I9jd27rnpm8ttv>], Anonymize<I56u24ncejr5kt>, true, never>;
+        /**
+         * Lookup from a name to the block number and index of the task.
+         *
+         * For v3 -> v4 the previously unbounded identities are Blake2-256 hashed to form the v4
+         * identities.
+         */
+        Lookup: StorageDescriptor<[Key: FixedSizeBinary<32>], Anonymize<I9jd27rnpm8ttv>, true, never>;
     };
     Authorship: {
         /**
@@ -643,11 +664,10 @@ type IStorage = {
         /**
          * All deadman switches, keyed by SwitchId.
          */
-        Switches: StorageDescriptor<[Key: bigint], Anonymize<Ifkp6g5ns4l6fh>, true, never>;
+        Switches: StorageDescriptor<[Key: bigint], Anonymize<Ibaom22dafmpl9>, true, never>;
         /**
          * Stored calls for each switch, keyed by SwitchId.
-         * Calls are stored as encoded bytes because RuntimeCall does not implement
-         * MaxEncodedLen. Each inner BoundedVec holds one encoded call.
+         * Each inner BoundedVec holds one encoded call.
          */
         SwitchCalls: StorageDescriptor<[Key: bigint], Anonymize<Itom7fk49o0c9>, true, never>;
     };
@@ -956,7 +976,7 @@ type ICalls = {
         /**
          * Authenticates the sudo key and dispatches a function call with `Root` origin.
          */
-        sudo: TxDescriptor<Anonymize<I3viv7peatsfn5>>;
+        sudo: TxDescriptor<Anonymize<Ibkq5v106bii9j>>;
         /**
          * Authenticates the sudo key and dispatches a function call with `Root` origin.
          * This function does not check the weight of the call, and instead allows the
@@ -964,7 +984,7 @@ type ICalls = {
          *
          * The dispatch origin for this call must be _Signed_.
          */
-        sudo_unchecked_weight: TxDescriptor<Anonymize<I8op0lqnpk3l0j>>;
+        sudo_unchecked_weight: TxDescriptor<Anonymize<Id98u33o8us3d0>>;
         /**
          * Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo
          * key.
@@ -976,13 +996,77 @@ type ICalls = {
          *
          * The dispatch origin for this call must be _Signed_.
          */
-        sudo_as: TxDescriptor<Anonymize<I9283or271m3j>>;
+        sudo_as: TxDescriptor<Anonymize<I8luvq62vpuu0o>>;
         /**
          * Permanently removes the sudo key.
          *
          * **This cannot be un-done.**
          */
         remove_key: TxDescriptor<undefined>;
+    };
+    Scheduler: {
+        /**
+         * Anonymously schedule a task.
+         */
+        schedule: TxDescriptor<Anonymize<Ibafdae48jdgnv>>;
+        /**
+         * Cancel an anonymously scheduled task.
+         */
+        cancel: TxDescriptor<Anonymize<I5n4sebgkfr760>>;
+        /**
+         * Schedule a named task.
+         */
+        schedule_named: TxDescriptor<Anonymize<I8i0d5otitssqk>>;
+        /**
+         * Cancel a named scheduled task.
+         */
+        cancel_named: TxDescriptor<Anonymize<Ifs1i5fk9cqvr6>>;
+        /**
+         * Anonymously schedule a task after a delay.
+         */
+        schedule_after: TxDescriptor<Anonymize<Idhol49b8qjrv6>>;
+        /**
+         * Schedule a named task after a delay.
+         */
+        schedule_named_after: TxDescriptor<Anonymize<I27usevlt661lf>>;
+        /**
+         * Set a retry configuration for a task so that, in case its scheduled run fails, it will
+         * be retried after `period` blocks, for a total amount of `retries` retries or until it
+         * succeeds.
+         *
+         * Tasks which need to be scheduled for a retry are still subject to weight metering and
+         * agenda space, same as a regular task. If a periodic task fails, it will be scheduled
+         * normally while the task is retrying.
+         *
+         * Tasks scheduled as a result of a retry for a periodic task are unnamed, non-periodic
+         * clones of the original task. Their retry configuration will be derived from the
+         * original task's configuration, but will have a lower value for `remaining` than the
+         * original `total_retries`.
+         */
+        set_retry: TxDescriptor<Anonymize<Ieg3fd8p4pkt10>>;
+        /**
+         * Set a retry configuration for a named task so that, in case its scheduled run fails, it
+         * will be retried after `period` blocks, for a total amount of `retries` retries or until
+         * it succeeds.
+         *
+         * Tasks which need to be scheduled for a retry are still subject to weight metering and
+         * agenda space, same as a regular task. If a periodic task fails, it will be scheduled
+         * normally while the task is retrying.
+         *
+         * Tasks scheduled as a result of a retry for a periodic task are unnamed, non-periodic
+         * clones of the original task. Their retry configuration will be derived from the
+         * original task's configuration, but will have a lower value for `remaining` than the
+         * original `total_retries`.
+         */
+        set_retry_named: TxDescriptor<Anonymize<I8kg5ll427kfqq>>;
+        /**
+         * Removes the retry configuration of a task.
+         */
+        cancel_retry: TxDescriptor<Anonymize<I467333262q1l9>>;
+        /**
+         * Cancel the retry configuration of a named task.
+         */
+        cancel_retry_named: TxDescriptor<Anonymize<Ifs1i5fk9cqvr6>>;
     };
     CollatorSelection: {
         /**
@@ -1449,35 +1533,33 @@ type ICalls = {
         /**
          * Create a new deadman switch with stored calls.
          *
-         * Holds `trigger_reward` from the caller. On trigger, stored calls
-         * are dispatched as `Signed(owner)` (best-effort) and the caller
-         * receives the trigger reward.
-         *
-         * Stored calls are encoded at creation time. A runtime upgrade may
-         * invalidate them — cancel and recreate the switch if needed.
+         * Schedules `execute_switch(id)` at `expiry_block + 1` via
+         * `pallet-scheduler`. No reward or hold is required — the owner only
+         * pays the transaction fee.
          */
-        create_switch: TxDescriptor<Anonymize<Ibde2r5jq660dc>>;
+        create_switch: TxDescriptor<Anonymize<I9kaf2tq6nfqdd>>;
         /**
-         * Send a heartbeat to reset the switch expiry block.
+         * Send a heartbeat to reset the switch expiry and reschedule the
+         * auto-execution task.
          *
-         * Only the owner can call this. The switch must be active and
-         * the expiry block must not have passed yet.
+         * Only the owner can call this. The switch must be active and the
+         * expiry block must not have passed yet.
          */
         heartbeat: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
         /**
-         * Trigger an expired switch.
-         *
-         * Anyone can call this once the expiry block has passed. Stored
-         * calls are dispatched as `Signed(owner)` — each call may succeed
-         * or fail independently (best-effort). The caller receives the
-         * trigger reward.
+         * Execute the switch: dispatch stored calls as the owner
+         * (best-effort). Only callable with `Root` origin — the scheduler
+         * invokes this at the scheduled block, and governance/sudo can
+         * also force-execute if needed.
          */
-        trigger: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
+        execute_switch: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
         /**
-         * Cancel an active switch and reclaim the trigger reward.
+         * Cancel an active switch.
          *
-         * Only the owner can cancel. The switch must be active.
-         * Stored calls are removed from storage.
+         * Only the owner can cancel. The scheduled auto-execution is
+         * cancelled and the stored calls are removed. Any scheduler error
+         * is ignored — if the task is already gone, the switch is still
+         * cleaned up.
          */
         cancel: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
     };
@@ -1493,7 +1575,7 @@ type ICalls = {
          * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
          * - `call`: The call to be made by the `real` account.
          */
-        proxy: TxDescriptor<Anonymize<I11uimnk6a6nc3>>;
+        proxy: TxDescriptor<Anonymize<I8ddjmnp4sm534>>;
         /**
          * Register a proxy account for the sender that is able to make calls on its behalf.
          *
@@ -1622,7 +1704,7 @@ type ICalls = {
          * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
          * - `call`: The call to be made by the `real` account.
          */
-        proxy_announced: TxDescriptor<Anonymize<I2d94pt3emu90g>>;
+        proxy_announced: TxDescriptor<Anonymize<Iabnmr81d3mkje>>;
         /**
          * Poke / Adjust deposits made for proxies and announcements based on current values.
          * This can be used by accounts to possibly lower their locked amount.
@@ -1650,7 +1732,7 @@ type ICalls = {
          * ## Complexity
          * O(Z + C) where Z is the length of the call and C its execution weight.
          */
-        as_multi_threshold_1: TxDescriptor<Anonymize<Ibikp6ubme8ces>>;
+        as_multi_threshold_1: TxDescriptor<Anonymize<I38o2cud14hobo>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -1692,7 +1774,7 @@ type ICalls = {
          * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
          * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
          */
-        as_multi: TxDescriptor<Anonymize<I7cs7bea8fsmg1>>;
+        as_multi: TxDescriptor<Anonymize<I99ss6qonfolni>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -1895,7 +1977,7 @@ type ICalls = {
          * * `call`: The Substrate runtime call to execute.
          * * `transaction_encoded`: The RLP encoding of the Ethereum transaction,
          */
-        eth_substrate_call: TxDescriptor<Anonymize<I6o0473jchq0rn>>;
+        eth_substrate_call: TxDescriptor<Anonymize<I82215q5d4hr2n>>;
         /**
          * Upload new `code` without instantiating a contract from it.
          *
@@ -1954,7 +2036,7 @@ type ICalls = {
          * is the `AccountId20` with the last 12 bytes set to `0xEE`. This is essentially a
          * recovery function in case an `AccountId20` was used without creating a mapping first.
          */
-        dispatch_as_fallback_account: TxDescriptor<Anonymize<I3viv7peatsfn5>>;
+        dispatch_as_fallback_account: TxDescriptor<Anonymize<Ibkq5v106bii9j>>;
     };
 };
 type IEvent = {
@@ -1966,7 +2048,7 @@ type IEvent = {
         /**
          * An extrinsic failed.
          */
-        ExtrinsicFailed: PlainDescriptor<Anonymize<I4os89d3facqn6>>;
+        ExtrinsicFailed: PlainDescriptor<Anonymize<Ibb2b764ndvl9v>>;
         /**
          * `:code` was updated.
          */
@@ -1990,7 +2072,7 @@ type IEvent = {
         /**
          * An invalid authorized upgrade was rejected while trying to apply it.
          */
-        RejectedInvalidAuthorizedUpgrade: PlainDescriptor<Anonymize<I1restk9ts7lm8>>;
+        RejectedInvalidAuthorizedUpgrade: PlainDescriptor<Anonymize<Ia04u6da14g2db>>;
     };
     ParachainSystem: {
         /**
@@ -2120,23 +2202,23 @@ type IEvent = {
         /**
          * Some balance was placed on hold.
          */
-        Held: PlainDescriptor<Anonymize<I6jg6l5h5npvh5>>;
+        Held: PlainDescriptor<Anonymize<I2sjgp7v0b4kr7>>;
         /**
          * Held balance was burned from an account.
          */
-        BurnedHeld: PlainDescriptor<Anonymize<I6jg6l5h5npvh5>>;
+        BurnedHeld: PlainDescriptor<Anonymize<I2sjgp7v0b4kr7>>;
         /**
          * A transfer of `amount` on hold from `source` to `dest` was initiated.
          */
-        TransferOnHold: PlainDescriptor<Anonymize<I2jmih40lhlepi>>;
+        TransferOnHold: PlainDescriptor<Anonymize<Iq8n5b8q00vqa>>;
         /**
          * The `transferred` balance is placed on hold at the `dest` account.
          */
-        TransferAndHold: PlainDescriptor<Anonymize<I63acq8em4ic0p>>;
+        TransferAndHold: PlainDescriptor<Anonymize<Iaa6lo6ksjs4p7>>;
         /**
          * Some balance was released from hold.
          */
-        Released: PlainDescriptor<Anonymize<I6jg6l5h5npvh5>>;
+        Released: PlainDescriptor<Anonymize<I2sjgp7v0b4kr7>>;
         /**
          * An unexpected/defensive event was triggered.
          */
@@ -2153,7 +2235,7 @@ type IEvent = {
         /**
          * A sudo call just took place.
          */
-        Sudid: PlainDescriptor<Anonymize<I3b3beditib7cu>>;
+        Sudid: PlainDescriptor<Anonymize<Ibpqcc5kelu55o>>;
         /**
          * The sudo key has been updated.
          */
@@ -2165,7 +2247,50 @@ type IEvent = {
         /**
          * A [sudo_as](Pallet::sudo_as) call just took place.
          */
-        SudoAsDone: PlainDescriptor<Anonymize<I3b3beditib7cu>>;
+        SudoAsDone: PlainDescriptor<Anonymize<Ibpqcc5kelu55o>>;
+    };
+    Scheduler: {
+        /**
+         * Scheduled some task.
+         */
+        Scheduled: PlainDescriptor<Anonymize<I5n4sebgkfr760>>;
+        /**
+         * Canceled some task.
+         */
+        Canceled: PlainDescriptor<Anonymize<I5n4sebgkfr760>>;
+        /**
+         * Dispatched some task.
+         */
+        Dispatched: PlainDescriptor<Anonymize<I1vise5o3ej4qg>>;
+        /**
+         * Set a retry configuration for some task.
+         */
+        RetrySet: PlainDescriptor<Anonymize<Ia3c82eadg79bj>>;
+        /**
+         * Cancel a retry configuration for some task.
+         */
+        RetryCancelled: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * The call for the provided hash was not found so the task has been aborted.
+         */
+        CallUnavailable: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * The given task was unable to be renewed since the agenda is full at that block.
+         */
+        PeriodicFailed: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * The given task was unable to be retried since the agenda is full at that block or there
+         * was not enough weight to reschedule it.
+         */
+        RetryFailed: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * The given task can never be executed since it is overweight.
+         */
+        PermanentlyOverweight: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * Agenda is incomplete from `when`.
+         */
+        AgendaIncomplete: PlainDescriptor<Anonymize<Ibtsa3docbr9el>>;
     };
     CollatorSelection: {
         /**
@@ -2430,31 +2555,31 @@ type IEvent = {
     };
     DeadmanSwitchPallet: {
         /**
-         * A new deadman switch was created.
+         * A new deadman switch was created and its auto-execution scheduled.
          */
-        SwitchCreated: PlainDescriptor<Anonymize<I6o83l7nvtm748>>;
+        SwitchCreated: PlainDescriptor<Anonymize<I988rcg6i83vkj>>;
         /**
-         * The owner sent a heartbeat, resetting the expiry block.
+         * The owner sent a heartbeat; expiry and scheduled execution moved.
          */
         HeartbeatReceived: PlainDescriptor<Anonymize<I7p099b5deqg11>>;
         /**
-         * The switch was triggered — calls dispatched, reward paid to caller.
+         * The switch executed — stored calls dispatched (best-effort).
          */
-        SwitchTriggered: PlainDescriptor<Anonymize<I3nnlc4gk4povb>>;
+        SwitchExecuted: PlainDescriptor<Anonymize<I1gteqdarll3mu>>;
         /**
-         * A stored call was dispatched during trigger.
+         * A stored call was dispatched during execution.
          */
-        CallDispatched: PlainDescriptor<Anonymize<I9ekov8c3nr2cb>>;
+        CallDispatched: PlainDescriptor<Anonymize<I6mcddm4b7uoc9>>;
         /**
          * The switch was cancelled by the owner.
          */
-        SwitchCancelled: PlainDescriptor<Anonymize<I51t9t70vnfsr2>>;
+        SwitchCancelled: PlainDescriptor<Anonymize<I4ov6e94l79mbg>>;
     };
     Proxy: {
         /**
          * A proxy was executed correctly, with the given.
          */
-        ProxyExecuted: PlainDescriptor<Anonymize<Iadmn3p796mg65>>;
+        ProxyExecuted: PlainDescriptor<Anonymize<I1soc9rs3i4flh>>;
         /**
          * A pure account has been created by new proxy with given
          * disambiguation index and proxy type.
@@ -2493,7 +2618,7 @@ type IEvent = {
         /**
          * A multisig operation has been executed.
          */
-        MultisigExecuted: PlainDescriptor<Anonymize<Icct89ak0s3l4o>>;
+        MultisigExecuted: PlainDescriptor<Anonymize<I8li559csa4plo>>;
         /**
          * A multisig operation has been cancelled.
          */
@@ -2520,7 +2645,7 @@ type IEvent = {
          * To distinguish reverted calls from successful ones, this event is emitted
          * for failed Ethereum transactions.
          */
-        EthExtrinsicRevert: PlainDescriptor<Anonymize<Ies5bskjnq2gqb>>;
+        EthExtrinsicRevert: PlainDescriptor<Anonymize<I7s6iuhisri047>>;
     };
 };
 type IError = {
@@ -2648,6 +2773,28 @@ type IError = {
          * Sender must be the Sudo account.
          */
         RequireSudo: PlainDescriptor<undefined>;
+    };
+    Scheduler: {
+        /**
+         * Failed to schedule a call
+         */
+        FailedToSchedule: PlainDescriptor<undefined>;
+        /**
+         * Cannot find the scheduled call.
+         */
+        NotFound: PlainDescriptor<undefined>;
+        /**
+         * Given target block number is in the past.
+         */
+        TargetBlockNumberInPast: PlainDescriptor<undefined>;
+        /**
+         * Reschedule failed because it does not change scheduled time.
+         */
+        RescheduleNoChange: PlainDescriptor<undefined>;
+        /**
+         * Attempt to use a non-named function on a named task.
+         */
+        Named: PlainDescriptor<undefined>;
     };
     CollatorSelection: {
         /**
@@ -2939,11 +3086,7 @@ type IError = {
          */
         SwitchNotActive: PlainDescriptor<undefined>;
         /**
-         * The switch has not yet expired (expiry block not passed).
-         */
-        NotYetExpired: PlainDescriptor<undefined>;
-        /**
-         * The switch has already expired.
+         * The switch has already expired — heartbeat rejected.
          */
         SwitchExpired: PlainDescriptor<undefined>;
         /**
@@ -2966,6 +3109,10 @@ type IError = {
          * A call exceeds the maximum encoded size.
          */
         CallTooLarge: PlainDescriptor<undefined>;
+        /**
+         * The scheduler refused to schedule or reschedule the task.
+         */
+        ScheduleFailed: PlainDescriptor<undefined>;
     };
     Proxy: {
         /**
@@ -3420,6 +3567,20 @@ type IConstants = {
          */
         OperationalFeeMultiplier: PlainDescriptor<number>;
     };
+    Scheduler: {
+        /**
+         * The maximum weight that may be scheduled per block for any dispatchables.
+         */
+        MaximumWeight: PlainDescriptor<Anonymize<I4q39t5hn830vp>>;
+        /**
+         * The maximum number of scheduled calls in the queue for a single block.
+         *
+         * NOTE:
+         * + Dependent pallets' benchmarks might require a higher limit for the setting. Set a
+         * higher limit under `runtime-benchmarks` feature.
+         */
+        MaxScheduledPerBlock: PlainDescriptor<number>;
+    };
     CollatorSelection: {
         /**
          * Account Identifier from which the internal Pot is generated.
@@ -3750,7 +3911,7 @@ type IViewFns = {
         /**
          * Check if a `RuntimeCall` is allowed for a given `ProxyType`.
          */
-        check_permissions: RuntimeDescriptor<[call: Anonymize<I5uect53ett682>, proxy_type: Anonymize<I176ch6ftnp6d1>], boolean>;
+        check_permissions: RuntimeDescriptor<[call: Anonymize<I499p2pv04ifaa>, proxy_type: Anonymize<I176ch6ftnp6d1>], boolean>;
         /**
          * Check if one `ProxyType` is a subset of another `ProxyType`.
          */
@@ -3861,7 +4022,7 @@ type IRuntimeCalls = {
          * Returns an inclusion outcome which specifies if this extrinsic is included in
          * this block or not.
          */
-        apply_extrinsic: RuntimeDescriptor<[extrinsic: Binary], Anonymize<I9llufrmculbl9>>;
+        apply_extrinsic: RuntimeDescriptor<[extrinsic: Binary], Anonymize<Ilp64o5619hec>>;
         /**
          * Finish the current block.
          */
@@ -3959,11 +4120,11 @@ type IRuntimeCalls = {
         /**
          * Query information of a dispatch class, weight, and fee of a given encoded `Call`.
          */
-        query_call_info: RuntimeDescriptor<[call: Anonymize<I5uect53ett682>, len: number], Anonymize<I6spmpef2c7svf>>;
+        query_call_info: RuntimeDescriptor<[call: Anonymize<I499p2pv04ifaa>, len: number], Anonymize<I6spmpef2c7svf>>;
         /**
          * Query fee details of a given encoded `Call`.
          */
-        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<I5uect53ett682>, len: number], Anonymize<Iei2mvq0mjvt81>>;
+        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<I499p2pv04ifaa>, len: number], Anonymize<Iei2mvq0mjvt81>>;
         /**
          * Query the output of the current `WeightToFee` given some input.
          */
@@ -4083,13 +4244,13 @@ type IRuntimeCalls = {
          *
          * See [`crate::Pallet::bare_call`].
          */
-        call: RuntimeDescriptor<[origin: SS58String, dest: FixedSizeBinary<20>, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, input_data: Binary], Anonymize<Icq8o3dr41hprf>>;
+        call: RuntimeDescriptor<[origin: SS58String, dest: FixedSizeBinary<20>, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, input_data: Binary], Anonymize<Idr7radp9l4j8a>>;
         /**
          * Instantiate a new contract.
          *
          * See `[crate::Pallet::bare_instantiate]`.
          */
-        instantiate: RuntimeDescriptor<[origin: SS58String, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, code: Anonymize<I9sijb8gfrns29>, data: Binary, salt: Anonymize<I4s6vifaf8k998>], Anonymize<If0mcc5aqlg3hg>>;
+        instantiate: RuntimeDescriptor<[origin: SS58String, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, code: Anonymize<I9sijb8gfrns29>, data: Binary, salt: Anonymize<I4s6vifaf8k998>], Anonymize<I58r6vld2cue8t>>;
         /**
          * Perform an Ethereum call.
          *
@@ -4108,7 +4269,7 @@ type IRuntimeCalls = {
          *
          * See [`crate::Pallet::bare_upload_code`].
          */
-        upload_code: RuntimeDescriptor<[origin: SS58String, code: Binary, storage_deposit_limit: Anonymize<I35p85j063s0il>], Anonymize<I8bqtpa86m82mv>>;
+        upload_code: RuntimeDescriptor<[origin: SS58String, code: Binary, storage_deposit_limit: Anonymize<I35p85j063s0il>], Anonymize<I8rgjrbglep213>>;
         /**
          * Query a given storage key in a given contract.
          *
@@ -4116,7 +4277,7 @@ type IRuntimeCalls = {
          * specified account and `Ok(None)` if it doesn't. If the account specified by the address
          * doesn't exist, or doesn't have a contract then `Err` is returned.
          */
-        get_storage: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: FixedSizeBinary<32>], Anonymize<Ib1fsqnio4hgeh>>;
+        get_storage: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: FixedSizeBinary<32>], Anonymize<I4savqaufcv48q>>;
         /**
          * Query a given variable-sized storage key in a given contract.
          *
@@ -4124,7 +4285,7 @@ type IRuntimeCalls = {
          * specified account and `Ok(None)` if it doesn't. If the account specified by the address
          * doesn't exist, or doesn't have a contract then `Err` is returned.
          */
-        get_storage_var_key: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: Binary], Anonymize<Ib1fsqnio4hgeh>>;
+        get_storage_var_key: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: Binary], Anonymize<I4savqaufcv48q>>;
         /**
          * Traces the execution of an entire block and returns call traces.
          *
@@ -4175,7 +4336,7 @@ type IRuntimeCalls = {
         new_balance_with_dust: RuntimeDescriptor<[balance: Anonymize<I4totqt881mlti>], Anonymize<I512dtcl0pn07c>>;
     };
 };
-export type Stack_templateDispatchError = Anonymize<I4271lm07voush>;
+export type Stack_templateDispatchError = Anonymize<I2tb1gol5cq2da>;
 type IAsset = PlainDescriptor<void>;
 export type Stack_templateExtensions = {};
 type PalletsTypedef = {
@@ -4206,7 +4367,7 @@ export type Stack_templateEvents = EventsFromPalletsDef<PalletsTypedef>;
 export type Stack_templateErrors = ErrorsFromPalletsDef<PalletsTypedef>;
 export type Stack_templateConstants = ConstFromPalletsDef<PalletsTypedef>;
 export type Stack_templateViewFns = ViewFnsFromPalletsDef<PalletsTypedef>;
-export type Stack_templateCallData = Anonymize<I5uect53ett682> & {
+export type Stack_templateCallData = Anonymize<I499p2pv04ifaa> & {
     value: {
         type: string;
     };
@@ -4220,6 +4381,7 @@ type AllInteractions = {
         Balances: ['TotalIssuance', 'InactiveIssuance', 'Account', 'Locks', 'Reserves', 'Holds', 'Freezes'];
         TransactionPayment: ['NextFeeMultiplier', 'StorageVersion', 'TxPaymentCredit'];
         Sudo: ['Key'];
+        Scheduler: ['IncompleteSince', 'Agenda', 'Retries', 'Lookup'];
         Authorship: ['Author'];
         CollatorSelection: ['Invulnerables', 'CandidateList', 'LastAuthoredBlock', 'DesiredCandidates', 'CandidacyBond'];
         Session: ['Validators', 'CurrentIndex', 'QueuedChanged', 'QueuedKeys', 'DisabledValidators', 'NextKeys', 'KeyOwner', 'ExternallySetKeys'];
@@ -4239,12 +4401,13 @@ type AllInteractions = {
         Timestamp: ['set'];
         Balances: ['transfer_allow_death', 'force_transfer', 'transfer_keep_alive', 'transfer_all', 'force_unreserve', 'upgrade_accounts', 'force_set_balance', 'force_adjust_total_issuance', 'burn'];
         Sudo: ['sudo', 'sudo_unchecked_weight', 'set_key', 'sudo_as', 'remove_key'];
+        Scheduler: ['schedule', 'cancel', 'schedule_named', 'cancel_named', 'schedule_after', 'schedule_named_after', 'set_retry', 'set_retry_named', 'cancel_retry', 'cancel_retry_named'];
         CollatorSelection: ['set_invulnerables', 'set_desired_candidates', 'set_candidacy_bond', 'register_as_candidate', 'leave_intent', 'add_invulnerable', 'remove_invulnerable', 'update_bond', 'take_candidate_slot'];
         Session: ['set_keys', 'purge_keys'];
         XcmpQueue: ['suspend_xcm_execution', 'resume_xcm_execution', 'update_suspend_threshold', 'update_drop_threshold', 'update_resume_threshold'];
         PolkadotXcm: ['send', 'teleport_assets', 'reserve_transfer_assets', 'execute', 'force_xcm_version', 'force_default_xcm_version', 'force_subscribe_version_notify', 'force_unsubscribe_version_notify', 'limited_reserve_transfer_assets', 'limited_teleport_assets', 'force_suspension', 'transfer_assets', 'claim_assets', 'transfer_assets_using_type_and_then', 'add_authorized_alias', 'remove_authorized_alias', 'remove_all_authorized_aliases'];
         MessageQueue: ['reap_page', 'execute_overweight'];
-        DeadmanSwitchPallet: ['create_switch', 'heartbeat', 'trigger', 'cancel'];
+        DeadmanSwitchPallet: ['create_switch', 'heartbeat', 'execute_switch', 'cancel'];
         Proxy: ['proxy', 'add_proxy', 'remove_proxy', 'remove_proxies', 'create_pure', 'kill_pure', 'announce', 'remove_announcement', 'reject_announcement', 'proxy_announced', 'poke_deposit'];
         Multisig: ['as_multi_threshold_1', 'as_multi', 'approve_as_multi', 'cancel_as_multi', 'poke_deposit'];
         Revive: ['eth_transact', 'call', 'instantiate', 'instantiate_with_code', 'eth_instantiate_with_code', 'eth_call', 'eth_substrate_call', 'upload_code', 'remove_code', 'set_code', 'map_account', 'unmap_account', 'dispatch_as_fallback_account'];
@@ -4255,6 +4418,7 @@ type AllInteractions = {
         Balances: ['Endowed', 'DustLost', 'Transfer', 'BalanceSet', 'Reserved', 'Unreserved', 'ReserveRepatriated', 'Deposit', 'Withdraw', 'Slashed', 'Minted', 'MintedCredit', 'Burned', 'BurnedDebt', 'Suspended', 'Restored', 'Upgraded', 'Issued', 'Rescinded', 'Locked', 'Unlocked', 'Frozen', 'Thawed', 'TotalIssuanceForced', 'Held', 'BurnedHeld', 'TransferOnHold', 'TransferAndHold', 'Released', 'Unexpected'];
         TransactionPayment: ['TransactionFeePaid'];
         Sudo: ['Sudid', 'KeyChanged', 'KeyRemoved', 'SudoAsDone'];
+        Scheduler: ['Scheduled', 'Canceled', 'Dispatched', 'RetrySet', 'RetryCancelled', 'CallUnavailable', 'PeriodicFailed', 'RetryFailed', 'PermanentlyOverweight', 'AgendaIncomplete'];
         CollatorSelection: ['NewInvulnerables', 'InvulnerableAdded', 'InvulnerableRemoved', 'NewDesiredCandidates', 'NewCandidacyBond', 'CandidateAdded', 'CandidateBondUpdated', 'CandidateRemoved', 'CandidateReplaced', 'InvalidInvulnerableSkipped'];
         Session: ['NewSession', 'NewQueued', 'ValidatorDisabled', 'ValidatorReenabled'];
         XcmpQueue: ['XcmpMessageSent'];
@@ -4262,7 +4426,7 @@ type AllInteractions = {
         CumulusXcm: ['InvalidFormat', 'UnsupportedVersion', 'ExecutedDownward'];
         MessageQueue: ['ProcessingFailed', 'Processed', 'OverweightEnqueued', 'PageReaped'];
         Statement: ['NewStatement'];
-        DeadmanSwitchPallet: ['SwitchCreated', 'HeartbeatReceived', 'SwitchTriggered', 'CallDispatched', 'SwitchCancelled'];
+        DeadmanSwitchPallet: ['SwitchCreated', 'HeartbeatReceived', 'SwitchExecuted', 'CallDispatched', 'SwitchCancelled'];
         Proxy: ['ProxyExecuted', 'PureCreated', 'PureKilled', 'Announced', 'ProxyAdded', 'ProxyRemoved', 'DepositPoked'];
         Multisig: ['NewMultisig', 'MultisigApproval', 'MultisigExecuted', 'MultisigCancelled', 'DepositPoked'];
         Revive: ['ContractEmitted', 'Instantiated', 'EthExtrinsicRevert'];
@@ -4272,12 +4436,13 @@ type AllInteractions = {
         ParachainSystem: ['OverlappingUpgrades', 'ProhibitedByPolkadot', 'TooBig', 'ValidationDataNotAvailable', 'HostConfigurationNotAvailable', 'NotScheduled'];
         Balances: ['VestingBalance', 'LiquidityRestrictions', 'InsufficientBalance', 'ExistentialDeposit', 'Expendability', 'ExistingVestingSchedule', 'DeadAccount', 'TooManyReserves', 'TooManyHolds', 'TooManyFreezes', 'IssuanceDeactivated', 'DeltaZero'];
         Sudo: ['RequireSudo'];
+        Scheduler: ['FailedToSchedule', 'NotFound', 'TargetBlockNumberInPast', 'RescheduleNoChange', 'Named'];
         CollatorSelection: ['TooManyCandidates', 'TooFewEligibleCollators', 'AlreadyCandidate', 'NotCandidate', 'TooManyInvulnerables', 'AlreadyInvulnerable', 'NotInvulnerable', 'NoAssociatedValidatorId', 'ValidatorNotRegistered', 'InsertToCandidateListFailed', 'RemoveFromCandidateListFailed', 'DepositTooLow', 'UpdateCandidateListFailed', 'InsufficientBond', 'TargetIsNotCandidate', 'IdenticalDeposit', 'InvalidUnreserve'];
         Session: ['InvalidProof', 'NoAssociatedValidatorId', 'DuplicatedKey', 'NoKeys', 'NoAccount'];
         XcmpQueue: ['BadQueueConfig', 'AlreadySuspended', 'AlreadyResumed', 'TooManyActiveOutboundChannels', 'TooBig'];
         PolkadotXcm: ['Unreachable', 'SendFailure', 'Filtered', 'UnweighableMessage', 'DestinationNotInvertible', 'Empty', 'CannotReanchor', 'TooManyAssets', 'InvalidOrigin', 'BadVersion', 'BadLocation', 'NoSubscription', 'AlreadySubscribed', 'CannotCheckOutTeleport', 'LowBalance', 'TooManyLocks', 'AccountNotSovereign', 'FeesNotMet', 'LockNotFound', 'InUse', 'InvalidAssetUnknownReserve', 'InvalidAssetUnsupportedReserve', 'TooManyReserves', 'LocalExecutionIncomplete', 'TooManyAuthorizedAliases', 'ExpiresInPast', 'AliasNotFound', 'LocalExecutionIncompleteWithError'];
         MessageQueue: ['NotReapable', 'NoPage', 'NoMessage', 'AlreadyProcessed', 'Queued', 'InsufficientWeight', 'TemporarilyUnprocessable', 'QueuePaused', 'RecursiveDisallowed'];
-        DeadmanSwitchPallet: ['SwitchNotFound', 'NotOwner', 'SwitchNotActive', 'NotYetExpired', 'SwitchExpired', 'InvalidInterval', 'BlockIntervalTooLarge', 'NoCalls', 'TooManyCalls', 'CallTooLarge'];
+        DeadmanSwitchPallet: ['SwitchNotFound', 'NotOwner', 'SwitchNotActive', 'SwitchExpired', 'InvalidInterval', 'BlockIntervalTooLarge', 'NoCalls', 'TooManyCalls', 'CallTooLarge', 'ScheduleFailed'];
         Proxy: ['TooMany', 'NotFound', 'NotProxy', 'Unproxyable', 'Duplicate', 'NoPermission', 'Unannounced', 'NoSelfProxy'];
         Multisig: ['MinimumThreshold', 'AlreadyApproved', 'NoApprovalsNeeded', 'TooFewSignatories', 'TooManySignatories', 'SignatoriesOutOfOrder', 'SenderInSignatories', 'NotFound', 'NotOwner', 'NoTimepoint', 'WrongTimepoint', 'UnexpectedTimepoint', 'MaxWeightTooLow', 'AlreadyStored'];
         Revive: ['InvalidSchedule', 'InvalidCallFlags', 'OutOfGas', 'TransferFailed', 'MaxCallDepthReached', 'ContractNotFound', 'CodeNotFound', 'CodeInfoNotFound', 'OutOfBounds', 'DecodingFailed', 'ContractTrapped', 'ValueTooLarge', 'TerminatedWhileReentrant', 'InputForwarded', 'TooManyTopics', 'DuplicateContract', 'TerminatedInConstructor', 'ReentranceDenied', 'ReenteredPallet', 'StateChangeDenied', 'StorageDepositNotEnoughFunds', 'StorageDepositLimitExhausted', 'CodeInUse', 'ContractReverted', 'CodeRejected', 'BlobTooLarge', 'StaticMemoryTooLarge', 'BasicBlockTooLarge', 'InvalidInstruction', 'MaxDelegateDependenciesReached', 'DelegateDependencyNotFound', 'DelegateDependencyAlreadyExists', 'CannotAddSelfAsDelegateDependency', 'OutOfTransientStorage', 'InvalidSyscall', 'InvalidStorageFlags', 'ExecutionFailed', 'BalanceConversionFailed', 'InvalidImmutableAccess', 'AccountUnmapped', 'AccountAlreadyMapped', 'InvalidGenericTransaction', 'RefcountOverOrUnderflow', 'UnsupportedPrecompileAddress', 'CallDataTooLarge', 'ReturnDataTooLarge', 'InvalidJump', 'StackUnderflow', 'StackOverflow', 'TxFeeOverdraw', 'EvmConstructorNonEmptyData', 'EvmConstructedFromHash', 'StorageRefundNotEnoughFunds', 'StorageRefundLocked', 'PrecompileDelegateDenied', 'EcdsaRecoveryFailed'];
@@ -4288,6 +4453,7 @@ type AllInteractions = {
         Timestamp: ['MinimumPeriod'];
         Balances: ['ExistentialDeposit', 'MaxLocks', 'MaxReserves', 'MaxFreezes'];
         TransactionPayment: ['OperationalFeeMultiplier'];
+        Scheduler: ['MaximumWeight', 'MaxScheduledPerBlock'];
         CollatorSelection: ['PotId', 'MaxCandidates', 'MinEligibleCollators', 'MaxInvulnerables', 'KickThreshold', 'pot_account'];
         Session: ['KeyDeposit'];
         Aura: ['SlotDuration'];

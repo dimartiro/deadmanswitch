@@ -31,7 +31,6 @@ function makeSigner(path) {
   return getPolkadotSigner(kp.publicKey, "Sr25519", kp.sign);
 }
 const aliceSigner = makeSigner("//Alice");
-const charlieSigner = makeSigner("//Charlie");
 const bobAddress = "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty";
 
 let passed = 0;
@@ -73,7 +72,6 @@ try {
   const result = await api.tx.DeadmanSwitchPallet.create_switch({
     calls: [remark.decodedCall, transfer.decodedCall],
     block_interval: 10,
-    trigger_reward: 1_000_000_000_000n,
   }).signAndSubmit(aliceSigner);
   if (result.ok) { pass("create_switch (block #" + result.block.number + ")"); switchCreated = true; }
   else fail("create_switch", JSON.stringify(result.dispatchError));
@@ -122,20 +120,21 @@ if (switchCreated) {
   } catch(e) { pass("heartbeat after expiry correctly rejected"); }
 }
 
-// --- Trigger ---
-console.log("--- Trigger ---");
+// --- Scheduler auto-executes ---
+console.log("--- Scheduler auto-executes ---");
 if (switchCreated) {
   const bobBefore = (await api.query.System.Account.getValue(bobAddress)).data.free;
-  try {
-    const result = await api.tx.DeadmanSwitchPallet.trigger({ id: 0n }).signAndSubmit(charlieSigner);
-    if (result.ok) pass("trigger (block #" + result.block.number + ")");
-    else fail("trigger", JSON.stringify(result.dispatchError));
-  } catch(e) { fail("trigger", e.message); }
+  // Auto-execution runs at expiry_block + 1. Wait another block beyond
+  // that to give the scheduler a chance to dispatch.
+  const swBefore = await api.query.DeadmanSwitchPallet.Switches.getValue(0n);
+  const scheduledAt = swBefore.expiry_block + 1;
+  console.log("  Waiting for scheduler to fire at block " + scheduledAt + "...");
+  await waitForBlock(scheduledAt);
 
   try {
     const sw = await api.query.DeadmanSwitchPallet.Switches.getValue(0n);
-    if (sw && sw.status.type === "Executed") pass("switch is Executed");
-    else fail("switch status after trigger", sw?.status?.type);
+    if (sw && sw.status.type === "Executed") pass("switch auto-executed");
+    else fail("switch status after scheduled block", sw?.status?.type);
     if (sw && sw.executed_block > 0) pass("executed_block: #" + sw.executed_block);
     else fail("executed_block not set");
   } catch(e) { fail("verify executed", e.message); }
@@ -143,15 +142,15 @@ if (switchCreated) {
   try {
     const bobAfter = (await api.query.System.Account.getValue(bobAddress)).data.free;
     const diff = bobAfter - bobBefore;
-    if (diff === 10_000_000_000_000n) pass("Bob received 10 UNIT");
+    if (diff === 10_000_000_000_000n) pass("Bob received 10 UNIT from scheduled call");
     else fail("Bob balance diff: " + diff);
   } catch(e) { fail("verify Bob balance", e.message); }
 
   try {
     const calls = await api.query.DeadmanSwitchPallet.SwitchCalls.getValue(0n);
-    if (calls && calls.length === 2) pass("calls preserved after trigger");
-    else fail("calls after trigger", calls?.length);
-  } catch(e) { fail("verify calls after trigger", e.message); }
+    if (calls && calls.length === 2) pass("calls preserved after execution");
+    else fail("calls after execution", calls?.length);
+  } catch(e) { fail("verify calls after execution", e.message); }
 }
 
 // --- Cancel ---
@@ -161,7 +160,6 @@ try {
   const createResult = await api.tx.DeadmanSwitchPallet.create_switch({
     calls: [remark.decodedCall],
     block_interval: 100,
-    trigger_reward: 500_000_000_000n,
   }).signAndSubmit(aliceSigner);
 
   if (!createResult.ok) fail("create for cancel");

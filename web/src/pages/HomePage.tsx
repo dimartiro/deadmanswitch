@@ -53,8 +53,9 @@ export default function HomePage() {
 				</h1>
 				<p className="text-text-secondary text-base leading-relaxed max-w-2xl">
 					Store runtime calls that execute automatically on your behalf if you
-					stop sending heartbeats. Anyone can trigger an expired switch and earn
-					a reward for doing so.
+					stop sending heartbeats. Execution is scheduled on-chain at the
+					moment of creation and fires deterministically when the heartbeat
+					expires — no keeper, no reward, no third party needed.
 				</p>
 			</div>
 
@@ -113,8 +114,7 @@ export default function HomePage() {
 						Dashboard
 					</h3>
 					<p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-						View all dedman switches, send heartbeats, or trigger expired ones
-						to earn rewards.
+						View all dedman switches, send heartbeats, and cancel your own.
 					</p>
 				</a>
 				<a href="#/create" className="card-hover block group hover:border-accent-purple/20">
@@ -122,8 +122,8 @@ export default function HomePage() {
 						Create
 					</h3>
 					<p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-						Set up a new dedman switch with custom calls, interval, and trigger
-						reward.
+						Set up a new dedman switch with custom calls and heartbeat
+						interval. Execution is auto-scheduled.
 					</p>
 				</a>
 				<a href="#/accounts" className="card-hover block group hover:border-accent-green/20">

@@ -15,7 +15,7 @@ use core::marker::PhantomData;
 pub trait WeightInfo {
 	fn create_switch() -> Weight;
 	fn heartbeat() -> Weight;
-	fn trigger() -> Weight;
+	fn execute_switch() -> Weight;
 	fn cancel() -> Weight;
 }
 
@@ -23,53 +23,53 @@ pub trait WeightInfo {
 pub struct SubstrateWeight<T>(PhantomData<T>);
 impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
 	fn create_switch() -> Weight {
+		Weight::from_parts(20_000_000, 1489)
+			.saturating_add(T::DbWeight::get().reads(1_u64))
+			.saturating_add(T::DbWeight::get().writes(3_u64))
+	}
+
+	fn heartbeat() -> Weight {
 		Weight::from_parts(15_000_000, 1489)
 			.saturating_add(T::DbWeight::get().reads(1_u64))
 			.saturating_add(T::DbWeight::get().writes(2_u64))
 	}
 
-	fn heartbeat() -> Weight {
-		Weight::from_parts(11_000_000, 1489)
-			.saturating_add(T::DbWeight::get().reads(1_u64))
-			.saturating_add(T::DbWeight::get().writes(1_u64))
-	}
-
-	fn trigger() -> Weight {
-		Weight::from_parts(15_000_000, 1489)
-			.saturating_add(T::DbWeight::get().reads(1_u64))
+	fn execute_switch() -> Weight {
+		Weight::from_parts(20_000_000, 1489)
+			.saturating_add(T::DbWeight::get().reads(2_u64))
 			.saturating_add(T::DbWeight::get().writes(1_u64))
 	}
 
 	fn cancel() -> Weight {
-		Weight::from_parts(11_000_000, 1489)
+		Weight::from_parts(15_000_000, 1489)
 			.saturating_add(T::DbWeight::get().reads(1_u64))
-			.saturating_add(T::DbWeight::get().writes(1_u64))
+			.saturating_add(T::DbWeight::get().writes(3_u64))
 	}
 }
 
 /// For backwards compatibility and tests.
 impl WeightInfo for () {
 	fn create_switch() -> Weight {
+		Weight::from_parts(20_000_000, 1489)
+			.saturating_add(RocksDbWeight::get().reads(1_u64))
+			.saturating_add(RocksDbWeight::get().writes(3_u64))
+	}
+
+	fn heartbeat() -> Weight {
 		Weight::from_parts(15_000_000, 1489)
 			.saturating_add(RocksDbWeight::get().reads(1_u64))
 			.saturating_add(RocksDbWeight::get().writes(2_u64))
 	}
 
-	fn heartbeat() -> Weight {
-		Weight::from_parts(11_000_000, 1489)
-			.saturating_add(RocksDbWeight::get().reads(1_u64))
-			.saturating_add(RocksDbWeight::get().writes(1_u64))
-	}
-
-	fn trigger() -> Weight {
-		Weight::from_parts(15_000_000, 1489)
-			.saturating_add(RocksDbWeight::get().reads(1_u64))
+	fn execute_switch() -> Weight {
+		Weight::from_parts(20_000_000, 1489)
+			.saturating_add(RocksDbWeight::get().reads(2_u64))
 			.saturating_add(RocksDbWeight::get().writes(1_u64))
 	}
 
 	fn cancel() -> Weight {
-		Weight::from_parts(11_000_000, 1489)
+		Weight::from_parts(15_000_000, 1489)
 			.saturating_add(RocksDbWeight::get().reads(1_u64))
-			.saturating_add(RocksDbWeight::get().writes(1_u64))
+			.saturating_add(RocksDbWeight::get().writes(3_u64))
 	}
 }

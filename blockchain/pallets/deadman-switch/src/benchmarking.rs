@@ -16,9 +16,8 @@ mod benchmarks {
 		let call = frame_system::Call::<T>::remark { remark: vec![0u8; 32] };
 		let calls = vec![Box::new(call.into())];
 		let interval: BlockNumberFor<T> = 100u32.into();
-		let max_reward: T::Balance = 10u32.into();
 		#[extrinsic_call]
-		create_switch(RawOrigin::Signed(caller.clone()), calls, interval, max_reward);
+		create_switch(RawOrigin::Signed(caller.clone()), calls, interval);
 
 		assert!(Switches::<T>::contains_key(0));
 	}
@@ -26,64 +25,49 @@ mod benchmarks {
 	#[benchmark]
 	fn heartbeat() {
 		let caller: T::AccountId = whitelisted_caller();
-		let interval: BlockNumberFor<T> = 100u32.into();
-		let current_block = frame_system::Pallet::<T>::block_number();
-		Switches::<T>::insert(
-			0u64,
-			Switch {
-				owner: caller.clone(),
-				max_reward: 10u32.into(),
-				call_count: 0,
-				block_interval: interval,
-				expiry_block: current_block + interval,
-				status: SwitchStatus::Active,
-			executed_block: 0u32.into(),
-			},
-		);
-		NextSwitchId::<T>::put(1u64);
+		// Seed real state (including a scheduled task) by going through
+		// create_switch — otherwise `reschedule_named` has no task to update.
+		let call = frame_system::Call::<T>::remark { remark: vec![0u8; 32] };
+		let calls = vec![Box::new(call.into())];
+		Pallet::<T>::create_switch(
+			RawOrigin::Signed(caller.clone()).into(),
+			calls,
+			100u32.into(),
+		)
+		.unwrap();
 		#[extrinsic_call]
 		heartbeat(RawOrigin::Signed(caller.clone()), 0u64);
 	}
 
 	#[benchmark]
-	fn trigger() {
+	fn execute_switch() {
 		let caller: T::AccountId = whitelisted_caller();
-		Switches::<T>::insert(
-			0u64,
-			Switch {
-				owner: caller.clone(),
-				max_reward: 10u32.into(),
-				call_count: 0,
-				block_interval: 10u32.into(),
-				expiry_block: 0u32.into(),
-				status: SwitchStatus::Active,
-			executed_block: 0u32.into(),
-			},
-		);
-		NextSwitchId::<T>::put(1u64);
-		frame_system::Pallet::<T>::set_block_number(5u32.into());
+		let call = frame_system::Call::<T>::remark { remark: vec![0u8; 32] };
+		let calls = vec![Box::new(call.into())];
+		Pallet::<T>::create_switch(
+			RawOrigin::Signed(caller.clone()).into(),
+			calls,
+			100u32.into(),
+		)
+		.unwrap();
 		#[extrinsic_call]
-		trigger(RawOrigin::Signed(caller.clone()), 0u64);
+		execute_switch(RawOrigin::Root, 0u64);
+
+		let switch = Switches::<T>::get(0).unwrap();
+		assert_eq!(switch.status, SwitchStatus::Executed);
 	}
 
 	#[benchmark]
 	fn cancel() {
 		let caller: T::AccountId = whitelisted_caller();
-		let interval: BlockNumberFor<T> = 100u32.into();
-		let current_block = frame_system::Pallet::<T>::block_number();
-		Switches::<T>::insert(
-			0u64,
-			Switch {
-				owner: caller.clone(),
-				max_reward: 10u32.into(),
-				call_count: 0,
-				block_interval: interval,
-				expiry_block: current_block + interval,
-				status: SwitchStatus::Active,
-			executed_block: 0u32.into(),
-			},
-		);
-		NextSwitchId::<T>::put(1u64);
+		let call = frame_system::Call::<T>::remark { remark: vec![0u8; 32] };
+		let calls = vec![Box::new(call.into())];
+		Pallet::<T>::create_switch(
+			RawOrigin::Signed(caller.clone()).into(),
+			calls,
+			100u32.into(),
+		)
+		.unwrap();
 		#[extrinsic_call]
 		cancel(RawOrigin::Signed(caller.clone()), 0u64);
 

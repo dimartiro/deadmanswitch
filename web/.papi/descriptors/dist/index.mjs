@@ -14,22 +14,22 @@ var toBinary = (base64) => {
 };
 
 // .papi/descriptors/src/stack_template.ts
-var descriptorValues = import("./descriptors-2NPGNFJG.mjs").then((module) => module["Stack_template"]);
-var metadataTypes = import("./metadataTypes-MFJ4FKB3.mjs").then(
+var descriptorValues = import("./descriptors-PRLGPAVE.mjs").then((module) => module["Stack_template"]);
+var metadataTypes = import("./metadataTypes-CEPSPZQN.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
 var asset = {};
 var extensions = {};
-var getMetadata = () => import("./stack_template_metadata-E3NFH7W3.mjs").then(
+var getMetadata = () => import("./stack_template_metadata-KIJ2AMU3.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
-var genesis = "0x4545454545454545454545454545454545454545454545454545454545454545";
+var genesis = "0xd2b41f7c95bd65dd79f099a1d650bce10527cf892451c303bfe22bd00efdf719";
 var _allDescriptors = { descriptors: descriptorValues, metadataTypes, asset, extensions, getMetadata, genesis };
 var stack_template_default = _allDescriptors;
 
 // .papi/descriptors/src/bulletin.ts
-var descriptorValues2 = import("./descriptors-2NPGNFJG.mjs").then((module) => module["Bulletin"]);
-var metadataTypes2 = import("./metadataTypes-MFJ4FKB3.mjs").then(
+var descriptorValues2 = import("./descriptors-PRLGPAVE.mjs").then((module) => module["Bulletin"]);
+var metadataTypes2 = import("./metadataTypes-CEPSPZQN.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
 var asset2 = {};
@@ -75,6 +75,7 @@ var UpgradeGoAhead = _Enum;
 var UpgradeRestriction = _Enum;
 var BalancesTypesReasons = _Enum;
 var TransactionPaymentReleases = _Enum;
+var PreimagesBounded = _Enum;
 var XcmV3Response = _Enum;
 var XcmV3TraitsError = _Enum;
 var XcmV4Response = _Enum;
@@ -95,7 +96,7 @@ var XcmVersionedAsset = _Enum;
 
 // .papi/descriptors/src/index.ts
 var metadatas = {
-  ["0xa091b6173a12e3e1b9150dcb92c29b6e22d37df7c6cb3cdb2f13d5a781ee6f30"]: stack_template_default,
+  ["0xa2229eef8b0f8bede4ae9a3d650ed7b66e977eea2f8a27d0240b60ff98489aed"]: stack_template_default,
   ["0x1a82e5143be3211ded412b0368b486ce83bd41a80ec95eb267f6c204adda8365"]: bulletin_default
 };
 var getMetadata3 = async (codeHash) => {
@@ -114,6 +115,7 @@ export {
   DispatchClass,
   MultiAddress,
   Phase,
+  PreimagesBounded,
   TokenError,
   TransactionPaymentEvent,
   TransactionPaymentReleases,

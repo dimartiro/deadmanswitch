@@ -1,9 +1,6 @@
 use crate::{mock::*, pallet::Error, SwitchCalls, Switches, SwitchStatus};
 use frame::testing_prelude::*;
-use frame::runtime::prelude::TokenError;
-use frame::prelude::Perbill;
-
-const MAX_REWARD: u64 = 1_000;
+use polkadot_sdk::{pallet_balances, pallet_multisig, pallet_proxy};
 
 /// Helper: create a System.remark call
 fn remark_call(data: &[u8]) -> Box<RuntimeCall> {
@@ -37,21 +34,21 @@ fn transfer_all_call(dest: u64) -> Box<RuntimeCall> {
 #[test]
 fn create_switch_with_remark_call() {
 	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
 		let free_before = Balances::free_balance(1);
 		assert_ok!(DeadmanSwitch::create_switch(
 			RuntimeOrigin::signed(1),
 			vec![remark_call(b"hello")],
 			10,
-			MAX_REWARD,
 		));
 		let switch = Switches::<Test>::get(0).unwrap();
 		assert_eq!(switch.owner, 1);
 		assert_eq!(switch.call_count, 1);
-		assert_eq!(switch.max_reward, MAX_REWARD);
 		assert_eq!(switch.status, SwitchStatus::Active);
+		assert_eq!(switch.expiry_block, 11);
 		assert!(SwitchCalls::<Test>::get(0).is_some());
-		// Only reward is held
-		assert_eq!(Balances::free_balance(1), free_before - MAX_REWARD);
+		// No hold, no reward — free balance unchanged.
+		assert_eq!(Balances::free_balance(1), free_before);
 	});
 }
 
@@ -66,7 +63,6 @@ fn create_switch_with_multiple_calls() {
 				transfer_call(2, 50_000),
 			],
 			10,
-			MAX_REWARD,
 		));
 		let switch = Switches::<Test>::get(0).unwrap();
 		assert_eq!(switch.call_count, 3);
@@ -76,26 +72,11 @@ fn create_switch_with_multiple_calls() {
 }
 
 #[test]
-fn create_switch_with_zero_reward() {
-	new_test_ext().execute_with(|| {
-		let free_before = Balances::free_balance(1);
-		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			vec![remark_call(b"no reward")],
-			10,
-			0,
-		));
-		// No hold
-		assert_eq!(Balances::free_balance(1), free_before);
-	});
-}
-
-#[test]
 fn create_switch_fails_with_no_calls() {
 	new_test_ext().execute_with(|| {
 		assert_noop!(
 			DeadmanSwitch::create_switch(
-				RuntimeOrigin::signed(1), vec![], 10, MAX_REWARD,
+				RuntimeOrigin::signed(1), vec![], 10,
 			),
 			Error::<Test>::NoCalls,
 		);
@@ -108,7 +89,7 @@ fn create_switch_fails_with_too_many_calls() {
 		let calls: Vec<_> = (0..6).map(|i| remark_call(&[i])).collect();
 		assert_noop!(
 			DeadmanSwitch::create_switch(
-				RuntimeOrigin::signed(1), calls, 10, MAX_REWARD,
+				RuntimeOrigin::signed(1), calls, 10,
 			),
 			Error::<Test>::TooManyCalls,
 		);
@@ -120,21 +101,9 @@ fn create_switch_fails_with_zero_interval() {
 	new_test_ext().execute_with(|| {
 		assert_noop!(
 			DeadmanSwitch::create_switch(
-				RuntimeOrigin::signed(1), vec![remark_call(b"x")], 0, MAX_REWARD,
+				RuntimeOrigin::signed(1), vec![remark_call(b"x")], 0,
 			),
 			Error::<Test>::InvalidInterval,
-		);
-	});
-}
-
-#[test]
-fn create_switch_fails_if_insufficient_balance_for_reward() {
-	new_test_ext().execute_with(|| {
-		assert_noop!(
-			DeadmanSwitch::create_switch(
-				RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, 10_000_000,
-			),
-			TokenError::FundsUnavailable,
 		);
 	});
 }
@@ -145,7 +114,7 @@ fn create_switch_overflow_block_interval() {
 		System::set_block_number(1);
 		assert_noop!(
 			DeadmanSwitch::create_switch(
-				RuntimeOrigin::signed(1), vec![remark_call(b"x")], u64::MAX, MAX_REWARD,
+				RuntimeOrigin::signed(1), vec![remark_call(b"x")], u64::MAX,
 			),
 			Error::<Test>::BlockIntervalTooLarge,
 		);
@@ -159,7 +128,7 @@ fn heartbeat_resets_expiry_block() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, MAX_REWARD,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
 
 		System::set_block_number(5);
@@ -171,8 +140,9 @@ fn heartbeat_resets_expiry_block() {
 #[test]
 fn heartbeat_fails_if_not_owner() {
 	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, MAX_REWARD,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
 		assert_noop!(
 			DeadmanSwitch::heartbeat(RuntimeOrigin::signed(2), 0),
@@ -186,8 +156,9 @@ fn heartbeat_fails_if_expired() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, MAX_REWARD,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
+		// Expiry = 11. At block 12 the heartbeat is too late.
 		System::set_block_number(12);
 		assert_noop!(
 			DeadmanSwitch::heartbeat(RuntimeOrigin::signed(1), 0),
@@ -201,7 +172,7 @@ fn multiple_successive_heartbeats() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, MAX_REWARD,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
 
 		System::set_block_number(5);
@@ -214,33 +185,52 @@ fn multiple_successive_heartbeats() {
 	});
 }
 
-// ── trigger ────────────────────────────────────────────────────────────
-
 #[test]
-fn trigger_executes_remark_call_and_pays_reward() {
+fn heartbeat_extends_scheduled_execution() {
+	// Create a switch, heartbeat once to extend expiry, then run past the
+	// ORIGINAL expiry and confirm the switch is still Active because the
+	// scheduled task was moved to the new expiry.
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
-		let caller_before = Balances::free_balance(3);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
+		));
+		// Heartbeat at block 5 → new expiry = 15, new dispatch_at = 16.
+		System::set_block_number(5);
+		assert_ok!(DeadmanSwitch::heartbeat(RuntimeOrigin::signed(1), 0));
+
+		// Advance past the ORIGINAL dispatch_at (=12). Nothing should fire.
+		run_to_block(13);
+		assert_eq!(Switches::<Test>::get(0).unwrap().status, SwitchStatus::Active);
+
+		// Advance past the NEW dispatch_at (=16). Execution fires.
+		run_to_block(16);
+		assert_eq!(Switches::<Test>::get(0).unwrap().status, SwitchStatus::Executed);
+	});
+}
+
+// ── execute (driven by scheduler) ─────────────────────────────────────
+
+#[test]
+fn scheduler_executes_remark_at_expiry() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
 			RuntimeOrigin::signed(1),
 			vec![remark_call(b"last words")],
 			10,
-			MAX_REWARD,
 		));
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
-
+		// dispatch_at = 12. Run to 12.
+		run_to_block(12);
 		let switch = Switches::<Test>::get(0).unwrap();
 		assert_eq!(switch.status, SwitchStatus::Executed);
-		// Caller got the reward
-		assert_eq!(Balances::free_balance(3), caller_before + MAX_REWARD);
-		// Stored calls preserved for querying
+		// Stored calls preserved for frontend querying.
 		assert!(SwitchCalls::<Test>::get(0).is_some());
 	});
 }
 
 #[test]
-fn trigger_executes_transfer_call_best_effort() {
+fn scheduler_executes_transfer_call_best_effort() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		let bal2_before = Balances::free_balance(2);
@@ -248,41 +238,38 @@ fn trigger_executes_transfer_call_best_effort() {
 			RuntimeOrigin::signed(1),
 			vec![transfer_call(2, 50_000)],
 			10,
-			MAX_REWARD,
 		));
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
+		run_to_block(12);
 		// Transfer executed as owner (account 1)
 		assert_eq!(Balances::free_balance(2), bal2_before + 50_000);
 	});
 }
 
 #[test]
-fn trigger_transfer_fails_if_owner_has_no_balance() {
+fn scheduler_execute_succeeds_even_if_owner_lacks_balance_for_stored_call() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
-		// Owner creates switch with transfer of 900k
+		// Owner creates switch that would transfer 900k
 		assert_ok!(DeadmanSwitch::create_switch(
 			RuntimeOrigin::signed(1),
 			vec![transfer_call(2, 900_000)],
 			10,
-			MAX_REWARD,
 		));
-		// Owner spends most of their free balance
+		// Owner spends most of their free balance before the switch fires.
 		assert_ok!(Balances::transfer_allow_death(
 			RuntimeOrigin::signed(1), 4, 900_000,
 		));
 
-		System::set_block_number(12);
-		// Trigger still succeeds (best-effort), but the transfer call fails
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
+		run_to_block(12);
+		// Execution still marks the switch as Executed even if the stored
+		// call failed (best-effort).
 		let switch = Switches::<Test>::get(0).unwrap();
 		assert_eq!(switch.status, SwitchStatus::Executed);
 	});
 }
 
 #[test]
-fn trigger_with_multiple_calls_partial_success() {
+fn scheduler_executes_multiple_calls_partial_success() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		let bal2_before = Balances::free_balance(2);
@@ -294,17 +281,15 @@ fn trigger_with_multiple_calls_partial_success() {
 				transfer_call(2, 999_999_999), // will fail — insufficient balance
 			],
 			10,
-			MAX_REWARD,
 		));
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
+		run_to_block(12);
 		// First transfer succeeded
 		assert_eq!(Balances::free_balance(2), bal2_before + 50_000);
 	});
 }
 
 #[test]
-fn trigger_transfer_all_to_beneficiary() {
+fn scheduler_executes_transfer_all_to_beneficiary() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		let alice_before = Balances::free_balance(1);
@@ -313,80 +298,73 @@ fn trigger_transfer_all_to_beneficiary() {
 			RuntimeOrigin::signed(1),
 			vec![transfer_all_call(2)],
 			10,
-			MAX_REWARD,
 		));
 
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
-		// Reward is paid to caller first, releasing the hold.
-		// Then transfer_all runs with no active holds, so Alice's
-		// entire free balance goes to Bob and Alice ends at zero.
+		run_to_block(12);
+		// No reward held, so Alice's full balance transfers to Bob.
 		assert_eq!(Balances::free_balance(1), 0);
-		assert_eq!(Balances::free_balance(2), bob_before + alice_before - MAX_REWARD);
+		assert_eq!(Balances::free_balance(2), bob_before + alice_before);
 	});
 }
 
 #[test]
-fn trigger_with_zero_reward() {
+fn switch_stays_active_before_scheduled_block() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
-		let caller_before = Balances::free_balance(3);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			vec![remark_call(b"no reward")],
-			10,
-			0,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
-		assert_eq!(Balances::free_balance(3), caller_before);
+		// expiry = 11, dispatch_at = 12. At block 11, still Active.
+		run_to_block(11);
+		assert_eq!(Switches::<Test>::get(0).unwrap().status, SwitchStatus::Active);
 	});
 }
 
 #[test]
-fn owner_can_trigger_own_switch() {
-	new_test_ext().execute_with(|| {
-		System::set_block_number(1);
-		let owner_before = Balances::free_balance(1);
-		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			vec![remark_call(b"self trigger")],
-			10,
-			MAX_REWARD,
-		));
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(1), 0));
-		// Owner gets reward back (net zero cost)
-		assert_eq!(Balances::free_balance(1), owner_before);
-	});
-}
-
-#[test]
-fn trigger_fails_before_expiry_block() {
+fn execute_switch_requires_root_origin() {
+	// An outside account cannot bypass the heartbeat by calling execute_switch.
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, MAX_REWARD,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
-		System::set_block_number(5);
 		assert_noop!(
-			DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0),
-			Error::<Test>::NotYetExpired,
+			DeadmanSwitch::execute_switch(RuntimeOrigin::signed(3), 0),
+			DispatchError::BadOrigin,
+		);
+		// Owner also cannot force-execute via signed origin.
+		assert_noop!(
+			DeadmanSwitch::execute_switch(RuntimeOrigin::signed(1), 0),
+			DispatchError::BadOrigin,
 		);
 	});
 }
 
 #[test]
-fn trigger_fails_if_already_executed() {
+fn root_can_force_execute() {
+	// Root (governance/sudo) can force-execute; this is the same path the
+	// scheduler uses.
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, MAX_REWARD,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
+		assert_ok!(DeadmanSwitch::execute_switch(RuntimeOrigin::root(), 0));
+		assert_eq!(Switches::<Test>::get(0).unwrap().status, SwitchStatus::Executed);
+	});
+}
+
+#[test]
+fn scheduled_execution_runs_only_once() {
+	// Once Executed, the switch cannot be executed again even if root tries.
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
+		));
+		run_to_block(12);
 		assert_noop!(
-			DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0),
+			DeadmanSwitch::execute_switch(RuntimeOrigin::root(), 0),
 			Error::<Test>::SwitchNotActive,
 		);
 	});
@@ -395,17 +373,17 @@ fn trigger_fails_if_already_executed() {
 // ── cancel ─────────────────────────────────────────────────────────────
 
 #[test]
-fn cancel_returns_reward_and_cleans_calls() {
+fn cancel_removes_switch_and_calls() {
 	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
 		let free_before = Balances::free_balance(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, MAX_REWARD,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
-		assert_eq!(Balances::free_balance(1), free_before - MAX_REWARD);
-
 		assert_ok!(DeadmanSwitch::cancel(RuntimeOrigin::signed(1), 0));
 		assert!(Switches::<Test>::get(0).is_none());
 		assert!(SwitchCalls::<Test>::get(0).is_none());
+		// No hold was ever taken.
 		assert_eq!(Balances::free_balance(1), free_before);
 	});
 }
@@ -413,8 +391,9 @@ fn cancel_returns_reward_and_cleans_calls() {
 #[test]
 fn cancel_fails_if_not_owner() {
 	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, MAX_REWARD,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
 		assert_noop!(
 			DeadmanSwitch::cancel(RuntimeOrigin::signed(2), 0),
@@ -424,26 +403,43 @@ fn cancel_fails_if_not_owner() {
 }
 
 #[test]
-fn cancel_after_expiry() {
+fn cancel_prevents_scheduled_execution() {
+	// After cancel, running past the original dispatch_at should not execute
+	// anything and should not panic — the scheduled task was cancelled.
 	new_test_ext().execute_with(|| {
-		let free_before = Balances::free_balance(1);
+		System::set_block_number(1);
+		let bal2_before = Balances::free_balance(2);
+		assert_ok!(DeadmanSwitch::create_switch(
+			RuntimeOrigin::signed(1), vec![transfer_call(2, 50_000)], 10,
+		));
+		assert_ok!(DeadmanSwitch::cancel(RuntimeOrigin::signed(1), 0));
+		run_to_block(20);
+		// The stored transfer must not have executed.
+		assert_eq!(Balances::free_balance(2), bal2_before);
+	});
+}
+
+#[test]
+fn cancel_fails_after_execution() {
+	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10, MAX_REWARD,
+			RuntimeOrigin::signed(1), vec![remark_call(b"x")], 10,
 		));
-		System::set_block_number(20);
-		assert_ok!(DeadmanSwitch::cancel(RuntimeOrigin::signed(1), 0));
-		assert_eq!(Balances::free_balance(1), free_before);
+		run_to_block(12);
+		assert_noop!(
+			DeadmanSwitch::cancel(RuntimeOrigin::signed(1), 0),
+			Error::<Test>::SwitchNotActive,
+		);
 	});
 }
 
 // ── proxy call ─────────────────────────────────────────────────────────
 
 #[test]
-fn trigger_executes_add_proxy_call() {
+fn scheduler_executes_add_proxy_call() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
-		// Owner creates a switch that grants account 2 proxy access on trigger
 		let add_proxy_call = Box::new(RuntimeCall::Proxy(
 			pallet_proxy::Call::add_proxy {
 				delegate: 2u64.into(),
@@ -455,11 +451,8 @@ fn trigger_executes_add_proxy_call() {
 			RuntimeOrigin::signed(1),
 			vec![add_proxy_call],
 			10,
-			MAX_REWARD,
 		));
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
-		// Account 2 now has proxy access to account 1
+		run_to_block(12);
 		let proxies = pallet_proxy::Proxies::<Test>::get(1);
 		assert_eq!(proxies.0.len(), 1);
 		assert_eq!(proxies.0[0].delegate, 2);
@@ -469,19 +462,14 @@ fn trigger_executes_add_proxy_call() {
 // ── multisig call ──────────────────────────────────────────────────────
 
 #[test]
-fn trigger_creates_multisig_then_bob_and_charlie_transfer_to_dave() {
+fn scheduler_executes_multisig_fund_then_bob_and_charlie_transfer_to_dave() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
-		// Alice (1) creates a switch that, on trigger, transfers funds to a
+		// Alice (1) creates a switch that, on execution, transfers funds to a
 		// 2-of-2 multisig account controlled by Bob (2) and Charlie (3).
-		// After trigger, Bob and Charlie cooperate to transfer from the
-		// multisig to Dave (4).
-
-		// Derive the multisig account for Bob + Charlie (2-of-2)
 		let multisig_account =
 			pallet_multisig::Pallet::<Test>::multi_account_id(&[2, 3], 2);
 
-		// Alice's switch: transfer 100k to the Bob+Charlie multisig account
 		let fund_multisig = Box::new(RuntimeCall::Balances(
 			pallet_balances::Call::transfer_allow_death {
 				dest: multisig_account.into(),
@@ -492,18 +480,13 @@ fn trigger_creates_multisig_then_bob_and_charlie_transfer_to_dave() {
 			RuntimeOrigin::signed(1),
 			vec![fund_multisig],
 			10,
-			MAX_REWARD,
 		));
 
-		// Trigger the switch — funds transfer from Alice to the multisig account
-		System::set_block_number(12);
-		let dave_before = Balances::free_balance(4);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(4), 0));
-
-		// Multisig account now has 100k
+		run_to_block(12);
 		assert_eq!(Balances::free_balance(multisig_account), 100_000);
 
-		// Bob initiates a 2-of-2 transfer of 50k from multisig to Dave
+		// Bob and Charlie cooperate to send 50k to Dave.
+		let dave_before = Balances::free_balance(4);
 		let transfer_to_dave = RuntimeCall::Balances(
 			pallet_balances::Call::transfer_allow_death {
 				dest: 4u64.into(),
@@ -512,7 +495,6 @@ fn trigger_creates_multisig_then_bob_and_charlie_transfer_to_dave() {
 		);
 		let call_weight = transfer_to_dave.get_dispatch_info().call_weight;
 
-		// Bob (2) submits first approval with the full call
 		assert_ok!(pallet_multisig::Pallet::<Test>::as_multi(
 			RuntimeOrigin::signed(2),
 			2,
@@ -521,13 +503,8 @@ fn trigger_creates_multisig_then_bob_and_charlie_transfer_to_dave() {
 			Box::new(transfer_to_dave.clone()),
 			call_weight,
 		));
+		assert_eq!(Balances::free_balance(4), dave_before);
 
-		// Dave has NOT received funds yet — only 1 of 2 approvals
-		assert_eq!(Balances::free_balance(4), dave_before + MAX_REWARD);
-
-		// Charlie (3) approves — reaches threshold, transfer executes
-		let call_hash: [u8; 32] =
-			frame::deps::sp_runtime::traits::BlakeTwo256::hash_of(&transfer_to_dave).into();
 		let timepoint = pallet_multisig::Pallet::<Test>::timepoint();
 		assert_ok!(pallet_multisig::Pallet::<Test>::as_multi(
 			RuntimeOrigin::signed(3),
@@ -537,11 +514,7 @@ fn trigger_creates_multisig_then_bob_and_charlie_transfer_to_dave() {
 			Box::new(transfer_to_dave),
 			call_weight,
 		));
-
-		// Dave received 50k from the multisig
-		assert_eq!(Balances::free_balance(4), dave_before + MAX_REWARD + 50_000);
-
-		// Multisig has 50k remaining
+		assert_eq!(Balances::free_balance(4), dave_before + 50_000);
 		assert_eq!(Balances::free_balance(multisig_account), 50_000);
 	});
 }
@@ -549,18 +522,12 @@ fn trigger_creates_multisig_then_bob_and_charlie_transfer_to_dave() {
 // ── proxy + multisig ───────────────────────────────────────────────────
 
 #[test]
-fn trigger_adds_multisig_proxy_then_bob_charlie_operate_alice_account() {
+fn scheduler_adds_multisig_proxy_then_bob_charlie_operate_alice_account() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
-		// Alice (1) creates a switch that, on trigger, adds a 2-of-2
-		// multisig(Bob, Charlie) as proxy for her account. After trigger,
-		// Bob and Charlie can operate Alice's account via proxy+multisig
-		// without Alice needing to transfer funds anywhere.
-
 		let multisig_account =
 			pallet_multisig::Pallet::<Test>::multi_account_id(&[2, 3], 2);
 
-		// Alice's switch: add the multisig account as proxy
 		let add_proxy_call = Box::new(RuntimeCall::Proxy(
 			pallet_proxy::Call::add_proxy {
 				delegate: multisig_account.into(),
@@ -572,20 +539,14 @@ fn trigger_adds_multisig_proxy_then_bob_charlie_operate_alice_account() {
 			RuntimeOrigin::signed(1),
 			vec![add_proxy_call],
 			10,
-			MAX_REWARD,
 		));
 
-		// Trigger the switch — multisig(Bob,Charlie) becomes proxy for Alice
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(4), 0));
-
-		// Verify proxy was added
+		run_to_block(12);
 		let proxies = pallet_proxy::Proxies::<Test>::get(1);
 		assert_eq!(proxies.0.len(), 1);
 		assert_eq!(proxies.0[0].delegate, multisig_account);
 
-		// Now Bob and Charlie use multisig to execute a proxy call
-		// transferring 50k FROM ALICE'S ACCOUNT to Dave
+		// Bob and Charlie operate Alice's account via proxy+multisig.
 		let transfer_from_alice = RuntimeCall::Proxy(
 			pallet_proxy::Call::proxy {
 				real: 1u64.into(),
@@ -603,7 +564,6 @@ fn trigger_adds_multisig_proxy_then_bob_charlie_operate_alice_account() {
 		let alice_before = Balances::free_balance(1);
 		let dave_before = Balances::free_balance(4);
 
-		// Bob (2) initiates the multisig proxy call
 		assert_ok!(pallet_multisig::Pallet::<Test>::as_multi(
 			RuntimeOrigin::signed(2),
 			2,
@@ -612,11 +572,8 @@ fn trigger_adds_multisig_proxy_then_bob_charlie_operate_alice_account() {
 			Box::new(transfer_from_alice.clone()),
 			call_weight,
 		));
-
-		// Dave has NOT received yet — 1 of 2 approvals
 		assert_eq!(Balances::free_balance(4), dave_before);
 
-		// Charlie (3) approves — threshold reached, proxy call executes
 		let timepoint = pallet_multisig::Pallet::<Test>::timepoint();
 		assert_ok!(pallet_multisig::Pallet::<Test>::as_multi(
 			RuntimeOrigin::signed(3),
@@ -627,7 +584,6 @@ fn trigger_adds_multisig_proxy_then_bob_charlie_operate_alice_account() {
 			call_weight,
 		));
 
-		// Dave received 50k FROM ALICE'S ACCOUNT (not from a separate multisig account)
 		assert_eq!(Balances::free_balance(4), dave_before + 50_000);
 		assert_eq!(Balances::free_balance(1), alice_before - 50_000);
 	});
@@ -636,18 +592,17 @@ fn trigger_adds_multisig_proxy_then_bob_charlie_operate_alice_account() {
 // ── chained switches ───────────────────────────────────────────────────
 
 #[test]
-fn trigger_remark_then_create_second_switch_with_later_remark() {
+fn scheduler_executes_remark_then_creates_second_switch_with_later_remark() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 
-		// First switch: remark + create a second switch 10 blocks later
+		// First switch: remark + create a second switch 10 blocks later.
 		let second_switch_call = Box::new(RuntimeCall::DeadmanSwitch(
 			crate::Call::create_switch {
 				calls: vec![Box::new(RuntimeCall::System(
 					frame_system::Call::remark { remark: b"second message".to_vec() },
 				))],
 				block_interval: 10,
-				max_reward: 0,
 			},
 		));
 		assert_ok!(DeadmanSwitch::create_switch(
@@ -657,120 +612,26 @@ fn trigger_remark_then_create_second_switch_with_later_remark() {
 				second_switch_call,
 			],
 			5,
-			MAX_REWARD,
 		));
 
-		// Trigger first switch at block 7
-		System::set_block_number(7);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
-
-		// First switch executed
+		// First switch: expiry 6, dispatch_at 7. Run to 7.
+		run_to_block(7);
 		let switch0 = Switches::<Test>::get(0).unwrap();
 		assert_eq!(switch0.status, SwitchStatus::Executed);
 
-		// Second switch was created by the first trigger (id=1)
+		// Second switch was created by the first execution (id=1), owned by
+		// the original owner (because the first switch executes as owner).
 		let switch1 = Switches::<Test>::get(1).unwrap();
 		assert_eq!(switch1.owner, 1);
 		assert_eq!(switch1.call_count, 1);
-		assert_eq!(switch1.expiry_block, 17); // block 7 + interval 10
+		// second switch expiry = create_block + interval = 7 + 10 = 17.
+		assert_eq!(switch1.expiry_block, 17);
 		assert_eq!(switch1.status, SwitchStatus::Active);
 
-		// Trigger second switch at block 18
-		System::set_block_number(18);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 1));
-
+		// Advance past the second dispatch_at (=18).
+		run_to_block(18);
 		let switch1 = Switches::<Test>::get(1).unwrap();
 		assert_eq!(switch1.status, SwitchStatus::Executed);
-	});
-}
-
-// ── opaque rewards ─────────────────────────────────────────────────────
-
-#[test]
-fn trigger_with_zero_randomness_burns_entire_reward() {
-	new_test_ext().execute_with(|| {
-		System::set_block_number(1);
-		let caller_before = Balances::free_balance(3);
-		let total_issuance_before = Balances::total_issuance();
-
-		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			vec![remark_call(b"all burned")],
-			10,
-			MAX_REWARD,
-		));
-
-		// Zero randomness → Perbill = 0% → caller gets nothing, all burned
-		MockRandomness::set(frame::hashing::H256::zero());
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
-
-		// Caller balance unchanged
-		assert_eq!(Balances::free_balance(3), caller_before);
-		// Total issuance decreased by the burned amount
-		assert_eq!(Balances::total_issuance(), total_issuance_before - MAX_REWARD);
-	});
-}
-
-#[test]
-fn trigger_with_partial_randomness_splits_reward_and_burn() {
-	new_test_ext().execute_with(|| {
-		System::set_block_number(1);
-		let caller_before = Balances::free_balance(3);
-		let total_issuance_before = Balances::total_issuance();
-
-		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			vec![remark_call(b"half and half")],
-			10,
-			MAX_REWARD,
-		));
-
-		// Set randomness to ~50%: u32::MAX / 2
-		let mut half_bytes = [0u8; 32];
-		let half_u32 = u32::MAX / 2;
-		half_bytes[..4].copy_from_slice(&half_u32.to_le_bytes());
-		MockRandomness::set(frame::hashing::H256::from(half_bytes));
-
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
-
-		let expected_reward = Perbill::from_rational(half_u32, u32::MAX) * MAX_REWARD;
-		let expected_burned = MAX_REWARD - expected_reward;
-
-		// Caller got the random fraction
-		assert_eq!(Balances::free_balance(3), caller_before + expected_reward);
-		// Rest was burned
-		assert_eq!(
-			Balances::total_issuance(),
-			total_issuance_before - expected_burned,
-		);
-	});
-}
-
-#[test]
-fn trigger_with_max_randomness_gives_full_reward() {
-	new_test_ext().execute_with(|| {
-		System::set_block_number(1);
-		let caller_before = Balances::free_balance(3);
-		let total_issuance_before = Balances::total_issuance();
-
-		assert_ok!(DeadmanSwitch::create_switch(
-			RuntimeOrigin::signed(1),
-			vec![remark_call(b"full reward")],
-			10,
-			MAX_REWARD,
-		));
-
-		// Default mock randomness is [0xff; 32] → u32::MAX → 100%
-		MockRandomness::set(frame::hashing::H256::from([0xff; 32]));
-		System::set_block_number(12);
-		assert_ok!(DeadmanSwitch::trigger(RuntimeOrigin::signed(3), 0));
-
-		// Caller got everything
-		assert_eq!(Balances::free_balance(3), caller_before + MAX_REWARD);
-		// Nothing burned
-		assert_eq!(Balances::total_issuance(), total_issuance_before);
 	});
 }
 
@@ -781,7 +642,7 @@ fn unsigned_origin_is_rejected() {
 	new_test_ext().execute_with(|| {
 		assert_noop!(
 			DeadmanSwitch::create_switch(
-				RuntimeOrigin::none(), vec![remark_call(b"x")], 10, MAX_REWARD,
+				RuntimeOrigin::none(), vec![remark_call(b"x")], 10,
 			),
 			DispatchError::BadOrigin,
 		);

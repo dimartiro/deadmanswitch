@@ -25,17 +25,18 @@ use polkadot_runtime_common::{
 };
 use codec::{Encode, Decode, MaxEncodedLen};
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_runtime::{traits::{BlakeTwo256, Hash as _}, Perbill, RuntimeDebug};
+use sp_runtime::{traits::BlakeTwo256, Perbill, RuntimeDebug};
 use sp_version::RuntimeVersion;
 use xcm::latest::prelude::BodyId;
 
 use super::{
 	weights::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight},
 	AccountId, Aura, Balance, Balances, Block, BlockNumber, CollatorSelection, ConsensusHook, Hash,
-	MessageQueue, Nonce, PalletInfo, ParachainSystem, Runtime, RuntimeCall, RuntimeEvent,
-	RuntimeFreezeReason, RuntimeHoldReason, RuntimeOrigin, RuntimeTask, Session, SessionKeys,
-	System, Timestamp, XcmpQueue, AVERAGE_ON_INITIALIZE_RATIO, EXISTENTIAL_DEPOSIT, HOURS,
-	MAXIMUM_BLOCK_WEIGHT, MICRO_UNIT, NORMAL_DISPATCH_RATIO, SLOT_DURATION, VERSION,
+	MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Runtime, RuntimeCall,
+	RuntimeEvent, RuntimeFreezeReason, RuntimeHoldReason, RuntimeOrigin, RuntimeTask, Scheduler,
+	Session, SessionKeys, System, Timestamp, XcmpQueue, AVERAGE_ON_INITIALIZE_RATIO,
+	EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT, MICRO_UNIT, NORMAL_DISPATCH_RATIO,
+	SLOT_DURATION, VERSION,
 };
 use xcm_config::{RelayLocation, XcmOriginToTransactDispatchOrigin};
 
@@ -139,6 +140,33 @@ impl pallet_sudo::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type RuntimeCall = RuntimeCall;
 	type WeightInfo = ();
+}
+
+// ── pallet-scheduler ──────────────────────────────────────────────────
+//
+// Used by pallet-deadman-switch to auto-execute switches at expiry.
+// `ScheduleOrigin` is `EnsureRoot` so user accounts cannot directly spam
+// the public `schedule` extrinsic — they can only queue tasks through
+// pallets (like deadman-switch) that wrap the `ScheduleNamed` trait.
+
+parameter_types! {
+	pub MaximumSchedulerWeight: Weight =
+		Perbill::from_percent(80) * RuntimeBlockWeights::get().max_block;
+	pub const MaxScheduledPerBlock: u32 = 50;
+}
+
+impl pallet_scheduler::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeOrigin = RuntimeOrigin;
+	type PalletsOrigin = OriginCaller;
+	type RuntimeCall = RuntimeCall;
+	type MaximumWeight = MaximumSchedulerWeight;
+	type ScheduleOrigin = EnsureRoot<AccountId>;
+	type MaxScheduledPerBlock = MaxScheduledPerBlock;
+	type WeightInfo = pallet_scheduler::weights::SubstrateWeight<Runtime>;
+	type OriginPrivilegeCmp = frame_support::traits::EqualPrivilegeOnly;
+	type Preimages = ();
+	type BlockNumberProvider = System;
 }
 
 parameter_types! {
@@ -287,29 +315,12 @@ impl pallet_statement::Config for Runtime {
 	type MaxAllowedBytes = MaxAllowedBytes;
 }
 
-/// Randomness derived from the parent block hash.
-/// Suitable for non-security-critical use cases like opaque reward splits.
-pub struct ParentBlockRandomness;
-impl frame_support::traits::Randomness<crate::Hash, crate::BlockNumber>
-	for ParentBlockRandomness
-{
-	fn random(subject: &[u8]) -> (crate::Hash, crate::BlockNumber) {
-		let block_number = frame_system::Pallet::<Runtime>::block_number();
-		let parent_hash = frame_system::Pallet::<Runtime>::parent_hash();
-		let mut data = parent_hash.as_ref().to_vec();
-		data.extend_from_slice(subject);
-		(BlakeTwo256::hash(&data), block_number)
-	}
-}
-
 /// Configure the deadman switch pallet.
 impl pallet_deadman_switch::Config for Runtime {
 	type WeightInfo = pallet_deadman_switch::weights::SubstrateWeight<Runtime>;
-	type Currency = Balances;
-	type Balance = Balance;
-	type RuntimeHoldReason = RuntimeHoldReason;
 	type RuntimeCall = RuntimeCall;
-	type Randomness = ParentBlockRandomness;
+	type PalletsOrigin = OriginCaller;
+	type Scheduler = Scheduler;
 	type MaxCalls = ConstU32<5>;
 	type MaxCallSize = ConstU32<1024>;
 }

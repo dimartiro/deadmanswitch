@@ -36,6 +36,7 @@ polkadot-sdk = { workspace = true, features = [
 	"pallet-multisig",
 	"pallet-proxy",
 	"pallet-revive",
+	"pallet-scheduler",
 	"pallet-session",
 	"pallet-statement",
 	"pallet-sudo",

@@ -280,7 +280,6 @@ export default function CreateSwitchPage() {
 		{ id: nextCallId++, type: "transfer_all" },
 	]);
 	const [blockInterval, setBlockInterval] = useState("10");
-	const [triggerReward, setTriggerReward] = useState("1");
 	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
 	const [ownerBalance, setOwnerBalance] = useState<number>(0);
@@ -335,14 +334,10 @@ export default function CreateSwitchPage() {
 			});
 
 			const intervalBlocks = parseInt(blockInterval);
-			const rewardPlanck = BigInt(
-				Math.floor(parseFloat(triggerReward) * 1e12),
-			);
 
 			const tx = api.tx.DeadmanSwitchPallet.create_switch({
 				calls: runtimeCalls,
 				block_interval: intervalBlocks,
-				trigger_reward: rewardPlanck,
 			});
 
 			const result = await tx.signAndSubmit(signer);
@@ -402,7 +397,7 @@ export default function CreateSwitchPage() {
 			{/* Calls */}
 			<div className="card space-y-4">
 				<div className="flex items-center justify-between">
-					<h2 className="section-title">Calls (executed on trigger)</h2>
+					<h2 className="section-title">Calls (executed at expiry)</h2>
 					<div className="flex flex-wrap gap-2">
 						<button onClick={() => addCall("transfer")} className="btn-secondary text-xs">
 							+ Transfer
@@ -540,7 +535,7 @@ export default function CreateSwitchPage() {
 											className="input-field w-32"
 										/>
 										<p className="text-xs text-text-muted mt-1">
-											First approval is submitted on trigger. Other signatories must approve separately to execute.
+											First approval is submitted when the switch fires. Other signatories must approve separately to execute.
 										</p>
 									</div>
 									<AccountSelect
@@ -578,43 +573,20 @@ export default function CreateSwitchPage() {
 			{/* Settings */}
 			<div className="card space-y-4">
 				<h2 className="section-title">Settings</h2>
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<label className="label">Block Interval</label>
-						<input
-							type="number"
-							value={blockInterval}
-							onChange={(e) => setBlockInterval(e.target.value)}
-							placeholder="100"
-							className="input-field w-full"
-						/>
-						<p className="text-xs text-text-muted mt-1">
-							~{formatDuration(estimatedTime)} at {blockTime}s/block
-						</p>
-					</div>
-					<div>
-						<label className="label">
-							Trigger Reward (UNIT) — max {ownerBalance.toFixed(4)}
-						</label>
-						<input
-							type="number"
-							min="0"
-							max={ownerBalance}
-							value={triggerReward}
-							onChange={(e) => {
-								const v = Math.min(
-									parseFloat(e.target.value) || 0,
-									ownerBalance,
-								);
-								setTriggerReward(String(v));
-							}}
-							placeholder="1"
-							className="input-field w-full"
-						/>
-						<p className="text-xs text-text-muted mt-1">
-							Incentive for whoever triggers the switch
-						</p>
-					</div>
+				<div>
+					<label className="label">Block Interval</label>
+					<input
+						type="number"
+						value={blockInterval}
+						onChange={(e) => setBlockInterval(e.target.value)}
+						placeholder="100"
+						className="input-field w-full md:w-64"
+					/>
+					<p className="text-xs text-text-muted mt-1">
+						~{formatDuration(estimatedTime)} at {blockTime}s/block. After
+						this many blocks without a heartbeat, the scheduler executes
+						your stored calls automatically.
+					</p>
 				</div>
 			</div>
 

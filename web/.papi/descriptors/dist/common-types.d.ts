@@ -41,14 +41,15 @@ export type DigestItem = Enum<{
 }>;
 export declare const DigestItem: GetEnum<DigestItem>;
 export type I82jm9g7pufuel = [FixedSizeBinary<4>, Binary];
-export type Ip33dasgb3vr3 = Array<{
+export type I4nf04e99tcfuj = Array<{
     "phase": Phase;
     "event": Enum<{
-        "System": Anonymize<I63lgf9q6tqme8>;
+        "System": Anonymize<Ibl9jm7t2geni0>;
         "ParachainSystem": Anonymize<Icbsekf57miplo>;
-        "Balances": Anonymize<Iduhlqltpdv4qo>;
+        "Balances": Anonymize<I6pikrrn79qkf8>;
         "TransactionPayment": TransactionPaymentEvent;
-        "Sudo": Anonymize<I742o90pgmplkv>;
+        "Sudo": Anonymize<Icdbb8v02la4p5>;
+        "Scheduler": Anonymize<Iae9161qp784op>;
         "CollatorSelection": Anonymize<I4srakrmf0fspo>;
         "Session": Anonymize<I6ue0ck5fc3u44>;
         "XcmpQueue": Anonymize<Idsqc7mhp6nnle>;
@@ -56,10 +57,10 @@ export type Ip33dasgb3vr3 = Array<{
         "CumulusXcm": Anonymize<I5uv57c3fffoi9>;
         "MessageQueue": Anonymize<I2kosejppk3jon>;
         "Statement": Anonymize<Ic1vdi0e9te2la>;
-        "DeadmanSwitchPallet": Anonymize<I6ufsf2hvp2pvd>;
-        "Proxy": Anonymize<I1hs2o2p7uasti>;
-        "Multisig": Anonymize<Ic3rnajvlsmasb>;
-        "Revive": Anonymize<Ib8lt9mqqnv2kg>;
+        "DeadmanSwitchPallet": Anonymize<I19jdom5vmkk1c>;
+        "Proxy": Anonymize<Id59pd9qcsknl0>;
+        "Multisig": Anonymize<Iagboqvsccppim>;
+        "Revive": Anonymize<I4n3e0orqso0ka>;
     }>;
     "topics": Anonymize<Ic5m5lp1oioo8r>;
 }>;
@@ -69,7 +70,7 @@ export type Phase = Enum<{
     "Initialization": undefined;
 }>;
 export declare const Phase: GetEnum<Phase>;
-export type I63lgf9q6tqme8 = AnonymousEnum<{
+export type Ibl9jm7t2geni0 = AnonymousEnum<{
     /**
      * An extrinsic completed successfully.
      */
@@ -77,7 +78,7 @@ export type I63lgf9q6tqme8 = AnonymousEnum<{
     /**
      * An extrinsic failed.
      */
-    "ExtrinsicFailed": Anonymize<I4os89d3facqn6>;
+    "ExtrinsicFailed": Anonymize<Ibb2b764ndvl9v>;
     /**
      * `:code` was updated.
      */
@@ -101,7 +102,7 @@ export type I63lgf9q6tqme8 = AnonymousEnum<{
     /**
      * An invalid authorized upgrade was rejected while trying to apply it.
      */
-    "RejectedInvalidAuthorizedUpgrade": Anonymize<I1restk9ts7lm8>;
+    "RejectedInvalidAuthorizedUpgrade": Anonymize<Ia04u6da14g2db>;
 }>;
 export type Ia82mnkmeo2rhc = {
     "dispatch_info": Anonymize<Ic9s8f85vjtncc>;
@@ -121,11 +122,11 @@ export type Iehg04bj71rkd = AnonymousEnum<{
     "Yes": undefined;
     "No": undefined;
 }>;
-export type I4os89d3facqn6 = {
-    "dispatch_error": Anonymize<I4271lm07voush>;
+export type Ibb2b764ndvl9v = {
+    "dispatch_error": Anonymize<I2tb1gol5cq2da>;
     "dispatch_info": Anonymize<Ic9s8f85vjtncc>;
 };
-export type I4271lm07voush = AnonymousEnum<{
+export type I2tb1gol5cq2da = AnonymousEnum<{
     "Other": undefined;
     "CannotLookup": undefined;
     "BadOrigin": undefined;
@@ -138,6 +139,7 @@ export type I4271lm07voush = AnonymousEnum<{
         "Balances": Anonymize<Idj13i7adlomht>;
         "TransactionPayment": undefined;
         "Sudo": Anonymize<Iaug04qjhbli00>;
+        "Scheduler": Anonymize<If7oa8fprnilo5>;
         "Authorship": undefined;
         "CollatorSelection": Anonymize<I36bcffk2387dv>;
         "Session": Anonymize<I1e07dgbaqd1sq>;
@@ -148,7 +150,7 @@ export type I4271lm07voush = AnonymousEnum<{
         "CumulusXcm": undefined;
         "MessageQueue": Anonymize<I5iupade5ag2dp>;
         "Statement": undefined;
-        "DeadmanSwitchPallet": Anonymize<I26rstiao478s7>;
+        "DeadmanSwitchPallet": Anonymize<I7jdmijgp05q3g>;
         "Proxy": Anonymize<Iuvt54ei4cehc>;
         "Multisig": Anonymize<Ia76qmhhg4jvb9>;
         "Revive": Anonymize<I54rjnlnsa98ib>;
@@ -289,6 +291,28 @@ export type Iaug04qjhbli00 = AnonymousEnum<{
      * Sender must be the Sudo account.
      */
     "RequireSudo": undefined;
+}>;
+export type If7oa8fprnilo5 = AnonymousEnum<{
+    /**
+     * Failed to schedule a call
+     */
+    "FailedToSchedule": undefined;
+    /**
+     * Cannot find the scheduled call.
+     */
+    "NotFound": undefined;
+    /**
+     * Given target block number is in the past.
+     */
+    "TargetBlockNumberInPast": undefined;
+    /**
+     * Reschedule failed because it does not change scheduled time.
+     */
+    "RescheduleNoChange": undefined;
+    /**
+     * Attempt to use a non-named function on a named task.
+     */
+    "Named": undefined;
 }>;
 export type I36bcffk2387dv = AnonymousEnum<{
     /**
@@ -612,7 +636,7 @@ export type I5iupade5ag2dp = AnonymousEnum<{
      */
     "RecursiveDisallowed": undefined;
 }>;
-export type I26rstiao478s7 = AnonymousEnum<{
+export type I7jdmijgp05q3g = AnonymousEnum<{
     /**
      * The switch does not exist.
      */
@@ -626,11 +650,7 @@ export type I26rstiao478s7 = AnonymousEnum<{
      */
     "SwitchNotActive": undefined;
     /**
-     * The switch has not yet expired (expiry block not passed).
-     */
-    "NotYetExpired": undefined;
-    /**
-     * The switch has already expired.
+     * The switch has already expired — heartbeat rejected.
      */
     "SwitchExpired": undefined;
     /**
@@ -653,6 +673,10 @@ export type I26rstiao478s7 = AnonymousEnum<{
      * A call exceeds the maximum encoded size.
      */
     "CallTooLarge": undefined;
+    /**
+     * The scheduler refused to schedule or reschedule the task.
+     */
+    "ScheduleFailed": undefined;
 }>;
 export type Iuvt54ei4cehc = AnonymousEnum<{
     /**
@@ -1053,9 +1077,9 @@ export type Ibgl04rn6nbfm6 = {
     "code_hash": FixedSizeBinary<32>;
     "check_version": boolean;
 };
-export type I1restk9ts7lm8 = {
+export type Ia04u6da14g2db = {
     "code_hash": FixedSizeBinary<32>;
-    "error": Anonymize<I4271lm07voush>;
+    "error": Anonymize<I2tb1gol5cq2da>;
 };
 export type Icbsekf57miplo = AnonymousEnum<{
     /**
@@ -1097,7 +1121,7 @@ export type I6gnbnvip5vvdi = {
     "message_hash"?: Anonymize<I4s6vifaf8k998>;
 };
 export type I4s6vifaf8k998 = (FixedSizeBinary<32>) | undefined;
-export type Iduhlqltpdv4qo = AnonymousEnum<{
+export type I6pikrrn79qkf8 = AnonymousEnum<{
     /**
      * An account was created with some free balance.
      */
@@ -1199,23 +1223,23 @@ export type Iduhlqltpdv4qo = AnonymousEnum<{
     /**
      * Some balance was placed on hold.
      */
-    "Held": Anonymize<I6jg6l5h5npvh5>;
+    "Held": Anonymize<I2sjgp7v0b4kr7>;
     /**
      * Held balance was burned from an account.
      */
-    "BurnedHeld": Anonymize<I6jg6l5h5npvh5>;
+    "BurnedHeld": Anonymize<I2sjgp7v0b4kr7>;
     /**
      * A transfer of `amount` on hold from `source` to `dest` was initiated.
      */
-    "TransferOnHold": Anonymize<I2jmih40lhlepi>;
+    "TransferOnHold": Anonymize<Iq8n5b8q00vqa>;
     /**
      * The `transferred` balance is placed on hold at the `dest` account.
      */
-    "TransferAndHold": Anonymize<I63acq8em4ic0p>;
+    "TransferAndHold": Anonymize<Iaa6lo6ksjs4p7>;
     /**
      * Some balance was released from hold.
      */
-    "Released": Anonymize<I6jg6l5h5npvh5>;
+    "Released": Anonymize<I2sjgp7v0b4kr7>;
     /**
      * An unexpected/defensive event was triggered.
      */
@@ -1263,17 +1287,14 @@ export type I4fooe9dun9o0t = {
     "old": bigint;
     "new": bigint;
 };
-export type I6jg6l5h5npvh5 = {
-    "reason": Anonymize<I57qsiq76aagv4>;
+export type I2sjgp7v0b4kr7 = {
+    "reason": Anonymize<I82378hoipeq81>;
     "who": SS58String;
     "amount": bigint;
 };
-export type I57qsiq76aagv4 = AnonymousEnum<{
+export type I82378hoipeq81 = AnonymousEnum<{
     "Session": Anonymize<I6bkr3dqv753nc>;
     "PolkadotXcm": Anonymize<Ideiof6273rsoe>;
-    "DeadmanSwitchPallet": Enum<{
-        "DeadmanSwitch": undefined;
-    }>;
     "Revive": Enum<{
         "CodeUploadDepositReserve": undefined;
         "StorageDepositReserve": undefined;
@@ -1286,14 +1307,14 @@ export type I6bkr3dqv753nc = AnonymousEnum<{
 export type Ideiof6273rsoe = AnonymousEnum<{
     "AuthorizeAlias": undefined;
 }>;
-export type I2jmih40lhlepi = {
-    "reason": Anonymize<I57qsiq76aagv4>;
+export type Iq8n5b8q00vqa = {
+    "reason": Anonymize<I82378hoipeq81>;
     "source": SS58String;
     "dest": SS58String;
     "amount": bigint;
 };
-export type I63acq8em4ic0p = {
-    "reason": Anonymize<I57qsiq76aagv4>;
+export type Iaa6lo6ksjs4p7 = {
+    "reason": Anonymize<I82378hoipeq81>;
     "source": SS58String;
     "dest": SS58String;
     "transferred": bigint;
@@ -1315,11 +1336,11 @@ export type Ier2cke86dqbr2 = {
     "actual_fee": bigint;
     "tip": bigint;
 };
-export type I742o90pgmplkv = AnonymousEnum<{
+export type Icdbb8v02la4p5 = AnonymousEnum<{
     /**
      * A sudo call just took place.
      */
-    "Sudid": Anonymize<I3b3beditib7cu>;
+    "Sudid": Anonymize<Ibpqcc5kelu55o>;
     /**
      * The sudo key has been updated.
      */
@@ -1331,15 +1352,15 @@ export type I742o90pgmplkv = AnonymousEnum<{
     /**
      * A [sudo_as](Pallet::sudo_as) call just took place.
      */
-    "SudoAsDone": Anonymize<I3b3beditib7cu>;
+    "SudoAsDone": Anonymize<Ibpqcc5kelu55o>;
 }>;
-export type I3b3beditib7cu = {
+export type Ibpqcc5kelu55o = {
     /**
      * The result of the call made by the sudo user.
      */
-    "sudo_result": Anonymize<Ier9sd2vp2396b>;
+    "sudo_result": Anonymize<I8t3t7g53s39kd>;
 };
-export type Ier9sd2vp2396b = ResultPayload<undefined, Anonymize<I4271lm07voush>>;
+export type I8t3t7g53s39kd = ResultPayload<undefined, Anonymize<I2tb1gol5cq2da>>;
 export type I5rtkmhm2dng4u = {
     /**
      * The old sudo key (if one was previously set).
@@ -1349,6 +1370,72 @@ export type I5rtkmhm2dng4u = {
      * The new sudo key (if one was set).
      */
     "new": SS58String;
+};
+export type Iae9161qp784op = AnonymousEnum<{
+    /**
+     * Scheduled some task.
+     */
+    "Scheduled": Anonymize<I5n4sebgkfr760>;
+    /**
+     * Canceled some task.
+     */
+    "Canceled": Anonymize<I5n4sebgkfr760>;
+    /**
+     * Dispatched some task.
+     */
+    "Dispatched": Anonymize<I1vise5o3ej4qg>;
+    /**
+     * Set a retry configuration for some task.
+     */
+    "RetrySet": Anonymize<Ia3c82eadg79bj>;
+    /**
+     * Cancel a retry configuration for some task.
+     */
+    "RetryCancelled": Anonymize<Ienusoeb625ftq>;
+    /**
+     * The call for the provided hash was not found so the task has been aborted.
+     */
+    "CallUnavailable": Anonymize<Ienusoeb625ftq>;
+    /**
+     * The given task was unable to be renewed since the agenda is full at that block.
+     */
+    "PeriodicFailed": Anonymize<Ienusoeb625ftq>;
+    /**
+     * The given task was unable to be retried since the agenda is full at that block or there
+     * was not enough weight to reschedule it.
+     */
+    "RetryFailed": Anonymize<Ienusoeb625ftq>;
+    /**
+     * The given task can never be executed since it is overweight.
+     */
+    "PermanentlyOverweight": Anonymize<Ienusoeb625ftq>;
+    /**
+     * Agenda is incomplete from `when`.
+     */
+    "AgendaIncomplete": Anonymize<Ibtsa3docbr9el>;
+}>;
+export type I5n4sebgkfr760 = {
+    "when": number;
+    "index": number;
+};
+export type I1vise5o3ej4qg = {
+    "task": Anonymize<I9jd27rnpm8ttv>;
+    "id"?: Anonymize<I4s6vifaf8k998>;
+    "result": Anonymize<I8t3t7g53s39kd>;
+};
+export type I9jd27rnpm8ttv = FixedSizeArray<2, number>;
+export type Ia3c82eadg79bj = {
+    "task": Anonymize<I9jd27rnpm8ttv>;
+    "id"?: Anonymize<I4s6vifaf8k998>;
+    "period": number;
+    "retries": number;
+};
+export type Ienusoeb625ftq = {
+    "task": Anonymize<I9jd27rnpm8ttv>;
+    "id"?: Anonymize<I4s6vifaf8k998>;
+};
+export type Ibtsa3docbr9el = {
+    "when": number;
 };
 export type I4srakrmf0fspo = AnonymousEnum<{
     /**
@@ -2355,32 +2442,31 @@ export type I815pbp5omtss = {
 };
 export type I4arjljr6dpflb = (number) | undefined;
 export type Iabpgqcjikia83 = (Binary) | undefined;
-export type I6ufsf2hvp2pvd = AnonymousEnum<{
+export type I19jdom5vmkk1c = AnonymousEnum<{
     /**
-     * A new deadman switch was created.
+     * A new deadman switch was created and its auto-execution scheduled.
      */
-    "SwitchCreated": Anonymize<I6o83l7nvtm748>;
+    "SwitchCreated": Anonymize<I988rcg6i83vkj>;
     /**
-     * The owner sent a heartbeat, resetting the expiry block.
+     * The owner sent a heartbeat; expiry and scheduled execution moved.
      */
     "HeartbeatReceived": Anonymize<I7p099b5deqg11>;
     /**
-     * The switch was triggered — calls dispatched, reward paid to caller.
+     * The switch executed — stored calls dispatched (best-effort).
      */
-    "SwitchTriggered": Anonymize<I3nnlc4gk4povb>;
+    "SwitchExecuted": Anonymize<I1gteqdarll3mu>;
     /**
-     * A stored call was dispatched during trigger.
+     * A stored call was dispatched during execution.
      */
-    "CallDispatched": Anonymize<I9ekov8c3nr2cb>;
+    "CallDispatched": Anonymize<I6mcddm4b7uoc9>;
     /**
      * The switch was cancelled by the owner.
      */
-    "SwitchCancelled": Anonymize<I51t9t70vnfsr2>;
+    "SwitchCancelled": Anonymize<I4ov6e94l79mbg>;
 }>;
-export type I6o83l7nvtm748 = {
+export type I988rcg6i83vkj = {
     "id": bigint;
     "owner": SS58String;
-    "trigger_reward": bigint;
     "call_count": number;
     "expiry_block": number;
 };
@@ -2388,27 +2474,24 @@ export type I7p099b5deqg11 = {
     "id": bigint;
     "new_expiry_block": number;
 };
-export type I3nnlc4gk4povb = {
+export type I1gteqdarll3mu = {
     "id": bigint;
-    "caller": SS58String;
-    "caller_reward": bigint;
     "calls_executed": number;
     "calls_failed": number;
 };
-export type I9ekov8c3nr2cb = {
+export type I6mcddm4b7uoc9 = {
     "id": bigint;
     "call_index": number;
-    "result": Anonymize<Ier9sd2vp2396b>;
+    "result": Anonymize<I8t3t7g53s39kd>;
 };
-export type I51t9t70vnfsr2 = {
+export type I4ov6e94l79mbg = {
     "id": bigint;
-    "returned": bigint;
 };
-export type I1hs2o2p7uasti = AnonymousEnum<{
+export type Id59pd9qcsknl0 = AnonymousEnum<{
     /**
      * A proxy was executed correctly, with the given.
      */
-    "ProxyExecuted": Anonymize<Iadmn3p796mg65>;
+    "ProxyExecuted": Anonymize<I1soc9rs3i4flh>;
     /**
      * A pure account has been created by new proxy with given
      * disambiguation index and proxy type.
@@ -2435,8 +2518,8 @@ export type I1hs2o2p7uasti = AnonymousEnum<{
      */
     "DepositPoked": Anonymize<I1bhd210c3phjj>;
 }>;
-export type Iadmn3p796mg65 = {
-    "result": Anonymize<Ier9sd2vp2396b>;
+export type I1soc9rs3i4flh = {
+    "result": Anonymize<I8t3t7g53s39kd>;
 };
 export type I30an4pagav86d = {
     "pure": SS58String;
@@ -2476,7 +2559,7 @@ export type I1bhd210c3phjj = {
     "old_deposit": bigint;
     "new_deposit": bigint;
 };
-export type Ic3rnajvlsmasb = AnonymousEnum<{
+export type Iagboqvsccppim = AnonymousEnum<{
     /**
      * A new multisig operation has begun.
      */
@@ -2488,7 +2571,7 @@ export type Ic3rnajvlsmasb = AnonymousEnum<{
     /**
      * A multisig operation has been executed.
      */
-    "MultisigExecuted": Anonymize<Icct89ak0s3l4o>;
+    "MultisigExecuted": Anonymize<I8li559csa4plo>;
     /**
      * A multisig operation has been cancelled.
      */
@@ -2513,12 +2596,12 @@ export type Itvprrpb0nm3o = {
     "height": number;
     "index": number;
 };
-export type Icct89ak0s3l4o = {
+export type I8li559csa4plo = {
     "approving": SS58String;
     "timepoint": Anonymize<Itvprrpb0nm3o>;
     "multisig": SS58String;
     "call_hash": FixedSizeBinary<32>;
-    "result": Anonymize<Ier9sd2vp2396b>;
+    "result": Anonymize<I8t3t7g53s39kd>;
 };
 export type I5qolde99acmd1 = {
     "cancelling": SS58String;
@@ -2532,7 +2615,7 @@ export type I8gtde5abn1g9a = {
     "old_deposit": bigint;
     "new_deposit": bigint;
 };
-export type Ib8lt9mqqnv2kg = AnonymousEnum<{
+export type I4n3e0orqso0ka = AnonymousEnum<{
     /**
      * A custom event emitted by the contract.
      */
@@ -2549,7 +2632,7 @@ export type Ib8lt9mqqnv2kg = AnonymousEnum<{
      * To distinguish reverted calls from successful ones, this event is emitted
      * for failed Ethereum transactions.
      */
-    "EthExtrinsicRevert": Anonymize<Ies5bskjnq2gqb>;
+    "EthExtrinsicRevert": Anonymize<I7s6iuhisri047>;
 }>;
 export type I7svbvm6hg57aj = {
     /**
@@ -2572,10 +2655,10 @@ export type I8jhsbaiultviu = {
     "deployer": FixedSizeBinary<20>;
     "contract": FixedSizeBinary<20>;
 };
-export type Ies5bskjnq2gqb = {
-    "dispatch_error": Anonymize<I4271lm07voush>;
+export type I7s6iuhisri047 = {
+    "dispatch_error": Anonymize<I2tb1gol5cq2da>;
 };
-export type I95g6i7ilua7lq = Array<FixedSizeArray<2, number>>;
+export type I95g6i7ilua7lq = Array<Anonymize<I9jd27rnpm8ttv>>;
 export type Ieniouoqkq4icf = {
     "spec_version": number;
     "spec_name": string;
@@ -2678,8 +2761,8 @@ export type Ia7pdug7cdsg8g = Array<{
     "id": FixedSizeBinary<8>;
     "amount": bigint;
 }>;
-export type Iae97qb3heev3a = Array<{
-    "id": Anonymize<I57qsiq76aagv4>;
+export type I63lqt6dl3kn9k = Array<{
+    "id": Anonymize<I82378hoipeq81>;
     "amount": bigint;
 }>;
 export type I9bin2jc70qt6q = Array<Anonymize<I3qt1hgg4djhgb>>;
@@ -2688,6 +2771,51 @@ export type TransactionPaymentReleases = Enum<{
     "V2": undefined;
 }>;
 export declare const TransactionPaymentReleases: GetEnum<TransactionPaymentReleases>;
+export type I35oke5aiccrn = Array<({
+    "maybe_id"?: Anonymize<I4s6vifaf8k998>;
+    "priority": number;
+    "call": PreimagesBounded;
+    "maybe_periodic"?: Anonymize<Iep7au1720bm0e>;
+    "origin": Enum<{
+        "system": Anonymize<I9gqitj4t615g3>;
+        "PolkadotXcm": Anonymize<Icvilmd7qu30i4>;
+        "CumulusXcm": Anonymize<I3in0d0lb61qi8>;
+        "Revive": Enum<{
+            "EthTransaction": SS58String;
+        }>;
+    }>;
+}) | undefined>;
+export type PreimagesBounded = Enum<{
+    "Legacy": {
+        "hash": FixedSizeBinary<32>;
+    };
+    "Inline": Binary;
+    "Lookup": {
+        "hash": FixedSizeBinary<32>;
+        "len": number;
+    };
+}>;
+export declare const PreimagesBounded: GetEnum<PreimagesBounded>;
+export type Iep7au1720bm0e = (Anonymize<I9jd27rnpm8ttv>) | undefined;
+export type I9gqitj4t615g3 = AnonymousEnum<{
+    "Root": undefined;
+    "Signed": SS58String;
+    "None": undefined;
+    "Authorized": undefined;
+}>;
+export type Icvilmd7qu30i4 = AnonymousEnum<{
+    "Xcm": Anonymize<If9iqq7i64mur8>;
+    "Response": Anonymize<If9iqq7i64mur8>;
+}>;
+export type I3in0d0lb61qi8 = AnonymousEnum<{
+    "Relay": undefined;
+    "SiblingParachain": number;
+}>;
+export type I56u24ncejr5kt = {
+    "total_retries": number;
+    "remaining": number;
+    "period": number;
+};
 export type Ifi4da1gej1fri = Array<{
     "who": SS58String;
     "deposit": bigint;
@@ -2845,9 +2973,8 @@ export type I53esa2ms463bk = {
     "heap": Binary;
 };
 export type Ib4jhb8tt3uung = [Anonymize<Iejeo53sea6n4q>, number];
-export type Ifkp6g5ns4l6fh = {
+export type Ibaom22dafmpl9 = {
     "owner": SS58String;
-    "trigger_reward": bigint;
     "call_count": number;
     "block_interval": number;
     "expiry_block": number;
@@ -3444,11 +3571,11 @@ export type I5utcetro501ir = {
     "value": bigint;
     "keep_alive": boolean;
 };
-export type Iefh1v2dh2mel8 = AnonymousEnum<{
+export type I3dup0qus7tttr = AnonymousEnum<{
     /**
      * Authenticates the sudo key and dispatches a function call with `Root` origin.
      */
-    "sudo": Anonymize<I3viv7peatsfn5>;
+    "sudo": Anonymize<Ibkq5v106bii9j>;
     /**
      * Authenticates the sudo key and dispatches a function call with `Root` origin.
      * This function does not check the weight of the call, and instead allows the
@@ -3456,7 +3583,7 @@ export type Iefh1v2dh2mel8 = AnonymousEnum<{
      *
      * The dispatch origin for this call must be _Signed_.
      */
-    "sudo_unchecked_weight": Anonymize<I8op0lqnpk3l0j>;
+    "sudo_unchecked_weight": Anonymize<Id98u33o8us3d0>;
     /**
      * Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo
      * key.
@@ -3468,7 +3595,7 @@ export type Iefh1v2dh2mel8 = AnonymousEnum<{
      *
      * The dispatch origin for this call must be _Signed_.
      */
-    "sudo_as": Anonymize<I9283or271m3j>;
+    "sudo_as": Anonymize<I8luvq62vpuu0o>;
     /**
      * Permanently removes the sudo key.
      *
@@ -3476,19 +3603,125 @@ export type Iefh1v2dh2mel8 = AnonymousEnum<{
      */
     "remove_key": undefined;
 }>;
-export type I3viv7peatsfn5 = {
+export type Ibkq5v106bii9j = {
     "call": TxCallData;
 };
-export type I8op0lqnpk3l0j = {
+export type Id98u33o8us3d0 = {
     "call": TxCallData;
     "weight": Anonymize<I4q39t5hn830vp>;
 };
 export type I8k3rnvpeeh4hv = {
     "new": MultiAddress;
 };
-export type I9283or271m3j = {
+export type I8luvq62vpuu0o = {
     "who": MultiAddress;
     "call": TxCallData;
+};
+export type I42n6nrog9r2rk = AnonymousEnum<{
+    /**
+     * Anonymously schedule a task.
+     */
+    "schedule": Anonymize<Ibafdae48jdgnv>;
+    /**
+     * Cancel an anonymously scheduled task.
+     */
+    "cancel": Anonymize<I5n4sebgkfr760>;
+    /**
+     * Schedule a named task.
+     */
+    "schedule_named": Anonymize<I8i0d5otitssqk>;
+    /**
+     * Cancel a named scheduled task.
+     */
+    "cancel_named": Anonymize<Ifs1i5fk9cqvr6>;
+    /**
+     * Anonymously schedule a task after a delay.
+     */
+    "schedule_after": Anonymize<Idhol49b8qjrv6>;
+    /**
+     * Schedule a named task after a delay.
+     */
+    "schedule_named_after": Anonymize<I27usevlt661lf>;
+    /**
+     * Set a retry configuration for a task so that, in case its scheduled run fails, it will
+     * be retried after `period` blocks, for a total amount of `retries` retries or until it
+     * succeeds.
+     *
+     * Tasks which need to be scheduled for a retry are still subject to weight metering and
+     * agenda space, same as a regular task. If a periodic task fails, it will be scheduled
+     * normally while the task is retrying.
+     *
+     * Tasks scheduled as a result of a retry for a periodic task are unnamed, non-periodic
+     * clones of the original task. Their retry configuration will be derived from the
+     * original task's configuration, but will have a lower value for `remaining` than the
+     * original `total_retries`.
+     */
+    "set_retry": Anonymize<Ieg3fd8p4pkt10>;
+    /**
+     * Set a retry configuration for a named task so that, in case its scheduled run fails, it
+     * will be retried after `period` blocks, for a total amount of `retries` retries or until
+     * it succeeds.
+     *
+     * Tasks which need to be scheduled for a retry are still subject to weight metering and
+     * agenda space, same as a regular task. If a periodic task fails, it will be scheduled
+     * normally while the task is retrying.
+     *
+     * Tasks scheduled as a result of a retry for a periodic task are unnamed, non-periodic
+     * clones of the original task. Their retry configuration will be derived from the
+     * original task's configuration, but will have a lower value for `remaining` than the
+     * original `total_retries`.
+     */
+    "set_retry_named": Anonymize<I8kg5ll427kfqq>;
+    /**
+     * Removes the retry configuration of a task.
+     */
+    "cancel_retry": Anonymize<I467333262q1l9>;
+    /**
+     * Cancel the retry configuration of a named task.
+     */
+    "cancel_retry_named": Anonymize<Ifs1i5fk9cqvr6>;
+}>;
+export type Ibafdae48jdgnv = {
+    "when": number;
+    "maybe_periodic"?: Anonymize<Iep7au1720bm0e>;
+    "priority": number;
+    "call": TxCallData;
+};
+export type I8i0d5otitssqk = {
+    "id": FixedSizeBinary<32>;
+    "when": number;
+    "maybe_periodic"?: Anonymize<Iep7au1720bm0e>;
+    "priority": number;
+    "call": TxCallData;
+};
+export type Ifs1i5fk9cqvr6 = {
+    "id": FixedSizeBinary<32>;
+};
+export type Idhol49b8qjrv6 = {
+    "after": number;
+    "maybe_periodic"?: Anonymize<Iep7au1720bm0e>;
+    "priority": number;
+    "call": TxCallData;
+};
+export type I27usevlt661lf = {
+    "id": FixedSizeBinary<32>;
+    "after": number;
+    "maybe_periodic"?: Anonymize<Iep7au1720bm0e>;
+    "priority": number;
+    "call": TxCallData;
+};
+export type Ieg3fd8p4pkt10 = {
+    "task": Anonymize<I9jd27rnpm8ttv>;
+    "retries": number;
+    "period": number;
+};
+export type I8kg5ll427kfqq = {
+    "id": FixedSizeBinary<32>;
+    "retries": number;
+    "period": number;
+};
+export type I467333262q1l9 = {
+    "task": Anonymize<I9jd27rnpm8ttv>;
 };
 export type I9dpq5287dur8b = AnonymousEnum<{
     /**
@@ -4320,51 +4553,45 @@ export type I1r4c2ghbtvjuc = {
     "index": number;
     "weight_limit": Anonymize<I4q39t5hn830vp>;
 };
-export type I1vfi7c412cff3 = AnonymousEnum<{
+export type Iapnq5l8oo3c3p = AnonymousEnum<{
     /**
      * Create a new deadman switch with stored calls.
      *
-     * Holds `trigger_reward` from the caller. On trigger, stored calls
-     * are dispatched as `Signed(owner)` (best-effort) and the caller
-     * receives the trigger reward.
-     *
-     * Stored calls are encoded at creation time. A runtime upgrade may
-     * invalidate them — cancel and recreate the switch if needed.
+     * Schedules `execute_switch(id)` at `expiry_block + 1` via
+     * `pallet-scheduler`. No reward or hold is required — the owner only
+     * pays the transaction fee.
      */
-    "create_switch": Anonymize<Ibde2r5jq660dc>;
+    "create_switch": Anonymize<I9kaf2tq6nfqdd>;
     /**
-     * Send a heartbeat to reset the switch expiry block.
+     * Send a heartbeat to reset the switch expiry and reschedule the
+     * auto-execution task.
      *
-     * Only the owner can call this. The switch must be active and
-     * the expiry block must not have passed yet.
+     * Only the owner can call this. The switch must be active and the
+     * expiry block must not have passed yet.
      */
     "heartbeat": Anonymize<I4ov6e94l79mbg>;
     /**
-     * Trigger an expired switch.
-     *
-     * Anyone can call this once the expiry block has passed. Stored
-     * calls are dispatched as `Signed(owner)` — each call may succeed
-     * or fail independently (best-effort). The caller receives the
-     * trigger reward.
+     * Execute the switch: dispatch stored calls as the owner
+     * (best-effort). Only callable with `Root` origin — the scheduler
+     * invokes this at the scheduled block, and governance/sudo can
+     * also force-execute if needed.
      */
-    "trigger": Anonymize<I4ov6e94l79mbg>;
+    "execute_switch": Anonymize<I4ov6e94l79mbg>;
     /**
-     * Cancel an active switch and reclaim the trigger reward.
+     * Cancel an active switch.
      *
-     * Only the owner can cancel. The switch must be active.
-     * Stored calls are removed from storage.
+     * Only the owner can cancel. The scheduled auto-execution is
+     * cancelled and the stored calls are removed. Any scheduler error
+     * is ignored — if the task is already gone, the switch is still
+     * cleaned up.
      */
     "cancel": Anonymize<I4ov6e94l79mbg>;
 }>;
-export type Ibde2r5jq660dc = {
+export type I9kaf2tq6nfqdd = {
     "calls": Array<TxCallData>;
     "block_interval": number;
-    "trigger_reward": bigint;
 };
-export type I4ov6e94l79mbg = {
-    "id": bigint;
-};
-export type Ip046iv8glstd = AnonymousEnum<{
+export type Icpqu990dc4p6q = AnonymousEnum<{
     /**
      * Dispatch the given `call` from an account that the sender is authorised for through
      * `add_proxy`.
@@ -4376,7 +4603,7 @@ export type Ip046iv8glstd = AnonymousEnum<{
      * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
      * - `call`: The call to be made by the `real` account.
      */
-    "proxy": Anonymize<I11uimnk6a6nc3>;
+    "proxy": Anonymize<I8ddjmnp4sm534>;
     /**
      * Register a proxy account for the sender that is able to make calls on its behalf.
      *
@@ -4505,7 +4732,7 @@ export type Ip046iv8glstd = AnonymousEnum<{
      * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
      * - `call`: The call to be made by the `real` account.
      */
-    "proxy_announced": Anonymize<I2d94pt3emu90g>;
+    "proxy_announced": Anonymize<Iabnmr81d3mkje>;
     /**
      * Poke / Adjust deposits made for proxies and announcements based on current values.
      * This can be used by accounts to possibly lower their locked amount.
@@ -4518,7 +4745,7 @@ export type Ip046iv8glstd = AnonymousEnum<{
      */
     "poke_deposit": undefined;
 }>;
-export type I11uimnk6a6nc3 = {
+export type I8ddjmnp4sm534 = {
     "real": MultiAddress;
     "force_proxy_type"?: Anonymize<I60s50emabmvsg>;
     "call": TxCallData;
@@ -4549,13 +4776,13 @@ export type Ianmuoljk2sk1u = {
     "delegate": MultiAddress;
     "call_hash": FixedSizeBinary<32>;
 };
-export type I2d94pt3emu90g = {
+export type Iabnmr81d3mkje = {
     "delegate": MultiAddress;
     "real": MultiAddress;
     "force_proxy_type"?: Anonymize<I60s50emabmvsg>;
     "call": TxCallData;
 };
-export type Ifnsa6qc6k072h = AnonymousEnum<{
+export type Ibispc7g4eql9i = AnonymousEnum<{
     /**
      * Immediately dispatch a multi-signature call using a single approval from the caller.
      *
@@ -4570,7 +4797,7 @@ export type Ifnsa6qc6k072h = AnonymousEnum<{
      * ## Complexity
      * O(Z + C) where Z is the length of the call and C its execution weight.
      */
-    "as_multi_threshold_1": Anonymize<Ibikp6ubme8ces>;
+    "as_multi_threshold_1": Anonymize<I38o2cud14hobo>;
     /**
      * Register approval for a dispatch to be made from a deterministic composite account if
      * approved by a total of `threshold - 1` of `other_signatories`.
@@ -4612,7 +4839,7 @@ export type Ifnsa6qc6k072h = AnonymousEnum<{
      * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
      * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
      */
-    "as_multi": Anonymize<I7cs7bea8fsmg1>;
+    "as_multi": Anonymize<I99ss6qonfolni>;
     /**
      * Register approval for a dispatch to be made from a deterministic composite account if
      * approved by a total of `threshold - 1` of `other_signatories`.
@@ -4687,11 +4914,11 @@ export type Ifnsa6qc6k072h = AnonymousEnum<{
      */
     "poke_deposit": Anonymize<I6lqh1vgb4mcja>;
 }>;
-export type Ibikp6ubme8ces = {
+export type I38o2cud14hobo = {
     "other_signatories": Anonymize<Ia2lhg7l2hilo3>;
     "call": TxCallData;
 };
-export type I7cs7bea8fsmg1 = {
+export type I99ss6qonfolni = {
     "threshold": number;
     "other_signatories": Anonymize<Ia2lhg7l2hilo3>;
     "maybe_timepoint"?: Anonymize<I95jfd8j5cr5eh>;
@@ -4717,7 +4944,7 @@ export type I6lqh1vgb4mcja = {
     "other_signatories": Anonymize<Ia2lhg7l2hilo3>;
     "call_hash": FixedSizeBinary<32>;
 };
-export type I5ifncia2biitj = AnonymousEnum<{
+export type Ifbf73503pa0de = AnonymousEnum<{
     /**
      * A raw EVM transaction, typically dispatched by an Ethereum JSON-RPC server.
      *
@@ -4845,7 +5072,7 @@ export type I5ifncia2biitj = AnonymousEnum<{
      * * `call`: The Substrate runtime call to execute.
      * * `transaction_encoded`: The RLP encoding of the Ethereum transaction,
      */
-    "eth_substrate_call": Anonymize<I6o0473jchq0rn>;
+    "eth_substrate_call": Anonymize<I82215q5d4hr2n>;
     /**
      * Upload new `code` without instantiating a contract from it.
      *
@@ -4904,7 +5131,7 @@ export type I5ifncia2biitj = AnonymousEnum<{
      * is the `AccountId20` with the last 12 bytes set to `0xEE`. This is essentially a
      * recovery function in case an `AccountId20` was used without creating a mapping first.
      */
-    "dispatch_as_fallback_account": Anonymize<I3viv7peatsfn5>;
+    "dispatch_as_fallback_account": Anonymize<Ibkq5v106bii9j>;
 }>;
 export type Ida37oe44osb06 = {
     "payload": Binary;
@@ -4952,7 +5179,7 @@ export type Iav55bcqlrqn51 = {
     "effective_gas_price": Anonymize<I4totqt881mlti>;
     "encoded_len": number;
 };
-export type I6o0473jchq0rn = {
+export type I82215q5d4hr2n = {
     "call": TxCallData;
     "transaction_encoded": Binary;
 };
@@ -4964,23 +5191,24 @@ export type I1uihehkdsggvp = {
     "dest": FixedSizeBinary<20>;
     "code_hash": FixedSizeBinary<32>;
 };
-export type I5uect53ett682 = AnonymousEnum<{
+export type I499p2pv04ifaa = AnonymousEnum<{
     "System": Anonymize<Iekve0i6djpd9f>;
     "ParachainSystem": Anonymize<I3u72uvpuo4qrt>;
     "Timestamp": Anonymize<I7d75gqfg6jh9c>;
     "ParachainInfo": undefined;
     "Balances": Anonymize<I9svldsp29mh87>;
-    "Sudo": Anonymize<Iefh1v2dh2mel8>;
+    "Sudo": Anonymize<I3dup0qus7tttr>;
+    "Scheduler": Anonymize<I42n6nrog9r2rk>;
     "CollatorSelection": Anonymize<I9dpq5287dur8b>;
     "Session": Anonymize<I77dda7hps0u37>;
     "XcmpQueue": Anonymize<Ib7tahn20bvsep>;
     "PolkadotXcm": Anonymize<I6k1inef986368>;
     "CumulusXcm": undefined;
     "MessageQueue": Anonymize<Ic2uoe7jdksosp>;
-    "DeadmanSwitchPallet": Anonymize<I1vfi7c412cff3>;
-    "Proxy": Anonymize<Ip046iv8glstd>;
-    "Multisig": Anonymize<Ifnsa6qc6k072h>;
-    "Revive": Anonymize<I5ifncia2biitj>;
+    "DeadmanSwitchPallet": Anonymize<Iapnq5l8oo3c3p>;
+    "Proxy": Anonymize<Icpqu990dc4p6q>;
+    "Multisig": Anonymize<Ibispc7g4eql9i>;
+    "Revive": Anonymize<Ifbf73503pa0de>;
 }>;
 export type Iaqet9jc3ihboe = {
     "header": Anonymize<Ic952bubvq4k7d>;
@@ -4999,7 +5227,7 @@ export type I7u915mvkdsb08 = ResultPayload<Binary, Enum<{
     "NotFound": Anonymize<I4gil44d08grh>;
     "Codec": undefined;
 }>>;
-export type I9llufrmculbl9 = ResultPayload<Anonymize<Ier9sd2vp2396b>, Anonymize<I5nrjkj9qumobs>>;
+export type Ilp64o5619hec = ResultPayload<Anonymize<I8t3t7g53s39kd>, Anonymize<I5nrjkj9qumobs>>;
 export type I5nrjkj9qumobs = AnonymousEnum<{
     "Invalid": Enum<{
         "Call": undefined;
@@ -5081,13 +5309,13 @@ export type I3ju6ot8lfmk90 = ResultPayload<{
 export type Ie9sr1iqcg3cgm = ResultPayload<undefined, string>;
 export type I1mqgk2tmnn9i2 = (string) | undefined;
 export type I6lr8sctk0bi4e = Array<string>;
-export type Icq8o3dr41hprf = {
+export type Idr7radp9l4j8a = {
     "weight_consumed": Anonymize<I4q39t5hn830vp>;
     "weight_required": Anonymize<I4q39t5hn830vp>;
     "storage_deposit": Anonymize<If7bmpttbdmqu4>;
     "max_storage_deposit": Anonymize<If7bmpttbdmqu4>;
     "gas_consumed": bigint;
-    "result": ResultPayload<Anonymize<I620n7irgfspm4>, Anonymize<I4271lm07voush>>;
+    "result": ResultPayload<Anonymize<I620n7irgfspm4>, Anonymize<I2tb1gol5cq2da>>;
 };
 export type If7bmpttbdmqu4 = AnonymousEnum<{
     "Refund": bigint;
@@ -5101,7 +5329,7 @@ export type I9sijb8gfrns29 = AnonymousEnum<{
     "Upload": Binary;
     "Existing": FixedSizeBinary<32>;
 }>;
-export type If0mcc5aqlg3hg = {
+export type I58r6vld2cue8t = {
     "weight_consumed": Anonymize<I4q39t5hn830vp>;
     "weight_required": Anonymize<I4q39t5hn830vp>;
     "storage_deposit": Anonymize<If7bmpttbdmqu4>;
@@ -5110,7 +5338,7 @@ export type If0mcc5aqlg3hg = {
     "result": ResultPayload<{
         "result": Anonymize<I620n7irgfspm4>;
         "addr": FixedSizeBinary<20>;
-    }, Anonymize<I4271lm07voush>>;
+    }, Anonymize<I2tb1gol5cq2da>>;
 };
 export type I6f9v7emp7t5ba = {
     "access_list"?: (Anonymize<Ieap15h2pjii9u>) | undefined;
@@ -5148,14 +5376,14 @@ export type Idmrtv8jbbitnu = {
     "timestamp_override"?: Anonymize<I35p85j063s0il>;
     "reserved": boolean;
 };
-export type I8bqtpa86m82mv = ResultPayload<{
+export type I8rgjrbglep213 = ResultPayload<{
     "code_hash": FixedSizeBinary<32>;
     "deposit": bigint;
-}, Anonymize<I4271lm07voush>>;
-export type Ib1fsqnio4hgeh = ResultPayload<Anonymize<Iabpgqcjikia83>, Enum<{
+}, Anonymize<I2tb1gol5cq2da>>;
+export type I4savqaufcv48q = ResultPayload<Anonymize<Iabpgqcjikia83>, Enum<{
     "DoesntExist": undefined;
     "KeyDecodingFailed": undefined;
-    "StorageWriteFailed": Anonymize<I4271lm07voush>;
+    "StorageWriteFailed": Anonymize<I2tb1gol5cq2da>;
 }>>;
 export type I63nhnkgg114n5 = AnonymousEnum<{
     "CallTracer"?: ({
@@ -5590,26 +5818,15 @@ export type Ibi0s841005et5 = {
     "origin": Anonymize<I9cqlcs1cfiqgk>;
 };
 export type I9cqlcs1cfiqgk = AnonymousEnum<{
-    "system": Enum<{
-        "Root": undefined;
-        "Signed": SS58String;
-        "None": undefined;
-        "Authorized": undefined;
-    }>;
+    "system": Anonymize<I9gqitj4t615g3>;
     "TransactionStorage": Enum<{
         "Authorized": {
             "who": SS58String;
             "scope": Anonymize<Icd998p53cb80u>;
         };
     }>;
-    "PolkadotXcm": Enum<{
-        "Xcm": Anonymize<If9iqq7i64mur8>;
-        "Response": Anonymize<If9iqq7i64mur8>;
-    }>;
-    "CumulusXcm": Enum<{
-        "Relay": undefined;
-        "SiblingParachain": number;
-    }>;
+    "PolkadotXcm": Anonymize<Icvilmd7qu30i4>;
+    "CumulusXcm": Anonymize<I3in0d0lb61qi8>;
 }>;
 export type Icd998p53cb80u = AnonymousEnum<{
     "Account": SS58String;
