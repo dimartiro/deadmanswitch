@@ -57,6 +57,7 @@ pub type TxExtension = cumulus_pallet_weight_reclaim::StorageWeightReclaim<
 		frame_system::CheckEra<Runtime>,
 		frame_system::CheckNonce<Runtime>,
 		frame_system::CheckWeight<Runtime>,
+		pallet_deadman_switch::BoostUrgentHeartbeats<Runtime>,
 		pallet_skip_feeless_payment::SkipCheckIfFeeless<
 			Runtime,
 			pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
@@ -83,6 +84,7 @@ impl pallet_revive::evm::runtime::EthExtra for EthExtraImpl {
 			frame_system::CheckMortality::from(generic::Era::Immortal),
 			frame_system::CheckNonce::<Runtime>::from(nonce),
 			frame_system::CheckWeight::<Runtime>::new(),
+			pallet_deadman_switch::BoostUrgentHeartbeats::<Runtime>::new(),
 			pallet_skip_feeless_payment::SkipCheckIfFeeless::from(
 				pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
 			),

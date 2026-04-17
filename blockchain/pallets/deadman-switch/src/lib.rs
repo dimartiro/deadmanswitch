@@ -48,6 +48,9 @@ mod tests;
 
 pub mod weights;
 
+pub mod tx_extensions;
+pub use tx_extensions::BoostUrgentHeartbeats;
+
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 
