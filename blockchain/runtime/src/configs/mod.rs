@@ -146,7 +146,7 @@ impl pallet_sudo::Config for Runtime {
 //
 // Wraps `pallet-transaction-payment` so that calls annotated with
 // `#[pallet::feeless_if(...)]` pay no fee when the predicate returns true.
-// Used by `pallet-deadman-switch` to make heartbeat-by-owner free.
+// Used by `pallet-estate-executor` to make heartbeat-by-owner free.
 
 impl pallet_skip_feeless_payment::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
@@ -154,10 +154,10 @@ impl pallet_skip_feeless_payment::Config for Runtime {
 
 // ── pallet-scheduler ──────────────────────────────────────────────────
 //
-// Used by pallet-deadman-switch to auto-execute switches at expiry.
+// Used by pallet-estate-executor to auto-execute wills at expiry.
 // `ScheduleOrigin` is `EnsureRoot` so user accounts cannot directly spam
 // the public `schedule` extrinsic — they can only queue tasks through
-// pallets (like deadman-switch) that wrap the `ScheduleNamed` trait.
+// pallets (like estate-executor) that wrap the `ScheduleNamed` trait.
 
 parameter_types! {
 	pub MaximumSchedulerWeight: Weight =
@@ -325,14 +325,15 @@ impl pallet_statement::Config for Runtime {
 	type MaxAllowedBytes = MaxAllowedBytes;
 }
 
-/// Configure the deadman switch pallet.
-impl pallet_deadman_switch::Config for Runtime {
-	type WeightInfo = pallet_deadman_switch::weights::SubstrateWeight<Runtime>;
+/// Configure the Estate Executor pallet.
+impl pallet_estate_executor::Config for Runtime {
+	type WeightInfo = pallet_estate_executor::weights::SubstrateWeight<Runtime>;
 	type RuntimeCall = RuntimeCall;
 	type PalletsOrigin = OriginCaller;
 	type Scheduler = Scheduler;
 	type MaxCalls = ConstU32<5>;
 	type MaxCallSize = ConstU32<1024>;
+	type MaxBeneficiaries = ConstU32<10>;
 }
 
 // ── pallet-proxy ──────────────────────────────────────────────────────

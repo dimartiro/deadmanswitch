@@ -1,5 +1,5 @@
 import { StorageDescriptor, PlainDescriptor, TxDescriptor, RuntimeDescriptor, Enum, ApisFromDef, QueryFromPalletsDef, TxFromPalletsDef, EventsFromPalletsDef, ErrorsFromPalletsDef, ConstFromPalletsDef, ViewFnsFromPalletsDef, SS58String, FixedSizeBinary, Binary, FixedSizeArray } from "polkadot-api";
-import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, I4js6tf964oi8q, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, I63lqt6dl3kn9k, I9bin2jc70qt6q, TransactionPaymentReleases, I35oke5aiccrn, I56u24ncejr5kt, I9jd27rnpm8ttv, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, Ibaom22dafmpl9, I8qbv05tr0tcrs, I9p9lq3rej5bhc, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I834nfrf667ag1, I14i9pui8lc778, I8t4pajubp34g3, I10nrsmn0hji4l, I3oiqcurom3m43, I20ichc5j0l1u7, I1p16diuhde12h, Id4f5q01qh34o3, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, Ibkq5v106bii9j, Id98u33o8us3d0, I8k3rnvpeeh4hv, I8luvq62vpuu0o, Ibafdae48jdgnv, I5n4sebgkfr760, I8i0d5otitssqk, Ifs1i5fk9cqvr6, Idhol49b8qjrv6, I27usevlt661lf, Ieg3fd8p4pkt10, I8kg5ll427kfqq, I467333262q1l9, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, I9kaf2tq6nfqdd, I4ov6e94l79mbg, I8ddjmnp4sm534, Ifdtopefat0s6c, I2oa98tva0dcti, I8mjeo5oecbivt, I2eb501t8s6hsq, Ianmuoljk2sk1u, Iabnmr81d3mkje, I38o2cud14hobo, I99ss6qonfolni, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, Ida37oe44osb06, I6v02o6j4snahe, I27569neuh5t1o, Id92o6smntb9m5, I5nmb2hfkgk9ol, Iav55bcqlrqn51, I82215q5d4hr2n, I10ra4g1rl6k2f, I1uihehkdsggvp, Ia82mnkmeo2rhc, Ib72gqord4rq5k, Icbccs0ug47ilf, I855j4i3kr8ko1, Ibqpqjcj92kvm8, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, I2sjgp7v0b4kr7, Iq8n5b8q00vqa, Iaa6lo6ksjs4p7, Iph9c4rn81ub2, Ier2cke86dqbr2, I39vvr07q0rnjv, I5rtkmhm2dng4u, I2cvco59jh3h8u, Ia3c82eadg79bj, Ienusoeb625ftq, Ibtsa3docbr9el, Idmiumkhb8j79l, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I3uua81e9uvgnp, I988rcg6i83vkj, I7p099b5deqg11, I1gteqdarll3mu, I1b52tp8avdm8b, I93sn35035od7k, I30an4pagav86d, I5si6c5m867t60, I2ur0oeqg495j8, Idg3gs8jbk37mt, I1bhd210c3phjj, Iep27ialq4a7o7, Iasu5jvoqr43mv, Ienjrcvcrlt20p, I5qolde99acmd1, I8gtde5abn1g9a, I7svbvm6hg57aj, I8jhsbaiultviu, I23qq654kpt4rv, I5r8t4iaend96p, I499p2pv04ifaa, I176ch6ftnp6d1, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I4gil44d08grh, I7u915mvkdsb08, I1tnprr9qpos44, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Ic1d4u2opv3fst, Ico18ks790i2bl, I815pbp5omtss, I3ju6ot8lfmk90, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, I4totqt881mlti, I4s6vifaf8k998, I35p85j063s0il, I59qsnmupd6usa, I9sijb8gfrns29, I3heap7ntqd17g, I6f9v7emp7t5ba, Ida7d8eqrkav55, Idmrtv8jbbitnu, I57hdihtgk9aeb, Ieufld2k2fj9s6, I63nhnkgg114n5, I1l7ajs6s9ur3a, Ice9mpbhevl5b7, Idt5popft6i714, I512dtcl0pn07c, I25uemmr88c21p } from "./common-types";
+import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, Idp4neqn5r3aqf, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, I63lqt6dl3kn9k, I9bin2jc70qt6q, TransactionPaymentReleases, I35oke5aiccrn, I56u24ncejr5kt, I9jd27rnpm8ttv, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, I6q8lvd5e18ngu, I8qbv05tr0tcrs, I9p9lq3rej5bhc, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I834nfrf667ag1, I14i9pui8lc778, I8t4pajubp34g3, I10nrsmn0hji4l, I3oiqcurom3m43, I20ichc5j0l1u7, I1p16diuhde12h, Id4f5q01qh34o3, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, I7a4olocargcrt, If9dqnl9ru6o9c, I8k3rnvpeeh4hv, I10q4ac4os7bm6, Igunoq0ov9avs, I5n4sebgkfr760, Id04d34a372sqh, Ifs1i5fk9cqvr6, Ie215k5b94uqc8, Idvs4od7dmshc8, Ieg3fd8p4pkt10, I8kg5ll427kfqq, I467333262q1l9, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, Ib8l4agvplt4dp, I4ov6e94l79mbg, I93g4hvgdam345, Ifdtopefat0s6c, I2oa98tva0dcti, I8mjeo5oecbivt, I2eb501t8s6hsq, Ianmuoljk2sk1u, Iad5o7544pvfc0, I3agc99oobss6n, I8bsoadhdafbdg, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, Ida37oe44osb06, I6v02o6j4snahe, I27569neuh5t1o, Id92o6smntb9m5, I5nmb2hfkgk9ol, Iav55bcqlrqn51, I4rqlt97idhde1, I10ra4g1rl6k2f, I1uihehkdsggvp, Ia82mnkmeo2rhc, Iffpd6lkojps8q, Icbccs0ug47ilf, I855j4i3kr8ko1, I4v5510ioag1rd, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, I2sjgp7v0b4kr7, Iq8n5b8q00vqa, Iaa6lo6ksjs4p7, Iph9c4rn81ub2, Ier2cke86dqbr2, I1adp3i64jelks, I5rtkmhm2dng4u, I12qt6r5ges40l, Ia3c82eadg79bj, Ienusoeb625ftq, Ibtsa3docbr9el, Idmiumkhb8j79l, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I3uua81e9uvgnp, I988rcg6i83vkj, I7p099b5deqg11, I1gteqdarll3mu, I1mi1j7rspfr05, I6edvhagb28mbu, I30an4pagav86d, I5si6c5m867t60, I2ur0oeqg495j8, Idg3gs8jbk37mt, I1bhd210c3phjj, Iep27ialq4a7o7, Iasu5jvoqr43mv, Ikpnrtfent15u, I5qolde99acmd1, I8gtde5abn1g9a, I7svbvm6hg57aj, I8jhsbaiultviu, I1v0ve4cr4p5d1, I5r8t4iaend96p, Id9ki5pk2fdkub, I176ch6ftnp6d1, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I4gil44d08grh, I7u915mvkdsb08, I3e7d2r15unpmg, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Ic1d4u2opv3fst, Ico18ks790i2bl, I815pbp5omtss, I3ju6ot8lfmk90, Iafqnechp3omqg, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, I4totqt881mlti, I4s6vifaf8k998, I35p85j063s0il, Ibafdg8c35pm6i, I9sijb8gfrns29, I354f9uguqk2gh, I6f9v7emp7t5ba, Ida7d8eqrkav55, Idmrtv8jbbitnu, Ia880hh0hmetog, Ico8dk8hgtv2bv, I63nhnkgg114n5, I1l7ajs6s9ur3a, Ice9mpbhevl5b7, Idt5popft6i714, I512dtcl0pn07c, Ietrh7q4365cjf } from "./common-types";
 type AnonymousEnum<T extends {}> = T & {
     __anonymous: true;
 };
@@ -61,7 +61,7 @@ type IStorage = {
          * Events have a large in-memory size. Box the events to not go out-of-memory
          * just in case someone still reads them from within the runtime.
          */
-        Events: StorageDescriptor<[], Anonymize<I4js6tf964oi8q>, false, never>;
+        Events: StorageDescriptor<[], Anonymize<Idp4neqn5r3aqf>, false, never>;
         /**
          * The number of events in the `Events<T>` list.
          */
@@ -656,20 +656,20 @@ type IStorage = {
          */
         Pages: StorageDescriptor<Anonymize<Ib4jhb8tt3uung>, Anonymize<I53esa2ms463bk>, true, never>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * Auto-incrementing ID for the next switch.
+         * Auto-incrementing ID for the next will.
          */
-        NextSwitchId: StorageDescriptor<[], bigint, false, never>;
+        NextWillId: StorageDescriptor<[], bigint, false, never>;
         /**
-         * All deadman switches, keyed by SwitchId.
+         * All registered wills, keyed by WillId.
          */
-        Switches: StorageDescriptor<[Key: bigint], Anonymize<Ibaom22dafmpl9>, true, never>;
+        Wills: StorageDescriptor<[Key: bigint], Anonymize<I6q8lvd5e18ngu>, true, never>;
         /**
-         * Stored calls for each switch, keyed by SwitchId.
-         * Each inner BoundedVec holds one encoded call.
+         * Stored calls for each will, keyed by WillId. Each inner BoundedVec
+         * holds one encoded call.
          */
-        SwitchCalls: StorageDescriptor<[Key: bigint], Anonymize<Itom7fk49o0c9>, true, never>;
+        WillCalls: StorageDescriptor<[Key: bigint], Anonymize<Itom7fk49o0c9>, true, never>;
     };
     Proxy: {
         /**
@@ -976,7 +976,7 @@ type ICalls = {
         /**
          * Authenticates the sudo key and dispatches a function call with `Root` origin.
          */
-        sudo: TxDescriptor<Anonymize<Ibkq5v106bii9j>>;
+        sudo: TxDescriptor<Anonymize<I7a4olocargcrt>>;
         /**
          * Authenticates the sudo key and dispatches a function call with `Root` origin.
          * This function does not check the weight of the call, and instead allows the
@@ -984,7 +984,7 @@ type ICalls = {
          *
          * The dispatch origin for this call must be _Signed_.
          */
-        sudo_unchecked_weight: TxDescriptor<Anonymize<Id98u33o8us3d0>>;
+        sudo_unchecked_weight: TxDescriptor<Anonymize<If9dqnl9ru6o9c>>;
         /**
          * Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo
          * key.
@@ -996,7 +996,7 @@ type ICalls = {
          *
          * The dispatch origin for this call must be _Signed_.
          */
-        sudo_as: TxDescriptor<Anonymize<I8luvq62vpuu0o>>;
+        sudo_as: TxDescriptor<Anonymize<I10q4ac4os7bm6>>;
         /**
          * Permanently removes the sudo key.
          *
@@ -1008,7 +1008,7 @@ type ICalls = {
         /**
          * Anonymously schedule a task.
          */
-        schedule: TxDescriptor<Anonymize<Ibafdae48jdgnv>>;
+        schedule: TxDescriptor<Anonymize<Igunoq0ov9avs>>;
         /**
          * Cancel an anonymously scheduled task.
          */
@@ -1016,7 +1016,7 @@ type ICalls = {
         /**
          * Schedule a named task.
          */
-        schedule_named: TxDescriptor<Anonymize<I8i0d5otitssqk>>;
+        schedule_named: TxDescriptor<Anonymize<Id04d34a372sqh>>;
         /**
          * Cancel a named scheduled task.
          */
@@ -1024,11 +1024,11 @@ type ICalls = {
         /**
          * Anonymously schedule a task after a delay.
          */
-        schedule_after: TxDescriptor<Anonymize<Idhol49b8qjrv6>>;
+        schedule_after: TxDescriptor<Anonymize<Ie215k5b94uqc8>>;
         /**
          * Schedule a named task after a delay.
          */
-        schedule_named_after: TxDescriptor<Anonymize<I27usevlt661lf>>;
+        schedule_named_after: TxDescriptor<Anonymize<Idvs4od7dmshc8>>;
         /**
          * Set a retry configuration for a task so that, in case its scheduled run fails, it will
          * be retried after `period` blocks, for a total amount of `retries` retries or until it
@@ -1529,42 +1529,42 @@ type ICalls = {
          */
         execute_overweight: TxDescriptor<Anonymize<I1r4c2ghbtvjuc>>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * Create a new deadman switch with stored calls.
+         * Register a new will with stored calls and a list of beneficiaries.
          *
-         * Schedules `execute_switch(id)` at `expiry_block + 1` via
+         * Schedules `execute_will(id)` at `expiry_block + 1` via
          * `pallet-scheduler`. No reward or hold is required — the owner only
          * pays the transaction fee.
          */
-        create_switch: TxDescriptor<Anonymize<I9kaf2tq6nfqdd>>;
+        create_will: TxDescriptor<Anonymize<Ib8l4agvplt4dp>>;
         /**
-         * Send a heartbeat to reset the switch expiry and reschedule the
+         * Send a heartbeat to reset the will's expiry and reschedule the
          * auto-execution task.
          *
-         * Only the owner can call this. The switch must be active and the
+         * Only the owner can call this. The will must be active and the
          * expiry block must not have passed yet.
          *
          * This call is **feeless** when the signer is the current owner of
-         * an active switch — keeping your own switch alive never costs fee,
-         * so you can never run out of UNIT and lose your deadman protection.
-         * Any other caller (or heartbeat against a non-existent / executed
-         * switch) pays normal fees.
+         * an active will — keeping your own will alive never costs a fee,
+         * so you can never run out of UNIT and lose your protection. Any
+         * other caller (or heartbeat against a non-existent / executed
+         * will) pays normal fees.
          */
         heartbeat: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
         /**
-         * Execute the switch: dispatch stored calls as the owner
+         * Execute the will: dispatch stored calls as the owner
          * (best-effort). Only callable with `Root` origin — the scheduler
          * invokes this at the scheduled block, and governance/sudo can
          * also force-execute if needed.
          */
-        execute_switch: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
+        execute_will: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
         /**
-         * Cancel an active switch.
+         * Cancel an active will.
          *
          * Only the owner can cancel. The scheduled auto-execution is
          * cancelled and the stored calls are removed. Any scheduler error
-         * is ignored — if the task is already gone, the switch is still
+         * is ignored — if the task is already gone, the will is still
          * cleaned up.
          */
         cancel: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
@@ -1581,7 +1581,7 @@ type ICalls = {
          * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
          * - `call`: The call to be made by the `real` account.
          */
-        proxy: TxDescriptor<Anonymize<I8ddjmnp4sm534>>;
+        proxy: TxDescriptor<Anonymize<I93g4hvgdam345>>;
         /**
          * Register a proxy account for the sender that is able to make calls on its behalf.
          *
@@ -1710,7 +1710,7 @@ type ICalls = {
          * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
          * - `call`: The call to be made by the `real` account.
          */
-        proxy_announced: TxDescriptor<Anonymize<Iabnmr81d3mkje>>;
+        proxy_announced: TxDescriptor<Anonymize<Iad5o7544pvfc0>>;
         /**
          * Poke / Adjust deposits made for proxies and announcements based on current values.
          * This can be used by accounts to possibly lower their locked amount.
@@ -1738,7 +1738,7 @@ type ICalls = {
          * ## Complexity
          * O(Z + C) where Z is the length of the call and C its execution weight.
          */
-        as_multi_threshold_1: TxDescriptor<Anonymize<I38o2cud14hobo>>;
+        as_multi_threshold_1: TxDescriptor<Anonymize<I3agc99oobss6n>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -1780,7 +1780,7 @@ type ICalls = {
          * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
          * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
          */
-        as_multi: TxDescriptor<Anonymize<I99ss6qonfolni>>;
+        as_multi: TxDescriptor<Anonymize<I8bsoadhdafbdg>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -1983,7 +1983,7 @@ type ICalls = {
          * * `call`: The Substrate runtime call to execute.
          * * `transaction_encoded`: The RLP encoding of the Ethereum transaction,
          */
-        eth_substrate_call: TxDescriptor<Anonymize<I82215q5d4hr2n>>;
+        eth_substrate_call: TxDescriptor<Anonymize<I4rqlt97idhde1>>;
         /**
          * Upload new `code` without instantiating a contract from it.
          *
@@ -2042,7 +2042,7 @@ type ICalls = {
          * is the `AccountId20` with the last 12 bytes set to `0xEE`. This is essentially a
          * recovery function in case an `AccountId20` was used without creating a mapping first.
          */
-        dispatch_as_fallback_account: TxDescriptor<Anonymize<Ibkq5v106bii9j>>;
+        dispatch_as_fallback_account: TxDescriptor<Anonymize<I7a4olocargcrt>>;
     };
 };
 type IEvent = {
@@ -2054,7 +2054,7 @@ type IEvent = {
         /**
          * An extrinsic failed.
          */
-        ExtrinsicFailed: PlainDescriptor<Anonymize<Ib72gqord4rq5k>>;
+        ExtrinsicFailed: PlainDescriptor<Anonymize<Iffpd6lkojps8q>>;
         /**
          * `:code` was updated.
          */
@@ -2078,7 +2078,7 @@ type IEvent = {
         /**
          * An invalid authorized upgrade was rejected while trying to apply it.
          */
-        RejectedInvalidAuthorizedUpgrade: PlainDescriptor<Anonymize<Ibqpqjcj92kvm8>>;
+        RejectedInvalidAuthorizedUpgrade: PlainDescriptor<Anonymize<I4v5510ioag1rd>>;
     };
     ParachainSystem: {
         /**
@@ -2241,7 +2241,7 @@ type IEvent = {
         /**
          * A sudo call just took place.
          */
-        Sudid: PlainDescriptor<Anonymize<I39vvr07q0rnjv>>;
+        Sudid: PlainDescriptor<Anonymize<I1adp3i64jelks>>;
         /**
          * The sudo key has been updated.
          */
@@ -2253,7 +2253,7 @@ type IEvent = {
         /**
          * A [sudo_as](Pallet::sudo_as) call just took place.
          */
-        SudoAsDone: PlainDescriptor<Anonymize<I39vvr07q0rnjv>>;
+        SudoAsDone: PlainDescriptor<Anonymize<I1adp3i64jelks>>;
     };
     Scheduler: {
         /**
@@ -2267,7 +2267,7 @@ type IEvent = {
         /**
          * Dispatched some task.
          */
-        Dispatched: PlainDescriptor<Anonymize<I2cvco59jh3h8u>>;
+        Dispatched: PlainDescriptor<Anonymize<I12qt6r5ges40l>>;
         /**
          * Set a retry configuration for some task.
          */
@@ -2565,33 +2565,33 @@ type IEvent = {
          */
         NewStatement: PlainDescriptor<Anonymize<I3uua81e9uvgnp>>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * A new deadman switch was created and its auto-execution scheduled.
+         * A new will was registered and its auto-execution scheduled.
          */
-        SwitchCreated: PlainDescriptor<Anonymize<I988rcg6i83vkj>>;
+        WillCreated: PlainDescriptor<Anonymize<I988rcg6i83vkj>>;
         /**
          * The owner sent a heartbeat; expiry and scheduled execution moved.
          */
         HeartbeatReceived: PlainDescriptor<Anonymize<I7p099b5deqg11>>;
         /**
-         * The switch executed — stored calls dispatched (best-effort).
+         * The will executed — stored calls dispatched (best-effort).
          */
-        SwitchExecuted: PlainDescriptor<Anonymize<I1gteqdarll3mu>>;
+        WillExecuted: PlainDescriptor<Anonymize<I1gteqdarll3mu>>;
         /**
          * A stored call was dispatched during execution.
          */
-        CallDispatched: PlainDescriptor<Anonymize<I1b52tp8avdm8b>>;
+        CallDispatched: PlainDescriptor<Anonymize<I1mi1j7rspfr05>>;
         /**
-         * The switch was cancelled by the owner.
+         * The will was cancelled by the owner.
          */
-        SwitchCancelled: PlainDescriptor<Anonymize<I4ov6e94l79mbg>>;
+        WillCancelled: PlainDescriptor<Anonymize<I4ov6e94l79mbg>>;
     };
     Proxy: {
         /**
          * A proxy was executed correctly, with the given.
          */
-        ProxyExecuted: PlainDescriptor<Anonymize<I93sn35035od7k>>;
+        ProxyExecuted: PlainDescriptor<Anonymize<I6edvhagb28mbu>>;
         /**
          * A pure account has been created by new proxy with given
          * disambiguation index and proxy type.
@@ -2630,7 +2630,7 @@ type IEvent = {
         /**
          * A multisig operation has been executed.
          */
-        MultisigExecuted: PlainDescriptor<Anonymize<Ienjrcvcrlt20p>>;
+        MultisigExecuted: PlainDescriptor<Anonymize<Ikpnrtfent15u>>;
         /**
          * A multisig operation has been cancelled.
          */
@@ -2657,7 +2657,7 @@ type IEvent = {
          * To distinguish reverted calls from successful ones, this event is emitted
          * for failed Ethereum transactions.
          */
-        EthExtrinsicRevert: PlainDescriptor<Anonymize<I23qq654kpt4rv>>;
+        EthExtrinsicRevert: PlainDescriptor<Anonymize<I1v0ve4cr4p5d1>>;
     };
 };
 type IError = {
@@ -3084,23 +3084,23 @@ type IError = {
          */
         RecursiveDisallowed: PlainDescriptor<undefined>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * The switch does not exist.
+         * The will does not exist.
          */
-        SwitchNotFound: PlainDescriptor<undefined>;
+        WillNotFound: PlainDescriptor<undefined>;
         /**
          * Only the owner can perform this action.
          */
         NotOwner: PlainDescriptor<undefined>;
         /**
-         * The switch is not in Active status.
+         * The will is not in Active status.
          */
-        SwitchNotActive: PlainDescriptor<undefined>;
+        WillNotActive: PlainDescriptor<undefined>;
         /**
-         * The switch has already expired — heartbeat rejected.
+         * The will has already expired — heartbeat rejected.
          */
-        SwitchExpired: PlainDescriptor<undefined>;
+        WillExpired: PlainDescriptor<undefined>;
         /**
          * The block interval must be greater than zero.
          */
@@ -3121,6 +3121,10 @@ type IError = {
          * A call exceeds the maximum encoded size.
          */
         CallTooLarge: PlainDescriptor<undefined>;
+        /**
+         * Too many beneficiaries (exceeds MaxBeneficiaries).
+         */
+        TooManyBeneficiaries: PlainDescriptor<undefined>;
         /**
          * The scheduler refused to schedule or reschedule the task.
          */
@@ -3745,15 +3749,19 @@ type IConstants = {
          */
         MaxAllowedBytes: PlainDescriptor<number>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * Maximum number of stored calls per switch.
+         * Maximum number of stored calls per will.
          */
         MaxCalls: PlainDescriptor<number>;
         /**
          * Maximum encoded size (bytes) of a single stored call.
          */
         MaxCallSize: PlainDescriptor<number>;
+        /**
+         * Maximum number of beneficiaries per will.
+         */
+        MaxBeneficiaries: PlainDescriptor<number>;
     };
     Proxy: {
         /**
@@ -3923,7 +3931,7 @@ type IViewFns = {
         /**
          * Check if a `RuntimeCall` is allowed for a given `ProxyType`.
          */
-        check_permissions: RuntimeDescriptor<[call: Anonymize<I499p2pv04ifaa>, proxy_type: Anonymize<I176ch6ftnp6d1>], boolean>;
+        check_permissions: RuntimeDescriptor<[call: Anonymize<Id9ki5pk2fdkub>, proxy_type: Anonymize<I176ch6ftnp6d1>], boolean>;
         /**
          * Check if one `ProxyType` is a subset of another `ProxyType`.
          */
@@ -4034,7 +4042,7 @@ type IRuntimeCalls = {
          * Returns an inclusion outcome which specifies if this extrinsic is included in
          * this block or not.
          */
-        apply_extrinsic: RuntimeDescriptor<[extrinsic: Binary], Anonymize<I1tnprr9qpos44>>;
+        apply_extrinsic: RuntimeDescriptor<[extrinsic: Binary], Anonymize<I3e7d2r15unpmg>>;
         /**
          * Finish the current block.
          */
@@ -4132,11 +4140,11 @@ type IRuntimeCalls = {
         /**
          * Query information of a dispatch class, weight, and fee of a given encoded `Call`.
          */
-        query_call_info: RuntimeDescriptor<[call: Anonymize<I499p2pv04ifaa>, len: number], Anonymize<I6spmpef2c7svf>>;
+        query_call_info: RuntimeDescriptor<[call: Anonymize<Id9ki5pk2fdkub>, len: number], Anonymize<I6spmpef2c7svf>>;
         /**
          * Query fee details of a given encoded `Call`.
          */
-        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<I499p2pv04ifaa>, len: number], Anonymize<Iei2mvq0mjvt81>>;
+        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<Id9ki5pk2fdkub>, len: number], Anonymize<Iei2mvq0mjvt81>>;
         /**
          * Query the output of the current `WeightToFee` given some input.
          */
@@ -4170,6 +4178,17 @@ type IRuntimeCalls = {
          * Validate the statement.
          */
         validate_statement: RuntimeDescriptor<[source: Anonymize<Ico18ks790i2bl>, statement: Anonymize<I815pbp5omtss>], Anonymize<I3ju6ot8lfmk90>>;
+    };
+    /**
+     * Estate Executor runtime API.
+     */
+    EstateExecutorApi: {
+        /**
+         * Returns the IDs of all currently active wills that name
+         * `account` as a beneficiary. Active means the will exists and
+         * has not yet been executed or cancelled.
+         */
+        inheritances_of: RuntimeDescriptor<[account: SS58String], Anonymize<Iafqnechp3omqg>>;
     };
     /**
      * API to interact with `RuntimeGenesisConfig` for the runtime
@@ -4256,13 +4275,13 @@ type IRuntimeCalls = {
          *
          * See [`crate::Pallet::bare_call`].
          */
-        call: RuntimeDescriptor<[origin: SS58String, dest: FixedSizeBinary<20>, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, input_data: Binary], Anonymize<I59qsnmupd6usa>>;
+        call: RuntimeDescriptor<[origin: SS58String, dest: FixedSizeBinary<20>, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, input_data: Binary], Anonymize<Ibafdg8c35pm6i>>;
         /**
          * Instantiate a new contract.
          *
          * See `[crate::Pallet::bare_instantiate]`.
          */
-        instantiate: RuntimeDescriptor<[origin: SS58String, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, code: Anonymize<I9sijb8gfrns29>, data: Binary, salt: Anonymize<I4s6vifaf8k998>], Anonymize<I3heap7ntqd17g>>;
+        instantiate: RuntimeDescriptor<[origin: SS58String, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, code: Anonymize<I9sijb8gfrns29>, data: Binary, salt: Anonymize<I4s6vifaf8k998>], Anonymize<I354f9uguqk2gh>>;
         /**
          * Perform an Ethereum call.
          *
@@ -4281,7 +4300,7 @@ type IRuntimeCalls = {
          *
          * See [`crate::Pallet::bare_upload_code`].
          */
-        upload_code: RuntimeDescriptor<[origin: SS58String, code: Binary, storage_deposit_limit: Anonymize<I35p85j063s0il>], Anonymize<I57hdihtgk9aeb>>;
+        upload_code: RuntimeDescriptor<[origin: SS58String, code: Binary, storage_deposit_limit: Anonymize<I35p85j063s0il>], Anonymize<Ia880hh0hmetog>>;
         /**
          * Query a given storage key in a given contract.
          *
@@ -4289,7 +4308,7 @@ type IRuntimeCalls = {
          * specified account and `Ok(None)` if it doesn't. If the account specified by the address
          * doesn't exist, or doesn't have a contract then `Err` is returned.
          */
-        get_storage: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: FixedSizeBinary<32>], Anonymize<Ieufld2k2fj9s6>>;
+        get_storage: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: FixedSizeBinary<32>], Anonymize<Ico8dk8hgtv2bv>>;
         /**
          * Query a given variable-sized storage key in a given contract.
          *
@@ -4297,7 +4316,7 @@ type IRuntimeCalls = {
          * specified account and `Ok(None)` if it doesn't. If the account specified by the address
          * doesn't exist, or doesn't have a contract then `Err` is returned.
          */
-        get_storage_var_key: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: Binary], Anonymize<Ieufld2k2fj9s6>>;
+        get_storage_var_key: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: Binary], Anonymize<Ico8dk8hgtv2bv>>;
         /**
          * Traces the execution of an entire block and returns call traces.
          *
@@ -4348,7 +4367,7 @@ type IRuntimeCalls = {
         new_balance_with_dust: RuntimeDescriptor<[balance: Anonymize<I4totqt881mlti>], Anonymize<I512dtcl0pn07c>>;
     };
 };
-export type Stack_templateDispatchError = Anonymize<I25uemmr88c21p>;
+export type Stack_templateDispatchError = Anonymize<Ietrh7q4365cjf>;
 type IAsset = PlainDescriptor<void>;
 export type Stack_templateExtensions = {};
 type PalletsTypedef = {
@@ -4379,7 +4398,7 @@ export type Stack_templateEvents = EventsFromPalletsDef<PalletsTypedef>;
 export type Stack_templateErrors = ErrorsFromPalletsDef<PalletsTypedef>;
 export type Stack_templateConstants = ConstFromPalletsDef<PalletsTypedef>;
 export type Stack_templateViewFns = ViewFnsFromPalletsDef<PalletsTypedef>;
-export type Stack_templateCallData = Anonymize<I499p2pv04ifaa> & {
+export type Stack_templateCallData = Anonymize<Id9ki5pk2fdkub> & {
     value: {
         type: string;
     };
@@ -4402,7 +4421,7 @@ type AllInteractions = {
         XcmpQueue: ['InboundXcmpSuspended', 'OutboundXcmpStatus', 'OutboundXcmpMessages', 'SignalMessages', 'QueueConfig', 'QueueSuspended', 'DeliveryFeeFactor'];
         PolkadotXcm: ['QueryCounter', 'Queries', 'AssetTraps', 'SafeXcmVersion', 'SupportedVersion', 'VersionNotifiers', 'VersionNotifyTargets', 'VersionDiscoveryQueue', 'CurrentMigration', 'RemoteLockedFungibles', 'LockedFungibles', 'XcmExecutionSuspended', 'ShouldRecordXcm', 'RecordedXcm', 'AuthorizedAliases'];
         MessageQueue: ['BookStateFor', 'ServiceHead', 'Pages'];
-        DeadmanSwitchPallet: ['NextSwitchId', 'Switches', 'SwitchCalls'];
+        EstateExecutor: ['NextWillId', 'Wills', 'WillCalls'];
         Proxy: ['Proxies', 'Announcements'];
         Multisig: ['Multisigs'];
         Revive: ['PristineCode', 'CodeInfoOf', 'AccountInfoOf', 'ImmutableDataOf', 'DeletionQueue', 'DeletionQueueCounter', 'OriginalAccount', 'EthereumBlock', 'BlockHash', 'ReceiptInfoData', 'EthBlockBuilderIR', 'EthBlockBuilderFirstValues', 'DebugSettingsOf'];
@@ -4419,7 +4438,7 @@ type AllInteractions = {
         XcmpQueue: ['suspend_xcm_execution', 'resume_xcm_execution', 'update_suspend_threshold', 'update_drop_threshold', 'update_resume_threshold'];
         PolkadotXcm: ['send', 'teleport_assets', 'reserve_transfer_assets', 'execute', 'force_xcm_version', 'force_default_xcm_version', 'force_subscribe_version_notify', 'force_unsubscribe_version_notify', 'limited_reserve_transfer_assets', 'limited_teleport_assets', 'force_suspension', 'transfer_assets', 'claim_assets', 'transfer_assets_using_type_and_then', 'add_authorized_alias', 'remove_authorized_alias', 'remove_all_authorized_aliases'];
         MessageQueue: ['reap_page', 'execute_overweight'];
-        DeadmanSwitchPallet: ['create_switch', 'heartbeat', 'execute_switch', 'cancel'];
+        EstateExecutor: ['create_will', 'heartbeat', 'execute_will', 'cancel'];
         Proxy: ['proxy', 'add_proxy', 'remove_proxy', 'remove_proxies', 'create_pure', 'kill_pure', 'announce', 'remove_announcement', 'reject_announcement', 'proxy_announced', 'poke_deposit'];
         Multisig: ['as_multi_threshold_1', 'as_multi', 'approve_as_multi', 'cancel_as_multi', 'poke_deposit'];
         Revive: ['eth_transact', 'call', 'instantiate', 'instantiate_with_code', 'eth_instantiate_with_code', 'eth_call', 'eth_substrate_call', 'upload_code', 'remove_code', 'set_code', 'map_account', 'unmap_account', 'dispatch_as_fallback_account'];
@@ -4439,7 +4458,7 @@ type AllInteractions = {
         CumulusXcm: ['InvalidFormat', 'UnsupportedVersion', 'ExecutedDownward'];
         MessageQueue: ['ProcessingFailed', 'Processed', 'OverweightEnqueued', 'PageReaped'];
         Statement: ['NewStatement'];
-        DeadmanSwitchPallet: ['SwitchCreated', 'HeartbeatReceived', 'SwitchExecuted', 'CallDispatched', 'SwitchCancelled'];
+        EstateExecutor: ['WillCreated', 'HeartbeatReceived', 'WillExecuted', 'CallDispatched', 'WillCancelled'];
         Proxy: ['ProxyExecuted', 'PureCreated', 'PureKilled', 'Announced', 'ProxyAdded', 'ProxyRemoved', 'DepositPoked'];
         Multisig: ['NewMultisig', 'MultisigApproval', 'MultisigExecuted', 'MultisigCancelled', 'DepositPoked'];
         Revive: ['ContractEmitted', 'Instantiated', 'EthExtrinsicRevert'];
@@ -4455,7 +4474,7 @@ type AllInteractions = {
         XcmpQueue: ['BadQueueConfig', 'AlreadySuspended', 'AlreadyResumed', 'TooManyActiveOutboundChannels', 'TooBig'];
         PolkadotXcm: ['Unreachable', 'SendFailure', 'Filtered', 'UnweighableMessage', 'DestinationNotInvertible', 'Empty', 'CannotReanchor', 'TooManyAssets', 'InvalidOrigin', 'BadVersion', 'BadLocation', 'NoSubscription', 'AlreadySubscribed', 'CannotCheckOutTeleport', 'LowBalance', 'TooManyLocks', 'AccountNotSovereign', 'FeesNotMet', 'LockNotFound', 'InUse', 'InvalidAssetUnknownReserve', 'InvalidAssetUnsupportedReserve', 'TooManyReserves', 'LocalExecutionIncomplete', 'TooManyAuthorizedAliases', 'ExpiresInPast', 'AliasNotFound', 'LocalExecutionIncompleteWithError'];
         MessageQueue: ['NotReapable', 'NoPage', 'NoMessage', 'AlreadyProcessed', 'Queued', 'InsufficientWeight', 'TemporarilyUnprocessable', 'QueuePaused', 'RecursiveDisallowed'];
-        DeadmanSwitchPallet: ['SwitchNotFound', 'NotOwner', 'SwitchNotActive', 'SwitchExpired', 'InvalidInterval', 'BlockIntervalTooLarge', 'NoCalls', 'TooManyCalls', 'CallTooLarge', 'ScheduleFailed'];
+        EstateExecutor: ['WillNotFound', 'NotOwner', 'WillNotActive', 'WillExpired', 'InvalidInterval', 'BlockIntervalTooLarge', 'NoCalls', 'TooManyCalls', 'CallTooLarge', 'TooManyBeneficiaries', 'ScheduleFailed'];
         Proxy: ['TooMany', 'NotFound', 'NotProxy', 'Unproxyable', 'Duplicate', 'NoPermission', 'Unannounced', 'NoSelfProxy'];
         Multisig: ['MinimumThreshold', 'AlreadyApproved', 'NoApprovalsNeeded', 'TooFewSignatories', 'TooManySignatories', 'SignatoriesOutOfOrder', 'SenderInSignatories', 'NotFound', 'NotOwner', 'NoTimepoint', 'WrongTimepoint', 'UnexpectedTimepoint', 'MaxWeightTooLow', 'AlreadyStored'];
         Revive: ['InvalidSchedule', 'InvalidCallFlags', 'OutOfGas', 'TransferFailed', 'MaxCallDepthReached', 'ContractNotFound', 'CodeNotFound', 'CodeInfoNotFound', 'OutOfBounds', 'DecodingFailed', 'ContractTrapped', 'ValueTooLarge', 'TerminatedWhileReentrant', 'InputForwarded', 'TooManyTopics', 'DuplicateContract', 'TerminatedInConstructor', 'ReentranceDenied', 'ReenteredPallet', 'StateChangeDenied', 'StorageDepositNotEnoughFunds', 'StorageDepositLimitExhausted', 'CodeInUse', 'ContractReverted', 'CodeRejected', 'BlobTooLarge', 'StaticMemoryTooLarge', 'BasicBlockTooLarge', 'InvalidInstruction', 'MaxDelegateDependenciesReached', 'DelegateDependencyNotFound', 'DelegateDependencyAlreadyExists', 'CannotAddSelfAsDelegateDependency', 'OutOfTransientStorage', 'InvalidSyscall', 'InvalidStorageFlags', 'ExecutionFailed', 'BalanceConversionFailed', 'InvalidImmutableAccess', 'AccountUnmapped', 'AccountAlreadyMapped', 'InvalidGenericTransaction', 'RefcountOverOrUnderflow', 'UnsupportedPrecompileAddress', 'CallDataTooLarge', 'ReturnDataTooLarge', 'InvalidJump', 'StackUnderflow', 'StackOverflow', 'TxFeeOverdraw', 'EvmConstructorNonEmptyData', 'EvmConstructedFromHash', 'StorageRefundNotEnoughFunds', 'StorageRefundLocked', 'PrecompileDelegateDenied', 'EcdsaRecoveryFailed'];
@@ -4474,7 +4493,7 @@ type AllInteractions = {
         PolkadotXcm: ['UniversalLocation', 'AdvertisedXcmVersion', 'MaxLockers', 'MaxRemoteLockConsumers'];
         MessageQueue: ['HeapSize', 'MaxStale', 'ServiceWeight', 'IdleMaxServiceWeight'];
         Statement: ['StatementCost', 'ByteCost', 'MinAllowedStatements', 'MaxAllowedStatements', 'MinAllowedBytes', 'MaxAllowedBytes'];
-        DeadmanSwitchPallet: ['MaxCalls', 'MaxCallSize'];
+        EstateExecutor: ['MaxCalls', 'MaxCallSize', 'MaxBeneficiaries'];
         Proxy: ['ProxyDepositBase', 'ProxyDepositFactor', 'MaxProxies', 'MaxPending', 'AnnouncementDepositBase', 'AnnouncementDepositFactor'];
         Multisig: ['DepositBase', 'DepositFactor', 'MaxSignatories'];
         Revive: ['DepositPerByte', 'DepositPerItem', 'DepositPerChildTrieItem', 'CodeHashLockupDepositPercent', 'UnsafeUnstableInterface', 'AllowEVMBytecode', 'ChainId', 'NativeToEthRatio', 'MaxEthExtrinsicWeight', 'DebugEnabled', 'GasScale'];
@@ -4497,6 +4516,7 @@ type AllInteractions = {
         TransactionPaymentCallApi: ['query_call_info', 'query_call_fee_details', 'query_weight_to_fee', 'query_length_to_fee'];
         CollectCollationInfo: ['collect_collation_info'];
         ValidateStatement: ['validate_statement'];
+        EstateExecutorApi: ['inheritances_of'];
         GenesisBuilder: ['build_state', 'get_preset', 'preset_names'];
         ReviveApi: ['eth_block', 'eth_block_hash', 'eth_receipt_data', 'block_gas_limit', 'balance', 'gas_price', 'nonce', 'call', 'instantiate', 'eth_transact', 'eth_transact_with_config', 'upload_code', 'get_storage', 'get_storage_var_key', 'trace_block', 'trace_tx', 'trace_call', 'block_author', 'address', 'account_id', 'runtime_pallets_address', 'code', 'new_balance_with_dust'];
     };

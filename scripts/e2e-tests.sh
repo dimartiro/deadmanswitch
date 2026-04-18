@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared E2E test suite for Dedman Switch.
+# Shared E2E test suite for the Estate Protocol.
 # Expects a running node at $SUBSTRATE_RPC_WS and deps installed in web/.
 # Called by test-e2e.sh and test-zombienet.sh.
 set -euo pipefail
@@ -69,7 +69,7 @@ try {
     dest: { type: "Id", value: bobAddress },
     value: 10_000_000_000_000n,
   });
-  const result = await api.tx.DeadmanSwitchPallet.create_switch({
+  const result = await api.tx.EstateExecutor.create_will({
     calls: [remark.decodedCall, transfer.decodedCall],
     block_interval: 10,
   }).signAndSubmit(aliceSigner);
@@ -81,10 +81,10 @@ try {
 console.log("--- Verify Storage ---");
 if (switchCreated) {
   try {
-    const sw = await api.query.DeadmanSwitchPallet.Switches.getValue(0n);
+    const sw = await api.query.EstateExecutor.Wills.getValue(0n);
     if (sw && sw.status.type === "Active") pass("switch is Active");
     else fail("switch status", sw?.status?.type);
-    const calls = await api.query.DeadmanSwitchPallet.SwitchCalls.getValue(0n);
+    const calls = await api.query.EstateExecutor.WillCalls.getValue(0n);
     if (calls && calls.length === 2) pass("stored 2 calls (remark + transfer)");
     else fail("stored calls", calls?.length);
   } catch(e) { fail("verify storage", e.message); }
@@ -94,7 +94,7 @@ if (switchCreated) {
 console.log("--- Heartbeat ---");
 if (switchCreated) {
   try {
-    const result = await api.tx.DeadmanSwitchPallet.heartbeat({ id: 0n }).signAndSubmit(aliceSigner);
+    const result = await api.tx.EstateExecutor.heartbeat({ id: 0n }).signAndSubmit(aliceSigner);
     if (result.ok) pass("heartbeat");
     else fail("heartbeat", JSON.stringify(result.dispatchError));
   } catch(e) { fail("heartbeat", e.message); }
@@ -103,7 +103,7 @@ if (switchCreated) {
 // --- Wait for expiry ---
 console.log("--- Wait for expiry ---");
 if (switchCreated) {
-  const sw = await api.query.DeadmanSwitchPallet.Switches.getValue(0n);
+  const sw = await api.query.EstateExecutor.Wills.getValue(0n);
   const expiry = sw.expiry_block;
   console.log("  Waiting for block > " + expiry + "...");
   await waitForBlock(expiry);
@@ -114,7 +114,7 @@ if (switchCreated) {
 console.log("--- Heartbeat after expiry ---");
 if (switchCreated) {
   try {
-    const result = await api.tx.DeadmanSwitchPallet.heartbeat({ id: 0n }).signAndSubmit(aliceSigner);
+    const result = await api.tx.EstateExecutor.heartbeat({ id: 0n }).signAndSubmit(aliceSigner);
     if (!result.ok) pass("heartbeat after expiry correctly rejected");
     else fail("heartbeat after expiry should have failed");
   } catch(e) { pass("heartbeat after expiry correctly rejected"); }
@@ -126,13 +126,13 @@ if (switchCreated) {
   const bobBefore = (await api.query.System.Account.getValue(bobAddress)).data.free;
   // Auto-execution runs at expiry_block + 1. Wait another block beyond
   // that to give the scheduler a chance to dispatch.
-  const swBefore = await api.query.DeadmanSwitchPallet.Switches.getValue(0n);
+  const swBefore = await api.query.EstateExecutor.Wills.getValue(0n);
   const scheduledAt = swBefore.expiry_block + 1;
   console.log("  Waiting for scheduler to fire at block " + scheduledAt + "...");
   await waitForBlock(scheduledAt);
 
   try {
-    const sw = await api.query.DeadmanSwitchPallet.Switches.getValue(0n);
+    const sw = await api.query.EstateExecutor.Wills.getValue(0n);
     if (sw && sw.status.type === "Executed") pass("switch auto-executed");
     else fail("switch status after scheduled block", sw?.status?.type);
     if (sw && sw.executed_block > 0) pass("executed_block: #" + sw.executed_block);
@@ -147,7 +147,7 @@ if (switchCreated) {
   } catch(e) { fail("verify Bob balance", e.message); }
 
   try {
-    const calls = await api.query.DeadmanSwitchPallet.SwitchCalls.getValue(0n);
+    const calls = await api.query.EstateExecutor.WillCalls.getValue(0n);
     if (calls && calls.length === 2) pass("calls preserved after execution");
     else fail("calls after execution", calls?.length);
   } catch(e) { fail("verify calls after execution", e.message); }
@@ -157,22 +157,22 @@ if (switchCreated) {
 console.log("--- Cancel ---");
 try {
   const remark = api.tx.System.remark({ remark: Binary.fromText("cancel-test") });
-  const createResult = await api.tx.DeadmanSwitchPallet.create_switch({
+  const createResult = await api.tx.EstateExecutor.create_will({
     calls: [remark.decodedCall],
     block_interval: 100,
   }).signAndSubmit(aliceSigner);
 
   if (!createResult.ok) fail("create for cancel");
   else {
-    const cancelResult = await api.tx.DeadmanSwitchPallet.cancel({ id: 1n }).signAndSubmit(aliceSigner);
+    const cancelResult = await api.tx.EstateExecutor.cancel({ id: 1n }).signAndSubmit(aliceSigner);
     if (cancelResult.ok) pass("cancel");
     else fail("cancel", JSON.stringify(cancelResult.dispatchError));
 
-    const sw = await api.query.DeadmanSwitchPallet.Switches.getValue(1n);
+    const sw = await api.query.EstateExecutor.Wills.getValue(1n);
     if (!sw) pass("switch removed after cancel");
     else fail("switch still in storage");
 
-    const calls = await api.query.DeadmanSwitchPallet.SwitchCalls.getValue(1n);
+    const calls = await api.query.EstateExecutor.WillCalls.getValue(1n);
     if (!calls) pass("calls removed after cancel");
     else fail("calls still in storage");
   }

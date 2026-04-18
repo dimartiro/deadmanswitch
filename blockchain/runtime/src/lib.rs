@@ -57,7 +57,7 @@ pub type TxExtension = cumulus_pallet_weight_reclaim::StorageWeightReclaim<
 		frame_system::CheckEra<Runtime>,
 		frame_system::CheckNonce<Runtime>,
 		frame_system::CheckWeight<Runtime>,
-		pallet_deadman_switch::BoostUrgentHeartbeats<Runtime>,
+		pallet_estate_executor::BoostUrgentHeartbeats<Runtime>,
 		pallet_skip_feeless_payment::SkipCheckIfFeeless<
 			Runtime,
 			pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
@@ -84,7 +84,7 @@ impl pallet_revive::evm::runtime::EthExtra for EthExtraImpl {
 			frame_system::CheckMortality::from(generic::Era::Immortal),
 			frame_system::CheckNonce::<Runtime>::from(nonce),
 			frame_system::CheckWeight::<Runtime>::new(),
-			pallet_deadman_switch::BoostUrgentHeartbeats::<Runtime>::new(),
+			pallet_estate_executor::BoostUrgentHeartbeats::<Runtime>::new(),
 			pallet_skip_feeless_payment::SkipCheckIfFeeless::from(
 				pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
 			),
@@ -261,7 +261,7 @@ mod runtime {
 	pub type Statement = pallet_statement;
 
 	#[runtime::pallet_index(50)]
-	pub type DeadmanSwitchPallet = pallet_deadman_switch;
+	pub type EstateExecutor = pallet_estate_executor;
 
 	#[runtime::pallet_index(60)]
 	pub type Proxy = pallet_proxy;
@@ -387,6 +387,12 @@ pallet_revive::impl_runtime_apis_plus_revive_traits!(
 		}
 	}
 
+	impl pallet_estate_executor::runtime_api::EstateExecutorApi<Block, AccountId> for Runtime {
+		fn inheritances_of(account: AccountId) -> Vec<pallet_estate_executor::WillId> {
+			EstateExecutor::inheritances_of(&account)
+		}
+	}
+
 	#[cfg(feature = "try-runtime")]
 	impl frame_try_runtime::TryRuntime<Block> for Runtime {
 		fn on_runtime_upgrade(checks: frame_try_runtime::UpgradeCheckSelect) -> (frame_support::weights::Weight, frame_support::weights::Weight) {
@@ -451,8 +457,8 @@ pallet_revive::impl_runtime_apis_plus_revive_traits!(
 
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: alloc::borrow::Cow::Borrowed("deadman-switch-runtime"),
-	impl_name: alloc::borrow::Cow::Borrowed("deadman-switch-runtime"),
+	spec_name: alloc::borrow::Cow::Borrowed("estate-protocol-runtime"),
+	impl_name: alloc::borrow::Cow::Borrowed("estate-protocol-runtime"),
 	authoring_version: 1,
 	spec_version: 1,
 	impl_version: 0,

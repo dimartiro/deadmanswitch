@@ -13,7 +13,7 @@ interface DecodedCall {
 	args: Record<string, unknown>;
 }
 
-interface SwitchData {
+interface WillData {
 	id: bigint;
 	owner: string;
 	callCount: number;
@@ -21,6 +21,7 @@ interface SwitchData {
 	expiryBlock: number;
 	executedBlock: number;
 	status: string;
+	beneficiaries: string[];
 	calls: DecodedCall[];
 }
 
@@ -51,7 +52,6 @@ function decodeCompactU128(bytes: Uint8Array, offset: number): { value: bigint; 
 			(bytes[offset + 2] << 16) | (bytes[offset + 3] << 24)) >>> 2;
 		return { value: BigInt(v), size: 4 };
 	}
-	// Big integer mode
 	const len = (bytes[offset] >> 2) + 4;
 	let val = 0n;
 	for (let i = len; i > 0; i--) {
@@ -62,29 +62,25 @@ function decodeCompactU128(bytes: Uint8Array, offset: number): { value: bigint; 
 
 function decodeCallArgs(palletIdx: number, callIdx: number, argBytes: Uint8Array): Record<string, unknown> {
 	try {
-		// Balances.transfer_allow_death (10, 0): MultiAddress dest + Compact<u128> value
 		if (palletIdx === 10 && callIdx === 0) {
 			const dest = decodeMultiAddress(argBytes, 0);
 			const value = decodeCompactU128(argBytes, dest.size);
 			return { dest: dest.address, value: formatBalanceUnit(value.value) };
 		}
-		// Balances.transfer_all (10, 4): MultiAddress dest + bool keep_alive
 		if (palletIdx === 10 && callIdx === 4) {
 			const dest = decodeMultiAddress(argBytes, 0);
 			const keepAlive = argBytes[dest.size] === 1;
 			return { dest: dest.address, keep_alive: keepAlive };
 		}
-		// Proxy.add_proxy (60, 1): MultiAddress delegate + ProxyType + u32 delay
 		if (palletIdx === 60 && callIdx === 1) {
 			const delegate = decodeMultiAddress(argBytes, 0);
-			const proxyType = argBytes[delegate.size]; // 0=Any, 1=Transfers
+			const proxyType = argBytes[delegate.size];
 			const proxyTypeNames: Record<number, string> = { 0: "Any", 1: "Transfers" };
 			return {
 				delegate: delegate.address,
 				proxy_type: proxyTypeNames[proxyType] || `Unknown(${proxyType})`,
 			};
 		}
-		// System.remark (0, 1): Vec<u8> remark
 		if (palletIdx === 0 && callIdx === 1) {
 			const len = decodeCompactU128(argBytes, 0);
 			const remarkBytes = argBytes.slice(len.size, len.size + Number(len.value));
@@ -109,39 +105,40 @@ function truncateAddress(addr: string): string {
 	return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
 }
 
-export default function SwitchesPage() {
+export default function WillsPage() {
 	const { wsUrl, connected, blockNumber, selectedAccount } = useChainStore();
 	const { accounts, selected } = useAllAccounts();
-	const [switches, setSwitches] = useState<SwitchData[]>([]);
+	const [wills, setWills] = useState<WillData[]>([]);
+	const [inheritanceIds, setInheritanceIds] = useState<bigint[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [actionStatus, setActionStatus] = useState<Record<string, string>>({});
 
-	const fetchSwitches = useCallback(async () => {
+	const fetchWills = useCallback(async () => {
 		if (!connected) return;
 		setLoading(true);
 		try {
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
-			const switchEntries = await api.query.DeadmanSwitchPallet.Switches.getEntries();
-			const callEntries = await api.query.DeadmanSwitchPallet.SwitchCalls.getEntries();
+			const willEntries = await api.query.EstateExecutor.Wills.getEntries();
+			const callEntries = await api.query.EstateExecutor.WillCalls.getEntries();
 
-			// Decode stored calls by pallet/call index
 			const PALLET_NAMES: Record<number, string> = {
 				0: "System", 1: "ParachainSystem", 2: "Timestamp",
 				10: "Balances", 11: "TransactionPayment", 15: "Sudo",
-				50: "DeadmanSwitchPallet", 60: "Proxy", 61: "Multisig", 90: "Revive",
+				16: "Scheduler", 17: "SkipFeelessPayment",
+				50: "EstateExecutor", 60: "Proxy", 61: "Multisig", 90: "Revive",
 			};
 			const CALL_NAMES: Record<string, Record<number, string>> = {
 				System: { 0: "fill_block", 1: "remark", 7: "remark_with_event" },
 				Balances: { 0: "transfer_allow_death", 1: "force_transfer", 3: "transfer_keep_alive", 4: "transfer_all" },
 				Proxy: { 0: "proxy", 1: "add_proxy", 2: "remove_proxy" },
 				Multisig: { 0: "as_multi_threshold_1", 1: "as_multi", 2: "approve_as_multi" },
-				DeadmanSwitchPallet: { 0: "create_switch", 1: "heartbeat", 2: "execute_switch", 3: "cancel" },
+				EstateExecutor: { 0: "create_will", 1: "heartbeat", 2: "execute_will", 3: "cancel" },
 			};
 
 			const callsMap = new Map<string, DecodedCall[]>();
 			for (const entry of callEntries) {
-				const switchId = String(entry.keyArgs[0]);
+				const willId = String(entry.keyArgs[0]);
 				const decoded: DecodedCall[] = [];
 				for (const callBinary of entry.value) {
 					try {
@@ -159,10 +156,10 @@ export default function SwitchesPage() {
 						decoded.push({ pallet: "Unknown", call: "decode failed", args: {} });
 					}
 				}
-				callsMap.set(switchId, decoded);
+				callsMap.set(willId, decoded);
 			}
 
-			const items: SwitchData[] = switchEntries.map((entry) => {
+			const items: WillData[] = willEntries.map((entry) => {
 				const id = entry.keyArgs[0] as bigint;
 				return {
 					id,
@@ -172,28 +169,43 @@ export default function SwitchesPage() {
 					expiryBlock: entry.value.expiry_block as number,
 					executedBlock: entry.value.executed_block as number,
 					status: (entry.value.status as { type: string }).type,
+					beneficiaries: (entry.value.beneficiaries as string[]) || [],
 					calls: callsMap.get(String(id)) || [],
 				};
 			});
 
 			items.sort((a, b) => Number(a.id) - Number(b.id));
-			setSwitches(items);
+			setWills(items);
+
+			// Runtime API: fetch IDs of wills naming current account as beneficiary.
+			if (selected) {
+				try {
+					const ids = await api.apis.EstateExecutorApi.inheritances_of(
+						selected.address,
+					);
+					setInheritanceIds(ids as bigint[]);
+				} catch {
+					setInheritanceIds([]);
+				}
+			} else {
+				setInheritanceIds([]);
+			}
 		} catch (e) {
-			console.error("Failed to fetch switches:", e);
+			console.error("Failed to fetch wills:", e);
 		} finally {
 			setLoading(false);
 		}
-	}, [connected, wsUrl]);
+	}, [connected, wsUrl, selected?.address]);
 
 	useEffect(() => {
-		fetchSwitches();
-	}, [fetchSwitches, blockNumber]);
+		fetchWills();
+	}, [fetchWills, blockNumber]);
 
 	async function handleAction(
-		switchId: bigint,
+		willId: bigint,
 		action: "heartbeat" | "cancel",
 	) {
-		const key = `${switchId}-${action}`;
+		const key = `${willId}-${action}`;
 		setActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
 		try {
 			if (!selected) throw new Error("No account selected");
@@ -203,13 +215,13 @@ export default function SwitchesPage() {
 
 			const tx =
 				action === "heartbeat"
-					? api.tx.DeadmanSwitchPallet.heartbeat({ id: switchId })
-					: api.tx.DeadmanSwitchPallet.cancel({ id: switchId });
+					? api.tx.EstateExecutor.heartbeat({ id: willId })
+					: api.tx.EstateExecutor.cancel({ id: willId });
 
 			const result = await tx.signAndSubmit(signer);
 			if (result.ok) {
 				setActionStatus((s) => ({ ...s, [key]: "Success" }));
-				fetchSwitches();
+				fetchWills();
 			} else {
 				setActionStatus((s) => ({
 					...s,
@@ -226,17 +238,20 @@ export default function SwitchesPage() {
 
 	const currentAccount = selected?.address ?? "";
 
-	const mySwitchesActive = switches.filter(
-		(s) => s.owner === currentAccount && s.status === "Active" && blockNumber <= s.expiryBlock,
+	const myWillsActive = wills.filter(
+		(w) => w.owner === currentAccount && w.status === "Active" && blockNumber <= w.expiryBlock,
 	);
-	const expiredSwitches = switches.filter(
-		(s) => s.status === "Active" && blockNumber > s.expiryBlock,
+	const expiredWills = wills.filter(
+		(w) => w.status === "Active" && blockNumber > w.expiryBlock,
 	);
-	const otherActive = switches.filter(
-		(s) => s.owner !== currentAccount && s.status === "Active" && blockNumber <= s.expiryBlock,
+	const otherActive = wills.filter(
+		(w) => w.owner !== currentAccount && w.status === "Active" && blockNumber <= w.expiryBlock,
 	);
-	const executedSwitches = switches.filter(
-		(s) => s.status === "Executed" && s.owner === currentAccount,
+	const executedWills = wills.filter(
+		(w) => w.status === "Executed" && w.owner === currentAccount,
+	);
+	const inheritances = wills.filter((w) =>
+		inheritanceIds.some((id) => id === w.id),
 	);
 
 	return (
@@ -244,8 +259,8 @@ export default function SwitchesPage() {
 			<div className="space-y-2">
 				<h1 className="page-title">Dashboard</h1>
 				<p className="text-text-secondary">
-					View all dedman switches. Send heartbeats or cancel your own —
-					expired switches auto-execute via the on-chain scheduler.
+					View all wills on the chain. Send heartbeats or cancel your own
+					— expired wills auto-execute via the on-chain scheduler.
 				</p>
 			</div>
 
@@ -274,32 +289,37 @@ export default function SwitchesPage() {
 				)}
 			</div>
 
-			{loading && switches.length === 0 && (
+			{loading && wills.length === 0 && (
 				<div className="card animate-pulse">
 					<div className="h-4 w-48 rounded bg-white/[0.06]" />
 				</div>
 			)}
 
-			{!loading && switches.length === 0 && (
+			{!loading && wills.length === 0 && (
 				<div className="card">
 					<p className="text-text-muted">
-						No switches found.{" "}
+						No wills found.{" "}
 						<a href="#/create" className="text-polka-400 hover:text-polka-300">
-							Create one
+							Register one
 						</a>
 						.
 					</p>
 				</div>
 			)}
 
-			{/* My active switches */}
-			{mySwitchesActive.length > 0 && (
+			{/* Inheritances — wills naming the current account as beneficiary */}
+			{inheritances.length > 0 && (
 				<div className="space-y-3">
-					<h2 className="section-title">My Switches</h2>
-					{mySwitchesActive.map((sw) => (
-						<SwitchCard
-							key={Number(sw.id)}
-							sw={sw}
+					<h2 className="section-title text-accent-blue">
+						Inheritances (you are listed as beneficiary)
+					</h2>
+					<p className="text-xs text-text-muted -mt-2">
+						Source: <span className="font-mono">EstateExecutorApi.inheritances_of</span> runtime API
+					</p>
+					{inheritances.map((w) => (
+						<WillCard
+							key={Number(w.id)}
+							w={w}
 							blockNumber={blockNumber}
 							currentAccount={currentAccount}
 							onAction={handleAction}
@@ -309,14 +329,31 @@ export default function SwitchesPage() {
 				</div>
 			)}
 
-			{/* Other active switches */}
+			{/* My active wills */}
+			{myWillsActive.length > 0 && (
+				<div className="space-y-3">
+					<h2 className="section-title">My Wills</h2>
+					{myWillsActive.map((w) => (
+						<WillCard
+							key={Number(w.id)}
+							w={w}
+							blockNumber={blockNumber}
+							currentAccount={currentAccount}
+							onAction={handleAction}
+							actionStatus={actionStatus}
+						/>
+					))}
+				</div>
+			)}
+
+			{/* Other active wills */}
 			{otherActive.length > 0 && (
 				<div className="space-y-3">
-					<h2 className="section-title">Other Active Switches</h2>
-					{otherActive.map((sw) => (
-						<SwitchCard
-							key={Number(sw.id)}
-							sw={sw}
+					<h2 className="section-title">Other Active Wills</h2>
+					{otherActive.map((w) => (
+						<WillCard
+							key={Number(w.id)}
+							w={w}
 							blockNumber={blockNumber}
 							currentAccount={currentAccount}
 							onAction={handleAction}
@@ -327,15 +364,15 @@ export default function SwitchesPage() {
 			)}
 
 			{/* Expired — awaiting scheduler */}
-			{expiredSwitches.length > 0 && (
+			{expiredWills.length > 0 && (
 				<div className="space-y-3">
 					<h2 className="section-title text-accent-yellow">
 						Expired — Awaiting Scheduled Execution
 					</h2>
-					{expiredSwitches.map((sw) => (
-						<SwitchCard
-							key={Number(sw.id)}
-							sw={sw}
+					{expiredWills.map((w) => (
+						<WillCard
+							key={Number(w.id)}
+							w={w}
 							blockNumber={blockNumber}
 							currentAccount={currentAccount}
 							onAction={handleAction}
@@ -346,13 +383,13 @@ export default function SwitchesPage() {
 			)}
 
 			{/* Executed */}
-			{executedSwitches.length > 0 && (
+			{executedWills.length > 0 && (
 				<div className="space-y-3">
 					<h2 className="section-title text-text-muted">Executed</h2>
-					{executedSwitches.map((sw) => (
-						<SwitchCard
-							key={Number(sw.id)}
-							sw={sw}
+					{executedWills.map((w) => (
+						<WillCard
+							key={Number(w.id)}
+							w={w}
 							blockNumber={blockNumber}
 							currentAccount={currentAccount}
 							onAction={handleAction}
@@ -365,32 +402,32 @@ export default function SwitchesPage() {
 	);
 }
 
-function SwitchCard({
-	sw,
+function WillCard({
+	w,
 	blockNumber,
 	currentAccount,
 	onAction,
 	actionStatus,
 }: {
-	sw: SwitchData;
+	w: WillData;
 	blockNumber: number;
 	currentAccount: string;
 	onAction: (id: bigint, action: "heartbeat" | "cancel") => void;
 	actionStatus: Record<string, string>;
 }) {
 	const [expanded, setExpanded] = useState(false);
-	const isOwner = sw.owner === currentAccount;
-	const isActive = sw.status === "Active";
-	const isExpired = isActive && blockNumber > sw.expiryBlock;
-	const blocksLeft = isActive ? sw.expiryBlock - blockNumber : 0;
+	const isOwner = w.owner === currentAccount;
+	const isActive = w.status === "Active";
+	const isExpired = isActive && blockNumber > w.expiryBlock;
+	const blocksLeft = isActive ? w.expiryBlock - blockNumber : 0;
 	const blockTime = useChainStore((s) => s.blockTime);
 	const secondsLeft = Math.max(0, blocksLeft * blockTime);
 
-	const devAccount = devAccounts.find((a) => a.address === sw.owner);
-	const ownerLabel = devAccount ? devAccount.name : truncateAddress(sw.owner);
+	const devAccount = devAccounts.find((a) => a.address === w.owner);
+	const ownerLabel = devAccount ? devAccount.name : truncateAddress(w.owner);
 
 	let statusBadge;
-	if (sw.status === "Executed") {
+	if (w.status === "Executed") {
 		statusBadge = (
 			<span className="status-badge bg-text-muted/10 text-text-muted border border-text-muted/20">
 				Executed
@@ -415,7 +452,7 @@ function SwitchCard({
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-3">
 					<span className="text-lg font-semibold text-text-primary font-mono">
-						#{Number(sw.id)}
+						#{Number(w.id)}
 					</span>
 					{statusBadge}
 				</div>
@@ -426,13 +463,13 @@ function SwitchCard({
 
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
 				<div
-					onClick={() => sw.calls.length > 0 && setExpanded(!expanded)}
-					className={sw.calls.length > 0 ? "cursor-pointer group" : ""}
+					onClick={() => w.calls.length > 0 && setExpanded(!expanded)}
+					className={w.calls.length > 0 ? "cursor-pointer group" : ""}
 				>
 					<span className="text-text-muted">Calls</span>
 					<p className="font-mono text-text-primary">
-						{sw.callCount}
-						{sw.calls.length > 0 && (
+						{w.callCount}
+						{w.calls.length > 0 && (
 							<span className="text-text-muted group-hover:text-text-secondary ml-1">
 								{expanded ? "▲" : "▼"}
 							</span>
@@ -441,15 +478,15 @@ function SwitchCard({
 				</div>
 				<div>
 					<span className="text-text-muted">Expiry Block</span>
-					<p className="font-mono text-text-primary">#{sw.expiryBlock}</p>
+					<p className="font-mono text-text-primary">#{w.expiryBlock}</p>
 				</div>
 				<div>
 					<span className="text-text-muted">
-						{sw.status === "Executed" ? "Executed at" : "Countdown"}
+						{w.status === "Executed" ? "Executed at" : "Countdown"}
 					</span>
 					<p
 						className={`font-mono ${
-							sw.status === "Executed"
+							w.status === "Executed"
 								? "text-text-primary"
 								: isExpired
 									? "text-accent-red"
@@ -458,8 +495,8 @@ function SwitchCard({
 										: "text-text-primary"
 						}`}
 					>
-						{sw.status === "Executed"
-							? `Block #${sw.executedBlock}`
+						{w.status === "Executed"
+							? `Block #${w.executedBlock}`
 							: isExpired
 								? `Expired ${Math.abs(blocksLeft)} blocks ago`
 								: `${blocksLeft} blocks (~${formatDuration(secondsLeft)})`}
@@ -467,10 +504,24 @@ function SwitchCard({
 				</div>
 			</div>
 
+			{w.beneficiaries.length > 0 && (
+				<div className="text-sm">
+					<span className="text-text-muted">Beneficiaries: </span>
+					<span className="font-mono text-text-primary text-xs">
+						{w.beneficiaries
+							.map((addr) => {
+								const dev = devAccounts.find((a) => a.address === addr);
+								return dev ? dev.name : truncateAddress(addr);
+							})
+							.join(", ")}
+					</span>
+				</div>
+			)}
+
 			{/* Expanded calls detail */}
-			{expanded && sw.calls.length > 0 && (
+			{expanded && w.calls.length > 0 && (
 				<div className="space-y-2 pt-1">
-					{sw.calls.map((call, i) => (
+					{w.calls.map((call, i) => (
 						<div
 							key={i}
 							className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 space-y-1"
@@ -496,14 +547,14 @@ function SwitchCard({
 				<div className="flex gap-2 pt-1">
 					{!isExpired && (
 						<button
-							onClick={() => onAction(sw.id, "heartbeat")}
+							onClick={() => onAction(w.id, "heartbeat")}
 							className="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/20 hover:bg-accent-green/20 transition-colors"
 						>
 							Heartbeat
 						</button>
 					)}
 					<button
-						onClick={() => onAction(sw.id, "cancel")}
+						onClick={() => onAction(w.id, "cancel")}
 						className="px-3 py-1.5 rounded-lg text-xs font-medium bg-text-muted/10 text-text-secondary border border-text-muted/20 hover:bg-text-muted/20 transition-colors"
 					>
 						Cancel
@@ -513,7 +564,7 @@ function SwitchCard({
 
 			{/* Action status */}
 			{["heartbeat", "cancel"].map((action) => {
-				const key = `${sw.id}-${action}`;
+				const key = `${w.id}-${action}`;
 				const status = actionStatus[key];
 				if (!status) return null;
 				return (

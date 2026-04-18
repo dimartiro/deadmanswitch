@@ -3890,22 +3890,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "deadman-switch-runtime"
-version = "0.1.0"
-dependencies = [
- "cumulus-pallet-parachain-system",
- "hex-literal",
- "log",
- "pallet-deadman-switch",
- "parity-scale-codec",
- "polkadot-sdk",
- "scale-info",
- "serde_json",
- "smallvec",
- "substrate-wasm-builder",
-]
-
-[[package]]
 name = "debugid"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4450,6 +4434,22 @@ checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "estate-protocol-runtime"
+version = "0.1.0"
+dependencies = [
+ "cumulus-pallet-parachain-system",
+ "hex-literal",
+ "log",
+ "pallet-estate-executor",
+ "parity-scale-codec",
+ "polkadot-sdk",
+ "scale-info",
+ "serde_json",
+ "smallvec",
+ "substrate-wasm-builder",
 ]
 
 [[package]]
@@ -8941,17 +8941,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-deadman-switch"
-version = "0.1.0"
-dependencies = [
- "parity-scale-codec",
- "polkadot-sdk",
- "polkadot-sdk-frame",
- "scale-info",
- "sp-io",
-]
-
-[[package]]
 name = "pallet-delegated-staking"
 version = "12.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9116,6 +9105,17 @@ dependencies = [
  "sp-npos-elections",
  "sp-runtime",
  "sp-staking",
+]
+
+[[package]]
+name = "pallet-estate-executor"
+version = "0.1.0"
+dependencies = [
+ "parity-scale-codec",
+ "polkadot-sdk",
+ "polkadot-sdk-frame",
+ "scale-info",
+ "sp-io",
 ]
 
 [[package]]

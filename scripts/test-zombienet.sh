@@ -10,7 +10,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "=== Dedman Switch - E2E Test (Zombienet) ==="
+echo "=== Estate Protocol - E2E Test (Zombienet) ==="
 echo ""
 
 echo "[1/4] Building runtime..."

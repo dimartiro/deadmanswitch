@@ -5,8 +5,8 @@ import App from "./App";
 import "./index.css";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
-const SwitchesPage = lazy(() => import("./pages/SwitchesPage"));
-const CreateSwitchPage = lazy(() => import("./pages/CreateSwitchPage"));
+const WillsPage = lazy(() => import("./pages/WillsPage"));
+const CreateWillPage = lazy(() => import("./pages/CreateWillPage"));
 const AccountsPage = lazy(() => import("./pages/AccountsPage"));
 
 const routeFallback = (
@@ -33,7 +33,7 @@ createRoot(document.getElementById("root")!).render(
 						path="dashboard"
 						element={
 							<Suspense fallback={routeFallback}>
-								<SwitchesPage />
+								<WillsPage />
 							</Suspense>
 						}
 					/>
@@ -41,7 +41,7 @@ createRoot(document.getElementById("root")!).render(
 						path="create"
 						element={
 							<Suspense fallback={routeFallback}>
-								<CreateSwitchPage />
+								<CreateWillPage />
 							</Suspense>
 						}
 					/>

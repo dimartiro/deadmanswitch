@@ -273,13 +273,14 @@ function buildRuntimeCall(api: any, entry: CallEntry) {
 	}
 }
 
-export default function CreateSwitchPage() {
+export default function CreateWillPage() {
 	const { wsUrl, connected, selectedAccount } = useChainStore();
 	const { accounts, selected } = useAllAccounts();
 	const [calls, setCalls] = useState<CallEntry[]>([
 		{ id: nextCallId++, type: "transfer_all" },
 	]);
 	const [blockInterval, setBlockInterval] = useState("10");
+	const [beneficiaries, setBeneficiaries] = useState<string>("");
 	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
 	const [ownerBalance, setOwnerBalance] = useState<number>(0);
@@ -335,22 +336,29 @@ export default function CreateSwitchPage() {
 
 			const intervalBlocks = parseInt(blockInterval);
 
-			const tx = api.tx.DeadmanSwitchPallet.create_switch({
+			const beneficiaryList = beneficiaries
+				.split(",")
+				.map((s) => s.trim())
+				.filter(Boolean);
+
+			const tx = api.tx.EstateExecutor.create_will({
 				calls: runtimeCalls,
 				block_interval: intervalBlocks,
+				beneficiaries: beneficiaryList,
 			});
 
 			const result = await tx.signAndSubmit(signer);
 
 			if (result.ok) {
-				setStatus(`Switch created in block #${result.block.number}`);
+				setStatus(`Will registered in block #${result.block.number}`);
 				// Reset form
 				setCalls([{ id: nextCallId++, type: "transfer_all" }]);
+				setBeneficiaries("");
 			} else {
 				setStatus(`Error: ${formatDispatchError(result.dispatchError)}`);
 			}
 		} catch (e) {
-			console.error("Create switch failed:", e);
+			console.error("Create will failed:", e);
 			setStatus(`Error: ${e instanceof Error ? e.message : String(e)}`);
 		} finally {
 			setSubmitting(false);
@@ -363,7 +371,7 @@ export default function CreateSwitchPage() {
 	return (
 		<div className="space-y-6 animate-fade-in">
 			<div className="space-y-2">
-				<h1 className="page-title">Create</h1>
+				<h1 className="page-title">Register a Will</h1>
 				<p className="text-text-secondary">
 					Set up calls to execute if you stop sending heartbeats.
 				</p>
@@ -397,7 +405,7 @@ export default function CreateSwitchPage() {
 			{/* Calls */}
 			<div className="card space-y-4">
 				<div className="flex items-center justify-between">
-					<h2 className="section-title">Calls (executed at expiry)</h2>
+					<h2 className="section-title">Calls (executed if heartbeat expires)</h2>
 					<div className="flex flex-wrap gap-2">
 						<button onClick={() => addCall("transfer")} className="btn-secondary text-xs">
 							+ Transfer
@@ -586,6 +594,20 @@ export default function CreateSwitchPage() {
 						~{formatDuration(estimatedTime)} at {blockTime}s/block. After
 						this many blocks without a heartbeat, the scheduler executes
 						your stored calls automatically.
+					</p>
+				</div>
+				<div>
+					<label className="label">Beneficiaries (comma-separated SS58 addresses)</label>
+					<input
+						type="text"
+						value={beneficiaries}
+						onChange={(e) => setBeneficiaries(e.target.value)}
+						placeholder="5GrwvaEF..., 5FHneW46..."
+						className="input-field w-full font-mono text-xs"
+					/>
+					<p className="text-xs text-text-muted mt-1">
+						Informational — the actual benefit comes from your stored calls.
+						Listed accounts can query their inheritance via the runtime API.
 					</p>
 				</div>
 			</div>

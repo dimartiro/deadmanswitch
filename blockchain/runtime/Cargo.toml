@@ -1,6 +1,6 @@
 [package]
-name = "deadman-switch-runtime"
-description = "A parachain runtime for the Deadman Switch project, with EVM and PVM contract support."
+name = "estate-protocol-runtime"
+description = "Parachain runtime for the Estate Protocol — digital legacy management with auto-executing wills, EVM and PVM contract support."
 version = "0.1.0"
 license.workspace = true
 authors.workspace = true
@@ -18,7 +18,7 @@ codec = { features = ["derive"], workspace = true }
 cumulus-pallet-parachain-system.workspace = true
 hex-literal = { workspace = true, default-features = true }
 log = { workspace = true }
-pallet-deadman-switch.workspace = true
+pallet-estate-executor.workspace = true
 polkadot-sdk = { workspace = true, features = [
 	"cumulus-pallet-aura-ext",
 	"cumulus-pallet-session-benchmarking",
@@ -66,7 +66,7 @@ std = [
 	"codec/std",
 	"cumulus-pallet-parachain-system/std",
 	"log/std",
-	"pallet-deadman-switch/std",
+	"pallet-estate-executor/std",
 	"polkadot-sdk/std",
 	"scale-info/std",
 	"serde_json/std",
@@ -74,12 +74,12 @@ std = [
 ]
 runtime-benchmarks = [
 	"cumulus-pallet-parachain-system/runtime-benchmarks",
-	"pallet-deadman-switch/runtime-benchmarks",
+	"pallet-estate-executor/runtime-benchmarks",
 	"polkadot-sdk/runtime-benchmarks",
 ]
 try-runtime = [
 	"cumulus-pallet-parachain-system/try-runtime",
-	"pallet-deadman-switch/try-runtime",
+	"pallet-estate-executor/try-runtime",
 	"polkadot-sdk/try-runtime",
 ]
 

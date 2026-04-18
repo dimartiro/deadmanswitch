@@ -1,6 +1,6 @@
 [package]
-name = "pallet-deadman-switch"
-description = "A deadman switch pallet: store calls that execute automatically if periodic heartbeats stop."
+name = "pallet-estate-executor"
+description = "Executor pallet for the Estate Protocol: stores arbitrary runtime calls (a 'will') that auto-execute on the owner's behalf if periodic heartbeats stop."
 version = "0.1.0"
 license.workspace = true
 authors.workspace = true

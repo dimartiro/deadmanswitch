@@ -33,9 +33,9 @@ export default function App() {
 			<nav className="sticky top-0 z-50 border-b border-white/[0.06] backdrop-blur-xl bg-surface-950/80">
 				<div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-6">
 					<Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-						<img src="/ded.png" alt="Dedman Switch" className="w-7 h-7 rounded-lg shadow-glow transition-shadow group-hover:shadow-glow-lg" />
+						<img src="/ded.png" alt="Estate Protocol" className="w-7 h-7 rounded-lg shadow-glow transition-shadow group-hover:shadow-glow-lg" />
 						<span className="text-base font-semibold text-text-primary font-display tracking-tight">
-							Dedman Switch
+							Estate Protocol
 						</span>
 					</Link>
 

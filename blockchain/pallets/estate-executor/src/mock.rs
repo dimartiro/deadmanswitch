@@ -60,7 +60,7 @@ mod test_runtime {
 	#[runtime::pallet_index(1)]
 	pub type Balances = pallet_balances;
 	#[runtime::pallet_index(2)]
-	pub type DeadmanSwitch = crate;
+	pub type EstateExecutor = crate;
 	#[runtime::pallet_index(3)]
 	pub type Proxy = pallet_proxy;
 	#[runtime::pallet_index(4)]
@@ -86,6 +86,7 @@ impl pallet_balances::Config for Test {
 parameter_types! {
 	pub const MaxCalls: u32 = 5;
 	pub const MaxCallSize: u32 = 1024;
+	pub const MaxBeneficiaries: u32 = 4;
 	pub MaximumSchedulerWeight: frame::prelude::Weight =
 		frame::prelude::Weight::from_parts(2_000_000_000_000, u64::MAX);
 }
@@ -111,6 +112,7 @@ impl crate::Config for Test {
 	type Scheduler = Scheduler;
 	type MaxCalls = MaxCalls;
 	type MaxCallSize = MaxCallSize;
+	type MaxBeneficiaries = MaxBeneficiaries;
 }
 
 impl pallet_proxy::Config for Test {

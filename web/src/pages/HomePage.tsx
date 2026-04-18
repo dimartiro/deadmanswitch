@@ -46,16 +46,16 @@ export default function HomePage() {
 			{/* Hero */}
 			<div className="space-y-3">
 				<h1 className="page-title">
-					Dedman{" "}
+					Estate{" "}
 					<span className="bg-gradient-to-r from-polka-400 to-polka-600 bg-clip-text text-transparent">
-						Switch
+						Protocol
 					</span>
 				</h1>
 				<p className="text-text-secondary text-base leading-relaxed max-w-2xl">
-					Store runtime calls that execute automatically on your behalf if you
-					stop sending heartbeats. Execution is scheduled on-chain at the
-					moment of creation and fires deterministically when the heartbeat
-					expires — no keeper, no reward, no third party needed.
+					Register a will of arbitrary on-chain actions that auto-executes
+					on your behalf if you stop sending heartbeats. Execution is
+					scheduled on-chain at the moment of creation and fires
+					deterministically — no keeper, no reward, no third party needed.
 				</p>
 			</div>
 
@@ -114,7 +114,8 @@ export default function HomePage() {
 						Dashboard
 					</h3>
 					<p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-						View all dedman switches, send heartbeats, and cancel your own.
+						View all wills on the chain, send heartbeats, cancel your
+						own, and check what you would inherit.
 					</p>
 				</a>
 				<a href="#/create" className="card-hover block group hover:border-accent-purple/20">
@@ -122,8 +123,8 @@ export default function HomePage() {
 						Create
 					</h3>
 					<p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-						Set up a new dedman switch with custom calls and heartbeat
-						interval. Execution is auto-scheduled.
+						Register a new will with custom calls, heartbeat interval,
+						and beneficiaries. Execution is auto-scheduled.
 					</p>
 				</a>
 				<a href="#/accounts" className="card-hover block group hover:border-accent-green/20">

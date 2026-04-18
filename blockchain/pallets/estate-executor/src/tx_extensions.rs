@@ -1,15 +1,15 @@
 //! Custom `TransactionExtension`: boosts transaction-pool priority for
-//! heartbeat calls against switches that are close to expiring.
+//! heartbeat calls against wills that are close to expiring.
 //!
 //! ## Why this exists
 //!
 //! Scheduled execution is deterministic at `expiry_block + 1`. If an owner
 //! sends a `heartbeat` *just before* expiry and the block is congested,
-//! the heartbeat could be delayed and miss the deadline — the switch
+//! the heartbeat could be delayed and miss the deadline — the will
 //! would fire even though the owner is alive.
 //!
 //! This extension watches incoming heartbeats and, when the underlying
-//! switch is within `URGENCY_WINDOW` blocks of expiry, returns a
+//! will is within `URGENCY_WINDOW` blocks of expiry, returns a
 //! `ValidTransaction` with priority saturated to `u64::MAX`. Collators
 //! order the pool by priority, so an urgent heartbeat jumps ahead of
 //! ordinary traffic (including any spam an attacker is using to try to
@@ -30,7 +30,7 @@
 //! does not close it. The definitive fix for the scheduler-Agenda
 //! predictability is off-chain-worker driven execution (planned).
 
-use crate::{pallet::Call, Config, Pallet, Switches, SwitchId, SwitchStatus};
+use crate::{pallet::Call, Config, Pallet, WillId, WillStatus, Wills};
 use codec::{Decode, DecodeWithMemTracking, Encode};
 use core::marker::PhantomData;
 use frame::deps::frame_support::{
@@ -49,7 +49,7 @@ use frame::deps::sp_runtime::{
 	},
 };
 
-/// Heartbeats against switches that expire in fewer than this many blocks
+/// Heartbeats against wills that expire in fewer than this many blocks
 /// are treated as urgent and receive maximum transaction priority.
 pub const URGENCY_WINDOW: u32 = 10;
 
@@ -79,20 +79,20 @@ impl<T> BoostUrgentHeartbeats<T> {
 	}
 }
 
-/// Returns true if the switch `id` exists, is active, and expires within
+/// Returns true if the will `id` exists, is active, and expires within
 /// `URGENCY_WINDOW` blocks of the current block.
-fn is_heartbeat_urgent<T: Config>(id: SwitchId) -> bool {
-	let Some(switch) = Switches::<T>::get(id) else {
+fn is_heartbeat_urgent<T: Config>(id: WillId) -> bool {
+	let Some(will) = Wills::<T>::get(id) else {
 		return false;
 	};
-	if switch.status != SwitchStatus::Active {
+	if will.status != WillStatus::Active {
 		return false;
 	}
 	let now = frame_system::Pallet::<T>::block_number();
-	if switch.expiry_block < now {
+	if will.expiry_block < now {
 		return false;
 	}
-	let blocks_until_expiry = switch.expiry_block.saturating_sub(now);
+	let blocks_until_expiry = will.expiry_block.saturating_sub(now);
 	blocks_until_expiry <= URGENCY_WINDOW.into()
 }
 

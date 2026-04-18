@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-echo "=== Deploy Dedman Switch Frontend to IPFS ==="
+echo "=== Deploy Estate Protocol Frontend to IPFS ==="
 echo ""
 
 # Build the frontend
@@ -20,7 +20,7 @@ if ! command -v w3 &>/dev/null; then
     echo "[2/3] w3 CLI not found. Install it to deploy to IPFS:"
     echo "  npm install -g @web3-storage/w3cli"
     echo "  w3 login your@email.com"
-    echo "  w3 space create dedman-switch"
+    echo "  w3 space create estate-protocol"
     echo ""
     echo "Then re-run this script."
     exit 1
