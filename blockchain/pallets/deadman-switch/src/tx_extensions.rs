@@ -33,6 +33,9 @@
 use crate::{pallet::Call, Config, Pallet, Switches, SwitchId, SwitchStatus};
 use codec::{Decode, DecodeWithMemTracking, Encode};
 use core::marker::PhantomData;
+use frame::deps::frame_support::{
+	CloneNoBound, DebugNoBound, DefaultNoBound, EqNoBound, PartialEqNoBound,
+};
 use frame::prelude::*;
 use frame::traits::IsSubType;
 use scale_info::TypeInfo;
@@ -52,31 +55,27 @@ pub const URGENCY_WINDOW: u32 = 10;
 
 /// `TransactionExtension` that promotes urgent heartbeats to the front of
 /// the transaction pool. All other calls are unaffected.
-#[derive(Encode, Decode, DecodeWithMemTracking, Clone, Eq, PartialEq, TypeInfo)]
+///
+/// The `*NoBound` derives are FRAME helpers that derive the standard traits
+/// **without** adding `T: Trait` bounds — `T` here is a phantom type
+/// parameter and never needs to satisfy `Default`/`Debug`/etc. itself.
+#[derive(
+	Encode,
+	Decode,
+	DecodeWithMemTracking,
+	TypeInfo,
+	CloneNoBound,
+	DebugNoBound,
+	DefaultNoBound,
+	EqNoBound,
+	PartialEqNoBound,
+)]
 #[scale_info(skip_type_params(T))]
 pub struct BoostUrgentHeartbeats<T>(PhantomData<T>);
-
-impl<T> Default for BoostUrgentHeartbeats<T> {
-	fn default() -> Self {
-		Self(PhantomData)
-	}
-}
 
 impl<T> BoostUrgentHeartbeats<T> {
 	pub fn new() -> Self {
 		Self::default()
-	}
-}
-
-impl<T> core::fmt::Debug for BoostUrgentHeartbeats<T> {
-	#[cfg(feature = "std")]
-	fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-		write!(f, "BoostUrgentHeartbeats")
-	}
-
-	#[cfg(not(feature = "std"))]
-	fn fmt(&self, _: &mut core::fmt::Formatter) -> core::fmt::Result {
-		Ok(())
 	}
 }
 
