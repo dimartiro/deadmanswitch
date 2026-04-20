@@ -19,7 +19,6 @@ import { stack_template } from "@polkadot-api/descriptors";
 import { sr25519CreateDerive } from "@polkadot-labs/hdkd";
 import { DEV_PHRASE, entropyToMiniSecret, mnemonicToEntropy } from "@polkadot-labs/hdkd-helpers";
 import { getPolkadotSigner } from "polkadot-api/signer";
-import { Binary } from "polkadot-api";
 
 const WS_URL = "'"$WS_URL"'";
 const client = createClient(withPolkadotSdkCompat(getWsProvider(WS_URL)));
@@ -60,39 +59,36 @@ try {
   else fail("chain info");
 } catch(e) { fail("chain info", e.message); }
 
-// --- Create Switch ---
-console.log("--- Create Switch ---");
-let switchCreated = false;
+// --- Create Will ---
+console.log("--- Create Will ---");
+let willCreated = false;
 try {
-  const remark = api.tx.System.remark({ remark: Binary.fromText("e2e-test") });
-  const transfer = api.tx.Balances.transfer_allow_death({
-    dest: { type: "Id", value: bobAddress },
-    value: 10_000_000_000_000n,
-  });
   const result = await api.tx.EstateExecutor.create_will({
-    calls: [remark.decodedCall, transfer.decodedCall],
+    bequests: [
+      { type: "Transfer", value: { dest: bobAddress, amount: 10_000_000_000_000n } },
+    ],
     block_interval: 10,
   }).signAndSubmit(aliceSigner);
-  if (result.ok) { pass("create_switch (block #" + result.block.number + ")"); switchCreated = true; }
-  else fail("create_switch", JSON.stringify(result.dispatchError));
-} catch(e) { fail("create_switch", e.message); }
+  if (result.ok) { pass("create_will (block #" + result.block.number + ")"); willCreated = true; }
+  else fail("create_will", JSON.stringify(result.dispatchError));
+} catch(e) { fail("create_will", e.message); }
 
 // --- Verify Storage ---
 console.log("--- Verify Storage ---");
-if (switchCreated) {
+if (willCreated) {
   try {
-    const sw = await api.query.EstateExecutor.Wills.getValue(0n);
-    if (sw && sw.status.type === "Active") pass("switch is Active");
-    else fail("switch status", sw?.status?.type);
-    const calls = await api.query.EstateExecutor.WillCalls.getValue(0n);
-    if (calls && calls.length === 2) pass("stored 2 calls (remark + transfer)");
-    else fail("stored calls", calls?.length);
+    const w = await api.query.EstateExecutor.Wills.getValue(0n);
+    if (w && w.status.type === "Active") pass("will is Active");
+    else fail("will status", w?.status?.type);
+    const bequests = await api.query.EstateExecutor.WillBequests.getValue(0n);
+    if (bequests && bequests.length === 1) pass("stored 1 bequest (Transfer)");
+    else fail("stored bequests", bequests?.length);
   } catch(e) { fail("verify storage", e.message); }
 }
 
 // --- Heartbeat ---
 console.log("--- Heartbeat ---");
-if (switchCreated) {
+if (willCreated) {
   try {
     const result = await api.tx.EstateExecutor.heartbeat({ id: 0n }).signAndSubmit(aliceSigner);
     if (result.ok) pass("heartbeat");
@@ -102,7 +98,7 @@ if (switchCreated) {
 
 // --- Wait for expiry ---
 console.log("--- Wait for expiry ---");
-if (switchCreated) {
+if (willCreated) {
   const sw = await api.query.EstateExecutor.Wills.getValue(0n);
   const expiry = sw.expiry_block;
   console.log("  Waiting for block > " + expiry + "...");
@@ -112,7 +108,7 @@ if (switchCreated) {
 
 // --- Heartbeat after expiry ---
 console.log("--- Heartbeat after expiry ---");
-if (switchCreated) {
+if (willCreated) {
   try {
     const result = await api.tx.EstateExecutor.heartbeat({ id: 0n }).signAndSubmit(aliceSigner);
     if (!result.ok) pass("heartbeat after expiry correctly rejected");
@@ -122,7 +118,7 @@ if (switchCreated) {
 
 // --- Scheduler auto-executes ---
 console.log("--- Scheduler auto-executes ---");
-if (switchCreated) {
+if (willCreated) {
   const bobBefore = (await api.query.System.Account.getValue(bobAddress)).data.free;
   // Auto-execution runs at expiry_block + 1. Wait another block beyond
   // that to give the scheduler a chance to dispatch.
@@ -132,33 +128,34 @@ if (switchCreated) {
   await waitForBlock(scheduledAt);
 
   try {
-    const sw = await api.query.EstateExecutor.Wills.getValue(0n);
-    if (sw && sw.status.type === "Executed") pass("switch auto-executed");
-    else fail("switch status after scheduled block", sw?.status?.type);
-    if (sw && sw.executed_block > 0) pass("executed_block: #" + sw.executed_block);
+    const w = await api.query.EstateExecutor.Wills.getValue(0n);
+    if (w && w.status.type === "Executed") pass("will auto-executed");
+    else fail("will status after scheduled block", w?.status?.type);
+    if (w && w.executed_block > 0) pass("executed_block: #" + w.executed_block);
     else fail("executed_block not set");
   } catch(e) { fail("verify executed", e.message); }
 
   try {
     const bobAfter = (await api.query.System.Account.getValue(bobAddress)).data.free;
     const diff = bobAfter - bobBefore;
-    if (diff === 10_000_000_000_000n) pass("Bob received 10 UNIT from scheduled call");
+    if (diff === 10_000_000_000_000n) pass("Bob received 10 UNIT from scheduled bequest");
     else fail("Bob balance diff: " + diff);
   } catch(e) { fail("verify Bob balance", e.message); }
 
   try {
-    const calls = await api.query.EstateExecutor.WillCalls.getValue(0n);
-    if (calls && calls.length === 2) pass("calls preserved after execution");
-    else fail("calls after execution", calls?.length);
-  } catch(e) { fail("verify calls after execution", e.message); }
+    const bequests = await api.query.EstateExecutor.WillBequests.getValue(0n);
+    if (bequests && bequests.length === 1) pass("bequests preserved after execution");
+    else fail("bequests after execution", bequests?.length);
+  } catch(e) { fail("verify bequests after execution", e.message); }
 }
 
 // --- Cancel ---
 console.log("--- Cancel ---");
 try {
-  const remark = api.tx.System.remark({ remark: Binary.fromText("cancel-test") });
   const createResult = await api.tx.EstateExecutor.create_will({
-    calls: [remark.decodedCall],
+    bequests: [
+      { type: "TransferAll", value: { dest: bobAddress } },
+    ],
     block_interval: 100,
   }).signAndSubmit(aliceSigner);
 
@@ -168,13 +165,13 @@ try {
     if (cancelResult.ok) pass("cancel");
     else fail("cancel", JSON.stringify(cancelResult.dispatchError));
 
-    const sw = await api.query.EstateExecutor.Wills.getValue(1n);
-    if (!sw) pass("switch removed after cancel");
-    else fail("switch still in storage");
+    const w = await api.query.EstateExecutor.Wills.getValue(1n);
+    if (!w) pass("will removed after cancel");
+    else fail("will still in storage");
 
-    const calls = await api.query.EstateExecutor.WillCalls.getValue(1n);
-    if (!calls) pass("calls removed after cancel");
-    else fail("calls still in storage");
+    const bequests = await api.query.EstateExecutor.WillBequests.getValue(1n);
+    if (!bequests) pass("bequests removed after cancel");
+    else fail("bequests still in storage");
   }
 } catch(e) { fail("cancel test", e.message); }
 

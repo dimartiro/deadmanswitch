@@ -5,8 +5,8 @@
     "stack_template": {
       "wsUrl": "ws://127.0.0.1:9944",
       "metadata": ".papi/metadata/stack_template.scale",
-      "genesis": "0xf33dd5045407afd586e50ee8aabc4504aaade9bf58d5310d565231fd8abbcedd",
-      "codeHash": "0x7fd2044497eb8b61c15800620f8546cc3141229af109e567cf9baeebfa8a3d77"
+      "genesis": "0xa4fc93a434ab5f96cb3c3de0dd3fbcac635d6205c89a368589dd5b27702ba238",
+      "codeHash": "0x86904c8c82363b943f247adff850b85977cf48fb348104f47dfaa3b074a4031f"
     },
     "bulletin": {
       "wsUrl": "wss://paseo-bulletin-rpc.polkadot.io",

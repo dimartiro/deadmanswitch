@@ -84,9 +84,7 @@ impl pallet_balances::Config for Test {
 }
 
 parameter_types! {
-	pub const MaxCalls: u32 = 5;
-	pub const MaxCallSize: u32 = 1024;
-	pub const MaxBeneficiaries: u32 = 4;
+	pub const MaxBequests: u32 = 5;
 	pub MaximumSchedulerWeight: frame::prelude::Weight =
 		frame::prelude::Weight::from_parts(2_000_000_000_000, u64::MAX);
 }
@@ -105,14 +103,53 @@ impl pallet_scheduler::Config for Test {
 	type BlockNumberProvider = System;
 }
 
+/// `BequestBuilder` impl for the mock runtime — maps each
+/// `Bequest<Test>` variant to the equivalent `RuntimeCall`.
+pub struct TestBequestBuilder;
+impl crate::bequest::BequestBuilder<Test> for TestBequestBuilder {
+	fn build_call(dist: &crate::bequest::Bequest<Test>) -> RuntimeCall {
+		use crate::bequest::Bequest;
+		match dist {
+			Bequest::Transfer { dest, amount } =>
+				RuntimeCall::Balances(pallet_balances::Call::transfer_allow_death {
+					dest: (*dest).into(),
+					value: *amount,
+				}),
+			Bequest::TransferAll { dest } =>
+				RuntimeCall::Balances(pallet_balances::Call::transfer_all {
+					dest: (*dest).into(),
+					keep_alive: false,
+				}),
+			Bequest::Proxy { delegate } =>
+				RuntimeCall::Proxy(pallet_proxy::Call::add_proxy {
+					delegate: (*delegate).into(),
+					proxy_type: ProxyType::Any,
+					delay: 0,
+				}),
+			Bequest::MultisigProxy { delegates, threshold } => {
+				let multisig =
+					pallet_multisig::Pallet::<Test>::multi_account_id(
+						&delegates.to_vec(),
+						*threshold,
+					);
+				RuntimeCall::Proxy(pallet_proxy::Call::add_proxy {
+					delegate: multisig.into(),
+					proxy_type: ProxyType::Any,
+					delay: 0,
+				})
+			},
+		}
+	}
+}
+
 impl crate::Config for Test {
 	type WeightInfo = ();
+	type Balance = u64;
 	type RuntimeCall = RuntimeCall;
 	type PalletsOrigin = OriginCaller;
 	type Scheduler = Scheduler;
-	type MaxCalls = MaxCalls;
-	type MaxCallSize = MaxCallSize;
-	type MaxBeneficiaries = MaxBeneficiaries;
+	type BequestBuilder = TestBequestBuilder;
+	type MaxBequests = MaxBequests;
 }
 
 impl pallet_proxy::Config for Test {
@@ -165,8 +202,6 @@ pub fn run_to_block(to: u64) {
 	while System::block_number() < to {
 		let next = System::block_number() + 1;
 		System::set_block_number(next);
-		// on_initialize runs before any extrinsics; the scheduler fires
-		// pending tasks here.
 		<Scheduler as frame::traits::Hooks<_>>::on_initialize(next);
 	}
 }

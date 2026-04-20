@@ -325,15 +325,59 @@ impl pallet_statement::Config for Runtime {
 	type MaxAllowedBytes = MaxAllowedBytes;
 }
 
-/// Configure the Estate Executor pallet.
+// ── Estate Executor ───────────────────────────────────────────────────
+//
+// The pallet stores a typed `Vec<Bequest>` per will. At execution
+// time, this translator turns each variant into a concrete `RuntimeCall`
+// so the pallet stays agnostic of Balances, Proxy, etc.
+
+pub struct RuntimeBequestBuilder;
+
+impl pallet_estate_executor::BequestBuilder<Runtime> for RuntimeBequestBuilder {
+	fn build_call(
+		dist: &pallet_estate_executor::Bequest<Runtime>,
+	) -> RuntimeCall {
+		use pallet_estate_executor::Bequest;
+		match dist {
+			Bequest::Transfer { dest, amount } =>
+				RuntimeCall::Balances(pallet_balances::Call::transfer_allow_death {
+					dest: sp_runtime::MultiAddress::Id(dest.clone()),
+					value: *amount,
+				}),
+			Bequest::TransferAll { dest } =>
+				RuntimeCall::Balances(pallet_balances::Call::transfer_all {
+					dest: sp_runtime::MultiAddress::Id(dest.clone()),
+					keep_alive: false,
+				}),
+			Bequest::Proxy { delegate } =>
+				RuntimeCall::Proxy(pallet_proxy::Call::add_proxy {
+					delegate: sp_runtime::MultiAddress::Id(delegate.clone()),
+					proxy_type: ProxyType::Any,
+					delay: 0,
+				}),
+			Bequest::MultisigProxy { delegates, threshold } => {
+				let multisig = pallet_multisig::Pallet::<Runtime>::multi_account_id(
+					&delegates.to_vec(),
+					*threshold,
+				);
+				RuntimeCall::Proxy(pallet_proxy::Call::add_proxy {
+					delegate: sp_runtime::MultiAddress::Id(multisig),
+					proxy_type: ProxyType::Any,
+					delay: 0,
+				})
+			},
+		}
+	}
+}
+
 impl pallet_estate_executor::Config for Runtime {
 	type WeightInfo = pallet_estate_executor::weights::SubstrateWeight<Runtime>;
+	type Balance = Balance;
 	type RuntimeCall = RuntimeCall;
 	type PalletsOrigin = OriginCaller;
 	type Scheduler = Scheduler;
-	type MaxCalls = ConstU32<5>;
-	type MaxCallSize = ConstU32<1024>;
-	type MaxBeneficiaries = ConstU32<10>;
+	type BequestBuilder = RuntimeBequestBuilder;
+	type MaxBequests = ConstU32<5>;
 }
 
 // ── pallet-proxy ──────────────────────────────────────────────────────

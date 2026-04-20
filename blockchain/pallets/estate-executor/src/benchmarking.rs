@@ -1,6 +1,7 @@
 //! Benchmarking setup for pallet-estate-executor
 
 use super::*;
+use crate::bequest::Bequest;
 use frame::{deps::frame_benchmarking::v2::*, prelude::*};
 
 #[benchmarks]
@@ -10,15 +11,17 @@ mod benchmarks {
 	use crate::pallet::Pallet as EstateExecutor;
 	use frame_system::RawOrigin;
 
+	fn single_transfer<T: Config>(dest: T::AccountId) -> Vec<Bequest<T>> {
+		vec![Bequest::Transfer { dest, amount: 1u32.into() }]
+	}
+
 	#[benchmark]
 	fn create_will() {
 		let caller: T::AccountId = whitelisted_caller();
-		let call = frame_system::Call::<T>::remark { remark: vec![0u8; 32] };
-		let calls = vec![Box::new(call.into())];
+		let bequests = single_transfer::<T>(caller.clone());
 		let interval: BlockNumberFor<T> = 100u32.into();
-		let beneficiaries: Vec<T::AccountId> = vec![caller.clone()];
 		#[extrinsic_call]
-		create_will(RawOrigin::Signed(caller.clone()), calls, interval, beneficiaries);
+		create_will(RawOrigin::Signed(caller.clone()), bequests, interval);
 
 		assert!(Wills::<T>::contains_key(0));
 	}
@@ -26,15 +29,10 @@ mod benchmarks {
 	#[benchmark]
 	fn heartbeat() {
 		let caller: T::AccountId = whitelisted_caller();
-		// Seed real state (including a scheduled task) by going through
-		// create_will — otherwise `reschedule_named` has no task to update.
-		let call = frame_system::Call::<T>::remark { remark: vec![0u8; 32] };
-		let calls = vec![Box::new(call.into())];
 		Pallet::<T>::create_will(
 			RawOrigin::Signed(caller.clone()).into(),
-			calls,
+			single_transfer::<T>(caller.clone()),
 			100u32.into(),
-			vec![caller.clone()],
 		)
 		.unwrap();
 		#[extrinsic_call]
@@ -44,13 +42,10 @@ mod benchmarks {
 	#[benchmark]
 	fn execute_will() {
 		let caller: T::AccountId = whitelisted_caller();
-		let call = frame_system::Call::<T>::remark { remark: vec![0u8; 32] };
-		let calls = vec![Box::new(call.into())];
 		Pallet::<T>::create_will(
 			RawOrigin::Signed(caller.clone()).into(),
-			calls,
+			single_transfer::<T>(caller.clone()),
 			100u32.into(),
-			vec![caller.clone()],
 		)
 		.unwrap();
 		#[extrinsic_call]
@@ -63,13 +58,10 @@ mod benchmarks {
 	#[benchmark]
 	fn cancel() {
 		let caller: T::AccountId = whitelisted_caller();
-		let call = frame_system::Call::<T>::remark { remark: vec![0u8; 32] };
-		let calls = vec![Box::new(call.into())];
 		Pallet::<T>::create_will(
 			RawOrigin::Signed(caller.clone()).into(),
-			calls,
+			single_transfer::<T>(caller.clone()),
 			100u32.into(),
-			vec![caller.clone()],
 		)
 		.unwrap();
 		#[extrinsic_call]

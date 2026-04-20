@@ -1,53 +1,67 @@
 # Estate Executor Pallet
 
-Core executor pallet of the **Estate Protocol**. Lets users register a "will" — arbitrary runtime calls that execute on their behalf if they stop sending periodic heartbeats. Calls are dispatched as `Signed(owner)` on a best-effort basis — each may succeed or fail independently.
+Core executor pallet of the **Estate Protocol**. Users register a "will" — a list of typed **bequests** — that auto-executes if the owner stops sending periodic heartbeats. Each bequest translates at execution time to the appropriate `RuntimeCall` and is dispatched as `Signed(owner)` on a best-effort basis.
 
 Execution is driven by `pallet-scheduler`: creating a will schedules its auto-execution at `expiry_block + 1`; heartbeats reschedule; cancel removes the scheduled task.
 
 ## How It Works
 
-1. **Owner** registers a will with a list of runtime calls, a heartbeat interval, and a list of beneficiaries.
+1. **Owner** registers a will with a list of bequests and a heartbeat interval.
 2. The pallet schedules an `execute_will(id)` task via `pallet-scheduler` at `expiry_block + 1`.
 3. Owner must send **heartbeats** before the expiry block to move the schedule forward.
-4. If the owner stops sending heartbeats, the scheduler fires `execute_will` at the scheduled block.
-5. On execution: stored calls are dispatched as `Signed(owner)` — best-effort, independent success/failure.
+4. If the owner stops, the scheduler fires `execute_will` at the scheduled block.
+5. On execution: each bequest is translated to a `RuntimeCall` via `BequestBuilder` and dispatched as `Signed(owner)` — best-effort, independent success/failure.
 6. Owner can **cancel** an active will at any time; the scheduled task is removed.
+
+## Bequests vs Stored Calls
+
+An earlier design stored arbitrary SCALE-encoded `RuntimeCall`s paired with a separate `beneficiaries` list. That created two sources of truth that could drift out of sync. The current design uses a typed `Bequest<T>` enum with recipients **inside** each variant:
+
+```rust
+pub enum Bequest<T: Config> {
+    Transfer { dest, amount },
+    TransferAll { dest },
+    Proxy { delegate },
+    MultisigProxy { delegates, threshold },
+}
+```
+
+Beneficiaries are derived structurally via `Pallet::beneficiaries_of(will_id)`, which iterates the will's bequests and unions their `recipients()`. Inconsistency is impossible by construction.
+
+The runtime provides a `BequestBuilder` impl that translates each variant into the concrete `RuntimeCall` at execution time, keeping the pallet agnostic of which pallets supply Balances, Proxy, etc.
 
 ## Why Scheduler, Not a Permissionless Trigger
 
-An earlier design exposed a public `trigger` extrinsic with a random reward paid to the caller. The reward created a keeper market — but also an attack vector: any will with a significant `max_reward` became a target to coerce the owner into missing heartbeats.
+An earlier design exposed a public `trigger` extrinsic with a random reward paid to the caller. The reward created a keeper market — but also an attack vector: any will with a significant reward became a target to coerce the owner into missing heartbeats.
 
-Switching to scheduler-driven execution removes the third-party incentive entirely. Nobody holds a reward, nobody gets paid, and execution is deterministic. The owner only pays the transaction fee on `create_will`. The stored calls still carry whatever incentives they encode (a transfer to a beneficiary is still valuable to that beneficiary) but there is no longer a random-third-party payoff for triggering expiry.
+Switching to scheduler-driven execution removes the third-party incentive entirely. Nobody holds a reward, nobody gets paid, and execution is deterministic. The owner only pays the transaction fee on `create_will`. The bequests still carry whatever incentives they encode (a transfer to a beneficiary is still valuable to that beneficiary) but there is no longer a random-third-party payoff for triggering expiry.
 
 ## Dispatchables
 
 | Call | Description |
 |---|---|
-| `create_will(calls, block_interval, beneficiaries)` | Register calls + beneficiaries and schedule auto-execution at `current_block + block_interval + 1`. |
+| `create_will(bequests, block_interval)` | Register bequests and schedule auto-execution at `current_block + block_interval + 1`. |
 | `heartbeat(id)` | Owner resets expiry and reschedules the task. Must be called no later than `expiry_block`. **Feeless** when called by the owner of an active will. |
-| `execute_will(id)` | Internal — `Root`-only. The scheduler calls this at the scheduled block. Dispatches stored calls as `Signed(owner)`. |
+| `execute_will(id)` | Internal — `Root`-only. The scheduler calls this at the scheduled block. Each bequest becomes a `RuntimeCall` and is dispatched as `Signed(owner)`. |
 | `cancel(id)` | Owner cancels the will; the scheduled task is removed. |
 
 `execute_will` accepts `Root` origin so governance or sudo can also force-execute if needed — scheduler dispatches use `RawOrigin::Root`.
 
-## Stored Calls
+## Bequest Variants
 
-Any runtime call can be stored. Examples tested:
-
-- **Balances.transfer_allow_death** — transfer funds to a specific account
-- **Balances.transfer_all** — transfer entire balance to an account
-- **Proxy.add_proxy** — grant proxy access to another account
-- **Multisig.as_multi** — initiate a multisig proposal requiring further approvals
-- **EstateExecutor.create_will** — chain wills (the executed will registers another)
-
-Calls are SCALE-encoded at creation time. A **runtime upgrade** that changes call encoding may invalidate stored calls — cancel and recreate the will if needed.
+| Variant | Recipients | Effect |
+|---|---|---|
+| `Transfer { dest, amount }` | `[dest]` | Transfers `amount` to `dest`. |
+| `TransferAll { dest }` | `[dest]` | Transfers the owner's entire free balance to `dest`. |
+| `Proxy { delegate }` | `[delegate]` | Grants `delegate` unrestricted proxy access. |
+| `MultisigProxy { delegates, threshold }` | `delegates` | Grants a multisig of `delegates` proxy access to the owner's account. |
 
 ## Storage
 
 | Item | Description |
 |---|---|
-| `Wills` | Will metadata: owner, call count, interval, expiry block, status, executed block, beneficiaries |
-| `WillCalls` | Encoded calls per will. Preserved after execution for frontend querying. Removed on cancel. |
+| `Wills` | Will metadata: owner, bequest count, interval, expiry block, status, executed block |
+| `WillBequests` | Typed bequests per will |
 | `NextWillId` | Auto-incrementing ID counter |
 
 Scheduled tasks live in `pallet-scheduler`'s own storage under a deterministic task name (`blake2_256("estate_executor", id)`).
@@ -56,7 +70,7 @@ Scheduled tasks live in `pallet-scheduler`'s own storage under a deterministic t
 
 | Method | Description |
 |---|---|
-| `EstateExecutorApi::inheritances_of(account)` | Returns the IDs of all currently active wills naming `account` as a beneficiary. Iterated runtime-side so the frontend can answer "what would I inherit?" without bulk-downloading state. |
+| `EstateExecutorApi::inheritances_of(account)` | IDs of all currently active wills naming `account` as a recipient of at least one bequest. Iterated runtime-side so the frontend can answer "what would I inherit?" without bulk-downloading state. |
 
 ## Custom Transaction Extensions
 
@@ -70,12 +84,12 @@ The runtime additionally uses `pallet-skip-feeless-payment` to make owner-heartb
 
 | Type | Description |
 |---|---|
+| `Balance` | Balance type used in `Bequest::Transfer`. |
 | `RuntimeCall` | Overarching call type; must include our own `Call<Self>` so `execute_will` can be scheduled. |
-| `PalletsOrigin` | Origin aggregation (typically `OriginCaller`) passed to the scheduler. |
-| `Scheduler` | Implements `schedule::v3::Named` — `pallet-scheduler` in practice. |
-| `MaxCalls` | Maximum calls per will (runtime: 5) |
-| `MaxCallSize` | Maximum encoded bytes per call (runtime: 1024) |
-| `MaxBeneficiaries` | Maximum beneficiaries per will (runtime: 10) |
+| `PalletsOrigin` | Origin aggregation passed to the scheduler. |
+| `Scheduler` | Implements `schedule::v3::Named`. |
+| `BequestBuilder` | Translator from `Bequest<Self>` to `RuntimeCall`, provided by the runtime. |
+| `MaxBequests` | Maximum bequests per will (runtime: 5). |
 
 ## Threat Model & Open Questions
 
@@ -88,12 +102,13 @@ The runtime additionally uses `pallet-skip-feeless-payment` to make owner-heartb
 | File | Purpose |
 |---|---|
 | `src/lib.rs` | Pallet storage, config, calls, events, errors |
+| `src/bequest.rs` | `Bequest<T>` enum + `BequestBuilder` trait |
 | `src/runtime_api.rs` | `EstateExecutorApi` runtime API declaration |
 | `src/tx_extensions.rs` | `BoostUrgentHeartbeats` transaction extension |
 | `src/weights.rs` | Placeholder weight functions |
 | `src/benchmarking.rs` | Benchmark definitions for all dispatchables |
 | `src/mock.rs` | Mock runtime with balances, proxy, multisig, scheduler |
-| `src/tests.rs` | Tests covering calls, permissions, proxy, multisig, chained wills, runtime API |
+| `src/tests.rs` | Tests covering calls, permissions, proxy, multisig, inheritances |
 
 ## Commands
 

@@ -5,92 +5,19 @@ import { useAllAccounts } from "../hooks/useAllAccounts";
 import { getClient } from "../hooks/useChain";
 import { stack_template } from "@polkadot-api/descriptors";
 import { formatDispatchError, formatDuration } from "../utils/format";
-import { ss58Address } from "@polkadot-labs/hdkd-helpers";
 
-interface DecodedCall {
-	pallet: string;
-	call: string;
-	args: Record<string, unknown>;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Bequest = any;
 
 interface WillData {
 	id: bigint;
 	owner: string;
-	callCount: number;
+	bequestCount: number;
 	blockInterval: number;
 	expiryBlock: number;
 	executedBlock: number;
 	status: string;
-	beneficiaries: string[];
-	calls: DecodedCall[];
-}
-
-function formatCallArgs(args: Record<string, unknown>): string {
-	const replacer = (_key: string, value: unknown) =>
-		typeof value === "bigint" ? value.toString() : value;
-	return JSON.stringify(args, replacer, 2);
-}
-
-function decodeMultiAddress(bytes: Uint8Array, offset: number): { address: string; size: number } {
-	const tag = bytes[offset]; // 0 = Id (32 bytes)
-	if (tag === 0) {
-		const pubkey = bytes.slice(offset + 1, offset + 33);
-		return { address: ss58Address(pubkey), size: 33 };
-	}
-	return { address: "Unknown MultiAddress type " + tag, size: 1 };
-}
-
-function decodeCompactU128(bytes: Uint8Array, offset: number): { value: bigint; size: number } {
-	const mode = bytes[offset] & 0b11;
-	if (mode === 0) return { value: BigInt(bytes[offset] >> 2), size: 1 };
-	if (mode === 1) {
-		const v = (bytes[offset] | (bytes[offset + 1] << 8)) >> 2;
-		return { value: BigInt(v), size: 2 };
-	}
-	if (mode === 2) {
-		const v = (bytes[offset] | (bytes[offset + 1] << 8) |
-			(bytes[offset + 2] << 16) | (bytes[offset + 3] << 24)) >>> 2;
-		return { value: BigInt(v), size: 4 };
-	}
-	const len = (bytes[offset] >> 2) + 4;
-	let val = 0n;
-	for (let i = len; i > 0; i--) {
-		val = (val << 8n) | BigInt(bytes[offset + i]);
-	}
-	return { value: val, size: 1 + len };
-}
-
-function decodeCallArgs(palletIdx: number, callIdx: number, argBytes: Uint8Array): Record<string, unknown> {
-	try {
-		if (palletIdx === 10 && callIdx === 0) {
-			const dest = decodeMultiAddress(argBytes, 0);
-			const value = decodeCompactU128(argBytes, dest.size);
-			return { dest: dest.address, value: formatBalanceUnit(value.value) };
-		}
-		if (palletIdx === 10 && callIdx === 4) {
-			const dest = decodeMultiAddress(argBytes, 0);
-			const keepAlive = argBytes[dest.size] === 1;
-			return { dest: dest.address, keep_alive: keepAlive };
-		}
-		if (palletIdx === 60 && callIdx === 1) {
-			const delegate = decodeMultiAddress(argBytes, 0);
-			const proxyType = argBytes[delegate.size];
-			const proxyTypeNames: Record<number, string> = { 0: "Any", 1: "Transfers" };
-			return {
-				delegate: delegate.address,
-				proxy_type: proxyTypeNames[proxyType] || `Unknown(${proxyType})`,
-			};
-		}
-		if (palletIdx === 0 && callIdx === 1) {
-			const len = decodeCompactU128(argBytes, 0);
-			const remarkBytes = argBytes.slice(len.size, len.size + Number(len.value));
-			const text = new TextDecoder().decode(remarkBytes);
-			return { message: text };
-		}
-	} catch {
-		// Fall through to hex
-	}
-	return { encoded: "0x" + Array.from(argBytes).map(b => b.toString(16).padStart(2, "0")).join("") };
+	bequests: Bequest[];
 }
 
 function formatBalanceUnit(planck: bigint): string {
@@ -103,6 +30,60 @@ function formatBalanceUnit(planck: bigint): string {
 
 function truncateAddress(addr: string): string {
 	return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
+}
+
+function accountLabel(addr: string): string {
+	const dev = devAccounts.find((a) => a.address === addr);
+	return dev ? dev.name : truncateAddress(addr);
+}
+
+function renderBequest(bequest: Bequest): { title: string; detail: string } {
+	const type = bequest.type as string;
+	const value = bequest.value;
+	switch (type) {
+		case "Transfer":
+			return {
+				title: `Transfer ${formatBalanceUnit(value.amount)}`,
+				detail: `to ${accountLabel(value.dest)}`,
+			};
+		case "TransferAll":
+			return {
+				title: "Transfer everything",
+				detail: `to ${accountLabel(value.dest)}`,
+			};
+		case "Proxy":
+			return {
+				title: "Grant proxy access",
+				detail: `to ${accountLabel(value.delegate)}`,
+			};
+		case "MultisigProxy": {
+			const delegates = (value.delegates as string[])
+				.map(accountLabel)
+				.join(", ");
+			return {
+				title: `Grant multisig proxy (${value.threshold} of ${value.delegates.length})`,
+				detail: delegates,
+			};
+		}
+		default:
+			return { title: `Unknown (${type})`, detail: "" };
+	}
+}
+
+function recipientsOf(bequest: Bequest): string[] {
+	const type = bequest.type as string;
+	const value = bequest.value;
+	switch (type) {
+		case "Transfer":
+		case "TransferAll":
+			return [value.dest as string];
+		case "Proxy":
+			return [value.delegate as string];
+		case "MultisigProxy":
+			return value.delegates as string[];
+		default:
+			return [];
+	}
 }
 
 export default function WillsPage() {
@@ -120,43 +101,13 @@ export default function WillsPage() {
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
 			const willEntries = await api.query.EstateExecutor.Wills.getEntries();
-			const callEntries = await api.query.EstateExecutor.WillCalls.getEntries();
+			const bequestEntries =
+				await api.query.EstateExecutor.WillBequests.getEntries();
 
-			const PALLET_NAMES: Record<number, string> = {
-				0: "System", 1: "ParachainSystem", 2: "Timestamp",
-				10: "Balances", 11: "TransactionPayment", 15: "Sudo",
-				16: "Scheduler", 17: "SkipFeelessPayment",
-				50: "EstateExecutor", 60: "Proxy", 61: "Multisig", 90: "Revive",
-			};
-			const CALL_NAMES: Record<string, Record<number, string>> = {
-				System: { 0: "fill_block", 1: "remark", 7: "remark_with_event" },
-				Balances: { 0: "transfer_allow_death", 1: "force_transfer", 3: "transfer_keep_alive", 4: "transfer_all" },
-				Proxy: { 0: "proxy", 1: "add_proxy", 2: "remove_proxy" },
-				Multisig: { 0: "as_multi_threshold_1", 1: "as_multi", 2: "approve_as_multi" },
-				EstateExecutor: { 0: "create_will", 1: "heartbeat", 2: "execute_will", 3: "cancel" },
-			};
-
-			const callsMap = new Map<string, DecodedCall[]>();
-			for (const entry of callEntries) {
+			const bequestsMap = new Map<string, Bequest[]>();
+			for (const entry of bequestEntries) {
 				const willId = String(entry.keyArgs[0]);
-				const decoded: DecodedCall[] = [];
-				for (const callBinary of entry.value) {
-					try {
-						const bytes = callBinary.asBytes();
-						const palletIdx = bytes[0];
-						const callIdx = bytes[1];
-						const palletName = PALLET_NAMES[palletIdx] || `Pallet(${palletIdx})`;
-						const callName = CALL_NAMES[palletName]?.[callIdx] || `call(${callIdx})`;
-						decoded.push({
-							pallet: palletName,
-							call: callName,
-							args: decodeCallArgs(palletIdx, callIdx, bytes.slice(2)),
-						});
-					} catch {
-						decoded.push({ pallet: "Unknown", call: "decode failed", args: {} });
-					}
-				}
-				callsMap.set(willId, decoded);
+				bequestsMap.set(willId, entry.value as Bequest[]);
 			}
 
 			const items: WillData[] = willEntries.map((entry) => {
@@ -164,20 +115,18 @@ export default function WillsPage() {
 				return {
 					id,
 					owner: entry.value.owner as string,
-					callCount: entry.value.call_count as number,
+					bequestCount: entry.value.bequest_count as number,
 					blockInterval: entry.value.block_interval as number,
 					expiryBlock: entry.value.expiry_block as number,
 					executedBlock: entry.value.executed_block as number,
 					status: (entry.value.status as { type: string }).type,
-					beneficiaries: (entry.value.beneficiaries as string[]) || [],
-					calls: callsMap.get(String(id)) || [],
+					bequests: bequestsMap.get(String(id)) || [],
 				};
 			});
 
 			items.sort((a, b) => Number(a.id) - Number(b.id));
 			setWills(items);
 
-			// Runtime API: fetch IDs of wills naming current account as beneficiary.
 			if (selected) {
 				try {
 					const ids = await api.apis.EstateExecutorApi.inheritances_of(
@@ -239,13 +188,19 @@ export default function WillsPage() {
 	const currentAccount = selected?.address ?? "";
 
 	const myWillsActive = wills.filter(
-		(w) => w.owner === currentAccount && w.status === "Active" && blockNumber <= w.expiryBlock,
+		(w) =>
+			w.owner === currentAccount &&
+			w.status === "Active" &&
+			blockNumber <= w.expiryBlock,
 	);
 	const expiredWills = wills.filter(
 		(w) => w.status === "Active" && blockNumber > w.expiryBlock,
 	);
 	const otherActive = wills.filter(
-		(w) => w.owner !== currentAccount && w.status === "Active" && blockNumber <= w.expiryBlock,
+		(w) =>
+			w.owner !== currentAccount &&
+			w.status === "Active" &&
+			blockNumber <= w.expiryBlock,
 	);
 	const executedWills = wills.filter(
 		(w) => w.status === "Executed" && w.owner === currentAccount,
@@ -271,7 +226,9 @@ export default function WillsPage() {
 					{accounts.map((acc, i) => (
 						<button
 							key={acc.address}
-							onClick={() => useChainStore.getState().setSelectedAccount(i)}
+							onClick={() =>
+								useChainStore.getState().setSelectedAccount(i)
+							}
 							className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
 								selectedAccount === i
 									? "bg-polka-500/20 text-white border border-polka-500/30"
@@ -299,7 +256,10 @@ export default function WillsPage() {
 				<div className="card">
 					<p className="text-text-muted">
 						No wills found.{" "}
-						<a href="#/create" className="text-polka-400 hover:text-polka-300">
+						<a
+							href="#/create"
+							className="text-polka-400 hover:text-polka-300"
+						>
 							Register one
 						</a>
 						.
@@ -314,7 +274,11 @@ export default function WillsPage() {
 						Inheritances (you are listed as beneficiary)
 					</h2>
 					<p className="text-xs text-text-muted -mt-2">
-						Source: <span className="font-mono">EstateExecutorApi.inheritances_of</span> runtime API
+						Source:{" "}
+						<span className="font-mono">
+							EstateExecutorApi.inheritances_of
+						</span>{" "}
+						runtime API
 					</p>
 					{inheritances.map((w) => (
 						<WillCard
@@ -329,7 +293,6 @@ export default function WillsPage() {
 				</div>
 			)}
 
-			{/* My active wills */}
 			{myWillsActive.length > 0 && (
 				<div className="space-y-3">
 					<h2 className="section-title">My Wills</h2>
@@ -346,7 +309,6 @@ export default function WillsPage() {
 				</div>
 			)}
 
-			{/* Other active wills */}
 			{otherActive.length > 0 && (
 				<div className="space-y-3">
 					<h2 className="section-title">Other Active Wills</h2>
@@ -363,7 +325,6 @@ export default function WillsPage() {
 				</div>
 			)}
 
-			{/* Expired — awaiting scheduler */}
 			{expiredWills.length > 0 && (
 				<div className="space-y-3">
 					<h2 className="section-title text-accent-yellow">
@@ -382,7 +343,6 @@ export default function WillsPage() {
 				</div>
 			)}
 
-			{/* Executed */}
 			{executedWills.length > 0 && (
 				<div className="space-y-3">
 					<h2 className="section-title text-text-muted">Executed</h2>
@@ -423,8 +383,12 @@ function WillCard({
 	const blockTime = useChainStore((s) => s.blockTime);
 	const secondsLeft = Math.max(0, blocksLeft * blockTime);
 
-	const devAccount = devAccounts.find((a) => a.address === w.owner);
-	const ownerLabel = devAccount ? devAccount.name : truncateAddress(w.owner);
+	const ownerLabel = accountLabel(w.owner);
+
+	// Derive beneficiaries client-side as the union of all bequest recipients.
+	const allRecipients = Array.from(
+		new Set(w.bequests.flatMap(recipientsOf)),
+	);
 
 	let statusBadge;
 	if (w.status === "Executed") {
@@ -457,19 +421,20 @@ function WillCard({
 					{statusBadge}
 				</div>
 				<span className="text-sm text-text-secondary">
-					Owner: <span className="font-medium text-text-primary">{ownerLabel}</span>
+					Owner:{" "}
+					<span className="font-medium text-text-primary">{ownerLabel}</span>
 				</span>
 			</div>
 
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
 				<div
-					onClick={() => w.calls.length > 0 && setExpanded(!expanded)}
-					className={w.calls.length > 0 ? "cursor-pointer group" : ""}
+					onClick={() => w.bequests.length > 0 && setExpanded(!expanded)}
+					className={w.bequests.length > 0 ? "cursor-pointer group" : ""}
 				>
-					<span className="text-text-muted">Calls</span>
+					<span className="text-text-muted">Bequests</span>
 					<p className="font-mono text-text-primary">
-						{w.callCount}
-						{w.calls.length > 0 && (
+						{w.bequestCount}
+						{w.bequests.length > 0 && (
 							<span className="text-text-muted group-hover:text-text-secondary ml-1">
 								{expanded ? "▲" : "▼"}
 							</span>
@@ -504,45 +469,39 @@ function WillCard({
 				</div>
 			</div>
 
-			{w.beneficiaries.length > 0 && (
+			{allRecipients.length > 0 && (
 				<div className="text-sm">
 					<span className="text-text-muted">Beneficiaries: </span>
-					<span className="font-mono text-text-primary text-xs">
-						{w.beneficiaries
-							.map((addr) => {
-								const dev = devAccounts.find((a) => a.address === addr);
-								return dev ? dev.name : truncateAddress(addr);
-							})
-							.join(", ")}
+					<span className="text-text-primary text-xs">
+						{allRecipients.map(accountLabel).join(", ")}
 					</span>
 				</div>
 			)}
 
-			{/* Expanded calls detail */}
-			{expanded && w.calls.length > 0 && (
+			{expanded && w.bequests.length > 0 && (
 				<div className="space-y-2 pt-1">
-					{w.calls.map((call, i) => (
-						<div
-							key={i}
-							className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 space-y-1"
-						>
-							<div className="flex items-center gap-2">
-								<span className="text-xs font-medium text-accent-blue">
-									#{i + 1}
-								</span>
-								<span className="text-sm font-semibold text-text-primary">
-									{call.pallet}.{call.call}
-								</span>
+					{w.bequests.map((bequest, i) => {
+						const { title, detail } = renderBequest(bequest);
+						return (
+							<div
+								key={i}
+								className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 space-y-1"
+							>
+								<div className="flex items-center gap-2">
+									<span className="text-xs font-medium text-accent-blue">
+										#{i + 1}
+									</span>
+									<span className="text-sm font-semibold text-text-primary">
+										{title}
+									</span>
+								</div>
+								<p className="text-xs text-text-secondary">{detail}</p>
 							</div>
-							<pre className="text-xs text-text-secondary font-mono overflow-x-auto whitespace-pre-wrap break-all">
-								{formatCallArgs(call.args)}
-							</pre>
-						</div>
-					))}
+						);
+					})}
 				</div>
 			)}
 
-			{/* Actions */}
 			{isActive && isOwner && (
 				<div className="flex gap-2 pt-1">
 					{!isExpired && (
@@ -562,7 +521,6 @@ function WillCard({
 				</div>
 			)}
 
-			{/* Action status */}
 			{["heartbeat", "cancel"].map((action) => {
 				const key = `${w.id}-${action}`;
 				const status = actionStatus[key];
