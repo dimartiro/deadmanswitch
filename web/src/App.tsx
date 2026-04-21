@@ -14,7 +14,6 @@ export default function App() {
 		{ path: "/", label: "Home" },
 		{ path: "/dashboard", label: "Dashboard" },
 		{ path: "/create", label: "Create" },
-		{ path: "/identity", label: "Identity" },
 		{ path: "/certificates", label: "Certificates" },
 		{ path: "/accounts", label: "Accounts" },
 	];

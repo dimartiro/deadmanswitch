@@ -1,15 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
-import { getClient } from "../hooks/useChain";
-import { stack_template } from "@polkadot-api/descriptors";
-import { formatDispatchError } from "../utils/format";
+import { getClient, getPeopleChainClient } from "../hooks/useChain";
+import { stack_template, people_chain } from "@polkadot-api/descriptors";
+import { submitAndWait } from "../utils/tx";
 import {
 	getInjectedExtensions,
 	connectInjectedExtension,
 	type InjectedPolkadotAccount,
 } from "polkadot-api/pjs-signer";
 import { injectSpektrExtension, SpektrExtensionName } from "@novasamatech/product-sdk";
+import { Binary, FixedSizeBinary, type PolkadotSigner } from "polkadot-api";
+
 type HostEnvironment = "desktop-webview" | "web-iframe" | "standalone";
 
 function detectHostEnvironment(): HostEnvironment {
@@ -32,11 +34,17 @@ interface DisplayAccount {
 	name: string;
 	ss58: string;
 	type: "dev" | "extension" | "spektr";
+	signer: PolkadotSigner;
 }
 
 interface AccountInfo {
 	balance: bigint;
 	nonce: number;
+}
+
+interface IdentityStatus {
+	hasIdentity: boolean;
+	display?: string;
 }
 
 function formatBalance(planck: bigint): string {
@@ -73,8 +81,28 @@ function CopyableAddress({ label, address }: { label: string; address: string })
 	);
 }
 
+// Read the display name out of a People Chain IdentityInfo. The Raw*
+// variants encode a fixed-size byte buffer; Raw0 means "no data"; Raw1
+// is a bare u8; Raw2..Raw32 wrap a FixedSizeBinary.
+function extractDisplayName(info: unknown): string | undefined {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const rawDisplay = (info as any)?.info?.display;
+	const type = rawDisplay?.type as string | undefined;
+	if (!type || !type.startsWith("Raw") || type === "Raw0") return undefined;
+	try {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const bin = rawDisplay.value as any;
+		if (typeof bin === "number") return String.fromCharCode(bin);
+		if (bin?.asText) return bin.asText();
+		if (bin instanceof Binary) return bin.asText();
+	} catch {
+		// fall through
+	}
+	return undefined;
+}
+
 export default function AccountsPage() {
-	const { wsUrl, connected } = useChainStore();
+	const { wsUrl, connected, blockNumber } = useChainStore();
 	const spektrUnsubscribeRef = useRef<(() => void) | null>(null);
 	const extensionUnsubscribeRef = useRef<(() => void) | null>(null);
 	const [availableWallets, setAvailableWallets] = useState<string[]>([]);
@@ -87,12 +115,19 @@ export default function AccountsPage() {
 	const [fundStatus, setFundStatus] = useState<string | null>(null);
 	const [fundAmount, setFundAmount] = useState("10000");
 	const [accountInfos, setAccountInfos] = useState<Record<string, AccountInfo>>({});
+	const [identityStatuses, setIdentityStatuses] = useState<
+		Record<string, IdentityStatus>
+	>({});
+	const [identityActionStatus, setIdentityActionStatus] = useState<
+		Record<string, string>
+	>({});
 
 	// Build dev account display list
 	const devDisplayAccounts: DisplayAccount[] = devAccounts.map((acc) => ({
 		name: acc.name,
 		ss58: acc.address,
 		type: "dev",
+		signer: acc.signer,
 	}));
 
 	// All SS58 addresses to query
@@ -102,7 +137,7 @@ export default function AccountsPage() {
 		...spektrAccounts.map((a) => a.address),
 	];
 
-	// Query balances and nonces
+	// Query balances and nonces from Estate Protocol
 	const fetchAccountInfos = useCallback(async () => {
 		if (!connected || allAddresses.length === 0) return;
 		try {
@@ -126,9 +161,37 @@ export default function AccountsPage() {
 		}
 	}, [connected, wsUrl, allAddresses.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
+	// Query identity status from People Chain (separate parachain)
+	const fetchIdentities = useCallback(async () => {
+		if (allAddresses.length === 0) return;
+		try {
+			const client = getPeopleChainClient();
+			const api = client.getTypedApi(people_chain);
+			const results = await Promise.all(
+				allAddresses.map(async (addr) => {
+					try {
+						const info = await api.query.Identity.IdentityOf.getValue(addr);
+						const hasIdentity = info !== undefined;
+						const display = hasIdentity ? extractDisplayName(info) : undefined;
+						return [addr, { hasIdentity, display }] as const;
+					} catch {
+						return [addr, { hasIdentity: false }] as const;
+					}
+				}),
+			);
+			setIdentityStatuses(Object.fromEntries(results));
+		} catch {
+			// People Chain not reachable — leave statuses empty.
+		}
+	}, [allAddresses.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+
 	useEffect(() => {
 		fetchAccountInfos();
-	}, [fetchAccountInfos]);
+	}, [fetchAccountInfos, blockNumber]);
+
+	useEffect(() => {
+		fetchIdentities();
+	}, [fetchIdentities, blockNumber]);
 
 	// Detect host environment and inject Spektr on mount
 	useEffect(() => {
@@ -257,9 +320,9 @@ export default function AccountsPage() {
 					new_free: amount,
 				}).decodedCall,
 			});
-			const result = await tx.signAndSubmit(aliceSigner);
+			const result = await submitAndWait(tx, aliceSigner);
 			if (!result.ok) {
-				setFundStatus(`Error: ${formatDispatchError(result.dispatchError)}`);
+				setFundStatus(`Error: ${result.errorMessage ?? "unknown"}`);
 				return;
 			}
 			setFundStatus(`Funded ${accountName} with ${fundAmount} tokens!`);
@@ -267,6 +330,89 @@ export default function AccountsPage() {
 		} catch (e) {
 			console.error("Fund failed:", e);
 			setFundStatus(`Error: ${e instanceof Error ? e.message : e}`);
+		}
+	}
+
+	async function registerIdentity(acc: DisplayAccount) {
+		const key = `reg-${acc.ss58}`;
+		setIdentityActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
+		try {
+			const client = getPeopleChainClient();
+			const api = client.getTypedApi(people_chain);
+			// Papi's IdentityData enum has one variant per byte length
+			// (Raw0..Raw32). Raw0 and None carry no value; Raw1 is a bare
+			// u8 (number); Raw2..=Raw32 use FixedSizeBinary<N>.
+			const displayName = acc.name.slice(0, 32);
+			const bytes = new TextEncoder().encode(displayName).slice(0, 32);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			let display: any;
+			if (bytes.length === 0) {
+				display = { type: "None", value: undefined };
+			} else if (bytes.length === 1) {
+				display = { type: "Raw1", value: bytes[0] };
+			} else {
+				display = {
+					type: `Raw${bytes.length}`,
+					value: FixedSizeBinary.fromBytes(bytes),
+				};
+			}
+			const none = { type: "None" as const, value: undefined };
+			// People Chain uses the modernised IdentityInfo (no `additional`,
+			// `riot` renamed to `matrix`, `github` + `discord` added).
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const info: any = {
+				display,
+				legal: none,
+				web: none,
+				matrix: none,
+				email: none,
+				pgp_fingerprint: undefined,
+				image: none,
+				twitter: none,
+				github: none,
+				discord: none,
+			};
+			const tx = api.tx.Identity.set_identity({ info });
+			const result = await submitAndWait(tx, acc.signer);
+			if (result.ok) {
+				setIdentityActionStatus((s) => ({ ...s, [key]: "Registered" }));
+				fetchIdentities();
+			} else {
+				setIdentityActionStatus((s) => ({
+					...s,
+					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
+				}));
+			}
+		} catch (e) {
+			setIdentityActionStatus((s) => ({
+				...s,
+				[key]: `Error: ${e instanceof Error ? e.message : String(e)}`,
+			}));
+		}
+	}
+
+	async function clearIdentity(acc: DisplayAccount) {
+		const key = `clr-${acc.ss58}`;
+		setIdentityActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
+		try {
+			const client = getPeopleChainClient();
+			const api = client.getTypedApi(people_chain);
+			const tx = api.tx.Identity.clear_identity();
+			const result = await submitAndWait(tx, acc.signer);
+			if (result.ok) {
+				setIdentityActionStatus((s) => ({ ...s, [key]: "Cleared" }));
+				fetchIdentities();
+			} else {
+				setIdentityActionStatus((s) => ({
+					...s,
+					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
+				}));
+			}
+		} catch (e) {
+			setIdentityActionStatus((s) => ({
+				...s,
+				[key]: `Error: ${e instanceof Error ? e.message : String(e)}`,
+			}));
 		}
 	}
 
@@ -297,7 +443,8 @@ export default function AccountsPage() {
 				<h1 className="page-title text-polka-400">Accounts</h1>
 				<p className="text-text-secondary">
 					Manage dev accounts, connect browser extension wallets, or use Polkadot Host
-					accounts. Fund accounts using Sudo on the dev chain.
+					accounts. Each card shows the chain balance on Estate Protocol and the
+					identity registered on People Chain.
 				</p>
 			</div>
 
@@ -337,8 +484,12 @@ export default function AccountsPage() {
 							key={acc.ss58}
 							account={acc}
 							info={accountInfos[acc.ss58]}
+							identity={identityStatuses[acc.ss58]}
+							identityActionStatus={identityActionStatus}
 							badge={typeBadge[acc.type]}
 							onFund={() => fundAccount(acc.ss58, acc.name)}
+							onRegisterIdentity={() => registerIdentity(acc)}
+							onClearIdentity={() => clearIdentity(acc)}
 							connected={connected}
 						/>
 					))}
@@ -374,21 +525,28 @@ export default function AccountsPage() {
 							Connected to Polkadot Host ({spektrAccounts.length} account
 							{spektrAccounts.length !== 1 ? "s" : ""})
 						</p>
-						{spektrAccounts.map((acc) => (
-							<AccountCard
-								key={acc.address}
-								account={{
-									name: acc.name || "Host Account",
-									ss58: acc.address,
-				
-									type: "spektr",
-								}}
-								info={accountInfos[acc.address]}
-								badge={typeBadge.spektr}
-								onFund={() => fundAccount(acc.address, acc.name || "Host account")}
-								connected={connected}
-							/>
-						))}
+						{spektrAccounts.map((acc) => {
+							const display: DisplayAccount = {
+								name: acc.name || "Host Account",
+								ss58: acc.address,
+								type: "spektr",
+								signer: acc.polkadotSigner,
+							};
+							return (
+								<AccountCard
+									key={acc.address}
+									account={display}
+									info={accountInfos[acc.address]}
+									identity={identityStatuses[acc.address]}
+									identityActionStatus={identityActionStatus}
+									badge={typeBadge.spektr}
+									onFund={() => fundAccount(acc.address, display.name)}
+									onRegisterIdentity={() => registerIdentity(display)}
+									onClearIdentity={() => clearIdentity(display)}
+									connected={connected}
+								/>
+							);
+						})}
 					</div>
 				)}
 			</div>
@@ -414,23 +572,28 @@ export default function AccountsPage() {
 								No accounts found in this wallet.
 							</p>
 						) : (
-							extensionAccounts.map((acc) => (
-								<AccountCard
-									key={acc.address}
-									account={{
-										name: acc.name || "Unnamed",
-										ss58: acc.address,
-					
-										type: "extension",
-									}}
-									info={accountInfos[acc.address]}
-									badge={typeBadge.extension}
-									onFund={() =>
-										fundAccount(acc.address, acc.name || "Extension account")
-									}
-									connected={connected}
-								/>
-							))
+							extensionAccounts.map((acc) => {
+								const display: DisplayAccount = {
+									name: acc.name || "Unnamed",
+									ss58: acc.address,
+									type: "extension",
+									signer: acc.polkadotSigner,
+								};
+								return (
+									<AccountCard
+										key={acc.address}
+										account={display}
+										info={accountInfos[acc.address]}
+										identity={identityStatuses[acc.address]}
+										identityActionStatus={identityActionStatus}
+										badge={typeBadge.extension}
+										onFund={() => fundAccount(acc.address, display.name)}
+										onRegisterIdentity={() => registerIdentity(display)}
+										onClearIdentity={() => clearIdentity(display)}
+										connected={connected}
+									/>
+								);
+							})
 						)}
 					</div>
 				) : availableWallets.length > 0 ? (
@@ -485,16 +648,29 @@ export default function AccountsPage() {
 function AccountCard({
 	account,
 	info,
+	identity,
+	identityActionStatus,
 	badge,
 	onFund,
+	onRegisterIdentity,
+	onClearIdentity,
 	connected,
 }: {
 	account: DisplayAccount;
 	info?: AccountInfo;
+	identity?: IdentityStatus;
+	identityActionStatus: Record<string, string>;
 	badge: { className: string; label: string };
 	onFund: () => void;
+	onRegisterIdentity: () => void;
+	onClearIdentity: () => void;
 	connected: boolean;
 }) {
+	const regKey = `reg-${account.ss58}`;
+	const clrKey = `clr-${account.ss58}`;
+	const pendingIdentityMsg =
+		identityActionStatus[regKey] ?? identityActionStatus[clrKey];
+
 	return (
 		<div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 space-y-2">
 			<div className="flex items-center justify-between">
@@ -519,6 +695,51 @@ function AccountCard({
 			<div className="space-y-1">
 				<CopyableAddress label="SS58" address={account.ss58} />
 			</div>
+			<div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
+				<div className="flex items-center gap-2">
+					<span className="text-xs text-text-muted uppercase font-medium w-8 shrink-0">
+						ID
+					</span>
+					{identity?.hasIdentity ? (
+						<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
+							✓ {identity.display ?? "registered"}
+						</span>
+					) : (
+						<span className="status-badge bg-accent-red/10 text-accent-red border border-accent-red/20">
+							✗ no identity
+						</span>
+					)}
+				</div>
+				{identity?.hasIdentity ? (
+					<button
+						onClick={onClearIdentity}
+						className="px-2 py-1 rounded-md bg-text-muted/10 text-text-secondary border border-text-muted/20 text-xs font-medium hover:bg-text-muted/20 transition-colors"
+					>
+						Clear identity
+					</button>
+				) : (
+					<button
+						onClick={onRegisterIdentity}
+						className="px-2 py-1 rounded-md bg-accent-blue/10 text-accent-blue border border-accent-blue/20 text-xs font-medium hover:bg-accent-blue/20 transition-colors"
+					>
+						Register identity
+					</button>
+				)}
+			</div>
+			{pendingIdentityMsg && (
+				<p
+					className={`text-xs font-medium ${
+						pendingIdentityMsg.startsWith("Error")
+							? "text-accent-red"
+							: pendingIdentityMsg === "Registered" ||
+								  pendingIdentityMsg === "Cleared"
+								? "text-accent-green"
+								: "text-accent-yellow"
+					}`}
+				>
+					{pendingIdentityMsg}
+				</p>
+			)}
 		</div>
 	);
 }
