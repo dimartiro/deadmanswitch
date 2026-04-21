@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
 import { useAllAccounts } from "../hooks/useAllAccounts";
-import { getClient } from "../hooks/useChain";
-import { stack_template } from "@polkadot-api/descriptors";
-import { formatDispatchError, formatDuration } from "../utils/format";
+import { getClient, getPeopleChainClient } from "../hooks/useChain";
+import { stack_template, people_chain } from "@polkadot-api/descriptors";
+import { formatDuration } from "../utils/format";
+import { submitAndWait } from "../utils/tx";
 
 type PatternKind = "Transfer" | "TransferAll" | "Proxy" | "MultisigProxy";
 
@@ -65,16 +66,30 @@ function buildBequest(entry: Entry): any {
 	}
 }
 
+function IdentityBadge({ verified }: { verified: boolean }) {
+	return verified ? (
+		<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
+			✓ verified
+		</span>
+	) : (
+		<span className="status-badge bg-accent-red/10 text-accent-red border border-accent-red/20">
+			✗ no identity
+		</span>
+	);
+}
+
 function AccountSelect({
 	value,
 	onChange,
 	label,
 	placeholder,
+	verified,
 }: {
 	value: string;
 	onChange: (v: string) => void;
 	label?: string;
 	placeholder?: string;
+	verified?: boolean;
 }) {
 	const walletAccounts = useChainStore((s) => s.walletAccounts);
 	const known = [
@@ -90,7 +105,14 @@ function AccountSelect({
 
 	return (
 		<div>
-			{label && <label className="label">{label}</label>}
+			{label && (
+				<div className="flex items-center justify-between mb-1">
+					<label className="label">{label}</label>
+					{value && verified !== undefined && (
+						<IdentityBadge verified={verified} />
+					)}
+				</div>
+			)}
 			<select
 				value={showCustom ? "__custom__" : value}
 				onChange={(e) => {
@@ -131,9 +153,11 @@ function AccountSelect({
 function DelegatesInput({
 	value,
 	onChange,
+	isVerified,
 }: {
 	value: string[];
 	onChange: (v: string[]) => void;
+	isVerified: (addr: string) => boolean;
 }) {
 	const walletAccounts = useChainStore((s) => s.walletAccounts);
 	const known = [
@@ -165,6 +189,7 @@ function DelegatesInput({
 						<span className="text-sm text-text-primary flex-1">
 							{k ? k.name : `${addr.slice(0, 8)}...${addr.slice(-6)}`}
 						</span>
+						<IdentityBadge verified={isVerified(addr)} />
 						<button
 							onClick={() => remove(i)}
 							className="text-xs text-accent-red hover:text-accent-red/80"
@@ -193,13 +218,14 @@ function DelegatesInput({
 }
 
 export default function CreateWillPage() {
-	const { wsUrl, connected, selectedAccount } = useChainStore();
+	const { wsUrl, connected, selectedAccount, blockNumber } = useChainStore();
 	const { accounts, selected } = useAllAccounts();
 	const [blockInterval, setBlockInterval] = useState("10");
 	const [entries, setEntries] = useState<Entry[]>([newEntry()]);
 	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
 	const [ownerBalance, setOwnerBalance] = useState<number>(0);
+	const [verified, setVerified] = useState<Record<string, boolean>>({});
 
 	const fetchBalance = useCallback(async () => {
 		if (!connected || !selected) return;
@@ -216,6 +242,57 @@ export default function CreateWillPage() {
 	useEffect(() => {
 		fetchBalance();
 	}, [fetchBalance]);
+
+	// Collect every beneficiary address across all entries and query
+	// pallet-identity for each. The result drives the per-row badges and
+	// the "can submit?" gate.
+	const allRecipients = Array.from(
+		new Set(
+			entries.flatMap((e) => {
+				if (e.kind === "MultisigProxy") return e.delegates;
+				return e.dest ? [e.dest] : [];
+			}),
+		),
+	);
+
+	useEffect(() => {
+		if (allRecipients.length === 0) return;
+		let cancelled = false;
+		// Identity is queried from People Chain, not our own chain —
+		// Estate Protocol doesn't host pallet-identity anymore.
+		(async () => {
+			try {
+				const peopleClient = getPeopleChainClient();
+				const peopleApi = peopleClient.getTypedApi(people_chain);
+				const results = await Promise.all(
+					allRecipients.map(async (addr) => {
+						try {
+							const info = await peopleApi.query.Identity.IdentityOf.getValue(addr);
+							return [addr, info !== undefined] as const;
+						} catch {
+							return [addr, false] as const;
+						}
+					}),
+				);
+				if (!cancelled) {
+					setVerified(Object.fromEntries(results));
+				}
+			} catch {
+				// Ignore — if People Chain is unreachable, badges will read
+				// "no identity" and submit stays blocked.
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, [allRecipients.join(","), blockNumber]);
+
+	function isVerified(addr: string): boolean {
+		return !!verified[addr];
+	}
+
+	const allRecipientsVerified = allRecipients.every(isVerified);
+	const hasRecipients = allRecipients.length > 0;
 
 	function updateEntry(id: number, update: Partial<Entry>) {
 		setEntries((prev) =>
@@ -246,12 +323,14 @@ export default function CreateWillPage() {
 				bequests,
 				block_interval: parseInt(blockInterval),
 			});
-			const result = await tx.signAndSubmit(signer);
+			const result = await submitAndWait(tx, signer);
 			if (result.ok) {
-				setStatus(`Will registered in block #${result.block.number}`);
+				setStatus(
+					`Will registered in block #${result.block?.number ?? "?"}`,
+				);
 				setEntries([newEntry()]);
 			} else {
-				setStatus(`Error: ${formatDispatchError(result.dispatchError)}`);
+				setStatus(`Error: ${result.errorMessage ?? "unknown"}`);
 			}
 		} catch (e) {
 			console.error("Create will failed:", e);
@@ -408,6 +487,7 @@ export default function CreateWillPage() {
 									label="Beneficiary"
 									value={entry.dest}
 									onChange={(v) => updateEntry(entry.id, { dest: v })}
+									verified={entry.dest ? isVerified(entry.dest) : undefined}
 								/>
 							)}
 
@@ -417,6 +497,7 @@ export default function CreateWillPage() {
 										label="Delegate"
 										value={entry.dest}
 										onChange={(v) => updateEntry(entry.id, { dest: v })}
+										verified={entry.dest ? isVerified(entry.dest) : undefined}
 									/>
 									<p className="text-xs text-text-muted">
 										This account gains unrestricted proxy access to your
@@ -434,6 +515,7 @@ export default function CreateWillPage() {
 											onChange={(v) =>
 												updateEntry(entry.id, { delegates: v })
 											}
+											isVerified={isVerified}
 										/>
 										{entry.delegates.length < 2 && (
 											<p className="text-xs text-accent-yellow mt-1">
@@ -469,9 +551,20 @@ export default function CreateWillPage() {
 
 			{/* Submit */}
 			<div className="card space-y-3">
+				{hasRecipients && !allRecipientsVerified && (
+					<p className="text-xs text-accent-red">
+						All beneficiaries must have a registered on-chain identity
+						before you can submit. Head to the Identity page to register.
+					</p>
+				)}
 				<button
 					onClick={handleSubmit}
-					disabled={submitting || !connected}
+					disabled={
+						submitting ||
+						!connected ||
+						!hasRecipients ||
+						!allRecipientsVerified
+					}
 					className="btn-primary w-full py-3"
 				>
 					{submitting ? "Creating..." : "Create Will"}

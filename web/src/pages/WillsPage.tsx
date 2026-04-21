@@ -4,7 +4,8 @@ import { devAccounts } from "../hooks/useAccount";
 import { useAllAccounts } from "../hooks/useAllAccounts";
 import { getClient } from "../hooks/useChain";
 import { stack_template } from "@polkadot-api/descriptors";
-import { formatDispatchError, formatDuration } from "../utils/format";
+import { formatDuration } from "../utils/format";
+import { submitAndWait } from "../utils/tx";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Bequest = any;
@@ -167,14 +168,14 @@ export default function WillsPage() {
 					? api.tx.EstateExecutor.heartbeat({ id: willId })
 					: api.tx.EstateExecutor.cancel({ id: willId });
 
-			const result = await tx.signAndSubmit(signer);
+			const result = await submitAndWait(tx, signer);
 			if (result.ok) {
 				setActionStatus((s) => ({ ...s, [key]: "Success" }));
 				fetchWills();
 			} else {
 				setActionStatus((s) => ({
 					...s,
-					[key]: `Error: ${formatDispatchError(result.dispatchError)}`,
+					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
 				}));
 			}
 		} catch (e) {

@@ -61,6 +61,9 @@ pub mod weights;
 pub mod bequest;
 pub use bequest::{Bequest, BequestBuilder, MaxMultisigDelegates};
 
+pub mod identity;
+pub use identity::IdentityCheck;
+
 pub mod tx_extensions;
 pub use tx_extensions::BoostUrgentHeartbeats;
 
@@ -73,6 +76,7 @@ mod benchmarking;
 pub mod pallet {
 	use alloc::vec::Vec;
 	use crate::bequest::{Bequest, BequestBuilder};
+	use crate::identity::IdentityCheck;
 	use crate::weights::WeightInfo;
 	use codec::Codec;
 	use frame::prelude::*;
@@ -118,6 +122,12 @@ pub mod pallet {
 		/// Translates a `Bequest<Self>` into a concrete `RuntimeCall`
 		/// at execution time. Implemented by the runtime.
 		type BequestBuilder: BequestBuilder<Self>;
+
+		/// Decides whether a candidate beneficiary has "enough" on-chain
+		/// identity to be named in a will. Implemented by the runtime —
+		/// in production it checks `pallet-identity` for a Reasonable or
+		/// better judgment.
+		type IdentityCheck: IdentityCheck<Self>;
 
 		/// Maximum number of bequests per will.
 		#[pallet::constant]
@@ -230,6 +240,9 @@ pub mod pallet {
 		NoBequests,
 		/// Too many bequests (exceeds MaxBequests).
 		TooManyBequests,
+		/// A beneficiary named in a bequest does not have a verified
+		/// on-chain identity.
+		BeneficiaryNotVerified,
 		/// The scheduler refused to schedule or reschedule the task.
 		ScheduleFailed,
 	}
@@ -250,6 +263,19 @@ pub mod pallet {
 			let who = ensure_signed(origin)?;
 			ensure!(block_interval > Zero::zero(), Error::<T>::InvalidInterval);
 			ensure!(!bequests.is_empty(), Error::<T>::NoBequests);
+
+			// Validate every recipient across every bequest has a verified
+			// on-chain identity. This is what makes the beneficiary list
+			// meaningful — anyone can be named, but only verified accounts
+			// are accepted.
+			for bequest in &bequests {
+				for recipient in bequest.recipients() {
+					ensure!(
+						T::IdentityCheck::is_verified(&recipient),
+						Error::<T>::BeneficiaryNotVerified,
+					);
+				}
+			}
 
 			let bounded_bequests: BoundedVec<Bequest<T>, T::MaxBequests> =
 				bequests

@@ -394,13 +394,61 @@ fn beneficiaries_of_unions_recipients() {
 			vec![
 				transfer(2, 100),
 				transfer(3, 50),
-				multisig_proxy(&[3, 4, 5], 2),
+				multisig_proxy(&[2, 3, 4], 2),
 			],
 			10,
 		));
 		let mut b = crate::Pallet::<Test>::beneficiaries_of(0);
 		b.sort();
-		assert_eq!(b, vec![2, 3, 3, 4, 5]);
+		assert_eq!(b, vec![2, 2, 3, 3, 4]);
+	});
+}
+
+// ── identity verification ─────────────────────────────────────────────
+
+#[test]
+fn create_will_fails_if_beneficiary_unverified() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		// Account 5 is outside the mock's verified range (1..=4).
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1), vec![transfer(5, 100)], 10,
+			),
+			Error::<Test>::BeneficiaryNotVerified,
+		);
+	});
+}
+
+#[test]
+fn create_will_fails_if_any_recipient_unverified() {
+	// Alice (1) names two beneficiaries; one is verified, one isn't.
+	// The call should fail — identity is all-or-nothing per will.
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1),
+				vec![transfer(2, 100), transfer(5, 50)],
+				10,
+			),
+			Error::<Test>::BeneficiaryNotVerified,
+		);
+	});
+}
+
+#[test]
+fn create_will_fails_if_multisig_delegate_unverified() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1),
+				vec![multisig_proxy(&[2, 5], 2)],
+				10,
+			),
+			Error::<Test>::BeneficiaryNotVerified,
+		);
 	});
 }
 

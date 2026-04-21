@@ -142,6 +142,17 @@ impl crate::bequest::BequestBuilder<Test> for TestBequestBuilder {
 	}
 }
 
+/// Mock identity check: accounts 1..=4 are treated as verified.
+/// Accounts 5+ are unverified — tests use them to exercise the rejection
+/// path. This avoids dragging `pallet-identity` into the pallet's mock
+/// while still letting us test the integration point.
+pub struct MockIdentityCheck;
+impl crate::identity::IdentityCheck<Test> for MockIdentityCheck {
+	fn is_verified(account: &u64) -> bool {
+		(1..=4).contains(account)
+	}
+}
+
 impl crate::Config for Test {
 	type WeightInfo = ();
 	type Balance = u64;
@@ -149,6 +160,7 @@ impl crate::Config for Test {
 	type PalletsOrigin = OriginCaller;
 	type Scheduler = Scheduler;
 	type BequestBuilder = TestBequestBuilder;
+	type IdentityCheck = MockIdentityCheck;
 	type MaxBequests = MaxBequests;
 }
 

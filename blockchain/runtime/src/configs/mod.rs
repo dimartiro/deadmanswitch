@@ -370,6 +370,30 @@ impl pallet_estate_executor::BequestBuilder<Runtime> for RuntimeBequestBuilder {
 	}
 }
 
+/// Identity check stub. Real verification is performed client-side
+/// against **People Chain** (a sibling parachain with `pallet-identity`),
+/// which is the canonical identity registry in the Polkadot ecosystem.
+///
+/// The stub accepts any account because on-chain cross-parachain state
+/// reads are not supported by XCM out of the box (no "read storage of
+/// another chain" instruction). Production deployments targeting the
+/// Polkadot ecosystem need one of: a light client bridge verifying
+/// People Chain state proofs, or an attestation-based protocol where
+/// users submit signed claims. Both are significant work and out of
+/// scope for this iteration.
+///
+/// The honest security posture today: the Estate Protocol trusts the
+/// frontend to enforce identity by querying People Chain directly. A
+/// malicious user bypassing the frontend could create wills naming
+/// unverified beneficiaries, but that only degrades product UX (no
+/// security-critical invariant is protected by this check).
+pub struct IdentityCheckStub;
+impl pallet_estate_executor::IdentityCheck<Runtime> for IdentityCheckStub {
+	fn is_verified(_account: &AccountId) -> bool {
+		true
+	}
+}
+
 impl pallet_estate_executor::Config for Runtime {
 	type WeightInfo = pallet_estate_executor::weights::SubstrateWeight<Runtime>;
 	type Balance = Balance;
@@ -377,6 +401,7 @@ impl pallet_estate_executor::Config for Runtime {
 	type PalletsOrigin = OriginCaller;
 	type Scheduler = Scheduler;
 	type BequestBuilder = RuntimeBequestBuilder;
+	type IdentityCheck = IdentityCheckStub;
 	type MaxBequests = ConstU32<5>;
 }
 
@@ -464,6 +489,10 @@ impl pallet_multisig::Config for Runtime {
 	type WeightInfo = ();
 	type BlockNumberProvider = System;
 }
+
+// pallet-identity lives on People Chain, not here. Identity verification
+// for will beneficiaries is enforced client-side against People Chain's
+// state — see `IdentityCheckStub` below.
 
 // ── pallet-revive (EVM + PVM smart contracts) ──────────────────────────
 

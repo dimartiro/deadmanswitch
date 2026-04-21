@@ -14,32 +14,46 @@ var toBinary = (base64) => {
 };
 
 // .papi/descriptors/src/stack_template.ts
-var descriptorValues = import("./descriptors-RMJUHGXW.mjs").then((module) => module["Stack_template"]);
-var metadataTypes = import("./metadataTypes-3FA5NWOM.mjs").then(
+var descriptorValues = import("./descriptors-F44UZXYB.mjs").then((module) => module["Stack_template"]);
+var metadataTypes = import("./metadataTypes-WH4XYFWJ.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
 var asset = {};
 var extensions = {};
-var getMetadata = () => import("./stack_template_metadata-5YLGYECC.mjs").then(
+var getMetadata = () => import("./stack_template_metadata-WYXMVSKV.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
-var genesis = "0xa4fc93a434ab5f96cb3c3de0dd3fbcac635d6205c89a368589dd5b27702ba238";
+var genesis = "0x4545454545454545454545454545454545454545454545454545454545454545";
 var _allDescriptors = { descriptors: descriptorValues, metadataTypes, asset, extensions, getMetadata, genesis };
 var stack_template_default = _allDescriptors;
 
-// .papi/descriptors/src/bulletin.ts
-var descriptorValues2 = import("./descriptors-RMJUHGXW.mjs").then((module) => module["Bulletin"]);
-var metadataTypes2 = import("./metadataTypes-3FA5NWOM.mjs").then(
+// .papi/descriptors/src/people_chain.ts
+var descriptorValues2 = import("./descriptors-F44UZXYB.mjs").then((module) => module["People_chain"]);
+var metadataTypes2 = import("./metadataTypes-WH4XYFWJ.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
 var asset2 = {};
 var extensions2 = {};
-var getMetadata2 = () => import("./bulletin_metadata-6D4OUQ3Y.mjs").then(
+var getMetadata2 = () => import("./people_chain_metadata-VT32SUFI.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
-var genesis2 = "0x744960c32e3a3df5440e1ecd4d34096f1ce2230d7016a5ada8a765d5a622b4ea";
+var genesis2 = "0x4545454545454545454545454545454545454545454545454545454545454545";
 var _allDescriptors2 = { descriptors: descriptorValues2, metadataTypes: metadataTypes2, asset: asset2, extensions: extensions2, getMetadata: getMetadata2, genesis: genesis2 };
-var bulletin_default = _allDescriptors2;
+var people_chain_default = _allDescriptors2;
+
+// .papi/descriptors/src/bulletin.ts
+var descriptorValues3 = import("./descriptors-F44UZXYB.mjs").then((module) => module["Bulletin"]);
+var metadataTypes3 = import("./metadataTypes-WH4XYFWJ.mjs").then(
+  (module) => toBinary("default" in module ? module.default : module)
+);
+var asset3 = {};
+var extensions3 = {};
+var getMetadata3 = () => import("./bulletin_metadata-6D4OUQ3Y.mjs").then(
+  (module) => toBinary("default" in module ? module.default : module)
+);
+var genesis3 = "0x744960c32e3a3df5440e1ecd4d34096f1ce2230d7016a5ada8a765d5a622b4ea";
+var _allDescriptors3 = { descriptors: descriptorValues3, metadataTypes: metadataTypes3, asset: asset3, extensions: extensions3, getMetadata: getMetadata3, genesis: genesis3 };
+var bulletin_default = _allDescriptors3;
 
 // .papi/descriptors/src/common-types.ts
 import { _Enum } from "polkadot-api";
@@ -92,14 +106,18 @@ var XcmV4AssetAssetFilter = _Enum;
 var XcmV4AssetWildAsset = _Enum;
 var TransactionValidityUnknownTransaction = _Enum;
 var TransactionValidityTransactionSource = _Enum;
+var PolkadotRuntimeCommonIdentityMigratorEvent = _Enum;
+var IdentityJudgement = _Enum;
+var IdentityData = _Enum;
 var XcmVersionedAsset = _Enum;
 
 // .papi/descriptors/src/index.ts
 var metadatas = {
-  ["0x86904c8c82363b943f247adff850b85977cf48fb348104f47dfaa3b074a4031f"]: stack_template_default,
+  ["0xe4cc22baf27d3f147f90cce8f561b5ba854ba9d3b1b456cf8972e3002fa00c89"]: stack_template_default,
+  ["0x8244706f1d9dc6d5f6ebcf8b91e92f431a98e9c3ba5db88e77445e1c6292db16"]: people_chain_default,
   ["0x1a82e5143be3211ded412b0368b486ce83bd41a80ec95eb267f6c204adda8365"]: bulletin_default
 };
-var getMetadata3 = async (codeHash) => {
+var getMetadata4 = async (codeHash) => {
   try {
     return await metadatas[codeHash].getMetadata();
   } catch {
@@ -113,8 +131,11 @@ export {
   BalancesTypesReasons,
   DigestItem,
   DispatchClass,
+  IdentityData,
+  IdentityJudgement,
   MultiAddress,
   Phase,
+  PolkadotRuntimeCommonIdentityMigratorEvent,
   PreimagesBounded,
   TokenError,
   TransactionPaymentEvent,
@@ -158,6 +179,7 @@ export {
   XcmVersionedLocation,
   XcmVersionedXcm,
   bulletin_default as bulletin,
-  getMetadata3 as getMetadata,
+  getMetadata4 as getMetadata,
+  people_chain_default as people_chain,
   stack_template_default as stack_template
 };

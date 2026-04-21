@@ -1,5 +1,5 @@
 import { StorageDescriptor, PlainDescriptor, TxDescriptor, RuntimeDescriptor, Enum, ApisFromDef, QueryFromPalletsDef, TxFromPalletsDef, EventsFromPalletsDef, ErrorsFromPalletsDef, ConstFromPalletsDef, ViewFnsFromPalletsDef, SS58String, FixedSizeBinary, Binary, FixedSizeArray } from "polkadot-api";
-import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, I2p9adm00l4g9j, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, I63lqt6dl3kn9k, I9bin2jc70qt6q, TransactionPaymentReleases, I35oke5aiccrn, I56u24ncejr5kt, I9jd27rnpm8ttv, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, I6j4s4scthhrb3, I8f5h3nehu1u5e, I8qbv05tr0tcrs, I9p9lq3rej5bhc, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I834nfrf667ag1, I14i9pui8lc778, I8t4pajubp34g3, I10nrsmn0hji4l, I3oiqcurom3m43, I20ichc5j0l1u7, I1p16diuhde12h, Id4f5q01qh34o3, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, Iarnbtjm5euvte, I9sd8nmktp59v2, I8k3rnvpeeh4hv, I34kirrc28gb4n, Ifd11b34ihcgn, I5n4sebgkfr760, Iesn2nl6sbp05b, Ifs1i5fk9cqvr6, I3j2dbbee9dtss, Id9kdjepgu6tqv, Ieg3fd8p4pkt10, I8kg5ll427kfqq, I467333262q1l9, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, I4cl0f6hqrk7ej, I4ov6e94l79mbg, Ich6vl60ria1ei, Ifdtopefat0s6c, I2oa98tva0dcti, I8mjeo5oecbivt, I2eb501t8s6hsq, Ianmuoljk2sk1u, Iah7rt2b7s9e98, I44djhq0d93guk, Iffibu7n4gf3mj, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, Ida37oe44osb06, I6v02o6j4snahe, I27569neuh5t1o, Id92o6smntb9m5, I5nmb2hfkgk9ol, Iav55bcqlrqn51, I6jej5d5k8p87e, I10ra4g1rl6k2f, I1uihehkdsggvp, Ia82mnkmeo2rhc, I9kc5q2gt3cvco, Icbccs0ug47ilf, I855j4i3kr8ko1, I3qu7hfmg8354d, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, I2sjgp7v0b4kr7, Iq8n5b8q00vqa, Iaa6lo6ksjs4p7, Iph9c4rn81ub2, Ier2cke86dqbr2, I7u62tltpg6pbm, I5rtkmhm2dng4u, I4g2la3u85bnj7, Ia3c82eadg79bj, Ienusoeb625ftq, Ibtsa3docbr9el, Idmiumkhb8j79l, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I3uua81e9uvgnp, I129n1andhkrr8, I7p099b5deqg11, I9th30r4kse3i5, Icmgugqn6dfmuc, I3mnt7748ivma3, I30an4pagav86d, I5si6c5m867t60, I2ur0oeqg495j8, Idg3gs8jbk37mt, I1bhd210c3phjj, Iep27ialq4a7o7, Iasu5jvoqr43mv, I38hj3qmmsp0k4, I5qolde99acmd1, I8gtde5abn1g9a, I7svbvm6hg57aj, I8jhsbaiultviu, I7r4c3o51an46, I5r8t4iaend96p, I44p0rf4699mn8, I176ch6ftnp6d1, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I4gil44d08grh, I7u915mvkdsb08, Ierji3lq0r1rbg, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Ic1d4u2opv3fst, Ico18ks790i2bl, I815pbp5omtss, I3ju6ot8lfmk90, Iafqnechp3omqg, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, I4totqt881mlti, I4s6vifaf8k998, I35p85j063s0il, Id5d9vlkh361bh, I9sijb8gfrns29, Iaa11m677iqfvm, I6f9v7emp7t5ba, Ida7d8eqrkav55, Idmrtv8jbbitnu, I9ulf4u84e9g7b, I9cqsdvp8729hk, I63nhnkgg114n5, I1l7ajs6s9ur3a, Ice9mpbhevl5b7, Idt5popft6i714, I512dtcl0pn07c, Ifniq47gsrm6hi } from "./common-types";
+import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, I1olp2d4c8kvbp, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, I7bhsbas6oufr6, I9bin2jc70qt6q, TransactionPaymentReleases, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I48e2fe747rjco, I9p9lq3rej5bhc, Ib1i64ek701lf6, I910puuahutflf, I4nfjdef0ibh44, I74af64m08r6as, Ic8ann3kre6vdm, I1j72qfgdejqsv, I60biiepd74113, Iepbsvlk3qceij, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, Imhosomjheil0, I46okgalc11gj3, Ilatgqhup0407, I2foed6u6rq512, Ics90buohhe6ev, I7iau521la7go1, I735dd9u2dp9lb, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, Il45d421pvc5l, I6hk7temg1mga7, I2lbmfajhc5gdu, I2siheq6f2djrd, I2eb501t8s6hsq, Ianmuoljk2sk1u, I149di4bc32h5d, Ic6cqd9g0t65v0, I5sv83ib1q5mod, Ia9mkdf6l44shb, I9l2s4klu0831o, I2ctrt5nqb8o7c, I711qahikocb1c, I6o1er683vod1j, Id6gojh30v9ib2, Ide1bahhh47lj9, Id9uqtigc0il3v, Ic68lsi7chpv5k, Iek0boln8pgnko, I452bkd71b385t, Ie83f0p0ke1f4u, Ib9nmpn9ru9aeh, Ie5l999tf7t2te, Ibou4u1engb441, Id6nbvqoqdj4o2, I95iqep3b8snn9, Ia82mnkmeo2rhc, Iqd1d906505ju, Icbccs0ug47ilf, I855j4i3kr8ko1, Icmcvjuk613hob, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, Ipc96b675vau1, Ifqi1snmg1eqha, I2r55jl5mh3adj, Iph9c4rn81ub2, Ier2cke86dqbr2, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I66rcru7qoiekq, Iff88ufnlibe2b, I6ga5s8uufrkbm, I70l71thrtjggh, Iep27ialq4a7o7, Iasu5jvoqr43mv, Ieb1net2dl0ttn, I5qolde99acmd1, I8gtde5abn1g9a, Iquobi9ukq7tb, I4mj21qcksiuf3, I2ur0oeqg495j8, I8v2su1f60qoae, I1bhd210c3phjj, Iep1lmt6q3s6r3, I1fac16213rie2, Ifjt77oc391o43, Itvt1jsipv0lc, Ick3mveut33f44, I719lqkkbtikbl, Ie4intrc3n8jfu, I2rg5btjrsqec0, Ibdqerrooruuq9, I8u2ba9jeiu6q0, I7ieadb293k6b4, If1co0pilmi7oq, I666bl2fqjkejo, Iae74gjak1qibn, I3escdojpj0551, I4i3u9uui7ktsd, I5r8t4iaend96p, Ib9mimerld1j1p, Ieuemnllefri8h, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I84rdu6tfm4ge9, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Iftvbctbo05fu4, XcmVersionedXcm, Ic0c3req3mlc1l, XcmVersionedAssetId, I7ocn4njqde3v5, Iek7ha36da9mf5, I9g869l9vmunib, I1f6srtu0ef8gs, Ifr9rh693cu7m0, Ieh6nis3hdbtgi, Ic1d4u2opv3fst, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, XcmVersionedAsset, Icujp6hmv35vbn, I3n1ehvhjdkcan } from "./common-types";
 type AnonymousEnum<T extends {}> = T & {
     __anonymous: true;
 };
@@ -61,7 +61,7 @@ type IStorage = {
          * Events have a large in-memory size. Box the events to not go out-of-memory
          * just in case someone still reads them from within the runtime.
          */
-        Events: StorageDescriptor<[], Anonymize<I2p9adm00l4g9j>, false, never>;
+        Events: StorageDescriptor<[], Anonymize<I1olp2d4c8kvbp>, false, never>;
         /**
          * The number of events in the `Events<T>` list.
          */
@@ -361,7 +361,7 @@ type IStorage = {
         /**
          * Holds on account balances.
          */
-        Holds: StorageDescriptor<[Key: SS58String], Anonymize<I63lqt6dl3kn9k>, false, never>;
+        Holds: StorageDescriptor<[Key: SS58String], Anonymize<I7bhsbas6oufr6>, false, never>;
         /**
          * Freeze locks on account balances.
          */
@@ -382,33 +382,6 @@ type IStorage = {
          * Use `withdraw_txfee` and `remaining_txfee` to access from outside the crate.
          */
         TxPaymentCredit: StorageDescriptor<[], bigint, true, never>;
-    };
-    Sudo: {
-        /**
-         * The `AccountId` of the sudo key.
-         */
-        Key: StorageDescriptor<[], SS58String, true, never>;
-    };
-    Scheduler: {
-        /**
-         * Block number at which the agenda began incomplete execution.
-         */
-        IncompleteSince: StorageDescriptor<[], number, true, never>;
-        /**
-         * Items to be executed, indexed by the block number that they should be executed on.
-         */
-        Agenda: StorageDescriptor<[Key: number], Anonymize<I35oke5aiccrn>, false, never>;
-        /**
-         * Retry configurations for items to be executed, indexed by task address.
-         */
-        Retries: StorageDescriptor<[Key: Anonymize<I9jd27rnpm8ttv>], Anonymize<I56u24ncejr5kt>, true, never>;
-        /**
-         * Lookup from a name to the block number and index of the task.
-         *
-         * For v3 -> v4 the previously unbounded identities are Blake2-256 hashed to form the v4
-         * identities.
-         */
-        Lookup: StorageDescriptor<[Key: FixedSizeBinary<32>], Anonymize<I9jd27rnpm8ttv>, true, never>;
     };
     Authorship: {
         /**
@@ -481,13 +454,6 @@ type IStorage = {
          * The owner of a key. The key is the `KeyTypeId` + the encoded key.
          */
         KeyOwner: StorageDescriptor<[Key: Anonymize<I82jm9g7pufuel>], SS58String, true, never>;
-        /**
-         * Accounts whose keys were set via `SessionInterface` (external path) without
-         * incrementing the consumer reference or placing a key deposit. `do_purge_keys`
-         * only decrements consumers for accounts that were registered through the local
-         * session pallet.
-         */
-        ExternallySetKeys: StorageDescriptor<[Key: SS58String], null, true, never>;
     };
     Aura: {
         /**
@@ -656,119 +622,99 @@ type IStorage = {
          */
         Pages: StorageDescriptor<Anonymize<Ib4jhb8tt3uung>, Anonymize<I53esa2ms463bk>, true, never>;
     };
-    EstateExecutor: {
-        /**
-         * Auto-incrementing ID for the next will.
-         */
-        NextWillId: StorageDescriptor<[], bigint, false, never>;
-        /**
-         * All registered wills, keyed by WillId.
-         */
-        Wills: StorageDescriptor<[Key: bigint], Anonymize<I6j4s4scthhrb3>, true, never>;
-        /**
-         * Typed bequests for each will.
-         */
-        WillBequests: StorageDescriptor<[Key: bigint], Anonymize<I8f5h3nehu1u5e>, true, never>;
-    };
-    Proxy: {
-        /**
-         * The set of account proxies. Maps the account which has delegated to the accounts
-         * which are being delegated to, together with the amount held on deposit.
-         */
-        Proxies: StorageDescriptor<[Key: SS58String], Anonymize<I8qbv05tr0tcrs>, false, never>;
-        /**
-         * The announcements made by the proxy (key).
-         */
-        Announcements: StorageDescriptor<[Key: SS58String], Anonymize<I9p9lq3rej5bhc>, false, never>;
-    };
     Multisig: {
         /**
          * The set of open multisig operations.
          */
         Multisigs: StorageDescriptor<Anonymize<I8uo3fpd3bcc6f>, Anonymize<Iag146hmjgqfgj>, true, never>;
     };
-    Revive: {
+    Proxy: {
         /**
-         * A mapping from a contract's code hash to its code.
-         * The code's size is bounded by [`crate::limits::BLOB_BYTES`] for PVM and
-         * [`revm::primitives::eip170::MAX_CODE_SIZE`] for EVM bytecode.
+         * The set of account proxies. Maps the account which has delegated to the accounts
+         * which are being delegated to, together with the amount held on deposit.
          */
-        PristineCode: StorageDescriptor<[Key: FixedSizeBinary<32>], Binary, true, never>;
+        Proxies: StorageDescriptor<[Key: SS58String], Anonymize<I48e2fe747rjco>, false, never>;
         /**
-         * A mapping from a contract's code hash to its code info.
+         * The announcements made by the proxy (key).
          */
-        CodeInfoOf: StorageDescriptor<[Key: FixedSizeBinary<32>], Anonymize<I834nfrf667ag1>, true, never>;
+        Announcements: StorageDescriptor<[Key: SS58String], Anonymize<I9p9lq3rej5bhc>, false, never>;
+    };
+    Identity: {
         /**
-         * The data associated to a contract or externally owned account.
-         */
-        AccountInfoOf: StorageDescriptor<[Key: FixedSizeBinary<20>], Anonymize<I14i9pui8lc778>, true, never>;
-        /**
-         * The immutable data associated with a given account.
-         */
-        ImmutableDataOf: StorageDescriptor<[Key: FixedSizeBinary<20>], Binary, true, never>;
-        /**
-         * Evicted contracts that await child trie deletion.
+         * Information that is pertinent to identify the entity behind an account. First item is the
+         * registration, second is the account's primary username.
          *
-         * Child trie deletion is a heavy operation depending on the amount of storage items
-         * stored in said trie. Therefore this operation is performed lazily in `on_idle`.
+         * TWOX-NOTE: OK ― `AccountId` is a secure hash.
          */
-        DeletionQueue: StorageDescriptor<[Key: number], Binary, true, never>;
+        IdentityOf: StorageDescriptor<[Key: SS58String], Anonymize<Ib1i64ek701lf6>, true, never>;
         /**
-         * A pair of monotonic counters used to track the latest contract marked for deletion
-         * and the latest deleted contract in queue.
+         * Identifies the primary username of an account.
          */
-        DeletionQueueCounter: StorageDescriptor<[], Anonymize<I8t4pajubp34g3>, false, never>;
+        UsernameOf: StorageDescriptor<[Key: SS58String], Binary, true, never>;
         /**
-         * Map a Ethereum address to its original `AccountId32`.
-         *
-         * When deriving a `H160` from an `AccountId32` we use a hash function. In order to
-         * reconstruct the original account we need to store the reverse mapping here.
-         * Register your `AccountId32` using [`Pallet::map_account`] in order to
-         * use it with this pallet.
+         * The super-identity of an alternative "sub" identity together with its name, within that
+         * context. If the account is not some other account's sub-identity, then just `None`.
          */
-        OriginalAccount: StorageDescriptor<[Key: FixedSizeBinary<20>], SS58String, true, never>;
+        SuperOf: StorageDescriptor<[Key: SS58String], Anonymize<I910puuahutflf>, true, never>;
         /**
-         * The current Ethereum block that is stored in the `on_finalize` method.
+         * Alternative "sub" identities of this account.
          *
-         * # Note
+         * The first item is the deposit, the second is a vector of the accounts.
          *
-         * This could be further optimized into the future to store only the minimum
-         * information needed to reconstruct the Ethereum block at the RPC level.
-         *
-         * Since the block is convenient to have around, and the extra details are capped
-         * by a few hashes and the vector of transaction hashes, we store the block here.
+         * TWOX-NOTE: OK ― `AccountId` is a secure hash.
          */
-        EthereumBlock: StorageDescriptor<[], Anonymize<I10nrsmn0hji4l>, false, never>;
+        SubsOf: StorageDescriptor<[Key: SS58String], Anonymize<I4nfjdef0ibh44>, false, never>;
         /**
-         * Mapping for block number and hashes.
+         * The set of registrars. Not expected to get very big as can only be added through a
+         * special origin (likely a council motion).
          *
-         * The maximum number of elements stored is capped by the block hash count `BLOCK_HASH_COUNT`.
+         * The index into this can be cast to `RegistrarIndex` to get a valid value.
          */
-        BlockHash: StorageDescriptor<[Key: number], FixedSizeBinary<32>, false, never>;
+        Registrars: StorageDescriptor<[], Anonymize<I74af64m08r6as>, false, never>;
         /**
-         * The details needed to reconstruct the receipt info offchain.
+         * A map of the accounts who are authorized to grant usernames.
+         */
+        AuthorityOf: StorageDescriptor<[Key: Binary], Anonymize<Ic8ann3kre6vdm>, true, never>;
+        /**
+         * Reverse lookup from `username` to the `AccountId` that has registered it and the provider of
+         * the username. The `owner` value should be a key in the `UsernameOf` map, but it may not if
+         * the user has cleared their username or it has been removed.
          *
-         * This contains valuable information about the gas used by the transaction.
+         * Multiple usernames may map to the same `AccountId`, but `UsernameOf` will only map to one
+         * primary username.
+         */
+        UsernameInfoOf: StorageDescriptor<[Key: Binary], Anonymize<I1j72qfgdejqsv>, true, never>;
+        /**
+         * Usernames that an authority has granted, but that the account controller has not confirmed
+         * that they want it. Used primarily in cases where the `AccountId` cannot provide a signature
+         * because they are a pure proxy, multisig, etc. In order to confirm it, they should call
+         * [accept_username](`Call::accept_username`).
          *
-         * NOTE: The item is unbound and should therefore never be read on chain.
-         * It could otherwise inflate the PoV size of a block.
+         * First tuple item is the account and second is the acceptance deadline.
          */
-        ReceiptInfoData: StorageDescriptor<[], Anonymize<I3oiqcurom3m43>, false, never>;
+        PendingUsernames: StorageDescriptor<[Key: Binary], Anonymize<I60biiepd74113>, true, never>;
         /**
-         * Incremental ethereum block builder.
+         * Usernames for which the authority that granted them has started the removal process by
+         * unbinding them. Each unbinding username maps to its grace period expiry, which is the first
+         * block in which the username could be deleted through a
+         * [remove_username](`Call::remove_username`) call.
          */
-        EthBlockBuilderIR: StorageDescriptor<[], Anonymize<I20ichc5j0l1u7>, false, never>;
+        UnbindingUsernames: StorageDescriptor<[Key: Binary], number, true, never>;
+    };
+    MultiBlockMigrations: {
         /**
-         * The first transaction and receipt of the ethereum block.
+         * The currently active migration to run and its cursor.
          *
-         * These values are moved out of the `EthBlockBuilderIR` to avoid serializing and
-         * deserializing them on every transaction. Instead, they are loaded when needed.
+         * `None` indicates that no migration is running.
          */
-        EthBlockBuilderFirstValues: StorageDescriptor<[], Anonymize<I1p16diuhde12h>, false, never>;
+        Cursor: StorageDescriptor<[], Anonymize<Iepbsvlk3qceij>, true, never>;
         /**
-         * Debugging settings that can be configured when DebugEnabled config is true.
+         * Set of all successfully executed migrations.
+         *
+         * This is used as blacklist, to not re-execute migrations that have not been removed from the
+         * codebase yet. Governance can regularly clear this out via `clear_historic`.
          */
-        DebugSettingsOf: StorageDescriptor<[], Anonymize<Id4f5q01qh34o3>, false, never>;
+        Historic: StorageDescriptor<[Key: Binary], null, true, never>;
     };
 };
 type ICalls = {
@@ -970,102 +916,6 @@ type ICalls = {
          * this `burn` operation will reduce total issuance by the amount _burned_.
          */
         burn: TxDescriptor<Anonymize<I5utcetro501ir>>;
-    };
-    Sudo: {
-        /**
-         * Authenticates the sudo key and dispatches a function call with `Root` origin.
-         */
-        sudo: TxDescriptor<Anonymize<Iarnbtjm5euvte>>;
-        /**
-         * Authenticates the sudo key and dispatches a function call with `Root` origin.
-         * This function does not check the weight of the call, and instead allows the
-         * Sudo user to specify the weight of the call.
-         *
-         * The dispatch origin for this call must be _Signed_.
-         */
-        sudo_unchecked_weight: TxDescriptor<Anonymize<I9sd8nmktp59v2>>;
-        /**
-         * Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo
-         * key.
-         */
-        set_key: TxDescriptor<Anonymize<I8k3rnvpeeh4hv>>;
-        /**
-         * Authenticates the sudo key and dispatches a function call with `Signed` origin from
-         * a given account.
-         *
-         * The dispatch origin for this call must be _Signed_.
-         */
-        sudo_as: TxDescriptor<Anonymize<I34kirrc28gb4n>>;
-        /**
-         * Permanently removes the sudo key.
-         *
-         * **This cannot be un-done.**
-         */
-        remove_key: TxDescriptor<undefined>;
-    };
-    Scheduler: {
-        /**
-         * Anonymously schedule a task.
-         */
-        schedule: TxDescriptor<Anonymize<Ifd11b34ihcgn>>;
-        /**
-         * Cancel an anonymously scheduled task.
-         */
-        cancel: TxDescriptor<Anonymize<I5n4sebgkfr760>>;
-        /**
-         * Schedule a named task.
-         */
-        schedule_named: TxDescriptor<Anonymize<Iesn2nl6sbp05b>>;
-        /**
-         * Cancel a named scheduled task.
-         */
-        cancel_named: TxDescriptor<Anonymize<Ifs1i5fk9cqvr6>>;
-        /**
-         * Anonymously schedule a task after a delay.
-         */
-        schedule_after: TxDescriptor<Anonymize<I3j2dbbee9dtss>>;
-        /**
-         * Schedule a named task after a delay.
-         */
-        schedule_named_after: TxDescriptor<Anonymize<Id9kdjepgu6tqv>>;
-        /**
-         * Set a retry configuration for a task so that, in case its scheduled run fails, it will
-         * be retried after `period` blocks, for a total amount of `retries` retries or until it
-         * succeeds.
-         *
-         * Tasks which need to be scheduled for a retry are still subject to weight metering and
-         * agenda space, same as a regular task. If a periodic task fails, it will be scheduled
-         * normally while the task is retrying.
-         *
-         * Tasks scheduled as a result of a retry for a periodic task are unnamed, non-periodic
-         * clones of the original task. Their retry configuration will be derived from the
-         * original task's configuration, but will have a lower value for `remaining` than the
-         * original `total_retries`.
-         */
-        set_retry: TxDescriptor<Anonymize<Ieg3fd8p4pkt10>>;
-        /**
-         * Set a retry configuration for a named task so that, in case its scheduled run fails, it
-         * will be retried after `period` blocks, for a total amount of `retries` retries or until
-         * it succeeds.
-         *
-         * Tasks which need to be scheduled for a retry are still subject to weight metering and
-         * agenda space, same as a regular task. If a periodic task fails, it will be scheduled
-         * normally while the task is retrying.
-         *
-         * Tasks scheduled as a result of a retry for a periodic task are unnamed, non-periodic
-         * clones of the original task. Their retry configuration will be derived from the
-         * original task's configuration, but will have a lower value for `remaining` than the
-         * original `total_retries`.
-         */
-        set_retry_named: TxDescriptor<Anonymize<I8kg5ll427kfqq>>;
-        /**
-         * Removes the retry configuration of a task.
-         */
-        cancel_retry: TxDescriptor<Anonymize<I467333262q1l9>>;
-        /**
-         * Cancel the retry configuration of a named task.
-         */
-        cancel_retry_named: TxDescriptor<Anonymize<Ifs1i5fk9cqvr6>>;
     };
     CollatorSelection: {
         /**
@@ -1528,193 +1378,128 @@ type ICalls = {
          */
         execute_overweight: TxDescriptor<Anonymize<I1r4c2ghbtvjuc>>;
     };
-    EstateExecutor: {
+    Utility: {
         /**
-         * Register a new will with typed bequests.
+         * Send a batch of dispatch calls.
          *
-         * Schedules `execute_will(id)` at `expiry_block + 1` via
-         * `pallet-scheduler`. The owner only pays the transaction fee.
-         */
-        create_will: TxDescriptor<Anonymize<I4cl0f6hqrk7ej>>;
-        /**
-         * Send a heartbeat to reset the will's expiry and reschedule the
-         * auto-execution task.
+         * May be called from any origin except `None`.
          *
-         * Only the owner can call this. The will must be active and the
-         * expiry block must not have passed yet.
+         * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+         * exceed the constant: `batched_calls_limit` (available in constant metadata).
          *
-         * This call is **feeless** when the signer is the current owner
-         * of an active will — keeping your own will alive never costs a
-         * fee.
-         */
-        heartbeat: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
-        /**
-         * Execute the will: translate each bequest to a RuntimeCall
-         * and dispatch as the owner (best-effort). Only callable with
-         * `Root` origin.
-         */
-        execute_will: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
-        /**
-         * Cancel an active will.
+         * If origin is root then the calls are dispatched without checking origin filter. (This
+         * includes bypassing `frame_system::Config::BaseCallFilter`).
          *
-         * Only the owner can cancel. The scheduled auto-execution is
-         * cancelled and the stored bequests are removed.
+         * ## Complexity
+         * - O(C) where C is the number of calls to be batched.
+         *
+         * This will return `Ok` in all circumstances. To determine the success of the batch, an
+         * event is deposited. If a call failed and the batch was interrupted, then the
+         * `BatchInterrupted` event is deposited, along with the number of successful calls made
+         * and the error of the failed call. If all were successful, then the `BatchCompleted`
+         * event is deposited.
          */
-        cancel: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
-    };
-    Proxy: {
+        batch: TxDescriptor<Anonymize<Imhosomjheil0>>;
         /**
-         * Dispatch the given `call` from an account that the sender is authorised for through
-         * `add_proxy`.
+         * Send a call through an indexed pseudonym of the sender.
+         *
+         * Filter from origin are passed along. The call will be dispatched with an origin which
+         * use the same filter as the origin of this call.
+         *
+         * NOTE: If you need to ensure that any account-based filtering is not honored (i.e.
+         * because you expect `proxy` to have been used prior in the call stack and you do not want
+         * the call restrictions to apply to any sub-accounts), then use `as_multi_threshold_1`
+         * in the Multisig pallet instead.
+         *
+         * NOTE: Prior to version *12, this was called `as_limited_sub`.
          *
          * The dispatch origin for this call must be _Signed_.
-         *
-         * Parameters:
-         * - `real`: The account that the proxy will make a call on behalf of.
-         * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
-         * - `call`: The call to be made by the `real` account.
          */
-        proxy: TxDescriptor<Anonymize<Ich6vl60ria1ei>>;
+        as_derivative: TxDescriptor<Anonymize<I46okgalc11gj3>>;
         /**
-         * Register a proxy account for the sender that is able to make calls on its behalf.
+         * Send a batch of dispatch calls and atomically execute them.
+         * The whole transaction will rollback and fail if any of the calls failed.
          *
-         * The dispatch origin for this call must be _Signed_.
+         * May be called from any origin except `None`.
          *
-         * Parameters:
-         * - `proxy`: The account that the `caller` would like to make a proxy.
-         * - `proxy_type`: The permissions allowed for this proxy account.
-         * - `delay`: The announcement period required of the initial proxy. Will generally be
-         * zero.
+         * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+         * exceed the constant: `batched_calls_limit` (available in constant metadata).
+         *
+         * If origin is root then the calls are dispatched without checking origin filter. (This
+         * includes bypassing `frame_system::Config::BaseCallFilter`).
+         *
+         * ## Complexity
+         * - O(C) where C is the number of calls to be batched.
          */
-        add_proxy: TxDescriptor<Anonymize<Ifdtopefat0s6c>>;
+        batch_all: TxDescriptor<Anonymize<Imhosomjheil0>>;
         /**
-         * Unregister a proxy account for the sender.
+         * Dispatches a function call with a provided origin.
          *
-         * The dispatch origin for this call must be _Signed_.
+         * The dispatch origin for this call must be _Root_.
          *
-         * Parameters:
-         * - `proxy`: The account that the `caller` would like to remove as a proxy.
-         * - `proxy_type`: The permissions currently enabled for the removed proxy account.
+         * ## Complexity
+         * - O(1).
          */
-        remove_proxy: TxDescriptor<Anonymize<Ifdtopefat0s6c>>;
+        dispatch_as: TxDescriptor<Anonymize<Ilatgqhup0407>>;
         /**
-         * Unregister all proxy accounts for the sender.
+         * Send a batch of dispatch calls.
+         * Unlike `batch`, it allows errors and won't interrupt.
          *
-         * The dispatch origin for this call must be _Signed_.
+         * May be called from any origin except `None`.
          *
-         * WARNING: This may be called on accounts created by `create_pure`, however if done, then
-         * the unreserved fees will be inaccessible. **All access to this account will be lost.**
+         * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+         * exceed the constant: `batched_calls_limit` (available in constant metadata).
+         *
+         * If origin is root then the calls are dispatch without checking origin filter. (This
+         * includes bypassing `frame_system::Config::BaseCallFilter`).
+         *
+         * ## Complexity
+         * - O(C) where C is the number of calls to be batched.
          */
-        remove_proxies: TxDescriptor<undefined>;
+        force_batch: TxDescriptor<Anonymize<Imhosomjheil0>>;
         /**
-         * Spawn a fresh new account that is guaranteed to be otherwise inaccessible, and
-         * initialize it with a proxy of `proxy_type` for `origin` sender.
+         * Dispatch a function call with a specified weight.
          *
-         * Requires a `Signed` origin.
+         * This function does not check the weight of the call, and instead allows the
+         * Root origin to specify the weight of the call.
          *
-         * - `proxy_type`: The type of the proxy that the sender will be registered as over the
-         * new account. This will almost always be the most permissive `ProxyType` possible to
-         * allow for maximum flexibility.
-         * - `index`: A disambiguation index, in case this is called multiple times in the same
-         * transaction (e.g. with `utility::batch`). Unless you're using `batch` you probably just
-         * want to use `0`.
-         * - `delay`: The announcement period required of the initial proxy. Will generally be
-         * zero.
-         *
-         * Fails with `Duplicate` if this has already been called in this transaction, from the
-         * same sender, with the same parameters.
-         *
-         * Fails if there are insufficient funds to pay for deposit.
+         * The dispatch origin for this call must be _Root_.
          */
-        create_pure: TxDescriptor<Anonymize<I2oa98tva0dcti>>;
+        with_weight: TxDescriptor<Anonymize<I2foed6u6rq512>>;
         /**
-         * Removes a previously spawned pure proxy.
+         * Dispatch a fallback call in the event the main call fails to execute.
+         * May be called from any origin except `None`.
          *
-         * WARNING: **All access to this account will be lost.** Any funds held in it will be
-         * inaccessible.
+         * This function first attempts to dispatch the `main` call.
+         * If the `main` call fails, the `fallback` is attemted.
+         * if the fallback is successfully dispatched, the weights of both calls
+         * are accumulated and an event containing the main call error is deposited.
          *
-         * Requires a `Signed` origin, and the sender account must have been created by a call to
-         * `create_pure` with corresponding parameters.
+         * In the event of a fallback failure the whole call fails
+         * with the weights returned.
          *
-         * - `spawner`: The account that originally called `create_pure` to create this account.
-         * - `index`: The disambiguation index originally passed to `create_pure`. Probably `0`.
-         * - `proxy_type`: The proxy type originally passed to `create_pure`.
-         * - `height`: The height of the chain when the call to `create_pure` was processed.
-         * - `ext_index`: The extrinsic index in which the call to `create_pure` was processed.
+         * - `main`: The main call to be dispatched. This is the primary action to execute.
+         * - `fallback`: The fallback call to be dispatched in case the `main` call fails.
          *
-         * Fails with `NoPermission` in case the caller is not a previously created pure
-         * account whose `create_pure` call has corresponding parameters.
+         * ## Dispatch Logic
+         * - If the origin is `root`, both the main and fallback calls are executed without
+         * applying any origin filters.
+         * - If the origin is not `root`, the origin filter is applied to both the `main` and
+         * `fallback` calls.
+         *
+         * ## Use Case
+         * - Some use cases might involve submitting a `batch` type call in either main, fallback
+         * or both.
          */
-        kill_pure: TxDescriptor<Anonymize<I8mjeo5oecbivt>>;
+        if_else: TxDescriptor<Anonymize<Ics90buohhe6ev>>;
         /**
-         * Publish the hash of a proxy-call that will be made in the future.
+         * Dispatches a function call with a provided origin.
          *
-         * This must be called some number of blocks before the corresponding `proxy` is attempted
-         * if the delay associated with the proxy relationship is greater than zero.
+         * Almost the same as [`Pallet::dispatch_as`] but forwards any error of the inner call.
          *
-         * No more than `MaxPending` announcements may be made at any one time.
-         *
-         * This will take a deposit of `AnnouncementDepositFactor` as well as
-         * `AnnouncementDepositBase` if there are no other pending announcements.
-         *
-         * The dispatch origin for this call must be _Signed_ and a proxy of `real`.
-         *
-         * Parameters:
-         * - `real`: The account that the proxy will make a call on behalf of.
-         * - `call_hash`: The hash of the call to be made by the `real` account.
+         * The dispatch origin for this call must be _Root_.
          */
-        announce: TxDescriptor<Anonymize<I2eb501t8s6hsq>>;
-        /**
-         * Remove a given announcement.
-         *
-         * May be called by a proxy account to remove a call they previously announced and return
-         * the deposit.
-         *
-         * The dispatch origin for this call must be _Signed_.
-         *
-         * Parameters:
-         * - `real`: The account that the proxy will make a call on behalf of.
-         * - `call_hash`: The hash of the call to be made by the `real` account.
-         */
-        remove_announcement: TxDescriptor<Anonymize<I2eb501t8s6hsq>>;
-        /**
-         * Remove the given announcement of a delegate.
-         *
-         * May be called by a target (proxied) account to remove a call that one of their delegates
-         * (`delegate`) has announced they want to execute. The deposit is returned.
-         *
-         * The dispatch origin for this call must be _Signed_.
-         *
-         * Parameters:
-         * - `delegate`: The account that previously announced the call.
-         * - `call_hash`: The hash of the call to be made.
-         */
-        reject_announcement: TxDescriptor<Anonymize<Ianmuoljk2sk1u>>;
-        /**
-         * Dispatch the given `call` from an account that the sender is authorized for through
-         * `add_proxy`.
-         *
-         * Removes any corresponding announcement(s).
-         *
-         * The dispatch origin for this call must be _Signed_.
-         *
-         * Parameters:
-         * - `real`: The account that the proxy will make a call on behalf of.
-         * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
-         * - `call`: The call to be made by the `real` account.
-         */
-        proxy_announced: TxDescriptor<Anonymize<Iah7rt2b7s9e98>>;
-        /**
-         * Poke / Adjust deposits made for proxies and announcements based on current values.
-         * This can be used by accounts to possibly lower their locked amount.
-         *
-         * The dispatch origin for this call must be _Signed_.
-         *
-         * The transaction fee is waived if the deposit amount has changed.
-         *
-         * Emits `DepositPoked` if successful.
-         */
-        poke_deposit: TxDescriptor<undefined>;
+        dispatch_as_fallible: TxDescriptor<Anonymize<Ilatgqhup0407>>;
     };
     Multisig: {
         /**
@@ -1731,7 +1516,7 @@ type ICalls = {
          * ## Complexity
          * O(Z + C) where Z is the length of the call and C its execution weight.
          */
-        as_multi_threshold_1: TxDescriptor<Anonymize<I44djhq0d93guk>>;
+        as_multi_threshold_1: TxDescriptor<Anonymize<I7iau521la7go1>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -1773,7 +1558,7 @@ type ICalls = {
          * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
          * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
          */
-        as_multi: TxDescriptor<Anonymize<Iffibu7n4gf3mj>>;
+        as_multi: TxDescriptor<Anonymize<I735dd9u2dp9lb>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -1848,194 +1633,447 @@ type ICalls = {
          */
         poke_deposit: TxDescriptor<Anonymize<I6lqh1vgb4mcja>>;
     };
-    Revive: {
+    Proxy: {
         /**
-         * A raw EVM transaction, typically dispatched by an Ethereum JSON-RPC server.
+         * Dispatch the given `call` from an account that the sender is authorised for through
+         * `add_proxy`.
          *
-         * # Parameters
+         * The dispatch origin for this call must be _Signed_.
          *
-         * * `payload`: The encoded [`crate::evm::TransactionSigned`].
-         *
-         * # Note
-         *
-         * This call cannot be dispatched directly; attempting to do so will result in a failed
-         * transaction. It serves as a wrapper for an Ethereum transaction. When submitted, the
-         * runtime converts it into a [`sp_runtime::generic::CheckedExtrinsic`] by recovering the
-         * signer and validating the transaction.
+         * Parameters:
+         * - `real`: The account that the proxy will make a call on behalf of.
+         * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+         * - `call`: The call to be made by the `real` account.
          */
-        eth_transact: TxDescriptor<Anonymize<Ida37oe44osb06>>;
+        proxy: TxDescriptor<Anonymize<Il45d421pvc5l>>;
         /**
-         * Makes a call to an account, optionally transferring some balance.
+         * Register a proxy account for the sender that is able to make calls on its behalf.
          *
-         * # Parameters
+         * The dispatch origin for this call must be _Signed_.
          *
-         * * `dest`: Address of the contract to call.
-         * * `value`: The balance to transfer from the `origin` to `dest`.
-         * * `weight_limit`: The weight limit enforced when executing the constructor.
-         * * `storage_deposit_limit`: The maximum amount of balance that can be charged from the
-         * caller to pay for the storage consumed.
-         * * `data`: The input data to pass to the contract.
-         *
-         * * If the account is a smart-contract account, the associated code will be
-         * executed and any value will be transferred.
-         * * If the account is a regular account, any value will be transferred.
-         * * If no account exists and the call value is not less than `existential_deposit`,
-         * a regular account will be created and any value will be transferred.
+         * Parameters:
+         * - `proxy`: The account that the `caller` would like to make a proxy.
+         * - `proxy_type`: The permissions allowed for this proxy account.
+         * - `delay`: The announcement period required of the initial proxy. Will generally be
+         * zero.
          */
-        call: TxDescriptor<Anonymize<I6v02o6j4snahe>>;
+        add_proxy: TxDescriptor<Anonymize<I6hk7temg1mga7>>;
         /**
-         * Instantiates a contract from a previously deployed vm binary.
+         * Unregister a proxy account for the sender.
          *
-         * This function is identical to [`Self::instantiate_with_code`] but without the
-         * code deployment step. Instead, the `code_hash` of an on-chain deployed vm binary
-         * must be supplied.
+         * The dispatch origin for this call must be _Signed_.
+         *
+         * Parameters:
+         * - `proxy`: The account that the `caller` would like to remove as a proxy.
+         * - `proxy_type`: The permissions currently enabled for the removed proxy account.
          */
-        instantiate: TxDescriptor<Anonymize<I27569neuh5t1o>>;
+        remove_proxy: TxDescriptor<Anonymize<I6hk7temg1mga7>>;
         /**
-         * Instantiates a new contract from the supplied `code` optionally transferring
-         * some balance.
+         * Unregister all proxy accounts for the sender.
          *
-         * This dispatchable has the same effect as calling [`Self::upload_code`] +
-         * [`Self::instantiate`]. Bundling them together provides efficiency gains. Please
-         * also check the documentation of [`Self::upload_code`].
+         * The dispatch origin for this call must be _Signed_.
          *
-         * # Parameters
-         *
-         * * `value`: The balance to transfer from the `origin` to the newly created contract.
-         * * `weight_limit`: The weight limit enforced when executing the constructor.
-         * * `storage_deposit_limit`: The maximum amount of balance that can be charged/reserved
-         * from the caller to pay for the storage consumed.
-         * * `code`: The contract code to deploy in raw bytes.
-         * * `data`: The input data to pass to the contract constructor.
-         * * `salt`: Used for the address derivation. If `Some` is supplied then `CREATE2`
-         * semantics are used. If `None` then `CRATE1` is used.
-         *
-         *
-         * Instantiation is executed as follows:
-         *
-         * - The supplied `code` is deployed, and a `code_hash` is created for that code.
-         * - If the `code_hash` already exists on the chain the underlying `code` will be shared.
-         * - The destination address is computed based on the sender, code_hash and the salt.
-         * - The smart-contract account is created at the computed address.
-         * - The `value` is transferred to the new account.
-         * - The `deploy` function is executed in the context of the newly-created account.
+         * WARNING: This may be called on accounts created by `create_pure`, however if done, then
+         * the unreserved fees will be inaccessible. **All access to this account will be lost.**
          */
-        instantiate_with_code: TxDescriptor<Anonymize<Id92o6smntb9m5>>;
+        remove_proxies: TxDescriptor<undefined>;
         /**
-         * Same as [`Self::instantiate_with_code`], but intended to be dispatched **only**
-         * by an EVM transaction through the EVM compatibility layer.
+         * Spawn a fresh new account that is guaranteed to be otherwise inaccessible, and
+         * initialize it with a proxy of `proxy_type` for `origin` sender.
          *
-         * # Parameters
+         * Requires a `Signed` origin.
          *
-         * * `value`: The balance to transfer from the `origin` to the newly created contract.
-         * * `weight_limit`: The gas limit used to derive the transaction weight for transaction
-         * payment
-         * * `eth_gas_limit`: The Ethereum gas limit governing the resource usage of the execution
-         * * `code`: The contract code to deploy in raw bytes.
-         * * `data`: The input data to pass to the contract constructor.
-         * * `transaction_encoded`: The RLP encoding of the signed Ethereum transaction,
-         * represented as [crate::evm::TransactionSigned], provided by the Ethereum wallet. This
-         * is used for building the Ethereum transaction root.
-         * * effective_gas_price: the price of a unit of gas
-         * * encoded len: the byte code size of the `eth_transact` extrinsic
+         * - `proxy_type`: The type of the proxy that the sender will be registered as over the
+         * new account. This will almost always be the most permissive `ProxyType` possible to
+         * allow for maximum flexibility.
+         * - `index`: A disambiguation index, in case this is called multiple times in the same
+         * transaction (e.g. with `utility::batch`). Unless you're using `batch` you probably just
+         * want to use `0`.
+         * - `delay`: The announcement period required of the initial proxy. Will generally be
+         * zero.
          *
-         * Calling this dispatchable ensures that the origin's nonce is bumped only once,
-         * via the `CheckNonce` transaction extension. In contrast, [`Self::instantiate_with_code`]
-         * also bumps the nonce after contract instantiation, since it may be invoked multiple
-         * times within a batch call transaction.
+         * Fails with `Duplicate` if this has already been called in this transaction, from the
+         * same sender, with the same parameters.
+         *
+         * Fails if there are insufficient funds to pay for deposit.
          */
-        eth_instantiate_with_code: TxDescriptor<Anonymize<I5nmb2hfkgk9ol>>;
+        create_pure: TxDescriptor<Anonymize<I2lbmfajhc5gdu>>;
         /**
-         * Same as [`Self::call`], but intended to be dispatched **only**
-         * by an EVM transaction through the EVM compatibility layer.
+         * Removes a previously spawned pure proxy.
          *
-         * # Parameters
+         * WARNING: **All access to this account will be lost.** Any funds held in it will be
+         * inaccessible.
          *
-         * * `dest`: The Ethereum address of the account to be called
-         * * `value`: The balance to transfer from the `origin` to the newly created contract.
-         * * `weight_limit`: The gas limit used to derive the transaction weight for transaction
-         * payment
-         * * `eth_gas_limit`: The Ethereum gas limit governing the resource usage of the execution
-         * * `data`: The input data to pass to the contract constructor.
-         * * `transaction_encoded`: The RLP encoding of the signed Ethereum transaction,
-         * represented as [crate::evm::TransactionSigned], provided by the Ethereum wallet. This
-         * is used for building the Ethereum transaction root.
-         * * effective_gas_price: the price of a unit of gas
-         * * encoded len: the byte code size of the `eth_transact` extrinsic
+         * Requires a `Signed` origin, and the sender account must have been created by a call to
+         * `create_pure` with corresponding parameters.
+         *
+         * - `spawner`: The account that originally called `create_pure` to create this account.
+         * - `index`: The disambiguation index originally passed to `create_pure`. Probably `0`.
+         * - `proxy_type`: The proxy type originally passed to `create_pure`.
+         * - `height`: The height of the chain when the call to `create_pure` was processed.
+         * - `ext_index`: The extrinsic index in which the call to `create_pure` was processed.
+         *
+         * Fails with `NoPermission` in case the caller is not a previously created pure
+         * account whose `create_pure` call has corresponding parameters.
          */
-        eth_call: TxDescriptor<Anonymize<Iav55bcqlrqn51>>;
+        kill_pure: TxDescriptor<Anonymize<I2siheq6f2djrd>>;
         /**
-         * Executes a Substrate runtime call from an Ethereum transaction.
+         * Publish the hash of a proxy-call that will be made in the future.
          *
-         * This dispatchable is intended to be called **only** through the EVM compatibility
-         * layer. The provided call will be dispatched using `RawOrigin::Signed`.
+         * This must be called some number of blocks before the corresponding `proxy` is attempted
+         * if the delay associated with the proxy relationship is greater than zero.
          *
-         * # Parameters
+         * No more than `MaxPending` announcements may be made at any one time.
          *
-         * * `origin`: Must be an [`Origin::EthTransaction`] origin.
-         * * `call`: The Substrate runtime call to execute.
-         * * `transaction_encoded`: The RLP encoding of the Ethereum transaction,
+         * This will take a deposit of `AnnouncementDepositFactor` as well as
+         * `AnnouncementDepositBase` if there are no other pending announcements.
+         *
+         * The dispatch origin for this call must be _Signed_ and a proxy of `real`.
+         *
+         * Parameters:
+         * - `real`: The account that the proxy will make a call on behalf of.
+         * - `call_hash`: The hash of the call to be made by the `real` account.
          */
-        eth_substrate_call: TxDescriptor<Anonymize<I6jej5d5k8p87e>>;
+        announce: TxDescriptor<Anonymize<I2eb501t8s6hsq>>;
         /**
-         * Upload new `code` without instantiating a contract from it.
+         * Remove a given announcement.
          *
-         * If the code does not already exist a deposit is reserved from the caller
-         * The size of the reserve depends on the size of the supplied `code`.
+         * May be called by a proxy account to remove a call they previously announced and return
+         * the deposit.
          *
-         * # Note
+         * The dispatch origin for this call must be _Signed_.
          *
-         * Anyone can instantiate a contract from any uploaded code and thus prevent its removal.
-         * To avoid this situation a constructor could employ access control so that it can
-         * only be instantiated by permissioned entities. The same is true when uploading
-         * through [`Self::instantiate_with_code`].
-         *
-         * If the refcount of the code reaches zero after terminating the last contract that
-         * references this code, the code will be removed automatically.
+         * Parameters:
+         * - `real`: The account that the proxy will make a call on behalf of.
+         * - `call_hash`: The hash of the call to be made by the `real` account.
          */
-        upload_code: TxDescriptor<Anonymize<I10ra4g1rl6k2f>>;
+        remove_announcement: TxDescriptor<Anonymize<I2eb501t8s6hsq>>;
         /**
-         * Remove the code stored under `code_hash` and refund the deposit to its owner.
+         * Remove the given announcement of a delegate.
          *
-         * A code can only be removed by its original uploader (its owner) and only if it is
-         * not used by any contract.
+         * May be called by a target (proxied) account to remove a call that one of their delegates
+         * (`delegate`) has announced they want to execute. The deposit is returned.
+         *
+         * The dispatch origin for this call must be _Signed_.
+         *
+         * Parameters:
+         * - `delegate`: The account that previously announced the call.
+         * - `call_hash`: The hash of the call to be made.
          */
-        remove_code: TxDescriptor<Anonymize<Ib51vk42m1po4n>>;
+        reject_announcement: TxDescriptor<Anonymize<Ianmuoljk2sk1u>>;
         /**
-         * Privileged function that changes the code of an existing contract.
+         * Dispatch the given `call` from an account that the sender is authorized for through
+         * `add_proxy`.
          *
-         * This takes care of updating refcounts and all other necessary operations. Returns
-         * an error if either the `code_hash` or `dest` do not exist.
+         * Removes any corresponding announcement(s).
          *
-         * # Note
+         * The dispatch origin for this call must be _Signed_.
          *
-         * This does **not** change the address of the contract in question. This means
-         * that the contract address is no longer derived from its code hash after calling
-         * this dispatchable.
+         * Parameters:
+         * - `real`: The account that the proxy will make a call on behalf of.
+         * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+         * - `call`: The call to be made by the `real` account.
          */
-        set_code: TxDescriptor<Anonymize<I1uihehkdsggvp>>;
+        proxy_announced: TxDescriptor<Anonymize<I149di4bc32h5d>>;
         /**
-         * Register the callers account id so that it can be used in contract interactions.
+         * Poke / Adjust deposits made for proxies and announcements based on current values.
+         * This can be used by accounts to possibly lower their locked amount.
          *
-         * This will error if the origin is already mapped or is a eth native `Address20`. It will
-         * take a deposit that can be released by calling [`Self::unmap_account`].
+         * The dispatch origin for this call must be _Signed_.
+         *
+         * The transaction fee is waived if the deposit amount has changed.
+         *
+         * Emits `DepositPoked` if successful.
          */
-        map_account: TxDescriptor<undefined>;
+        poke_deposit: TxDescriptor<undefined>;
+    };
+    Identity: {
         /**
-         * Unregister the callers account id in order to free the deposit.
+         * Add a registrar to the system.
          *
-         * There is no reason to ever call this function other than freeing up the deposit.
-         * This is only useful when the account should no longer be used.
+         * The dispatch origin for this call must be `T::RegistrarOrigin`.
+         *
+         * - `account`: the account of the registrar.
+         *
+         * Emits `RegistrarAdded` if successful.
          */
-        unmap_account: TxDescriptor<undefined>;
+        add_registrar: TxDescriptor<Anonymize<Ic6cqd9g0t65v0>>;
         /**
-         * Dispatch an `call` with the origin set to the callers fallback address.
+         * Set an account's identity information and reserve the appropriate deposit.
          *
-         * Every `AccountId32` can control its corresponding fallback account. The fallback account
-         * is the `AccountId20` with the last 12 bytes set to `0xEE`. This is essentially a
-         * recovery function in case an `AccountId20` was used without creating a mapping first.
+         * If the account already has identity information, the deposit is taken as part payment
+         * for the new deposit.
+         *
+         * The dispatch origin for this call must be _Signed_.
+         *
+         * - `info`: The identity information.
+         *
+         * Emits `IdentitySet` if successful.
          */
-        dispatch_as_fallback_account: TxDescriptor<Anonymize<Iarnbtjm5euvte>>;
+        set_identity: TxDescriptor<Anonymize<I5sv83ib1q5mod>>;
+        /**
+         * Set the sub-accounts of the sender.
+         *
+         * Payment: Any aggregate balance reserved by previous `set_subs` calls will be returned
+         * and an amount `SubAccountDeposit` will be reserved for each item in `subs`.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must have a registered
+         * identity.
+         *
+         * - `subs`: The identity's (new) sub-accounts.
+         */
+        set_subs: TxDescriptor<Anonymize<Ia9mkdf6l44shb>>;
+        /**
+         * Clear an account's identity info and all sub-accounts and return all deposits.
+         *
+         * Payment: All reserved balances on the account are returned.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must have a registered
+         * identity.
+         *
+         * Emits `IdentityCleared` if successful.
+         */
+        clear_identity: TxDescriptor<undefined>;
+        /**
+         * Request a judgement from a registrar.
+         *
+         * Payment: At most `max_fee` will be reserved for payment to the registrar if judgement
+         * given.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must have a
+         * registered identity.
+         *
+         * - `reg_index`: The index of the registrar whose judgement is requested.
+         * - `max_fee`: The maximum fee that may be paid. This should just be auto-populated as:
+         *
+         * ```nocompile
+         * Registrars::<T>::get().get(reg_index).unwrap().fee
+         * ```
+         *
+         * Emits `JudgementRequested` if successful.
+         */
+        request_judgement: TxDescriptor<Anonymize<I9l2s4klu0831o>>;
+        /**
+         * Cancel a previous request.
+         *
+         * Payment: A previously reserved deposit is returned on success.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must have a
+         * registered identity.
+         *
+         * - `reg_index`: The index of the registrar whose judgement is no longer requested.
+         *
+         * Emits `JudgementUnrequested` if successful.
+         */
+        cancel_request: TxDescriptor<Anonymize<I2ctrt5nqb8o7c>>;
+        /**
+         * Set the fee required for a judgement to be requested from a registrar.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must be the account
+         * of the registrar whose index is `index`.
+         *
+         * - `index`: the index of the registrar whose fee is to be set.
+         * - `fee`: the new fee.
+         */
+        set_fee: TxDescriptor<Anonymize<I711qahikocb1c>>;
+        /**
+         * Change the account associated with a registrar.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must be the account
+         * of the registrar whose index is `index`.
+         *
+         * - `index`: the index of the registrar whose fee is to be set.
+         * - `new`: the new account ID.
+         */
+        set_account_id: TxDescriptor<Anonymize<I6o1er683vod1j>>;
+        /**
+         * Set the field information for a registrar.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must be the account
+         * of the registrar whose index is `index`.
+         *
+         * - `index`: the index of the registrar whose fee is to be set.
+         * - `fields`: the fields that the registrar concerns themselves with.
+         */
+        set_fields: TxDescriptor<Anonymize<Id6gojh30v9ib2>>;
+        /**
+         * Provide a judgement for an account's identity.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must be the account
+         * of the registrar whose index is `reg_index`.
+         *
+         * - `reg_index`: the index of the registrar whose judgement is being made.
+         * - `target`: the account whose identity the judgement is upon. This must be an account
+         * with a registered identity.
+         * - `judgement`: the judgement of the registrar of index `reg_index` about `target`.
+         * - `identity`: The hash of the [`IdentityInformationProvider`] for that the judgement is
+         * provided.
+         *
+         * Note: Judgements do not apply to a username.
+         *
+         * Emits `JudgementGiven` if successful.
+         */
+        provide_judgement: TxDescriptor<Anonymize<Ide1bahhh47lj9>>;
+        /**
+         * Remove an account's identity and sub-account information and slash the deposits.
+         *
+         * Payment: Reserved balances from `set_subs` and `set_identity` are slashed and handled by
+         * `Slash`. Verification request deposits are not returned; they should be cancelled
+         * manually using `cancel_request`.
+         *
+         * The dispatch origin for this call must match `T::ForceOrigin`.
+         *
+         * - `target`: the account whose identity the judgement is upon. This must be an account
+         * with a registered identity.
+         *
+         * Emits `IdentityKilled` if successful.
+         */
+        kill_identity: TxDescriptor<Anonymize<Id9uqtigc0il3v>>;
+        /**
+         * Add the given account to the sender's subs.
+         *
+         * Payment: Balance reserved by a previous `set_subs` call for one sub will be repatriated
+         * to the sender.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must have a registered
+         * sub identity of `sub`.
+         */
+        add_sub: TxDescriptor<Anonymize<Ic68lsi7chpv5k>>;
+        /**
+         * Alter the associated name of the given sub-account.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must have a registered
+         * sub identity of `sub`.
+         */
+        rename_sub: TxDescriptor<Anonymize<Ic68lsi7chpv5k>>;
+        /**
+         * Remove the given account from the sender's subs.
+         *
+         * Payment: Balance reserved by a previous `set_subs` call for one sub will be repatriated
+         * to the sender.
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must have a registered
+         * sub identity of `sub`.
+         */
+        remove_sub: TxDescriptor<Anonymize<Iek0boln8pgnko>>;
+        /**
+         * Remove the sender as a sub-account.
+         *
+         * Payment: Balance reserved by a previous `set_subs` call for one sub will be repatriated
+         * to the sender (*not* the original depositor).
+         *
+         * The dispatch origin for this call must be _Signed_ and the sender must have a registered
+         * super-identity.
+         *
+         * NOTE: This should not normally be used, but is provided in the case that the non-
+         * controller of an account is maliciously registered as a sub-account.
+         */
+        quit_sub: TxDescriptor<undefined>;
+        /**
+         * Add an `AccountId` with permission to grant usernames with a given `suffix` appended.
+         *
+         * The authority can grant up to `allocation` usernames. To top up the allocation or
+         * change the account used to grant usernames, this call can be used with the updated
+         * parameters to overwrite the existing configuration.
+         */
+        add_username_authority: TxDescriptor<Anonymize<I452bkd71b385t>>;
+        /**
+         * Remove `authority` from the username authorities.
+         */
+        remove_username_authority: TxDescriptor<Anonymize<Ie83f0p0ke1f4u>>;
+        /**
+         * Set the username for `who`. Must be called by a username authority.
+         *
+         * If `use_allocation` is set, the authority must have a username allocation available to
+         * spend. Otherwise, the authority will need to put up a deposit for registering the
+         * username.
+         *
+         * Users can either pre-sign their usernames or
+         * accept them later.
+         *
+         * Usernames must:
+         * - Only contain lowercase ASCII characters or digits.
+         * - When combined with the suffix of the issuing authority be _less than_ the
+         * `MaxUsernameLength`.
+         */
+        set_username_for: TxDescriptor<Anonymize<Ib9nmpn9ru9aeh>>;
+        /**
+         * Accept a given username that an `authority` granted. The call must include the full
+         * username, as in `username.suffix`.
+         */
+        accept_username: TxDescriptor<Anonymize<Ie5l999tf7t2te>>;
+        /**
+         * Remove an expired username approval. The username was approved by an authority but never
+         * accepted by the user and must now be beyond its expiration. The call must include the
+         * full username, as in `username.suffix`.
+         */
+        remove_expired_approval: TxDescriptor<Anonymize<Ie5l999tf7t2te>>;
+        /**
+         * Set a given username as the primary. The username should include the suffix.
+         */
+        set_primary_username: TxDescriptor<Anonymize<Ie5l999tf7t2te>>;
+        /**
+         * Start the process of removing a username by placing it in the unbinding usernames map.
+         * Once the grace period has passed, the username can be deleted by calling
+         * [remove_username](crate::Call::remove_username).
+         */
+        unbind_username: TxDescriptor<Anonymize<Ie5l999tf7t2te>>;
+        /**
+         * Permanently delete a username which has been unbinding for longer than the grace period.
+         * Caller is refunded the fee if the username expired and the removal was successful.
+         */
+        remove_username: TxDescriptor<Anonymize<Ie5l999tf7t2te>>;
+        /**
+         * Call with [ForceOrigin](crate::Config::ForceOrigin) privileges which deletes a username
+         * and slashes any deposit associated with it.
+         */
+        kill_username: TxDescriptor<Anonymize<Ie5l999tf7t2te>>;
+    };
+    MultiBlockMigrations: {
+        /**
+         * Allows root to set a cursor to forcefully start, stop or forward the migration process.
+         *
+         * Should normally not be needed and is only in place as emergency measure. Note that
+         * restarting the migration process in this manner will not call the
+         * [`MigrationStatusHandler::started`] hook or emit an `UpgradeStarted` event.
+         */
+        force_set_cursor: TxDescriptor<Anonymize<Ibou4u1engb441>>;
+        /**
+         * Allows root to set an active cursor to forcefully start/forward the migration process.
+         *
+         * This is an edge-case version of [`Self::force_set_cursor`] that allows to set the
+         * `started_at` value to the next block number. Otherwise this would not be possible, since
+         * `force_set_cursor` takes an absolute block number. Setting `started_at` to `None`
+         * indicates that the current block number plus one should be used.
+         */
+        force_set_active_cursor: TxDescriptor<Anonymize<Id6nbvqoqdj4o2>>;
+        /**
+         * Forces the onboarding of the migrations.
+         *
+         * This process happens automatically on a runtime upgrade. It is in place as an emergency
+         * measurement. The cursor needs to be `None` for this to succeed.
+         */
+        force_onboard_mbms: TxDescriptor<undefined>;
+        /**
+         * Clears the `Historic` set.
+         *
+         * `map_cursor` must be set to the last value that was returned by the
+         * `HistoricCleared` event. The first time `None` can be used. `limit` must be chosen in a
+         * way that will result in a sensible weight.
+         */
+        clear_historic: TxDescriptor<Anonymize<I95iqep3b8snn9>>;
+    };
+    IdentityMigrator: {
+        /**
+         * Reap the `IdentityInfo` of `who` from the Identity pallet of `T`, unreserving any
+         * deposits held and removing storage items associated with `who`.
+         */
+        reap_identity: TxDescriptor<Anonymize<I4cbvqmqadhrea>>;
+        /**
+         * Update the deposit of `who`. Meant to be called by the system with an XCM `Transact`
+         * Instruction.
+         */
+        poke_deposit: TxDescriptor<Anonymize<I4cbvqmqadhrea>>;
     };
 };
 type IEvent = {
@@ -2047,7 +2085,7 @@ type IEvent = {
         /**
          * An extrinsic failed.
          */
-        ExtrinsicFailed: PlainDescriptor<Anonymize<I9kc5q2gt3cvco>>;
+        ExtrinsicFailed: PlainDescriptor<Anonymize<Iqd1d906505ju>>;
         /**
          * `:code` was updated.
          */
@@ -2071,7 +2109,7 @@ type IEvent = {
         /**
          * An invalid authorized upgrade was rejected while trying to apply it.
          */
-        RejectedInvalidAuthorizedUpgrade: PlainDescriptor<Anonymize<I3qu7hfmg8354d>>;
+        RejectedInvalidAuthorizedUpgrade: PlainDescriptor<Anonymize<Icmcvjuk613hob>>;
     };
     ParachainSystem: {
         /**
@@ -2201,23 +2239,23 @@ type IEvent = {
         /**
          * Some balance was placed on hold.
          */
-        Held: PlainDescriptor<Anonymize<I2sjgp7v0b4kr7>>;
+        Held: PlainDescriptor<Anonymize<Ipc96b675vau1>>;
         /**
          * Held balance was burned from an account.
          */
-        BurnedHeld: PlainDescriptor<Anonymize<I2sjgp7v0b4kr7>>;
+        BurnedHeld: PlainDescriptor<Anonymize<Ipc96b675vau1>>;
         /**
          * A transfer of `amount` on hold from `source` to `dest` was initiated.
          */
-        TransferOnHold: PlainDescriptor<Anonymize<Iq8n5b8q00vqa>>;
+        TransferOnHold: PlainDescriptor<Anonymize<Ifqi1snmg1eqha>>;
         /**
          * The `transferred` balance is placed on hold at the `dest` account.
          */
-        TransferAndHold: PlainDescriptor<Anonymize<Iaa6lo6ksjs4p7>>;
+        TransferAndHold: PlainDescriptor<Anonymize<I2r55jl5mh3adj>>;
         /**
          * Some balance was released from hold.
          */
-        Released: PlainDescriptor<Anonymize<I2sjgp7v0b4kr7>>;
+        Released: PlainDescriptor<Anonymize<Ipc96b675vau1>>;
         /**
          * An unexpected/defensive event was triggered.
          */
@@ -2229,73 +2267,6 @@ type IEvent = {
          * has been paid by `who`.
          */
         TransactionFeePaid: PlainDescriptor<Anonymize<Ier2cke86dqbr2>>;
-    };
-    Sudo: {
-        /**
-         * A sudo call just took place.
-         */
-        Sudid: PlainDescriptor<Anonymize<I7u62tltpg6pbm>>;
-        /**
-         * The sudo key has been updated.
-         */
-        KeyChanged: PlainDescriptor<Anonymize<I5rtkmhm2dng4u>>;
-        /**
-         * The key was permanently removed.
-         */
-        KeyRemoved: PlainDescriptor<undefined>;
-        /**
-         * A [sudo_as](Pallet::sudo_as) call just took place.
-         */
-        SudoAsDone: PlainDescriptor<Anonymize<I7u62tltpg6pbm>>;
-    };
-    Scheduler: {
-        /**
-         * Scheduled some task.
-         */
-        Scheduled: PlainDescriptor<Anonymize<I5n4sebgkfr760>>;
-        /**
-         * Canceled some task.
-         */
-        Canceled: PlainDescriptor<Anonymize<I5n4sebgkfr760>>;
-        /**
-         * Dispatched some task.
-         */
-        Dispatched: PlainDescriptor<Anonymize<I4g2la3u85bnj7>>;
-        /**
-         * Set a retry configuration for some task.
-         */
-        RetrySet: PlainDescriptor<Anonymize<Ia3c82eadg79bj>>;
-        /**
-         * Cancel a retry configuration for some task.
-         */
-        RetryCancelled: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
-        /**
-         * The call for the provided hash was not found so the task has been aborted.
-         */
-        CallUnavailable: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
-        /**
-         * The given task was unable to be renewed since the agenda is full at that block.
-         */
-        PeriodicFailed: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
-        /**
-         * The given task was unable to be retried since the agenda is full at that block or there
-         * was not enough weight to reschedule it.
-         */
-        RetryFailed: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
-        /**
-         * The given task can never be executed since it is overweight.
-         */
-        PermanentlyOverweight: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
-        /**
-         * Agenda is incomplete from `when`.
-         */
-        AgendaIncomplete: PlainDescriptor<Anonymize<Ibtsa3docbr9el>>;
-    };
-    SkipFeelessPayment: {
-        /**
-         * A transaction fee was skipped.
-         */
-        FeeSkipped: PlainDescriptor<Anonymize<Idmiumkhb8j79l>>;
     };
     CollatorSelection: {
         /**
@@ -2552,64 +2523,40 @@ type IEvent = {
          */
         PageReaped: PlainDescriptor<Anonymize<I7tmrp94r9sq4n>>;
     };
-    Statement: {
+    Utility: {
         /**
-         * A new statement is submitted
+         * Batch of dispatches did not complete fully. Index of first failing dispatch given, as
+         * well as the error.
          */
-        NewStatement: PlainDescriptor<Anonymize<I3uua81e9uvgnp>>;
-    };
-    EstateExecutor: {
+        BatchInterrupted: PlainDescriptor<Anonymize<I66rcru7qoiekq>>;
         /**
-         * A new will was registered and its auto-execution scheduled.
+         * Batch of dispatches completed fully with no error.
          */
-        WillCreated: PlainDescriptor<Anonymize<I129n1andhkrr8>>;
+        BatchCompleted: PlainDescriptor<undefined>;
         /**
-         * The owner sent a heartbeat; expiry and scheduled execution moved.
+         * Batch of dispatches completed but has errors.
          */
-        HeartbeatReceived: PlainDescriptor<Anonymize<I7p099b5deqg11>>;
+        BatchCompletedWithErrors: PlainDescriptor<undefined>;
         /**
-         * The will executed — bequests dispatched (best-effort).
+         * A single item within a Batch of dispatches has completed with no error.
          */
-        WillExecuted: PlainDescriptor<Anonymize<I9th30r4kse3i5>>;
+        ItemCompleted: PlainDescriptor<undefined>;
         /**
-         * A bequest was dispatched during execution.
+         * A single item within a Batch of dispatches has completed with error.
          */
-        BequestDispatched: PlainDescriptor<Anonymize<Icmgugqn6dfmuc>>;
+        ItemFailed: PlainDescriptor<Anonymize<Iff88ufnlibe2b>>;
         /**
-         * The will was cancelled by the owner.
+         * A call was dispatched.
          */
-        WillCancelled: PlainDescriptor<Anonymize<I4ov6e94l79mbg>>;
-    };
-    Proxy: {
+        DispatchedAs: PlainDescriptor<Anonymize<I6ga5s8uufrkbm>>;
         /**
-         * A proxy was executed correctly, with the given.
+         * Main call was dispatched.
          */
-        ProxyExecuted: PlainDescriptor<Anonymize<I3mnt7748ivma3>>;
+        IfElseMainSuccess: PlainDescriptor<undefined>;
         /**
-         * A pure account has been created by new proxy with given
-         * disambiguation index and proxy type.
+         * The fallback call was dispatched.
          */
-        PureCreated: PlainDescriptor<Anonymize<I30an4pagav86d>>;
-        /**
-         * A pure proxy was killed by its spawner.
-         */
-        PureKilled: PlainDescriptor<Anonymize<I5si6c5m867t60>>;
-        /**
-         * An announcement was placed to make a call in the future.
-         */
-        Announced: PlainDescriptor<Anonymize<I2ur0oeqg495j8>>;
-        /**
-         * A proxy was added.
-         */
-        ProxyAdded: PlainDescriptor<Anonymize<Idg3gs8jbk37mt>>;
-        /**
-         * A proxy was removed.
-         */
-        ProxyRemoved: PlainDescriptor<Anonymize<Idg3gs8jbk37mt>>;
-        /**
-         * A deposit stored for proxies or announcements was poked / updated.
-         */
-        DepositPoked: PlainDescriptor<Anonymize<I1bhd210c3phjj>>;
+        IfElseFallbackCalled: PlainDescriptor<Anonymize<I70l71thrtjggh>>;
     };
     Multisig: {
         /**
@@ -2623,7 +2570,7 @@ type IEvent = {
         /**
          * A multisig operation has been executed.
          */
-        MultisigExecuted: PlainDescriptor<Anonymize<I38hj3qmmsp0k4>>;
+        MultisigExecuted: PlainDescriptor<Anonymize<Ieb1net2dl0ttn>>;
         /**
          * A multisig operation has been cancelled.
          */
@@ -2633,24 +2580,181 @@ type IEvent = {
          */
         DepositPoked: PlainDescriptor<Anonymize<I8gtde5abn1g9a>>;
     };
-    Revive: {
+    Proxy: {
         /**
-         * A custom event emitted by the contract.
+         * A proxy was executed correctly, with the given.
          */
-        ContractEmitted: PlainDescriptor<Anonymize<I7svbvm6hg57aj>>;
+        ProxyExecuted: PlainDescriptor<Anonymize<I6ga5s8uufrkbm>>;
         /**
-         * Contract deployed by deployer at the specified address.
+         * A pure account has been created by new proxy with given
+         * disambiguation index and proxy type.
          */
-        Instantiated: PlainDescriptor<Anonymize<I8jhsbaiultviu>>;
+        PureCreated: PlainDescriptor<Anonymize<Iquobi9ukq7tb>>;
         /**
-         * Emitted when an Ethereum transaction reverts.
+         * A pure proxy was killed by its spawner.
+         */
+        PureKilled: PlainDescriptor<Anonymize<I4mj21qcksiuf3>>;
+        /**
+         * An announcement was placed to make a call in the future.
+         */
+        Announced: PlainDescriptor<Anonymize<I2ur0oeqg495j8>>;
+        /**
+         * A proxy was added.
+         */
+        ProxyAdded: PlainDescriptor<Anonymize<I8v2su1f60qoae>>;
+        /**
+         * A proxy was removed.
+         */
+        ProxyRemoved: PlainDescriptor<Anonymize<I8v2su1f60qoae>>;
+        /**
+         * A deposit stored for proxies or announcements was poked / updated.
+         */
+        DepositPoked: PlainDescriptor<Anonymize<I1bhd210c3phjj>>;
+    };
+    Identity: {
+        /**
+         * A name was set or reset (which will remove all judgements).
+         */
+        IdentitySet: PlainDescriptor<Anonymize<I4cbvqmqadhrea>>;
+        /**
+         * A name was cleared, and the given balance returned.
+         */
+        IdentityCleared: PlainDescriptor<Anonymize<Iep1lmt6q3s6r3>>;
+        /**
+         * A name was removed and the given balance slashed.
+         */
+        IdentityKilled: PlainDescriptor<Anonymize<Iep1lmt6q3s6r3>>;
+        /**
+         * A judgement was asked from a registrar.
+         */
+        JudgementRequested: PlainDescriptor<Anonymize<I1fac16213rie2>>;
+        /**
+         * A judgement request was retracted.
+         */
+        JudgementUnrequested: PlainDescriptor<Anonymize<I1fac16213rie2>>;
+        /**
+         * A judgement was given by a registrar.
+         */
+        JudgementGiven: PlainDescriptor<Anonymize<Ifjt77oc391o43>>;
+        /**
+         * A registrar was added.
+         */
+        RegistrarAdded: PlainDescriptor<Anonymize<Itvt1jsipv0lc>>;
+        /**
+         * A sub-identity was added to an identity and the deposit paid.
+         */
+        SubIdentityAdded: PlainDescriptor<Anonymize<Ick3mveut33f44>>;
+        /**
+         * An account's sub-identities were set (in bulk).
+         */
+        SubIdentitiesSet: PlainDescriptor<Anonymize<I719lqkkbtikbl>>;
+        /**
+         * A given sub-account's associated name was changed by its super-identity.
+         */
+        SubIdentityRenamed: PlainDescriptor<Anonymize<Ie4intrc3n8jfu>>;
+        /**
+         * A sub-identity was removed from an identity and the deposit freed.
+         */
+        SubIdentityRemoved: PlainDescriptor<Anonymize<Ick3mveut33f44>>;
+        /**
+         * A sub-identity was cleared, and the given deposit repatriated from the
+         * main identity account to the sub-identity account.
+         */
+        SubIdentityRevoked: PlainDescriptor<Anonymize<Ick3mveut33f44>>;
+        /**
+         * A username authority was added.
+         */
+        AuthorityAdded: PlainDescriptor<Anonymize<I2rg5btjrsqec0>>;
+        /**
+         * A username authority was removed.
+         */
+        AuthorityRemoved: PlainDescriptor<Anonymize<I2rg5btjrsqec0>>;
+        /**
+         * A username was set for `who`.
+         */
+        UsernameSet: PlainDescriptor<Anonymize<Ibdqerrooruuq9>>;
+        /**
+         * A username was queued, but `who` must accept it prior to `expiration`.
+         */
+        UsernameQueued: PlainDescriptor<Anonymize<I8u2ba9jeiu6q0>>;
+        /**
+         * A queued username passed its expiration without being claimed and was removed.
+         */
+        PreapprovalExpired: PlainDescriptor<Anonymize<I7ieadb293k6b4>>;
+        /**
+         * A username was set as a primary and can be looked up from `who`.
+         */
+        PrimaryUsernameSet: PlainDescriptor<Anonymize<Ibdqerrooruuq9>>;
+        /**
+         * A dangling username (as in, a username corresponding to an account that has removed its
+         * identity) has been removed.
+         */
+        DanglingUsernameRemoved: PlainDescriptor<Anonymize<Ibdqerrooruuq9>>;
+        /**
+         * A username has been unbound.
+         */
+        UsernameUnbound: PlainDescriptor<Anonymize<Ie5l999tf7t2te>>;
+        /**
+         * A username has been removed.
+         */
+        UsernameRemoved: PlainDescriptor<Anonymize<Ie5l999tf7t2te>>;
+        /**
+         * A username has been killed.
+         */
+        UsernameKilled: PlainDescriptor<Anonymize<Ie5l999tf7t2te>>;
+    };
+    MultiBlockMigrations: {
+        /**
+         * A Runtime upgrade started.
          *
-         * Ethereum transactions always complete successfully at the extrinsic level,
-         * as even reverted calls must store their `ReceiptInfo`.
-         * To distinguish reverted calls from successful ones, this event is emitted
-         * for failed Ethereum transactions.
+         * Its end is indicated by `UpgradeCompleted` or `UpgradeFailed`.
          */
-        EthExtrinsicRevert: PlainDescriptor<Anonymize<I7r4c3o51an46>>;
+        UpgradeStarted: PlainDescriptor<Anonymize<If1co0pilmi7oq>>;
+        /**
+         * The current runtime upgrade completed.
+         *
+         * This implies that all of its migrations completed successfully as well.
+         */
+        UpgradeCompleted: PlainDescriptor<undefined>;
+        /**
+         * Runtime upgrade failed.
+         *
+         * This is very bad and will require governance intervention.
+         */
+        UpgradeFailed: PlainDescriptor<undefined>;
+        /**
+         * A migration was skipped since it was already executed in the past.
+         */
+        MigrationSkipped: PlainDescriptor<Anonymize<I666bl2fqjkejo>>;
+        /**
+         * A migration progressed.
+         */
+        MigrationAdvanced: PlainDescriptor<Anonymize<Iae74gjak1qibn>>;
+        /**
+         * A Migration completed.
+         */
+        MigrationCompleted: PlainDescriptor<Anonymize<Iae74gjak1qibn>>;
+        /**
+         * A Migration failed.
+         *
+         * This implies that the whole upgrade failed and governance intervention is required.
+         */
+        MigrationFailed: PlainDescriptor<Anonymize<Iae74gjak1qibn>>;
+        /**
+         * The set of historical migrations has been cleared.
+         */
+        HistoricCleared: PlainDescriptor<Anonymize<I3escdojpj0551>>;
+    };
+    IdentityMigrator: {
+        /**
+         * The identity and all sub accounts were reaped for `who`.
+         */
+        IdentityReaped: PlainDescriptor<Anonymize<I4cbvqmqadhrea>>;
+        /**
+         * The deposits held for `who` were updated. `identity` is the new deposit held for
+         * identity info, and `subs` is the new deposit held for the sub-accounts.
+         */
+        DepositUpdated: PlainDescriptor<Anonymize<I4i3u9uui7ktsd>>;
     };
 };
 type IError = {
@@ -2772,34 +2876,6 @@ type IError = {
          * The delta cannot be zero.
          */
         DeltaZero: PlainDescriptor<undefined>;
-    };
-    Sudo: {
-        /**
-         * Sender must be the Sudo account.
-         */
-        RequireSudo: PlainDescriptor<undefined>;
-    };
-    Scheduler: {
-        /**
-         * Failed to schedule a call
-         */
-        FailedToSchedule: PlainDescriptor<undefined>;
-        /**
-         * Cannot find the scheduled call.
-         */
-        NotFound: PlainDescriptor<undefined>;
-        /**
-         * Given target block number is in the past.
-         */
-        TargetBlockNumberInPast: PlainDescriptor<undefined>;
-        /**
-         * Reschedule failed because it does not change scheduled time.
-         */
-        RescheduleNoChange: PlainDescriptor<undefined>;
-        /**
-         * Attempt to use a non-named function on a named task.
-         */
-        Named: PlainDescriptor<undefined>;
     };
     CollatorSelection: {
         /**
@@ -3077,82 +3153,11 @@ type IError = {
          */
         RecursiveDisallowed: PlainDescriptor<undefined>;
     };
-    EstateExecutor: {
+    Utility: {
         /**
-         * The will does not exist.
+         * Too many calls batched.
          */
-        WillNotFound: PlainDescriptor<undefined>;
-        /**
-         * Only the owner can perform this action.
-         */
-        NotOwner: PlainDescriptor<undefined>;
-        /**
-         * The will is not in Active status.
-         */
-        WillNotActive: PlainDescriptor<undefined>;
-        /**
-         * The will has already expired — heartbeat rejected.
-         */
-        WillExpired: PlainDescriptor<undefined>;
-        /**
-         * The block interval must be greater than zero.
-         */
-        InvalidInterval: PlainDescriptor<undefined>;
-        /**
-         * The block interval is too large and would cause overflow.
-         */
-        BlockIntervalTooLarge: PlainDescriptor<undefined>;
-        /**
-         * At least one bequest is required.
-         */
-        NoBequests: PlainDescriptor<undefined>;
-        /**
-         * Too many bequests (exceeds MaxBequests).
-         */
-        TooManyBequests: PlainDescriptor<undefined>;
-        /**
-         * A beneficiary named in a bequest does not have a verified
-         * on-chain identity.
-         */
-        BeneficiaryNotVerified: PlainDescriptor<undefined>;
-        /**
-         * The scheduler refused to schedule or reschedule the task.
-         */
-        ScheduleFailed: PlainDescriptor<undefined>;
-    };
-    Proxy: {
-        /**
-         * There are too many proxies registered or too many announcements pending.
-         */
-        TooMany: PlainDescriptor<undefined>;
-        /**
-         * Proxy registration not found.
-         */
-        NotFound: PlainDescriptor<undefined>;
-        /**
-         * Sender is not a proxy of the account to be proxied.
-         */
-        NotProxy: PlainDescriptor<undefined>;
-        /**
-         * A call which is incompatible with the proxy type's filter was attempted.
-         */
-        Unproxyable: PlainDescriptor<undefined>;
-        /**
-         * Account is already a proxy.
-         */
-        Duplicate: PlainDescriptor<undefined>;
-        /**
-         * Call may not be made by proxy because it may escalate its privileges.
-         */
-        NoPermission: PlainDescriptor<undefined>;
-        /**
-         * Announcement, if made at all, was made too recently.
-         */
-        Unannounced: PlainDescriptor<undefined>;
-        /**
-         * Cannot add self as proxy.
-         */
-        NoSelfProxy: PlainDescriptor<undefined>;
+        TooManyCalls: PlainDescriptor<undefined>;
     };
     Multisig: {
         /**
@@ -3213,260 +3218,168 @@ type IError = {
          */
         AlreadyStored: PlainDescriptor<undefined>;
     };
-    Revive: {
+    Proxy: {
         /**
-         * Invalid schedule supplied, e.g. with zero weight of a basic operation.
+         * There are too many proxies registered or too many announcements pending.
          */
-        InvalidSchedule: PlainDescriptor<undefined>;
+        TooMany: PlainDescriptor<undefined>;
         /**
-         * Invalid combination of flags supplied to `seal_call` or `seal_delegate_call`.
+         * Proxy registration not found.
          */
-        InvalidCallFlags: PlainDescriptor<undefined>;
+        NotFound: PlainDescriptor<undefined>;
         /**
-         * The executed contract exhausted its gas limit.
+         * Sender is not a proxy of the account to be proxied.
          */
-        OutOfGas: PlainDescriptor<undefined>;
+        NotProxy: PlainDescriptor<undefined>;
         /**
-         * Performing the requested transfer failed. Probably because there isn't enough
-         * free balance in the sender's account.
+         * A call which is incompatible with the proxy type's filter was attempted.
          */
-        TransferFailed: PlainDescriptor<undefined>;
+        Unproxyable: PlainDescriptor<undefined>;
         /**
-         * Performing a call was denied because the calling depth reached the limit
-         * of what is specified in the schedule.
+         * Account is already a proxy.
          */
-        MaxCallDepthReached: PlainDescriptor<undefined>;
+        Duplicate: PlainDescriptor<undefined>;
         /**
-         * No contract was found at the specified address.
+         * Call may not be made by proxy because it may escalate its privileges.
          */
-        ContractNotFound: PlainDescriptor<undefined>;
+        NoPermission: PlainDescriptor<undefined>;
         /**
-         * No code could be found at the supplied code hash.
+         * Announcement, if made at all, was made too recently.
          */
-        CodeNotFound: PlainDescriptor<undefined>;
+        Unannounced: PlainDescriptor<undefined>;
         /**
-         * No code info could be found at the supplied code hash.
+         * Cannot add self as proxy.
          */
-        CodeInfoNotFound: PlainDescriptor<undefined>;
+        NoSelfProxy: PlainDescriptor<undefined>;
+    };
+    Identity: {
         /**
-         * A buffer outside of sandbox memory was passed to a contract API function.
+         * Too many subs-accounts.
          */
-        OutOfBounds: PlainDescriptor<undefined>;
+        TooManySubAccounts: PlainDescriptor<undefined>;
         /**
-         * Input passed to a contract API function failed to decode as expected type.
+         * Account isn't found.
          */
-        DecodingFailed: PlainDescriptor<undefined>;
+        NotFound: PlainDescriptor<undefined>;
         /**
-         * Contract trapped during execution.
+         * Account isn't named.
          */
-        ContractTrapped: PlainDescriptor<undefined>;
+        NotNamed: PlainDescriptor<undefined>;
         /**
-         * Event body or storage item exceeds [`limits::STORAGE_BYTES`].
+         * Empty index.
          */
-        ValueTooLarge: PlainDescriptor<undefined>;
+        EmptyIndex: PlainDescriptor<undefined>;
         /**
-         * Termination of a contract is not allowed while the contract is already
-         * on the call stack. Can be triggered by `seal_terminate`.
+         * Fee is changed.
          */
-        TerminatedWhileReentrant: PlainDescriptor<undefined>;
+        FeeChanged: PlainDescriptor<undefined>;
         /**
-         * `seal_call` forwarded this contracts input. It therefore is no longer available.
+         * No identity found.
          */
-        InputForwarded: PlainDescriptor<undefined>;
+        NoIdentity: PlainDescriptor<undefined>;
         /**
-         * The amount of topics passed to `seal_deposit_events` exceeds the limit.
+         * Sticky judgement.
          */
-        TooManyTopics: PlainDescriptor<undefined>;
+        StickyJudgement: PlainDescriptor<undefined>;
         /**
-         * A contract with the same AccountId already exists.
+         * Judgement given.
          */
-        DuplicateContract: PlainDescriptor<undefined>;
+        JudgementGiven: PlainDescriptor<undefined>;
         /**
-         * A contract self destructed in its constructor.
-         *
-         * This can be triggered by a call to `seal_terminate`.
+         * Invalid judgement.
          */
-        TerminatedInConstructor: PlainDescriptor<undefined>;
+        InvalidJudgement: PlainDescriptor<undefined>;
         /**
-         * A call tried to invoke a contract that is flagged as non-reentrant.
+         * The index is invalid.
          */
-        ReentranceDenied: PlainDescriptor<undefined>;
+        InvalidIndex: PlainDescriptor<undefined>;
         /**
-         * A contract called into the runtime which then called back into this pallet.
+         * The target is invalid.
          */
-        ReenteredPallet: PlainDescriptor<undefined>;
+        InvalidTarget: PlainDescriptor<undefined>;
         /**
-         * A contract attempted to invoke a state modifying API while being in read-only mode.
+         * Maximum amount of registrars reached. Cannot add any more.
          */
-        StateChangeDenied: PlainDescriptor<undefined>;
+        TooManyRegistrars: PlainDescriptor<undefined>;
         /**
-         * Origin doesn't have enough balance to pay the required storage deposits.
+         * Account ID is already named.
          */
-        StorageDepositNotEnoughFunds: PlainDescriptor<undefined>;
+        AlreadyClaimed: PlainDescriptor<undefined>;
         /**
-         * More storage was created than allowed by the storage deposit limit.
+         * Sender is not a sub-account.
          */
-        StorageDepositLimitExhausted: PlainDescriptor<undefined>;
+        NotSub: PlainDescriptor<undefined>;
         /**
-         * Code removal was denied because the code is still in use by at least one contract.
+         * Sub-account isn't owned by sender.
          */
-        CodeInUse: PlainDescriptor<undefined>;
+        NotOwned: PlainDescriptor<undefined>;
         /**
-         * The contract ran to completion but decided to revert its storage changes.
-         * Please note that this error is only returned from extrinsics. When called directly
-         * or via RPC an `Ok` will be returned. In this case the caller needs to inspect the flags
-         * to determine whether a reversion has taken place.
+         * The provided judgement was for a different identity.
          */
-        ContractReverted: PlainDescriptor<undefined>;
+        JudgementForDifferentIdentity: PlainDescriptor<undefined>;
         /**
-         * The contract failed to compile or is missing the correct entry points.
-         *
-         * A more detailed error can be found on the node console if debug messages are enabled
-         * by supplying `-lruntime::revive=debug`.
+         * Error that occurs when there is an issue paying for judgement.
          */
-        CodeRejected: PlainDescriptor<undefined>;
+        JudgementPaymentFailed: PlainDescriptor<undefined>;
         /**
-         * The code blob supplied is larger than [`limits::code::BLOB_BYTES`].
+         * The provided suffix is too long.
          */
-        BlobTooLarge: PlainDescriptor<undefined>;
+        InvalidSuffix: PlainDescriptor<undefined>;
         /**
-         * The contract declares too much memory (ro + rw + stack).
+         * The sender does not have permission to issue a username.
          */
-        StaticMemoryTooLarge: PlainDescriptor<undefined>;
+        NotUsernameAuthority: PlainDescriptor<undefined>;
         /**
-         * The program contains a basic block that is larger than allowed.
+         * The authority cannot allocate any more usernames.
          */
-        BasicBlockTooLarge: PlainDescriptor<undefined>;
+        NoAllocation: PlainDescriptor<undefined>;
         /**
-         * The program contains an invalid instruction.
+         * The signature on a username was not valid.
          */
-        InvalidInstruction: PlainDescriptor<undefined>;
+        InvalidSignature: PlainDescriptor<undefined>;
         /**
-         * The contract has reached its maximum number of delegate dependencies.
+         * Setting this username requires a signature, but none was provided.
          */
-        MaxDelegateDependenciesReached: PlainDescriptor<undefined>;
+        RequiresSignature: PlainDescriptor<undefined>;
         /**
-         * The dependency was not found in the contract's delegate dependencies.
+         * The username does not meet the requirements.
          */
-        DelegateDependencyNotFound: PlainDescriptor<undefined>;
+        InvalidUsername: PlainDescriptor<undefined>;
         /**
-         * The contract already depends on the given delegate dependency.
+         * The username is already taken.
          */
-        DelegateDependencyAlreadyExists: PlainDescriptor<undefined>;
+        UsernameTaken: PlainDescriptor<undefined>;
         /**
-         * Can not add a delegate dependency to the code hash of the contract itself.
+         * The requested username does not exist.
          */
-        CannotAddSelfAsDelegateDependency: PlainDescriptor<undefined>;
+        NoUsername: PlainDescriptor<undefined>;
         /**
-         * Can not add more data to transient storage.
+         * The username cannot be forcefully removed because it can still be accepted.
          */
-        OutOfTransientStorage: PlainDescriptor<undefined>;
+        NotExpired: PlainDescriptor<undefined>;
         /**
-         * The contract tried to call a syscall which does not exist (at its current api level).
+         * The username cannot be removed because it's still in the grace period.
          */
-        InvalidSyscall: PlainDescriptor<undefined>;
+        TooEarly: PlainDescriptor<undefined>;
         /**
-         * Invalid storage flags were passed to one of the storage syscalls.
+         * The username cannot be removed because it is not unbinding.
          */
-        InvalidStorageFlags: PlainDescriptor<undefined>;
+        NotUnbinding: PlainDescriptor<undefined>;
         /**
-         * PolkaVM failed during code execution. Probably due to a malformed program.
+         * The username cannot be unbound because it is already unbinding.
          */
-        ExecutionFailed: PlainDescriptor<undefined>;
+        AlreadyUnbinding: PlainDescriptor<undefined>;
         /**
-         * Failed to convert a U256 to a Balance.
+         * The action cannot be performed because of insufficient privileges (e.g. authority
+         * trying to unbind a username provided by the system).
          */
-        BalanceConversionFailed: PlainDescriptor<undefined>;
+        InsufficientPrivileges: PlainDescriptor<undefined>;
+    };
+    MultiBlockMigrations: {
         /**
-         * Immutable data can only be set during deploys and only be read during calls.
-         * Additionally, it is only valid to set the data once and it must not be empty.
+         * The operation cannot complete since some MBMs are ongoing.
          */
-        InvalidImmutableAccess: PlainDescriptor<undefined>;
-        /**
-         * An `AccountID32` account tried to interact with the pallet without having a mapping.
-         *
-         * Call [`Pallet::map_account`] in order to create a mapping for the account.
-         */
-        AccountUnmapped: PlainDescriptor<undefined>;
-        /**
-         * Tried to map an account that is already mapped.
-         */
-        AccountAlreadyMapped: PlainDescriptor<undefined>;
-        /**
-         * The transaction used to dry-run a contract is invalid.
-         */
-        InvalidGenericTransaction: PlainDescriptor<undefined>;
-        /**
-         * The refcount of a code either over or underflowed.
-         */
-        RefcountOverOrUnderflow: PlainDescriptor<undefined>;
-        /**
-         * Unsupported precompile address.
-         */
-        UnsupportedPrecompileAddress: PlainDescriptor<undefined>;
-        /**
-         * The calldata exceeds [`limits::CALLDATA_BYTES`].
-         */
-        CallDataTooLarge: PlainDescriptor<undefined>;
-        /**
-         * The return data exceeds [`limits::CALLDATA_BYTES`].
-         */
-        ReturnDataTooLarge: PlainDescriptor<undefined>;
-        /**
-         * Invalid jump destination. Dynamic jumps points to invalid not jumpdest opcode.
-         */
-        InvalidJump: PlainDescriptor<undefined>;
-        /**
-         * Attempting to pop a value from an empty stack.
-         */
-        StackUnderflow: PlainDescriptor<undefined>;
-        /**
-         * Attempting to push a value onto a full stack.
-         */
-        StackOverflow: PlainDescriptor<undefined>;
-        /**
-         * Too much deposit was drawn from the shared txfee and deposit credit.
-         *
-         * This happens if the passed `gas` inside the ethereum transaction is too low.
-         */
-        TxFeeOverdraw: PlainDescriptor<undefined>;
-        /**
-         * When calling an EVM constructor `data` has to be empty.
-         *
-         * EVM constructors do not accept data. Their input data is part of the code blob itself.
-         */
-        EvmConstructorNonEmptyData: PlainDescriptor<undefined>;
-        /**
-         * Tried to construct an EVM contract via code hash.
-         *
-         * EVM contracts can only be instantiated via code upload as no initcode is
-         * stored on-chain.
-         */
-        EvmConstructedFromHash: PlainDescriptor<undefined>;
-        /**
-         * The contract does not have enough balance to refund the storage deposit.
-         *
-         * This is a bug and should never happen. It means the accounting got out of sync.
-         */
-        StorageRefundNotEnoughFunds: PlainDescriptor<undefined>;
-        /**
-         * This means there are locks on the contracts storage deposit that prevents refunding it.
-         *
-         * This would be the case if the contract used its storage deposits for governance
-         * or other pallets that allow creating locks over held balance.
-         */
-        StorageRefundLocked: PlainDescriptor<undefined>;
-        /**
-         * Called a pre-compile that is not allowed to be delegate called.
-         *
-         * Some pre-compile functions will trap the caller context if being delegate
-         * called or if their caller was being delegate called.
-         */
-        PrecompileDelegateDenied: PlainDescriptor<undefined>;
-        /**
-         * ECDSA public key recovery failed. Most probably wrong recovery id or signature.
-         */
-        EcdsaRecoveryFailed: PlainDescriptor<undefined>;
+        Ongoing: PlainDescriptor<undefined>;
     };
 };
 type IConstants = {
@@ -3572,20 +3485,6 @@ type IConstants = {
          * transactions.
          */
         OperationalFeeMultiplier: PlainDescriptor<number>;
-    };
-    Scheduler: {
-        /**
-         * The maximum weight that may be scheduled per block for any dispatchables.
-         */
-        MaximumWeight: PlainDescriptor<Anonymize<I4q39t5hn830vp>>;
-        /**
-         * The maximum number of scheduled calls in the queue for a single block.
-         *
-         * NOTE:
-         * + Dependent pallets' benchmarks might require a higher limit for the setting. Set a
-         * higher limit under `runtime-benchmarks` feature.
-         */
-        MaxScheduledPerBlock: PlainDescriptor<number>;
     };
     CollatorSelection: {
         /**
@@ -3713,37 +3612,32 @@ type IConstants = {
          */
         IdleMaxServiceWeight: PlainDescriptor<Anonymize<Iasb8k6ash5mjn>>;
     };
-    Statement: {
+    Utility: {
         /**
-         * Min balance for priority statements.
+         * The limit on the number of batched calls.
          */
-        StatementCost: PlainDescriptor<bigint>;
-        /**
-         * Cost of data byte used for priority calculation.
-         */
-        ByteCost: PlainDescriptor<bigint>;
-        /**
-         * Minimum number of statements allowed per account.
-         */
-        MinAllowedStatements: PlainDescriptor<number>;
-        /**
-         * Maximum number of statements allowed per account.
-         */
-        MaxAllowedStatements: PlainDescriptor<number>;
-        /**
-         * Minimum data bytes allowed per account.
-         */
-        MinAllowedBytes: PlainDescriptor<number>;
-        /**
-         * Maximum data bytes allowed per account.
-         */
-        MaxAllowedBytes: PlainDescriptor<number>;
+        batched_calls_limit: PlainDescriptor<number>;
     };
-    EstateExecutor: {
+    Multisig: {
         /**
-         * Maximum number of bequests per will.
+         * The base amount of currency needed to reserve for creating a multisig execution or to
+         * store a dispatch call for later.
+         *
+         * This is held for an additional storage item whose value size is
+         * `4 + sizeof((BlockNumber, Balance, AccountId))` bytes and whose key size is
+         * `32 + sizeof(AccountId)` bytes.
          */
-        MaxBequests: PlainDescriptor<number>;
+        DepositBase: PlainDescriptor<bigint>;
+        /**
+         * The amount of currency needed per unit threshold when creating a multisig execution.
+         *
+         * This is held for adding 32 bytes more into a pre-existing storage value.
+         */
+        DepositFactor: PlainDescriptor<bigint>;
+        /**
+         * The maximum amount of signatories allowed in the multisig.
+         */
+        MaxSignatories: PlainDescriptor<number>;
     };
     Proxy: {
         /**
@@ -3784,128 +3678,68 @@ type IConstants = {
          */
         AnnouncementDepositFactor: PlainDescriptor<bigint>;
     };
-    Multisig: {
+    Identity: {
         /**
-         * The base amount of currency needed to reserve for creating a multisig execution or to
-         * store a dispatch call for later.
-         *
-         * This is held for an additional storage item whose value size is
-         * `4 + sizeof((BlockNumber, Balance, AccountId))` bytes and whose key size is
-         * `32 + sizeof(AccountId)` bytes.
+         * The amount held on deposit for a registered identity.
          */
-        DepositBase: PlainDescriptor<bigint>;
+        BasicDeposit: PlainDescriptor<bigint>;
         /**
-         * The amount of currency needed per unit threshold when creating a multisig execution.
-         *
-         * This is held for adding 32 bytes more into a pre-existing storage value.
+         * The amount held on deposit per encoded byte for a registered identity.
          */
-        DepositFactor: PlainDescriptor<bigint>;
+        ByteDeposit: PlainDescriptor<bigint>;
         /**
-         * The maximum amount of signatories allowed in the multisig.
+         * The amount held on deposit per registered username. This value should change only in
+         * runtime upgrades with proper migration of existing deposits.
          */
-        MaxSignatories: PlainDescriptor<number>;
+        UsernameDeposit: PlainDescriptor<bigint>;
+        /**
+         * The amount held on deposit for a registered subaccount. This should account for the fact
+         * that one storage item's value will increase by the size of an account ID, and there will
+         * be another trie item whose value is the size of an account ID plus 32 bytes.
+         */
+        SubAccountDeposit: PlainDescriptor<bigint>;
+        /**
+         * The maximum number of sub-accounts allowed per identified account.
+         */
+        MaxSubAccounts: PlainDescriptor<number>;
+        /**
+         * Maximum number of registrars allowed in the system. Needed to bound the complexity
+         * of, e.g., updating judgements.
+         */
+        MaxRegistrars: PlainDescriptor<number>;
+        /**
+         * The number of blocks within which a username grant must be accepted.
+         */
+        PendingUsernameExpiration: PlainDescriptor<number>;
+        /**
+         * The number of blocks that must pass to enable the permanent deletion of a username by
+         * its respective authority.
+         */
+        UsernameGracePeriod: PlainDescriptor<number>;
+        /**
+         * The maximum length of a suffix.
+         */
+        MaxSuffixLength: PlainDescriptor<number>;
+        /**
+         * The maximum length of a username, including its suffix and any system-added delimiters.
+         */
+        MaxUsernameLength: PlainDescriptor<number>;
     };
-    Revive: {
+    MultiBlockMigrations: {
         /**
-         * The amount of balance a caller has to pay for each byte of storage.
+         * The maximal length of an encoded cursor.
          *
-         * # Note
-         *
-         * It is safe to change this value on a live chain as all refunds are pro rata.
+         * A good default needs to selected such that no migration will ever have a cursor with MEL
+         * above this limit. This is statically checked in `integrity_test`.
          */
-        DepositPerByte: PlainDescriptor<bigint>;
+        CursorMaxLen: PlainDescriptor<number>;
         /**
-         * The amount of balance a caller has to pay for each storage item.
+         * The maximal length of an encoded identifier.
          *
-         * # Note
-         *
-         * It is safe to change this value on a live chain as all refunds are pro rata.
+         * A good default needs to selected such that no migration will ever have an identifier
+         * with MEL above this limit. This is statically checked in `integrity_test`.
          */
-        DepositPerItem: PlainDescriptor<bigint>;
-        /**
-         * The amount of balance a caller has to pay for each child trie storage item.
-         *
-         * Those are the items created by a contract. In Solidity each value is a single
-         * storage item. This is why we need to set a lower value here than for the main
-         * trie items. Otherwise the storage deposit is too high.
-         *
-         * # Note
-         *
-         * It is safe to change this value on a live chain as all refunds are pro rata.
-         */
-        DepositPerChildTrieItem: PlainDescriptor<bigint>;
-        /**
-         * The percentage of the storage deposit that should be held for using a code hash.
-         * Instantiating a contract, protects the code from being removed. In order to prevent
-         * abuse these actions are protected with a percentage of the code deposit.
-         */
-        CodeHashLockupDepositPercent: PlainDescriptor<number>;
-        /**
-         * Make contract callable functions marked as `#[unstable]` available.
-         *
-         * Contracts that use `#[unstable]` functions won't be able to be uploaded unless
-         * this is set to `true`. This is only meant for testnets and dev nodes in order to
-         * experiment with new features.
-         *
-         * # Warning
-         *
-         * Do **not** set to `true` on productions chains.
-         */
-        UnsafeUnstableInterface: PlainDescriptor<boolean>;
-        /**
-         * Allow EVM bytecode to be uploaded and instantiated.
-         */
-        AllowEVMBytecode: PlainDescriptor<boolean>;
-        /**
-         * The [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID.
-         *
-         * This is a unique identifier assigned to each blockchain network,
-         * preventing replay attacks.
-         */
-        ChainId: PlainDescriptor<bigint>;
-        /**
-         * The ratio between the decimal representation of the native token and the ETH token.
-         */
-        NativeToEthRatio: PlainDescriptor<number>;
-        /**
-         * The fraction the maximum extrinsic weight `eth_transact` extrinsics are capped to.
-         *
-         * This is not a security measure but a requirement due to how we map gas to `(Weight,
-         * StorageDeposit)`. The mapping might derive a `Weight` that is too large to fit into an
-         * extrinsic. In this case we cap it to the limit specified here.
-         *
-         * `eth_transact` transactions that use more weight than specified will fail with an out of
-         * gas error during execution. Larger fractions will allow more transactions to run.
-         * Smaller values waste less block space: Choose as small as possible and as large as
-         * necessary.
-         *
-         * Default: `0.5`.
-         */
-        MaxEthExtrinsicWeight: PlainDescriptor<bigint>;
-        /**
-         * Allows debug-mode configuration, such as enabling unlimited contract size.
-         */
-        DebugEnabled: PlainDescriptor<boolean>;
-        /**
-         * This determines the relative scale of our gas price and gas estimates.
-         *
-         * By default, the gas price (in wei) is `FeeInfo::next_fee_multiplier()` multiplied by
-         * `NativeToEthRatio`. `GasScale` allows to scale this value: the actual gas price is the
-         * default gas price multiplied by `GasScale`.
-         *
-         * As a consequence, gas cost (gas estimates and actual gas usage during transaction) is
-         * scaled down by the same factor. Thus, the total transaction cost is not affected by
-         * `GasScale` – apart from rounding differences: the transaction cost is always a multiple
-         * of the gas price and is derived by rounded up, so that with higher `GasScales` this can
-         * lead to higher gas cost as the rounding difference would be larger.
-         *
-         * The main purpose of changing the `GasScale` is to tune the gas cost so that it is closer
-         * to standard EVM gas cost and contracts will not run out of gas when tools or code
-         * assume hard coded gas limits.
-         *
-         * Requirement: `GasScale` must not be 0
-         */
-        GasScale: PlainDescriptor<number>;
+        IdentifierMaxLen: PlainDescriptor<number>;
     };
 };
 type IViewFns = {
@@ -3913,11 +3747,11 @@ type IViewFns = {
         /**
          * Check if a `RuntimeCall` is allowed for a given `ProxyType`.
          */
-        check_permissions: RuntimeDescriptor<[call: Anonymize<I44p0rf4699mn8>, proxy_type: Anonymize<I176ch6ftnp6d1>], boolean>;
+        check_permissions: RuntimeDescriptor<[call: Anonymize<Ib9mimerld1j1p>, proxy_type: Anonymize<Ieuemnllefri8h>], boolean>;
         /**
          * Check if one `ProxyType` is a subset of another `ProxyType`.
          */
-        is_superset: RuntimeDescriptor<[to_check: Anonymize<I176ch6ftnp6d1>, against: Anonymize<I176ch6ftnp6d1>], boolean>;
+        is_superset: RuntimeDescriptor<[to_check: Anonymize<Ieuemnllefri8h>, against: Anonymize<Ieuemnllefri8h>], boolean>;
     };
 };
 type IRuntimeCalls = {
@@ -3935,6 +3769,18 @@ type IRuntimeCalls = {
          * Return the current set of authorities.
          */
         authorities: RuntimeDescriptor<[], Anonymize<Ic5m5lp1oioo8r>>;
+    };
+    /**
+     * API to tell the node side how the relay parent should be chosen.
+     *
+     * A larger offset indicates that the relay parent should not be the tip of the relay chain,
+     * but `N` blocks behind the tip. This offset is then enforced by the runtime.
+     */
+    RelayParentOffsetApi: {
+        /**
+         * Fetch the slot offset that is expected from the relay chain.
+         */
+        relay_parent_offset: RuntimeDescriptor<[], number>;
     };
     /**
      * This runtime API is used to inform potential block authors whether they will
@@ -4006,15 +3852,6 @@ type IRuntimeCalls = {
         metadata_versions: RuntimeDescriptor<[], Anonymize<Icgljjb6j82uhn>>;
     };
     /**
-     * Runtime API for executing view functions
-     */
-    RuntimeViewFunction: {
-        /**
-         * Execute a view function query.
-         */
-        execute_view_function: RuntimeDescriptor<[query_id: Anonymize<I4gil44d08grh>, input: Binary], Anonymize<I7u915mvkdsb08>>;
-    };
-    /**
      * The `BlockBuilder` api trait that provides the required functionality for building a block.
      */
     BlockBuilder: {
@@ -4024,7 +3861,7 @@ type IRuntimeCalls = {
          * Returns an inclusion outcome which specifies if this extrinsic is included in
          * this block or not.
          */
-        apply_extrinsic: RuntimeDescriptor<[extrinsic: Binary], Anonymize<Ierji3lq0r1rbg>>;
+        apply_extrinsic: RuntimeDescriptor<[extrinsic: Binary], Anonymize<I84rdu6tfm4ge9>>;
         /**
          * Finish the current block.
          */
@@ -4122,11 +3959,11 @@ type IRuntimeCalls = {
         /**
          * Query information of a dispatch class, weight, and fee of a given encoded `Call`.
          */
-        query_call_info: RuntimeDescriptor<[call: Anonymize<I44p0rf4699mn8>, len: number], Anonymize<I6spmpef2c7svf>>;
+        query_call_info: RuntimeDescriptor<[call: Anonymize<Ib9mimerld1j1p>, len: number], Anonymize<I6spmpef2c7svf>>;
         /**
          * Query fee details of a given encoded `Call`.
          */
-        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<I44p0rf4699mn8>, len: number], Anonymize<Iei2mvq0mjvt81>>;
+        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<Ib9mimerld1j1p>, len: number], Anonymize<Iei2mvq0mjvt81>>;
         /**
          * Query the output of the current `WeightToFee` given some input.
          */
@@ -4135,6 +3972,89 @@ type IRuntimeCalls = {
          * Query the output of the current `LengthToFee` given some input.
          */
         query_length_to_fee: RuntimeDescriptor<[length: number], bigint>;
+    };
+    /**
+     * A trait of XCM payment API.
+     *
+     * API provides functionality for obtaining:
+     *
+     * * the weight required to execute an XCM message,
+     * * a list of acceptable `AssetId`s for message execution payment,
+     * * the cost of the weight in the specified acceptable `AssetId`.
+     * * the fees for an XCM message delivery.
+     *
+     * To determine the execution weight of the calls required for
+     * [`xcm::latest::Instruction::Transact`] instruction, `TransactionPaymentCallApi` can be used.
+     */
+    XcmPaymentApi: {
+        /**
+         * Returns a list of acceptable payment assets.
+         *
+         * # Arguments
+         *
+         * * `xcm_version`: Version.
+         */
+        query_acceptable_payment_assets: RuntimeDescriptor<[xcm_version: number], Anonymize<Iftvbctbo05fu4>>;
+        /**
+         * Returns a weight needed to execute a XCM.
+         *
+         * # Arguments
+         *
+         * * `message`: `VersionedXcm`.
+         */
+        query_xcm_weight: RuntimeDescriptor<[message: XcmVersionedXcm], Anonymize<Ic0c3req3mlc1l>>;
+        /**
+         * Converts a weight into a fee for the specified `AssetId`.
+         *
+         * # Arguments
+         *
+         * * `weight`: convertible `Weight`.
+         * * `asset`: `VersionedAssetId`.
+         */
+        query_weight_to_asset_fee: RuntimeDescriptor<[weight: Anonymize<I4q39t5hn830vp>, asset: XcmVersionedAssetId], Anonymize<I7ocn4njqde3v5>>;
+        /**
+         * Query delivery fees V2.
+         *
+         * Get delivery fees for sending a specific `message` to a `destination`.
+         * These always come in a specific asset, defined by the chain.
+         *
+         * # Arguments
+         * * `message`: The message that'll be sent, necessary because most delivery fees are based on the
+         * size of the message.
+         * * `destination`: The destination to send the message to. Different destinations may use
+         * different senders that charge different fees.
+         */
+        query_delivery_fees: RuntimeDescriptor<[destination: XcmVersionedLocation, message: XcmVersionedXcm, asset_id: XcmVersionedAssetId], Anonymize<Iek7ha36da9mf5>>;
+    };
+    /**
+     * API for dry-running extrinsics and XCM programs to get the programs that need to be passed to the fees API.
+     *
+     * All calls return a vector of tuples (location, xcm) where each "xcm" is executed in "location".
+     * If there's local execution, the location will be "Here".
+     * This vector can be used to calculate both execution and delivery fees.
+     *
+     * Calls or XCMs might fail when executed, this doesn't mean the result of these calls will be an `Err`.
+     * In those cases, there might still be a valid result, with the execution error inside it.
+     * The only reasons why these calls might return an error are listed in the [`Error`] enum.
+     */
+    DryRunApi: {
+        /**
+         * Dry run call V2.
+         */
+        dry_run_call: RuntimeDescriptor<[origin: Anonymize<I9g869l9vmunib>, call: Anonymize<Ib9mimerld1j1p>, result_xcms_version: number], Anonymize<I1f6srtu0ef8gs>>;
+        /**
+         * Dry run XCM program
+         */
+        dry_run_xcm: RuntimeDescriptor<[origin_location: XcmVersionedLocation, xcm: XcmVersionedXcm], Anonymize<Ifr9rh693cu7m0>>;
+    };
+    /**
+     * API for useful conversions between XCM `Location` and `AccountId`.
+     */
+    LocationToAccountApi: {
+        /**
+         * Converts `Location` to `AccountId`.
+         */
+        convert_location: RuntimeDescriptor<[location: XcmVersionedLocation], Anonymize<Ieh6nis3hdbtgi>>;
     };
     /**
      * Runtime api to collect information about a collation.
@@ -4151,26 +4071,6 @@ type IRuntimeCalls = {
          * we are collecting the collation info for.
          */
         collect_collation_info: RuntimeDescriptor<[header: Anonymize<Ic952bubvq4k7d>], Anonymize<Ic1d4u2opv3fst>>;
-    };
-    /**
-     * Runtime API trait for statement validation.
-     */
-    ValidateStatement: {
-        /**
-         * Validate the statement.
-         */
-        validate_statement: RuntimeDescriptor<[source: Anonymize<Ico18ks790i2bl>, statement: Anonymize<I815pbp5omtss>], Anonymize<I3ju6ot8lfmk90>>;
-    };
-    /**
-     * Estate Executor runtime API.
-     */
-    EstateExecutorApi: {
-        /**
-         * Returns the IDs of all currently active wills that name
-         * `account` as a beneficiary. Active means the will exists and
-         * has not yet been executed or cancelled.
-         */
-        inheritances_of: RuntimeDescriptor<[account: SS58String], Anonymize<Iafqnechp3omqg>>;
     };
     /**
      * API to interact with `RuntimeGenesisConfig` for the runtime
@@ -4215,143 +4115,57 @@ type IRuntimeCalls = {
         preset_names: RuntimeDescriptor<[], Anonymize<I6lr8sctk0bi4e>>;
     };
     /**
-     * The API used to dry-run contract interactions.
+     * API for querying trusted reserves and trusted teleporters.
      */
-    ReviveApi: {
+    TrustedQueryApi: {
         /**
-         * Returns the current ETH block.
+         * Returns if the location is a trusted reserve for the asset.
          *
-         * This is one block behind the substrate block.
+         * # Arguments
+         * * `asset`: `VersionedAsset`.
+         * * `location`: `VersionedLocation`.
          */
-        eth_block: RuntimeDescriptor<[], Anonymize<I10nrsmn0hji4l>>;
+        is_trusted_reserve: RuntimeDescriptor<[asset: XcmVersionedAsset, location: XcmVersionedLocation], Anonymize<Icujp6hmv35vbn>>;
         /**
-         * Returns the ETH block hash for the given block number.
-         */
-        eth_block_hash: RuntimeDescriptor<[number: Anonymize<I4totqt881mlti>], Anonymize<I4s6vifaf8k998>>;
-        /**
-         * The details needed to reconstruct the receipt information offchain.
+         * Returns if the asset can be teleported to the location.
          *
-         * # Note
+         * # Arguments
+         * * `asset`: `VersionedAsset`.
+         * * `location`: `VersionedLocation`.
+         */
+        is_trusted_teleporter: RuntimeDescriptor<[asset: XcmVersionedAsset, location: XcmVersionedLocation], Anonymize<Icujp6hmv35vbn>>;
+    };
+    /**
+     * Runtime api used to access general info about a parachain runtime.
+     */
+    GetParachainInfo: {
+        /**
+         * Retrieve the parachain id used for runtime.
+         */
+        parachain_id: RuntimeDescriptor<[], number>;
+    };
+    /**
+     * API for parachain target block rate.
+     *
+     * This runtime API allows the parachain runtime to communicate the target block rate
+     * to the node side. The target block rate is always valid for the next relay chain slot.
+     *
+     * The runtime can not enforce this target block rate. It only acts as a maximum, but not more.
+     * In the end it depends on the collator how many blocks will be produced. If there are no cores
+     * available or the collator is offline, no blocks at all will be produced.
+     */
+    TargetBlockRate: {
+        /**
+         * Get the target block rate for this parachain.
          *
-         * Each entry corresponds to the appropriate Ethereum transaction in the current block.
+         * Returns the target number of blocks per relay chain slot.
          */
-        eth_receipt_data: RuntimeDescriptor<[], Anonymize<I3oiqcurom3m43>>;
-        /**
-         * Returns the block gas limit.
-         */
-        block_gas_limit: RuntimeDescriptor<[], Anonymize<I4totqt881mlti>>;
-        /**
-         * Returns the free balance of the given `[H160]` address, using EVM decimals.
-         */
-        balance: RuntimeDescriptor<[address: FixedSizeBinary<20>], Anonymize<I4totqt881mlti>>;
-        /**
-         * Returns the gas price.
-         */
-        gas_price: RuntimeDescriptor<[], Anonymize<I4totqt881mlti>>;
-        /**
-         * Returns the nonce of the given `[H160]` address.
-         */
-        nonce: RuntimeDescriptor<[address: FixedSizeBinary<20>], number>;
-        /**
-         * Perform a call from a specified account to a given contract.
-         *
-         * See [`crate::Pallet::bare_call`].
-         */
-        call: RuntimeDescriptor<[origin: SS58String, dest: FixedSizeBinary<20>, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, input_data: Binary], Anonymize<Id5d9vlkh361bh>>;
-        /**
-         * Instantiate a new contract.
-         *
-         * See `[crate::Pallet::bare_instantiate]`.
-         */
-        instantiate: RuntimeDescriptor<[origin: SS58String, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, code: Anonymize<I9sijb8gfrns29>, data: Binary, salt: Anonymize<I4s6vifaf8k998>], Anonymize<Iaa11m677iqfvm>>;
-        /**
-         * Perform an Ethereum call.
-         *
-         * Deprecated use `v2` version instead.
-         * See [`crate::Pallet::dry_run_eth_transact`]
-         */
-        eth_transact: RuntimeDescriptor<[tx: Anonymize<I6f9v7emp7t5ba>], Anonymize<Ida7d8eqrkav55>>;
-        /**
-         * Perform an Ethereum call.
-         *
-         * See [`crate::Pallet::dry_run_eth_transact`]
-         */
-        eth_transact_with_config: RuntimeDescriptor<[tx: Anonymize<I6f9v7emp7t5ba>, config: Anonymize<Idmrtv8jbbitnu>], Anonymize<Ida7d8eqrkav55>>;
-        /**
-         * Upload new code without instantiating a contract from it.
-         *
-         * See [`crate::Pallet::bare_upload_code`].
-         */
-        upload_code: RuntimeDescriptor<[origin: SS58String, code: Binary, storage_deposit_limit: Anonymize<I35p85j063s0il>], Anonymize<I9ulf4u84e9g7b>>;
-        /**
-         * Query a given storage key in a given contract.
-         *
-         * Returns `Ok(Some(Vec<u8>))` if the storage value exists under the given key in the
-         * specified account and `Ok(None)` if it doesn't. If the account specified by the address
-         * doesn't exist, or doesn't have a contract then `Err` is returned.
-         */
-        get_storage: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: FixedSizeBinary<32>], Anonymize<I9cqsdvp8729hk>>;
-        /**
-         * Query a given variable-sized storage key in a given contract.
-         *
-         * Returns `Ok(Some(Vec<u8>))` if the storage value exists under the given key in the
-         * specified account and `Ok(None)` if it doesn't. If the account specified by the address
-         * doesn't exist, or doesn't have a contract then `Err` is returned.
-         */
-        get_storage_var_key: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: Binary], Anonymize<I9cqsdvp8729hk>>;
-        /**
-         * Traces the execution of an entire block and returns call traces.
-         *
-         * This is intended to be called through `state_call` to replay the block from the
-         * parent block.
-         *
-         * See eth-rpc `debug_traceBlockByNumber` for usage.
-         */
-        trace_block: RuntimeDescriptor<[block: Anonymize<Iaqet9jc3ihboe>, config: Anonymize<I63nhnkgg114n5>], Anonymize<I1l7ajs6s9ur3a>>;
-        /**
-         * Traces the execution of a specific transaction within a block.
-         *
-         * This is intended to be called through `state_call` to replay the block from the
-         * parent hash up to the transaction.
-         *
-         * See eth-rpc `debug_traceTransaction` for usage.
-         */
-        trace_tx: RuntimeDescriptor<[block: Anonymize<Iaqet9jc3ihboe>, tx_index: number, config: Anonymize<I63nhnkgg114n5>], Anonymize<Ice9mpbhevl5b7>>;
-        /**
-         * Dry run and return the trace of the given call.
-         *
-         * See eth-rpc `debug_traceCall` for usage.
-         */
-        trace_call: RuntimeDescriptor<[tx: Anonymize<I6f9v7emp7t5ba>, config: Anonymize<I63nhnkgg114n5>], Anonymize<Idt5popft6i714>>;
-        /**
-         * The address of the validator that produced the current block.
-         */
-        block_author: RuntimeDescriptor<[], FixedSizeBinary<20>>;
-        /**
-         * Get the H160 address associated to this account id
-         */
-        address: RuntimeDescriptor<[account_id: SS58String], FixedSizeBinary<20>>;
-        /**
-         * Get the account id associated to this H160 address.
-         */
-        account_id: RuntimeDescriptor<[address: FixedSizeBinary<20>], SS58String>;
-        /**
-         * The address used to call the runtime's pallets dispatchables
-         */
-        runtime_pallets_address: RuntimeDescriptor<[], FixedSizeBinary<20>>;
-        /**
-         * The code at the specified address taking pre-compiles into account.
-         */
-        code: RuntimeDescriptor<[address: FixedSizeBinary<20>], Binary>;
-        /**
-         * Construct the new balance and dust components of this EVM balance.
-         */
-        new_balance_with_dust: RuntimeDescriptor<[balance: Anonymize<I4totqt881mlti>], Anonymize<I512dtcl0pn07c>>;
+        target_block_rate: RuntimeDescriptor<[], number>;
     };
 };
-export type Stack_templateDispatchError = Anonymize<Ifniq47gsrm6hi>;
+export type People_chainDispatchError = Anonymize<I3n1ehvhjdkcan>;
 type IAsset = PlainDescriptor<void>;
-export type Stack_templateExtensions = {};
+export type People_chainExtensions = {};
 type PalletsTypedef = {
     __storage: IStorage;
     __tx: ICalls;
@@ -4360,27 +4174,27 @@ type PalletsTypedef = {
     __const: IConstants;
     __view: IViewFns;
 };
-export type Stack_template = {
+export type People_chain = {
     descriptors: {
         pallets: PalletsTypedef;
         apis: IRuntimeCalls;
     } & Promise<any>;
     metadataTypes: Promise<Uint8Array>;
     asset: IAsset;
-    extensions: Stack_templateExtensions;
+    extensions: People_chainExtensions;
     getMetadata: () => Promise<Uint8Array>;
     genesis: string | undefined;
 };
-declare const _allDescriptors: Stack_template;
+declare const _allDescriptors: People_chain;
 export default _allDescriptors;
-export type Stack_templateApis = ApisFromDef<IRuntimeCalls>;
-export type Stack_templateQueries = QueryFromPalletsDef<PalletsTypedef>;
-export type Stack_templateCalls = TxFromPalletsDef<PalletsTypedef>;
-export type Stack_templateEvents = EventsFromPalletsDef<PalletsTypedef>;
-export type Stack_templateErrors = ErrorsFromPalletsDef<PalletsTypedef>;
-export type Stack_templateConstants = ConstFromPalletsDef<PalletsTypedef>;
-export type Stack_templateViewFns = ViewFnsFromPalletsDef<PalletsTypedef>;
-export type Stack_templateCallData = Anonymize<I44p0rf4699mn8> & {
+export type People_chainApis = ApisFromDef<IRuntimeCalls>;
+export type People_chainQueries = QueryFromPalletsDef<PalletsTypedef>;
+export type People_chainCalls = TxFromPalletsDef<PalletsTypedef>;
+export type People_chainEvents = EventsFromPalletsDef<PalletsTypedef>;
+export type People_chainErrors = ErrorsFromPalletsDef<PalletsTypedef>;
+export type People_chainConstants = ConstFromPalletsDef<PalletsTypedef>;
+export type People_chainViewFns = ViewFnsFromPalletsDef<PalletsTypedef>;
+export type People_chainCallData = Anonymize<Ib9mimerld1j1p> & {
     value: {
         type: string;
     };
@@ -4393,73 +4207,68 @@ type AllInteractions = {
         ParachainInfo: ['ParachainId'];
         Balances: ['TotalIssuance', 'InactiveIssuance', 'Account', 'Locks', 'Reserves', 'Holds', 'Freezes'];
         TransactionPayment: ['NextFeeMultiplier', 'StorageVersion', 'TxPaymentCredit'];
-        Sudo: ['Key'];
-        Scheduler: ['IncompleteSince', 'Agenda', 'Retries', 'Lookup'];
         Authorship: ['Author'];
         CollatorSelection: ['Invulnerables', 'CandidateList', 'LastAuthoredBlock', 'DesiredCandidates', 'CandidacyBond'];
-        Session: ['Validators', 'CurrentIndex', 'QueuedChanged', 'QueuedKeys', 'DisabledValidators', 'NextKeys', 'KeyOwner', 'ExternallySetKeys'];
+        Session: ['Validators', 'CurrentIndex', 'QueuedChanged', 'QueuedKeys', 'DisabledValidators', 'NextKeys', 'KeyOwner'];
         Aura: ['Authorities', 'CurrentSlot'];
         AuraExt: ['Authorities', 'RelaySlotInfo'];
         XcmpQueue: ['InboundXcmpSuspended', 'OutboundXcmpStatus', 'OutboundXcmpMessages', 'SignalMessages', 'QueueConfig', 'QueueSuspended', 'DeliveryFeeFactor'];
         PolkadotXcm: ['QueryCounter', 'Queries', 'AssetTraps', 'SafeXcmVersion', 'SupportedVersion', 'VersionNotifiers', 'VersionNotifyTargets', 'VersionDiscoveryQueue', 'CurrentMigration', 'RemoteLockedFungibles', 'LockedFungibles', 'XcmExecutionSuspended', 'ShouldRecordXcm', 'RecordedXcm', 'AuthorizedAliases'];
         MessageQueue: ['BookStateFor', 'ServiceHead', 'Pages'];
-        EstateExecutor: ['NextWillId', 'Wills', 'WillBequests'];
-        Proxy: ['Proxies', 'Announcements'];
         Multisig: ['Multisigs'];
-        Revive: ['PristineCode', 'CodeInfoOf', 'AccountInfoOf', 'ImmutableDataOf', 'DeletionQueue', 'DeletionQueueCounter', 'OriginalAccount', 'EthereumBlock', 'BlockHash', 'ReceiptInfoData', 'EthBlockBuilderIR', 'EthBlockBuilderFirstValues', 'DebugSettingsOf'];
+        Proxy: ['Proxies', 'Announcements'];
+        Identity: ['IdentityOf', 'UsernameOf', 'SuperOf', 'SubsOf', 'Registrars', 'AuthorityOf', 'UsernameInfoOf', 'PendingUsernames', 'UnbindingUsernames'];
+        MultiBlockMigrations: ['Cursor', 'Historic'];
     };
     tx: {
         System: ['remark', 'set_heap_pages', 'set_code', 'set_code_without_checks', 'set_storage', 'kill_storage', 'kill_prefix', 'remark_with_event', 'authorize_upgrade', 'authorize_upgrade_without_checks', 'apply_authorized_upgrade'];
         ParachainSystem: ['set_validation_data', 'sudo_send_upward_message'];
         Timestamp: ['set'];
         Balances: ['transfer_allow_death', 'force_transfer', 'transfer_keep_alive', 'transfer_all', 'force_unreserve', 'upgrade_accounts', 'force_set_balance', 'force_adjust_total_issuance', 'burn'];
-        Sudo: ['sudo', 'sudo_unchecked_weight', 'set_key', 'sudo_as', 'remove_key'];
-        Scheduler: ['schedule', 'cancel', 'schedule_named', 'cancel_named', 'schedule_after', 'schedule_named_after', 'set_retry', 'set_retry_named', 'cancel_retry', 'cancel_retry_named'];
         CollatorSelection: ['set_invulnerables', 'set_desired_candidates', 'set_candidacy_bond', 'register_as_candidate', 'leave_intent', 'add_invulnerable', 'remove_invulnerable', 'update_bond', 'take_candidate_slot'];
         Session: ['set_keys', 'purge_keys'];
         XcmpQueue: ['suspend_xcm_execution', 'resume_xcm_execution', 'update_suspend_threshold', 'update_drop_threshold', 'update_resume_threshold'];
         PolkadotXcm: ['send', 'teleport_assets', 'reserve_transfer_assets', 'execute', 'force_xcm_version', 'force_default_xcm_version', 'force_subscribe_version_notify', 'force_unsubscribe_version_notify', 'limited_reserve_transfer_assets', 'limited_teleport_assets', 'force_suspension', 'transfer_assets', 'claim_assets', 'transfer_assets_using_type_and_then', 'add_authorized_alias', 'remove_authorized_alias', 'remove_all_authorized_aliases'];
         MessageQueue: ['reap_page', 'execute_overweight'];
-        EstateExecutor: ['create_will', 'heartbeat', 'execute_will', 'cancel'];
-        Proxy: ['proxy', 'add_proxy', 'remove_proxy', 'remove_proxies', 'create_pure', 'kill_pure', 'announce', 'remove_announcement', 'reject_announcement', 'proxy_announced', 'poke_deposit'];
+        Utility: ['batch', 'as_derivative', 'batch_all', 'dispatch_as', 'force_batch', 'with_weight', 'if_else', 'dispatch_as_fallible'];
         Multisig: ['as_multi_threshold_1', 'as_multi', 'approve_as_multi', 'cancel_as_multi', 'poke_deposit'];
-        Revive: ['eth_transact', 'call', 'instantiate', 'instantiate_with_code', 'eth_instantiate_with_code', 'eth_call', 'eth_substrate_call', 'upload_code', 'remove_code', 'set_code', 'map_account', 'unmap_account', 'dispatch_as_fallback_account'];
+        Proxy: ['proxy', 'add_proxy', 'remove_proxy', 'remove_proxies', 'create_pure', 'kill_pure', 'announce', 'remove_announcement', 'reject_announcement', 'proxy_announced', 'poke_deposit'];
+        Identity: ['add_registrar', 'set_identity', 'set_subs', 'clear_identity', 'request_judgement', 'cancel_request', 'set_fee', 'set_account_id', 'set_fields', 'provide_judgement', 'kill_identity', 'add_sub', 'rename_sub', 'remove_sub', 'quit_sub', 'add_username_authority', 'remove_username_authority', 'set_username_for', 'accept_username', 'remove_expired_approval', 'set_primary_username', 'unbind_username', 'remove_username', 'kill_username'];
+        MultiBlockMigrations: ['force_set_cursor', 'force_set_active_cursor', 'force_onboard_mbms', 'clear_historic'];
+        IdentityMigrator: ['reap_identity', 'poke_deposit'];
     };
     events: {
         System: ['ExtrinsicSuccess', 'ExtrinsicFailed', 'CodeUpdated', 'NewAccount', 'KilledAccount', 'Remarked', 'UpgradeAuthorized', 'RejectedInvalidAuthorizedUpgrade'];
         ParachainSystem: ['ValidationFunctionStored', 'ValidationFunctionApplied', 'ValidationFunctionDiscarded', 'DownwardMessagesReceived', 'DownwardMessagesProcessed', 'UpwardMessageSent'];
         Balances: ['Endowed', 'DustLost', 'Transfer', 'BalanceSet', 'Reserved', 'Unreserved', 'ReserveRepatriated', 'Deposit', 'Withdraw', 'Slashed', 'Minted', 'MintedCredit', 'Burned', 'BurnedDebt', 'Suspended', 'Restored', 'Upgraded', 'Issued', 'Rescinded', 'Locked', 'Unlocked', 'Frozen', 'Thawed', 'TotalIssuanceForced', 'Held', 'BurnedHeld', 'TransferOnHold', 'TransferAndHold', 'Released', 'Unexpected'];
         TransactionPayment: ['TransactionFeePaid'];
-        Sudo: ['Sudid', 'KeyChanged', 'KeyRemoved', 'SudoAsDone'];
-        Scheduler: ['Scheduled', 'Canceled', 'Dispatched', 'RetrySet', 'RetryCancelled', 'CallUnavailable', 'PeriodicFailed', 'RetryFailed', 'PermanentlyOverweight', 'AgendaIncomplete'];
-        SkipFeelessPayment: ['FeeSkipped'];
         CollatorSelection: ['NewInvulnerables', 'InvulnerableAdded', 'InvulnerableRemoved', 'NewDesiredCandidates', 'NewCandidacyBond', 'CandidateAdded', 'CandidateBondUpdated', 'CandidateRemoved', 'CandidateReplaced', 'InvalidInvulnerableSkipped'];
         Session: ['NewSession', 'NewQueued', 'ValidatorDisabled', 'ValidatorReenabled'];
         XcmpQueue: ['XcmpMessageSent'];
         PolkadotXcm: ['Attempted', 'Sent', 'SendFailed', 'ProcessXcmError', 'UnexpectedResponse', 'ResponseReady', 'Notified', 'NotifyOverweight', 'NotifyDispatchError', 'NotifyDecodeFailed', 'InvalidResponder', 'InvalidResponderVersion', 'ResponseTaken', 'AssetsTrapped', 'VersionChangeNotified', 'SupportedVersionChanged', 'NotifyTargetSendFail', 'NotifyTargetMigrationFail', 'InvalidQuerierVersion', 'InvalidQuerier', 'VersionNotifyStarted', 'VersionNotifyRequested', 'VersionNotifyUnrequested', 'FeesPaid', 'AssetsClaimed', 'VersionMigrationFinished', 'AliasAuthorized', 'AliasAuthorizationRemoved', 'AliasesAuthorizationsRemoved'];
         CumulusXcm: ['InvalidFormat', 'UnsupportedVersion', 'ExecutedDownward'];
         MessageQueue: ['ProcessingFailed', 'Processed', 'OverweightEnqueued', 'PageReaped'];
-        Statement: ['NewStatement'];
-        EstateExecutor: ['WillCreated', 'HeartbeatReceived', 'WillExecuted', 'BequestDispatched', 'WillCancelled'];
-        Proxy: ['ProxyExecuted', 'PureCreated', 'PureKilled', 'Announced', 'ProxyAdded', 'ProxyRemoved', 'DepositPoked'];
+        Utility: ['BatchInterrupted', 'BatchCompleted', 'BatchCompletedWithErrors', 'ItemCompleted', 'ItemFailed', 'DispatchedAs', 'IfElseMainSuccess', 'IfElseFallbackCalled'];
         Multisig: ['NewMultisig', 'MultisigApproval', 'MultisigExecuted', 'MultisigCancelled', 'DepositPoked'];
-        Revive: ['ContractEmitted', 'Instantiated', 'EthExtrinsicRevert'];
+        Proxy: ['ProxyExecuted', 'PureCreated', 'PureKilled', 'Announced', 'ProxyAdded', 'ProxyRemoved', 'DepositPoked'];
+        Identity: ['IdentitySet', 'IdentityCleared', 'IdentityKilled', 'JudgementRequested', 'JudgementUnrequested', 'JudgementGiven', 'RegistrarAdded', 'SubIdentityAdded', 'SubIdentitiesSet', 'SubIdentityRenamed', 'SubIdentityRemoved', 'SubIdentityRevoked', 'AuthorityAdded', 'AuthorityRemoved', 'UsernameSet', 'UsernameQueued', 'PreapprovalExpired', 'PrimaryUsernameSet', 'DanglingUsernameRemoved', 'UsernameUnbound', 'UsernameRemoved', 'UsernameKilled'];
+        MultiBlockMigrations: ['UpgradeStarted', 'UpgradeCompleted', 'UpgradeFailed', 'MigrationSkipped', 'MigrationAdvanced', 'MigrationCompleted', 'MigrationFailed', 'HistoricCleared'];
+        IdentityMigrator: ['IdentityReaped', 'DepositUpdated'];
     };
     errors: {
         System: ['InvalidSpecName', 'SpecVersionNeedsToIncrease', 'FailedToExtractRuntimeVersion', 'NonDefaultComposite', 'NonZeroRefCount', 'CallFiltered', 'MultiBlockMigrationsOngoing', 'NothingAuthorized', 'Unauthorized'];
         ParachainSystem: ['OverlappingUpgrades', 'ProhibitedByPolkadot', 'TooBig', 'ValidationDataNotAvailable', 'HostConfigurationNotAvailable', 'NotScheduled'];
         Balances: ['VestingBalance', 'LiquidityRestrictions', 'InsufficientBalance', 'ExistentialDeposit', 'Expendability', 'ExistingVestingSchedule', 'DeadAccount', 'TooManyReserves', 'TooManyHolds', 'TooManyFreezes', 'IssuanceDeactivated', 'DeltaZero'];
-        Sudo: ['RequireSudo'];
-        Scheduler: ['FailedToSchedule', 'NotFound', 'TargetBlockNumberInPast', 'RescheduleNoChange', 'Named'];
         CollatorSelection: ['TooManyCandidates', 'TooFewEligibleCollators', 'AlreadyCandidate', 'NotCandidate', 'TooManyInvulnerables', 'AlreadyInvulnerable', 'NotInvulnerable', 'NoAssociatedValidatorId', 'ValidatorNotRegistered', 'InsertToCandidateListFailed', 'RemoveFromCandidateListFailed', 'DepositTooLow', 'UpdateCandidateListFailed', 'InsufficientBond', 'TargetIsNotCandidate', 'IdenticalDeposit', 'InvalidUnreserve'];
         Session: ['InvalidProof', 'NoAssociatedValidatorId', 'DuplicatedKey', 'NoKeys', 'NoAccount'];
         XcmpQueue: ['BadQueueConfig', 'AlreadySuspended', 'AlreadyResumed', 'TooManyActiveOutboundChannels', 'TooBig'];
         PolkadotXcm: ['Unreachable', 'SendFailure', 'Filtered', 'UnweighableMessage', 'DestinationNotInvertible', 'Empty', 'CannotReanchor', 'TooManyAssets', 'InvalidOrigin', 'BadVersion', 'BadLocation', 'NoSubscription', 'AlreadySubscribed', 'CannotCheckOutTeleport', 'LowBalance', 'TooManyLocks', 'AccountNotSovereign', 'FeesNotMet', 'LockNotFound', 'InUse', 'InvalidAssetUnknownReserve', 'InvalidAssetUnsupportedReserve', 'TooManyReserves', 'LocalExecutionIncomplete', 'TooManyAuthorizedAliases', 'ExpiresInPast', 'AliasNotFound', 'LocalExecutionIncompleteWithError'];
         MessageQueue: ['NotReapable', 'NoPage', 'NoMessage', 'AlreadyProcessed', 'Queued', 'InsufficientWeight', 'TemporarilyUnprocessable', 'QueuePaused', 'RecursiveDisallowed'];
-        EstateExecutor: ['WillNotFound', 'NotOwner', 'WillNotActive', 'WillExpired', 'InvalidInterval', 'BlockIntervalTooLarge', 'NoBequests', 'TooManyBequests', 'BeneficiaryNotVerified', 'ScheduleFailed'];
-        Proxy: ['TooMany', 'NotFound', 'NotProxy', 'Unproxyable', 'Duplicate', 'NoPermission', 'Unannounced', 'NoSelfProxy'];
+        Utility: ['TooManyCalls'];
         Multisig: ['MinimumThreshold', 'AlreadyApproved', 'NoApprovalsNeeded', 'TooFewSignatories', 'TooManySignatories', 'SignatoriesOutOfOrder', 'SenderInSignatories', 'NotFound', 'NotOwner', 'NoTimepoint', 'WrongTimepoint', 'UnexpectedTimepoint', 'MaxWeightTooLow', 'AlreadyStored'];
-        Revive: ['InvalidSchedule', 'InvalidCallFlags', 'OutOfGas', 'TransferFailed', 'MaxCallDepthReached', 'ContractNotFound', 'CodeNotFound', 'CodeInfoNotFound', 'OutOfBounds', 'DecodingFailed', 'ContractTrapped', 'ValueTooLarge', 'TerminatedWhileReentrant', 'InputForwarded', 'TooManyTopics', 'DuplicateContract', 'TerminatedInConstructor', 'ReentranceDenied', 'ReenteredPallet', 'StateChangeDenied', 'StorageDepositNotEnoughFunds', 'StorageDepositLimitExhausted', 'CodeInUse', 'ContractReverted', 'CodeRejected', 'BlobTooLarge', 'StaticMemoryTooLarge', 'BasicBlockTooLarge', 'InvalidInstruction', 'MaxDelegateDependenciesReached', 'DelegateDependencyNotFound', 'DelegateDependencyAlreadyExists', 'CannotAddSelfAsDelegateDependency', 'OutOfTransientStorage', 'InvalidSyscall', 'InvalidStorageFlags', 'ExecutionFailed', 'BalanceConversionFailed', 'InvalidImmutableAccess', 'AccountUnmapped', 'AccountAlreadyMapped', 'InvalidGenericTransaction', 'RefcountOverOrUnderflow', 'UnsupportedPrecompileAddress', 'CallDataTooLarge', 'ReturnDataTooLarge', 'InvalidJump', 'StackUnderflow', 'StackOverflow', 'TxFeeOverdraw', 'EvmConstructorNonEmptyData', 'EvmConstructedFromHash', 'StorageRefundNotEnoughFunds', 'StorageRefundLocked', 'PrecompileDelegateDenied', 'EcdsaRecoveryFailed'];
+        Proxy: ['TooMany', 'NotFound', 'NotProxy', 'Unproxyable', 'Duplicate', 'NoPermission', 'Unannounced', 'NoSelfProxy'];
+        Identity: ['TooManySubAccounts', 'NotFound', 'NotNamed', 'EmptyIndex', 'FeeChanged', 'NoIdentity', 'StickyJudgement', 'JudgementGiven', 'InvalidJudgement', 'InvalidIndex', 'InvalidTarget', 'TooManyRegistrars', 'AlreadyClaimed', 'NotSub', 'NotOwned', 'JudgementForDifferentIdentity', 'JudgementPaymentFailed', 'InvalidSuffix', 'NotUsernameAuthority', 'NoAllocation', 'InvalidSignature', 'RequiresSignature', 'InvalidUsername', 'UsernameTaken', 'NoUsername', 'NotExpired', 'TooEarly', 'NotUnbinding', 'AlreadyUnbinding', 'InsufficientPrivileges'];
+        MultiBlockMigrations: ['Ongoing'];
     };
     constants: {
         System: ['BlockWeights', 'BlockLength', 'BlockHashCount', 'DbWeight', 'Version', 'SS58Prefix'];
@@ -4467,28 +4276,27 @@ type AllInteractions = {
         Timestamp: ['MinimumPeriod'];
         Balances: ['ExistentialDeposit', 'MaxLocks', 'MaxReserves', 'MaxFreezes'];
         TransactionPayment: ['OperationalFeeMultiplier'];
-        Scheduler: ['MaximumWeight', 'MaxScheduledPerBlock'];
         CollatorSelection: ['PotId', 'MaxCandidates', 'MinEligibleCollators', 'MaxInvulnerables', 'KickThreshold', 'pot_account'];
         Session: ['KeyDeposit'];
         Aura: ['SlotDuration'];
         XcmpQueue: ['MaxInboundSuspended', 'MaxActiveOutboundChannels', 'MaxPageSize'];
         PolkadotXcm: ['UniversalLocation', 'AdvertisedXcmVersion', 'MaxLockers', 'MaxRemoteLockConsumers'];
         MessageQueue: ['HeapSize', 'MaxStale', 'ServiceWeight', 'IdleMaxServiceWeight'];
-        Statement: ['StatementCost', 'ByteCost', 'MinAllowedStatements', 'MaxAllowedStatements', 'MinAllowedBytes', 'MaxAllowedBytes'];
-        EstateExecutor: ['MaxBequests'];
-        Proxy: ['ProxyDepositBase', 'ProxyDepositFactor', 'MaxProxies', 'MaxPending', 'AnnouncementDepositBase', 'AnnouncementDepositFactor'];
+        Utility: ['batched_calls_limit'];
         Multisig: ['DepositBase', 'DepositFactor', 'MaxSignatories'];
-        Revive: ['DepositPerByte', 'DepositPerItem', 'DepositPerChildTrieItem', 'CodeHashLockupDepositPercent', 'UnsafeUnstableInterface', 'AllowEVMBytecode', 'ChainId', 'NativeToEthRatio', 'MaxEthExtrinsicWeight', 'DebugEnabled', 'GasScale'];
+        Proxy: ['ProxyDepositBase', 'ProxyDepositFactor', 'MaxProxies', 'MaxPending', 'AnnouncementDepositBase', 'AnnouncementDepositFactor'];
+        Identity: ['BasicDeposit', 'ByteDeposit', 'UsernameDeposit', 'SubAccountDeposit', 'MaxSubAccounts', 'MaxRegistrars', 'PendingUsernameExpiration', 'UsernameGracePeriod', 'MaxSuffixLength', 'MaxUsernameLength'];
+        MultiBlockMigrations: ['CursorMaxLen', 'IdentifierMaxLen'];
     };
     viewFns: {
         Proxy: ['check_permissions', 'is_superset'];
     };
     apis: {
         AuraApi: ['slot_duration', 'authorities'];
+        RelayParentOffsetApi: ['relay_parent_offset'];
         AuraUnincludedSegmentApi: ['can_build_upon'];
         Core: ['version', 'execute_block', 'initialize_block'];
         Metadata: ['metadata', 'metadata_at_version', 'metadata_versions'];
-        RuntimeViewFunction: ['execute_view_function'];
         BlockBuilder: ['apply_extrinsic', 'finalize_block', 'inherent_extrinsics', 'check_inherents'];
         TaggedTransactionQueue: ['validate_transaction'];
         OffchainWorkerApi: ['offchain_worker'];
@@ -4496,14 +4304,17 @@ type AllInteractions = {
         AccountNonceApi: ['account_nonce'];
         TransactionPaymentApi: ['query_info', 'query_fee_details', 'query_weight_to_fee', 'query_length_to_fee'];
         TransactionPaymentCallApi: ['query_call_info', 'query_call_fee_details', 'query_weight_to_fee', 'query_length_to_fee'];
+        XcmPaymentApi: ['query_acceptable_payment_assets', 'query_xcm_weight', 'query_weight_to_asset_fee', 'query_delivery_fees'];
+        DryRunApi: ['dry_run_call', 'dry_run_xcm'];
+        LocationToAccountApi: ['convert_location'];
         CollectCollationInfo: ['collect_collation_info'];
-        ValidateStatement: ['validate_statement'];
-        EstateExecutorApi: ['inheritances_of'];
         GenesisBuilder: ['build_state', 'get_preset', 'preset_names'];
-        ReviveApi: ['eth_block', 'eth_block_hash', 'eth_receipt_data', 'block_gas_limit', 'balance', 'gas_price', 'nonce', 'call', 'instantiate', 'eth_transact', 'eth_transact_with_config', 'upload_code', 'get_storage', 'get_storage_var_key', 'trace_block', 'trace_tx', 'trace_call', 'block_author', 'address', 'account_id', 'runtime_pallets_address', 'code', 'new_balance_with_dust'];
+        TrustedQueryApi: ['is_trusted_reserve', 'is_trusted_teleporter'];
+        GetParachainInfo: ['parachain_id'];
+        TargetBlockRate: ['target_block_rate'];
     };
 };
-export type Stack_templateWhitelistEntry = PalletKey | `query.${NestedKey<AllInteractions['storage']>}` | `tx.${NestedKey<AllInteractions['tx']>}` | `event.${NestedKey<AllInteractions['events']>}` | `error.${NestedKey<AllInteractions['errors']>}` | `const.${NestedKey<AllInteractions['constants']>}` | `view.${NestedKey<AllInteractions['viewFns']>}` | `api.${NestedKey<AllInteractions['apis']>}`;
+export type People_chainWhitelistEntry = PalletKey | `query.${NestedKey<AllInteractions['storage']>}` | `tx.${NestedKey<AllInteractions['tx']>}` | `event.${NestedKey<AllInteractions['events']>}` | `error.${NestedKey<AllInteractions['errors']>}` | `const.${NestedKey<AllInteractions['constants']>}` | `view.${NestedKey<AllInteractions['viewFns']>}` | `api.${NestedKey<AllInteractions['apis']>}`;
 type PalletKey = `*.${({
     [K in keyof AllInteractions]: K extends 'apis' ? never : keyof AllInteractions[K];
 })[keyof AllInteractions]}`;

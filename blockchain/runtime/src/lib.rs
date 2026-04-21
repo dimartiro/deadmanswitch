@@ -155,7 +155,10 @@ impl_opaque_keys! {
 // bottom of this file, because that macro generates RUNTIME_API_VERSIONS.
 
 mod block_times {
-	pub const MILLI_SECS_PER_BLOCK: u64 = 6000;
+	// 2s parachain blocks (three per relay slot) via async backing.
+	// See `BLOCK_PROCESSING_VELOCITY` below — must stay consistent with
+	// `relay_slot_duration_millis / parachain_slot_duration_millis`.
+	pub const MILLI_SECS_PER_BLOCK: u64 = 2000;
 	pub const SLOT_DURATION: u64 = MILLI_SECS_PER_BLOCK;
 }
 pub use block_times::*;
@@ -180,7 +183,8 @@ const MAXIMUM_BLOCK_WEIGHT: Weight = Weight::from_parts(
 
 mod async_backing_params {
 	pub(crate) const UNINCLUDED_SEGMENT_CAPACITY: u32 = 3;
-	pub(crate) const BLOCK_PROCESSING_VELOCITY: u32 = 1;
+	// Three parachain blocks per relay slot (6000ms / 2000ms = 3).
+	pub(crate) const BLOCK_PROCESSING_VELOCITY: u32 = 3;
 	pub(crate) const RELAY_CHAIN_SLOT_DURATION_MILLIS: u32 = 6000;
 }
 pub(crate) use async_backing_params::*;

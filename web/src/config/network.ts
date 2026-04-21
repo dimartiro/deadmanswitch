@@ -3,6 +3,12 @@ const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
 export const LOCAL_WS_URL = import.meta.env.VITE_LOCAL_WS_URL || "ws://localhost:9944";
 export const LOCAL_ETH_RPC_URL = import.meta.env.VITE_LOCAL_ETH_RPC_URL || "http://localhost:8545";
 
+/// WebSocket endpoint for People Chain (the Polkadot system parachain
+/// that hosts `pallet-identity`). Identity registration and verification
+/// happen here, not on the Estate Protocol parachain.
+export const PEOPLE_CHAIN_WS_URL =
+	import.meta.env.VITE_PEOPLE_CHAIN_WS_URL || "ws://localhost:9946";
+
 export const TESTNET_WS_URL = "wss://services.polkadothub-rpc.com/testnet";
 export const TESTNET_ETH_RPC_URL = "https://services.polkadothub-rpc.com/testnet";
 

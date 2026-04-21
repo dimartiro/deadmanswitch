@@ -8,6 +8,7 @@ const HomePage = lazy(() => import("./pages/HomePage"));
 const WillsPage = lazy(() => import("./pages/WillsPage"));
 const CreateWillPage = lazy(() => import("./pages/CreateWillPage"));
 const AccountsPage = lazy(() => import("./pages/AccountsPage"));
+const IdentityPage = lazy(() => import("./pages/IdentityPage"));
 
 const routeFallback = (
 	<div className="card animate-pulse">
@@ -50,6 +51,14 @@ createRoot(document.getElementById("root")!).render(
 						element={
 							<Suspense fallback={routeFallback}>
 								<AccountsPage />
+							</Suspense>
+						}
+					/>
+					<Route
+						path="identity"
+						element={
+							<Suspense fallback={routeFallback}>
+								<IdentityPage />
 							</Suspense>
 						}
 					/>

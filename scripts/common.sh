@@ -11,6 +11,9 @@ CHAIN_SPEC="$ROOT_DIR/blockchain/chain_spec.json"
 RUNTIME_WASM="$ROOT_DIR/target/release/wbuild/estate-protocol-runtime/estate_protocol_runtime.compact.compressed.wasm"
 STACK_PORT_OFFSET="${STACK_PORT_OFFSET:-0}"
 STACK_SUBSTRATE_RPC_PORT="${STACK_SUBSTRATE_RPC_PORT:-$((9944 + STACK_PORT_OFFSET))}"
+STACK_PEOPLE_RPC_PORT="${STACK_PEOPLE_RPC_PORT:-$((9946 + STACK_PORT_OFFSET))}"
+STACK_PEOPLE_P2P_PORT="$((30334 + STACK_PORT_OFFSET))"
+STACK_PEOPLE_PROMETHEUS_PORT="$((9616 + STACK_PORT_OFFSET))"
 STACK_ETH_RPC_PORT="${STACK_ETH_RPC_PORT:-$((8545 + STACK_PORT_OFFSET))}"
 STACK_FRONTEND_PORT="${STACK_FRONTEND_PORT:-$((5173 + STACK_PORT_OFFSET))}"
 STACK_COLLATOR_P2P_PORT="$((30333 + STACK_PORT_OFFSET))"
@@ -23,6 +26,7 @@ STACK_RELAY_BOB_P2P_PORT="$((30336 + STACK_PORT_OFFSET))"
 STACK_RELAY_BOB_PROMETHEUS_PORT="$((9618 + STACK_PORT_OFFSET))"
 SUBSTRATE_RPC_HTTP="${SUBSTRATE_RPC_HTTP:-http://127.0.0.1:${STACK_SUBSTRATE_RPC_PORT}}"
 SUBSTRATE_RPC_WS="${SUBSTRATE_RPC_WS:-ws://127.0.0.1:${STACK_SUBSTRATE_RPC_PORT}}"
+PEOPLE_RPC_WS="${PEOPLE_RPC_WS:-ws://127.0.0.1:${STACK_PEOPLE_RPC_PORT}}"
 ETH_RPC_HTTP="${ETH_RPC_HTTP:-http://127.0.0.1:${STACK_ETH_RPC_PORT}}"
 FRONTEND_URL="${FRONTEND_URL:-http://127.0.0.1:${STACK_FRONTEND_PORT}}"
 
@@ -37,10 +41,12 @@ ETH_RPC_PID="${ETH_RPC_PID:-}"
 
 export STACK_PORT_OFFSET
 export STACK_SUBSTRATE_RPC_PORT
+export STACK_PEOPLE_RPC_PORT
 export STACK_ETH_RPC_PORT
 export STACK_FRONTEND_PORT
 export SUBSTRATE_RPC_HTTP
 export SUBSTRATE_RPC_WS
+export PEOPLE_RPC_WS
 export ETH_RPC_HTTP
 export FRONTEND_URL
 
@@ -127,6 +133,9 @@ require_distinct_ports() {
 validate_zombienet_ports() {
     require_distinct_ports \
         "Substrate RPC" "$STACK_SUBSTRATE_RPC_PORT" \
+        "People RPC" "$STACK_PEOPLE_RPC_PORT" \
+        "People P2P" "$STACK_PEOPLE_P2P_PORT" \
+        "People Prometheus" "$STACK_PEOPLE_PROMETHEUS_PORT" \
         "Relay Alice RPC" "$STACK_RELAY_ALICE_RPC_PORT" \
         "Relay Alice P2P" "$STACK_RELAY_ALICE_P2P_PORT" \
         "Relay Alice Prometheus" "$STACK_RELAY_ALICE_PROMETHEUS_PORT" \
@@ -138,6 +147,9 @@ validate_zombienet_ports() {
 
     require_ports_free \
         "$STACK_SUBSTRATE_RPC_PORT" \
+        "$STACK_PEOPLE_RPC_PORT" \
+        "$STACK_PEOPLE_P2P_PORT" \
+        "$STACK_PEOPLE_PROMETHEUS_PORT" \
         "$STACK_RELAY_ALICE_RPC_PORT" \
         "$STACK_RELAY_ALICE_P2P_PORT" \
         "$STACK_RELAY_ALICE_PROMETHEUS_PORT" \
@@ -151,6 +163,9 @@ validate_zombienet_ports() {
 validate_full_stack_ports() {
     require_distinct_ports \
         "Substrate RPC" "$STACK_SUBSTRATE_RPC_PORT" \
+        "People RPC" "$STACK_PEOPLE_RPC_PORT" \
+        "People P2P" "$STACK_PEOPLE_P2P_PORT" \
+        "People Prometheus" "$STACK_PEOPLE_PROMETHEUS_PORT" \
         "Ethereum RPC" "$STACK_ETH_RPC_PORT" \
         "Frontend" "$STACK_FRONTEND_PORT" \
         "Relay Alice RPC" "$STACK_RELAY_ALICE_RPC_PORT" \
@@ -164,6 +179,9 @@ validate_full_stack_ports() {
 
     require_ports_free \
         "$STACK_SUBSTRATE_RPC_PORT" \
+        "$STACK_PEOPLE_RPC_PORT" \
+        "$STACK_PEOPLE_P2P_PORT" \
+        "$STACK_PEOPLE_PROMETHEUS_PORT" \
         "$STACK_ETH_RPC_PORT" \
         "$STACK_FRONTEND_PORT" \
         "$STACK_RELAY_ALICE_RPC_PORT" \
@@ -212,6 +230,47 @@ substrate_block_producing() {
         -H "Content-Type: application/json" \
         -d '{"jsonrpc":"2.0","id":1,"method":"chain_getHeader","params":[]}' \
         "$SUBSTRATE_RPC_HTTP" | grep -Eq '"number":"0x[1-9a-fA-F][0-9a-fA-F]*"'
+}
+
+people_chain_block_producing() {
+    curl -s \
+        -H "Content-Type: application/json" \
+        -d '{"jsonrpc":"2.0","id":1,"method":"chain_getHeader","params":[]}' \
+        "http://127.0.0.1:${STACK_PEOPLE_RPC_PORT}" | grep -Eq '"number":"0x[1-9a-fA-F][0-9a-fA-F]*"'
+}
+
+wait_for_people_chain() {
+    log_info "Waiting for People Chain at $PEOPLE_RPC_WS..."
+    local max_wait="${STACK_RPC_TIMEOUT:-180}"
+    for _ in $(seq 1 "$max_wait"); do
+        if people_chain_block_producing; then
+            log_info "People Chain ready at $PEOPLE_RPC_WS"
+            return 0
+        fi
+        if startup_service_stopped; then
+            log_error "Zombienet stopped while waiting for People Chain."
+            return 1
+        fi
+        sleep 1
+    done
+    log_error "People Chain did not become ready in time."
+    return 1
+}
+
+seed_dev_identities() {
+    if [ ! -x "$COMMON_DIR/seed-identities.sh" ]; then
+        log_warn "seed-identities.sh not found or not executable — skipping."
+        return 0
+    fi
+    # Give the tx pool a moment to warm up after first blocks appear.
+    log_info "Warming up parachain RPCs (5s)..."
+    sleep 5
+    log_info "Seeding dev identities on People Chain..."
+    if "$COMMON_DIR/seed-identities.sh"; then
+        log_info "Dev identities registered."
+    else
+        log_warn "Identity seeding reported errors (may be benign if identities already exist)."
+    fi
 }
 
 startup_log_path() {
@@ -338,19 +397,37 @@ default_command = "polkadot"
   p2p_port = $STACK_RELAY_BOB_P2P_PORT
   prometheus_port = $STACK_RELAY_BOB_PROMETHEUS_PORT
 
+# Estate Protocol — our application parachain.
 [[parachains]]
 id = 1000
 chain = "./chain_spec.json"
 cumulus_based = true
 
   [[parachains.collators]]
-  name = "collator-01"
+  name = "estate-collator"
   validator = true
   rpc_port = $STACK_SUBSTRATE_RPC_PORT
   p2p_port = $STACK_COLLATOR_P2P_PORT
   prometheus_port = $STACK_COLLATOR_PROMETHEUS_PORT
   command = "polkadot-omni-node"
   args = ["--enable-statement-store"]
+
+# People Chain — Polkadot's system parachain for identity. We spawn the
+# real runtime via \`polkadot-parachain\` with the \`people-rococo-local\`
+# chain spec so our Estate Protocol frontend can query a canonical
+# identity registry sibling-side.
+[[parachains]]
+id = 1004
+chain = "people-rococo-local"
+cumulus_based = true
+
+  [[parachains.collators]]
+  name = "people-collator"
+  validator = true
+  rpc_port = $STACK_PEOPLE_RPC_PORT
+  p2p_port = $STACK_PEOPLE_P2P_PORT
+  prometheus_port = $STACK_PEOPLE_PROMETHEUS_PORT
+  command = "polkadot-parachain"
 EOF
 }
 
