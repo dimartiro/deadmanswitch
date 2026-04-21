@@ -26,7 +26,7 @@ let nextEntryId = 0;
 function newEntry(): Entry {
 	return {
 		id: nextEntryId++,
-		kind: "Transfer",
+		kind: "TransferAll",
 		dest: "",
 		amount: "",
 		delegates: [],
