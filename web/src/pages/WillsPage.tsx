@@ -194,20 +194,27 @@ export default function WillsPage() {
 			w.status === "Active" &&
 			blockNumber <= w.expiryBlock,
 	);
+	const isInheritance = (w: WillData) =>
+		inheritanceIds.some((id) => id === w.id);
+	const inheritances = wills.filter(
+		(w) =>
+			isInheritance(w) &&
+			w.owner !== currentAccount &&
+			w.status === "Active" &&
+			blockNumber <= w.expiryBlock,
+	);
 	const expiredWills = wills.filter(
 		(w) => w.status === "Active" && blockNumber > w.expiryBlock,
 	);
 	const otherActive = wills.filter(
 		(w) =>
 			w.owner !== currentAccount &&
+			!isInheritance(w) &&
 			w.status === "Active" &&
 			blockNumber <= w.expiryBlock,
 	);
 	const executedWills = wills.filter(
 		(w) => w.status === "Executed" && w.owner === currentAccount,
-	);
-	const inheritances = wills.filter((w) =>
-		inheritanceIds.some((id) => id === w.id),
 	);
 
 	return (
