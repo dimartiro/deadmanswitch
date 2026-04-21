@@ -51,13 +51,28 @@ export function useConnectionManagement() {
 
 	useEffect(() => {
 		connect(initialWsUrlRef.current).catch(() => {});
-		// Warm up the People Chain client in parallel so identity queries
-		// are ready the first time a user hits the Identity page.
-		try {
-			getPeopleChainClient();
-		} catch {
-			// If People Chain isn't running we fail gracefully on demand.
-		}
+		// Probe People Chain. If it responds in time, identity checks
+		// run normally. If not, we're in solo-node dev mode (start-dev.sh,
+		// no relay, no sibling parachains) and identity is bypassed.
+		const setPeopleChainAvailable =
+			useChainStore.getState().setPeopleChainAvailable;
+		(async () => {
+			try {
+				const peopleClient = getPeopleChainClient();
+				await Promise.race([
+					peopleClient.getChainSpecData(),
+					new Promise<never>((_, reject) =>
+						setTimeout(
+							() => reject(new Error("People Chain probe timeout")),
+							5000,
+						),
+					),
+				]);
+				setPeopleChainAvailable(true);
+			} catch {
+				setPeopleChainAvailable(false);
+			}
+		})();
 
 		return () => {
 			connectId += 1;
@@ -70,14 +85,17 @@ export function useConnectionManagement() {
 			return;
 		}
 
-		// Track finalized block. Since submit waits for finality, the
-		// refetch driven by this subscription is guaranteed to see the
-		// submitted tx's state the moment it fires.
+		// Track best block. `submitAndWait` resolves on best-block
+		// inclusion, and storage queries target best-block by default,
+		// so the refetch driven by this subscription sees the tx's
+		// state on the same tick it fires.
 		const setBlockTime = useChainStore.getState().setBlockTime;
 		let lastTimestamp = 0;
 		const client = getClient(wsUrl);
-		const subscription = client.finalizedBlock$.subscribe((block) => {
-			setBlockNumber(block.number);
+		const subscription = client.bestBlocks$.subscribe((blocks) => {
+			const best = blocks[0];
+			if (!best) return;
+			setBlockNumber(best.number);
 			const now = Date.now();
 			if (lastTimestamp > 0) {
 				const elapsed = (now - lastTimestamp) / 1000;

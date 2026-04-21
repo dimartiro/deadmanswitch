@@ -218,9 +218,14 @@ function DelegatesInput({
 }
 
 export default function CreateWillPage() {
-	const { wsUrl, connected, selectedAccount, blockNumber } = useChainStore();
+	const { wsUrl, connected, selectedAccount, blockNumber, peopleChainAvailable } =
+		useChainStore();
+	// Solo-node dev mode (no relay, no People Chain). Identity checks
+	// are bypassed so create-will isn't gated on a registry that doesn't
+	// exist in this topology.
+	const bypassIdentity = peopleChainAvailable === false;
 	const { accounts, selected } = useAllAccounts();
-	const [blockInterval, setBlockInterval] = useState("10");
+	const [blockInterval, setBlockInterval] = useState("5");
 	const [entries, setEntries] = useState<Entry[]>([newEntry()]);
 	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
@@ -232,7 +237,7 @@ export default function CreateWillPage() {
 		try {
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
-			const info = await api.query.System.Account.getValue(selected.address);
+			const info = await api.query.System.Account.getValue(selected.address, { at: "best" });
 			setOwnerBalance(Number(info.data.free) / 1e12);
 		} catch {
 			setOwnerBalance(0);
@@ -257,6 +262,7 @@ export default function CreateWillPage() {
 
 	useEffect(() => {
 		if (allRecipients.length === 0) return;
+		if (bypassIdentity) return;
 		let cancelled = false;
 		// Identity is queried from People Chain, not our own chain —
 		// Estate Protocol doesn't host pallet-identity anymore.
@@ -267,7 +273,7 @@ export default function CreateWillPage() {
 				const results = await Promise.all(
 					allRecipients.map(async (addr) => {
 						try {
-							const info = await peopleApi.query.Identity.IdentityOf.getValue(addr);
+							const info = await peopleApi.query.Identity.IdentityOf.getValue(addr, { at: "best" });
 							return [addr, info !== undefined] as const;
 						} catch {
 							return [addr, false] as const;
@@ -285,9 +291,10 @@ export default function CreateWillPage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [allRecipients.join(","), blockNumber]);
+	}, [allRecipients.join(","), blockNumber, bypassIdentity]);
 
 	function isVerified(addr: string): boolean {
+		if (bypassIdentity) return true;
 		return !!verified[addr];
 	}
 
@@ -323,7 +330,7 @@ export default function CreateWillPage() {
 				bequests,
 				block_interval: parseInt(blockInterval),
 			});
-			const result = await submitAndWait(tx, signer);
+			const result = await submitAndWait(tx, signer, client);
 			if (result.ok) {
 				setStatus(
 					`Will registered in block #${result.block?.number ?? "?"}`,
@@ -551,10 +558,16 @@ export default function CreateWillPage() {
 
 			{/* Submit */}
 			<div className="card space-y-3">
-				{hasRecipients && !allRecipientsVerified && (
+				{bypassIdentity && (
+					<p className="text-xs text-accent-yellow">
+						Solo-node dev mode — People Chain is unreachable, so identity
+						checks are bypassed.
+					</p>
+				)}
+				{!bypassIdentity && hasRecipients && !allRecipientsVerified && (
 					<p className="text-xs text-accent-red">
 						All beneficiaries must have a registered on-chain identity
-						before you can submit. Head to the Identity page to register.
+						before you can submit. Head to the Accounts page to register.
 					</p>
 				)}
 				<button

@@ -17,6 +17,10 @@ interface ChainState {
 	selectedAccount: number;
 	txStatus: string | null;
 	walletAccounts: WalletAccount[];
+	// `null` = not checked yet; `true` = People Chain responded;
+	// `false` = unreachable, and we're running in solo-node dev mode.
+	// When false, identity checks are bypassed (isVerified is always true).
+	peopleChainAvailable: boolean | null;
 	setWsUrl: (url: string) => void;
 	setConnected: (connected: boolean) => void;
 	setBlockNumber: (blockNumber: number) => void;
@@ -24,6 +28,7 @@ interface ChainState {
 	setSelectedAccount: (index: number) => void;
 	setTxStatus: (status: string | null) => void;
 	setWalletAccounts: (accounts: WalletAccount[]) => void;
+	setPeopleChainAvailable: (available: boolean) => void;
 }
 
 export const useChainStore = create<ChainState>((set) => ({
@@ -34,6 +39,7 @@ export const useChainStore = create<ChainState>((set) => ({
 	selectedAccount: 0,
 	txStatus: null,
 	walletAccounts: [],
+	peopleChainAvailable: null,
 	setWsUrl: (wsUrl) => {
 		localStorage.setItem("ws-url", wsUrl);
 		set({ wsUrl });
@@ -44,4 +50,6 @@ export const useChainStore = create<ChainState>((set) => ({
 	setSelectedAccount: (index) => set({ selectedAccount: index }),
 	setTxStatus: (txStatus) => set({ txStatus }),
 	setWalletAccounts: (walletAccounts) => set({ walletAccounts }),
+	setPeopleChainAvailable: (peopleChainAvailable) =>
+		set({ peopleChainAvailable }),
 }));

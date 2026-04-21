@@ -102,7 +102,9 @@ function extractDisplayName(info: unknown): string | undefined {
 }
 
 export default function AccountsPage() {
-	const { wsUrl, connected, blockNumber } = useChainStore();
+	const { wsUrl, connected, blockNumber, peopleChainAvailable } =
+		useChainStore();
+	const bypassIdentity = peopleChainAvailable === false;
 	const spektrUnsubscribeRef = useRef<(() => void) | null>(null);
 	const extensionUnsubscribeRef = useRef<(() => void) | null>(null);
 	const [availableWallets, setAvailableWallets] = useState<string[]>([]);
@@ -146,7 +148,7 @@ export default function AccountsPage() {
 			const infos: Record<string, AccountInfo> = {};
 			for (const addr of allAddresses) {
 				try {
-					const info = await api.query.System.Account.getValue(addr);
+					const info = await api.query.System.Account.getValue(addr, { at: "best" });
 					infos[addr] = {
 						balance: info.data.free,
 						nonce: info.nonce,
@@ -164,13 +166,17 @@ export default function AccountsPage() {
 	// Query identity status from People Chain (separate parachain)
 	const fetchIdentities = useCallback(async () => {
 		if (allAddresses.length === 0) return;
+		if (bypassIdentity) {
+			setIdentityStatuses({});
+			return;
+		}
 		try {
 			const client = getPeopleChainClient();
 			const api = client.getTypedApi(people_chain);
 			const results = await Promise.all(
 				allAddresses.map(async (addr) => {
 					try {
-						const info = await api.query.Identity.IdentityOf.getValue(addr);
+						const info = await api.query.Identity.IdentityOf.getValue(addr, { at: "best" });
 						const hasIdentity = info !== undefined;
 						const display = hasIdentity ? extractDisplayName(info) : undefined;
 						return [addr, { hasIdentity, display }] as const;
@@ -183,7 +189,7 @@ export default function AccountsPage() {
 		} catch {
 			// People Chain not reachable — leave statuses empty.
 		}
-	}, [allAddresses.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [allAddresses.join(","), bypassIdentity]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	useEffect(() => {
 		fetchAccountInfos();
@@ -320,7 +326,7 @@ export default function AccountsPage() {
 					new_free: amount,
 				}).decodedCall,
 			});
-			const result = await submitAndWait(tx, aliceSigner);
+			const result = await submitAndWait(tx, aliceSigner, client);
 			if (!result.ok) {
 				setFundStatus(`Error: ${result.errorMessage ?? "unknown"}`);
 				return;
@@ -373,7 +379,7 @@ export default function AccountsPage() {
 				discord: none,
 			};
 			const tx = api.tx.Identity.set_identity({ info });
-			const result = await submitAndWait(tx, acc.signer);
+			const result = await submitAndWait(tx, acc.signer, client);
 			if (result.ok) {
 				setIdentityActionStatus((s) => ({ ...s, [key]: "Registered" }));
 				fetchIdentities();
@@ -398,7 +404,7 @@ export default function AccountsPage() {
 			const client = getPeopleChainClient();
 			const api = client.getTypedApi(people_chain);
 			const tx = api.tx.Identity.clear_identity();
-			const result = await submitAndWait(tx, acc.signer);
+			const result = await submitAndWait(tx, acc.signer, client);
 			if (result.ok) {
 				setIdentityActionStatus((s) => ({ ...s, [key]: "Cleared" }));
 				fetchIdentities();
@@ -448,6 +454,21 @@ export default function AccountsPage() {
 				</p>
 			</div>
 
+			{bypassIdentity && (
+				<div className="card border border-accent-yellow/20 bg-accent-yellow/5 space-y-1">
+					<p className="text-sm text-accent-yellow font-medium">
+						Solo-node dev mode
+					</p>
+					<p className="text-xs text-text-muted">
+						People Chain isn't reachable at{" "}
+						<span className="font-mono">ws://localhost:9946</span>. Identity
+						registration is disabled here, and identity checks are bypassed
+						when creating wills. Use <span className="font-mono">start-zombienet.sh</span>{" "}
+						to get the full stack back.
+					</p>
+				</div>
+			)}
+
 			{/* Fund amount */}
 			<div className="card space-y-3">
 				<h2 className="section-title">Funding</h2>
@@ -491,6 +512,7 @@ export default function AccountsPage() {
 							onRegisterIdentity={() => registerIdentity(acc)}
 							onClearIdentity={() => clearIdentity(acc)}
 							connected={connected}
+							showIdentity={!bypassIdentity}
 						/>
 					))}
 				</div>
@@ -544,6 +566,7 @@ export default function AccountsPage() {
 									onRegisterIdentity={() => registerIdentity(display)}
 									onClearIdentity={() => clearIdentity(display)}
 									connected={connected}
+								showIdentity={!bypassIdentity}
 								/>
 							);
 						})}
@@ -591,6 +614,7 @@ export default function AccountsPage() {
 										onRegisterIdentity={() => registerIdentity(display)}
 										onClearIdentity={() => clearIdentity(display)}
 										connected={connected}
+								showIdentity={!bypassIdentity}
 									/>
 								);
 							})
@@ -655,6 +679,7 @@ function AccountCard({
 	onRegisterIdentity,
 	onClearIdentity,
 	connected,
+	showIdentity,
 }: {
 	account: DisplayAccount;
 	info?: AccountInfo;
@@ -665,6 +690,7 @@ function AccountCard({
 	onRegisterIdentity: () => void;
 	onClearIdentity: () => void;
 	connected: boolean;
+	showIdentity: boolean;
 }) {
 	const regKey = `reg-${account.ss58}`;
 	const clrKey = `clr-${account.ss58}`;
@@ -695,38 +721,40 @@ function AccountCard({
 			<div className="space-y-1">
 				<CopyableAddress label="SS58" address={account.ss58} />
 			</div>
-			<div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
-				<div className="flex items-center gap-2">
-					<span className="text-xs text-text-muted uppercase font-medium w-8 shrink-0">
-						ID
-					</span>
+			{showIdentity && (
+				<div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
+					<div className="flex items-center gap-2">
+						<span className="text-xs text-text-muted uppercase font-medium w-8 shrink-0">
+							ID
+						</span>
+						{identity?.hasIdentity ? (
+							<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
+								✓ {identity.display ?? "registered"}
+							</span>
+						) : (
+							<span className="status-badge bg-accent-red/10 text-accent-red border border-accent-red/20">
+								✗ no identity
+							</span>
+						)}
+					</div>
 					{identity?.hasIdentity ? (
-						<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
-							✓ {identity.display ?? "registered"}
-						</span>
+						<button
+							onClick={onClearIdentity}
+							className="px-2 py-1 rounded-md bg-text-muted/10 text-text-secondary border border-text-muted/20 text-xs font-medium hover:bg-text-muted/20 transition-colors"
+						>
+							Clear identity
+						</button>
 					) : (
-						<span className="status-badge bg-accent-red/10 text-accent-red border border-accent-red/20">
-							✗ no identity
-						</span>
+						<button
+							onClick={onRegisterIdentity}
+							className="px-2 py-1 rounded-md bg-accent-blue/10 text-accent-blue border border-accent-blue/20 text-xs font-medium hover:bg-accent-blue/20 transition-colors"
+						>
+							Register identity
+						</button>
 					)}
 				</div>
-				{identity?.hasIdentity ? (
-					<button
-						onClick={onClearIdentity}
-						className="px-2 py-1 rounded-md bg-text-muted/10 text-text-secondary border border-text-muted/20 text-xs font-medium hover:bg-text-muted/20 transition-colors"
-					>
-						Clear identity
-					</button>
-				) : (
-					<button
-						onClick={onRegisterIdentity}
-						className="px-2 py-1 rounded-md bg-accent-blue/10 text-accent-blue border border-accent-blue/20 text-xs font-medium hover:bg-accent-blue/20 transition-colors"
-					>
-						Register identity
-					</button>
-				)}
-			</div>
-			{pendingIdentityMsg && (
+			)}
+			{showIdentity && pendingIdentityMsg && (
 				<p
 					className={`text-xs font-medium ${
 						pendingIdentityMsg.startsWith("Error")

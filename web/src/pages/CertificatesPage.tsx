@@ -97,7 +97,7 @@ export default function CertificatesPage() {
 		try {
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
-			const cid = await api.query.EstateExecutor.CertificateCollectionId.getValue();
+			const cid = await api.query.EstateExecutor.CertificateCollectionId.getValue({ at: "best" });
 			setCollectionId(cid ?? null);
 			if (cid === undefined) {
 				setCertificates([]);
@@ -107,9 +107,9 @@ export default function CertificatesPage() {
 			// ownership. Query entries under (owner, collection) to list
 			// the items held by the current account in that collection.
 			const [entries, willEntries, bequestEntries] = await Promise.all([
-				api.query.Nfts.Account.getEntries(selected.address, cid),
-				api.query.EstateExecutor.Wills.getEntries(),
-				api.query.EstateExecutor.WillBequests.getEntries(),
+				api.query.Nfts.Account.getEntries(selected.address, cid, { at: "best" }),
+				api.query.EstateExecutor.Wills.getEntries({ at: "best" }),
+				api.query.EstateExecutor.WillBequests.getEntries({ at: "best" }),
 			]);
 
 			const bequestsByWill = new Map<string, Bequest[]>();

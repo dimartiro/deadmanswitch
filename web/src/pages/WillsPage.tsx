@@ -101,9 +101,12 @@ export default function WillsPage() {
 		try {
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
-			const willEntries = await api.query.EstateExecutor.Wills.getEntries();
+			// papi defaults storage queries to the latest finalized block.
+			// On zombienet that's ~12-18s behind best, so we'd miss wills
+			// that just got included. Force best-block reads.
+			const willEntries = await api.query.EstateExecutor.Wills.getEntries({ at: "best" });
 			const bequestEntries =
-				await api.query.EstateExecutor.WillBequests.getEntries();
+				await api.query.EstateExecutor.WillBequests.getEntries({ at: "best" });
 
 			const bequestsMap = new Map<string, Bequest[]>();
 			for (const entry of bequestEntries) {
@@ -132,6 +135,7 @@ export default function WillsPage() {
 				try {
 					const ids = await api.apis.EstateExecutorApi.inheritances_of(
 						selected.address,
+						{ at: "best" },
 					);
 					setInheritanceIds(ids as bigint[]);
 				} catch {
@@ -168,7 +172,7 @@ export default function WillsPage() {
 					? api.tx.EstateExecutor.heartbeat({ id: willId })
 					: api.tx.EstateExecutor.cancel({ id: willId });
 
-			const result = await submitAndWait(tx, signer);
+			const result = await submitAndWait(tx, signer, client);
 			if (result.ok) {
 				setActionStatus((s) => ({ ...s, [key]: "Success" }));
 				fetchWills();
