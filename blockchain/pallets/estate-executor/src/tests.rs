@@ -505,6 +505,44 @@ fn inheritances_of_excludes_executed_wills() {
 	});
 }
 
+// ── inheritance certificates ──────────────────────────────────────────
+
+#[test]
+fn execute_mints_certificate_once_per_unique_beneficiary() {
+	new_test_ext().execute_with(|| {
+		reset_minted_certificates();
+		System::set_block_number(1);
+		// Bob appears in two bequests; Charlie in one. Expect two mints
+		// total (one per unique beneficiary), not three.
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1),
+			vec![transfer(2, 100), proxy(2), transfer(3, 50)],
+			10,
+		));
+		run_to_block(12);
+		let mut minted = minted_certificates();
+		minted.sort();
+		assert_eq!(minted, vec![(0, 2), (0, 3)]);
+	});
+}
+
+#[test]
+fn multisig_proxy_mints_one_certificate_per_delegate() {
+	new_test_ext().execute_with(|| {
+		reset_minted_certificates();
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1),
+			vec![multisig_proxy(&[2, 3, 4], 2)],
+			10,
+		));
+		run_to_block(12);
+		let mut minted = minted_certificates();
+		minted.sort();
+		assert_eq!(minted, vec![(0, 2), (0, 3), (0, 4)]);
+	});
+}
+
 // ── proxy ──────────────────────────────────────────────────────────────
 
 #[test]

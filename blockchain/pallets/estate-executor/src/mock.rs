@@ -153,6 +153,40 @@ impl crate::identity::IdentityCheck<Test> for MockIdentityCheck {
 	}
 }
 
+/// Mock certificate minter: records each mint call in a thread-local
+/// bucket so tests can assert exactly which `(will_id, beneficiary)`
+/// pairs received a certificate. The real pallet-nfts is NOT required
+/// to be in the mock.
+use core::cell::RefCell;
+thread_local! {
+	static MINTED: RefCell<std::vec::Vec<(crate::WillId, u64)>> =
+		const { RefCell::new(std::vec::Vec::new()) };
+}
+
+pub struct MockCertificateMinter;
+impl crate::certificate::CertificateMinter<Test> for MockCertificateMinter {
+	fn mint_inheritance_certificate(
+		will_id: crate::WillId,
+		beneficiary: u64,
+		_executed_block: u64,
+		_owner: u64,
+	) -> DispatchResult {
+		MINTED.with(|m| m.borrow_mut().push((will_id, beneficiary)));
+		Ok(())
+	}
+}
+
+/// Test-only: current set of minted certificates, cloned out of the
+/// thread-local for assertions.
+pub fn minted_certificates() -> std::vec::Vec<(crate::WillId, u64)> {
+	MINTED.with(|m| m.borrow().clone())
+}
+
+/// Test-only: clear the mock's mint log between tests.
+pub fn reset_minted_certificates() {
+	MINTED.with(|m| m.borrow_mut().clear());
+}
+
 impl crate::Config for Test {
 	type WeightInfo = ();
 	type Balance = u64;
@@ -161,6 +195,7 @@ impl crate::Config for Test {
 	type Scheduler = Scheduler;
 	type BequestBuilder = TestBequestBuilder;
 	type IdentityCheck = MockIdentityCheck;
+	type CertificateMinter = MockCertificateMinter;
 	type MaxBequests = MaxBequests;
 }
 

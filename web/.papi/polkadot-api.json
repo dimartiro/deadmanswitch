@@ -5,13 +5,13 @@
     "stack_template": {
       "wsUrl": "ws://127.0.0.1:9944",
       "metadata": ".papi/metadata/stack_template.scale",
-      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545",
-      "codeHash": "0xe4cc22baf27d3f147f90cce8f561b5ba854ba9d3b1b456cf8972e3002fa00c89"
+      "genesis": "0x8d7f7759406a0033264df6f3ff71d283054d3082a20db0fe623f0224fb72997d",
+      "codeHash": "0x368e9bb9e1e0c082dec4e431d78994c547f0c33b1fa1a3f512ad8320dd54b83b"
     },
     "people_chain": {
       "wsUrl": "ws://127.0.0.1:9946",
       "metadata": ".papi/metadata/people_chain.scale",
-      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545",
+      "genesis": "0xac1021fc6b3651a538b0ff282bdb65ebb57ff24ef261bfe27fcd105b0ebcab68",
       "codeHash": "0x8244706f1d9dc6d5f6ebcf8b91e92f431a98e9c3ba5db88e77445e1c6292db16"
     },
     "bulletin": {

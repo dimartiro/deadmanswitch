@@ -271,6 +271,8 @@ mod runtime {
 	pub type Proxy = pallet_proxy;
 	#[runtime::pallet_index(61)]
 	pub type Multisig = pallet_multisig;
+	#[runtime::pallet_index(70)]
+	pub type Nfts = pallet_nfts;
 
 	// Smart contracts (EVM + PVM via pallet-revive)
 	#[runtime::pallet_index(90)]

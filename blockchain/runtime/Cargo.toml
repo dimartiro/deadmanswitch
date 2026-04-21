@@ -34,6 +34,7 @@ polkadot-sdk = { workspace = true, features = [
 	"pallet-collator-selection",
 	"pallet-message-queue",
 	"pallet-multisig",
+	"pallet-nfts",
 	"pallet-proxy",
 	"pallet-revive",
 	"pallet-scheduler",

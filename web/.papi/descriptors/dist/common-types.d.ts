@@ -41,15 +41,15 @@ export type DigestItem = Enum<{
 }>;
 export declare const DigestItem: GetEnum<DigestItem>;
 export type I82jm9g7pufuel = [FixedSizeBinary<4>, Binary];
-export type I2p9adm00l4g9j = Array<{
+export type I7ore9mp2nrmr4 = Array<{
     "phase": Phase;
     "event": Enum<{
-        "System": Anonymize<Ickjfgrfpgr5hg>;
+        "System": Anonymize<I9tdlc93vf03cl>;
         "ParachainSystem": Anonymize<Icbsekf57miplo>;
         "Balances": Anonymize<I6pikrrn79qkf8>;
         "TransactionPayment": TransactionPaymentEvent;
-        "Sudo": Anonymize<Id80ol0gptgio1>;
-        "Scheduler": Anonymize<I499m9p0dvdomc>;
+        "Sudo": Anonymize<I66vd2si3vpddd>;
+        "Scheduler": Anonymize<I1eh46495umthn>;
         "SkipFeelessPayment": Anonymize<I2cil2vgg51h41>;
         "CollatorSelection": Anonymize<I4srakrmf0fspo>;
         "Session": Anonymize<I6ue0ck5fc3u44>;
@@ -58,10 +58,11 @@ export type I2p9adm00l4g9j = Array<{
         "CumulusXcm": Anonymize<I5uv57c3fffoi9>;
         "MessageQueue": Anonymize<I2kosejppk3jon>;
         "Statement": Anonymize<Ic1vdi0e9te2la>;
-        "EstateExecutor": Anonymize<I42iaj51jfmrkl>;
-        "Proxy": Anonymize<Idq9mclavl2gv0>;
-        "Multisig": Anonymize<Ij3h72879l5mk>;
-        "Revive": Anonymize<I6ebdf7go94i5u>;
+        "EstateExecutor": Anonymize<Idm9rlpqp9208n>;
+        "Proxy": Anonymize<Ic5hhee7vfaoe3>;
+        "Multisig": Anonymize<Icdr1uddl9ooe5>;
+        "Nfts": Anonymize<I6qicn8jn4fftj>;
+        "Revive": Anonymize<I5l59auip2ms1>;
     }>;
     "topics": Anonymize<Ic5m5lp1oioo8r>;
 }>;
@@ -71,7 +72,7 @@ export type Phase = Enum<{
     "Initialization": undefined;
 }>;
 export declare const Phase: GetEnum<Phase>;
-export type Ickjfgrfpgr5hg = AnonymousEnum<{
+export type I9tdlc93vf03cl = AnonymousEnum<{
     /**
      * An extrinsic completed successfully.
      */
@@ -79,7 +80,7 @@ export type Ickjfgrfpgr5hg = AnonymousEnum<{
     /**
      * An extrinsic failed.
      */
-    "ExtrinsicFailed": Anonymize<I9kc5q2gt3cvco>;
+    "ExtrinsicFailed": Anonymize<Ic43bru4oecnfd>;
     /**
      * `:code` was updated.
      */
@@ -103,7 +104,7 @@ export type Ickjfgrfpgr5hg = AnonymousEnum<{
     /**
      * An invalid authorized upgrade was rejected while trying to apply it.
      */
-    "RejectedInvalidAuthorizedUpgrade": Anonymize<I3qu7hfmg8354d>;
+    "RejectedInvalidAuthorizedUpgrade": Anonymize<Ifeuu7tnpbic7h>;
 }>;
 export type Ia82mnkmeo2rhc = {
     "dispatch_info": Anonymize<Ic9s8f85vjtncc>;
@@ -123,11 +124,11 @@ export type Iehg04bj71rkd = AnonymousEnum<{
     "Yes": undefined;
     "No": undefined;
 }>;
-export type I9kc5q2gt3cvco = {
-    "dispatch_error": Anonymize<Ifniq47gsrm6hi>;
+export type Ic43bru4oecnfd = {
+    "dispatch_error": Anonymize<If5r96j2ibokne>;
     "dispatch_info": Anonymize<Ic9s8f85vjtncc>;
 };
-export type Ifniq47gsrm6hi = AnonymousEnum<{
+export type If5r96j2ibokne = AnonymousEnum<{
     "Other": undefined;
     "CannotLookup": undefined;
     "BadOrigin": undefined;
@@ -155,6 +156,7 @@ export type Ifniq47gsrm6hi = AnonymousEnum<{
         "EstateExecutor": Anonymize<I8f9tfkpfgqqb6>;
         "Proxy": Anonymize<Iuvt54ei4cehc>;
         "Multisig": Anonymize<Ia76qmhhg4jvb9>;
+        "Nfts": Anonymize<I58r1150kmj18u>;
         "Revive": Anonymize<I54rjnlnsa98ib>;
     }>;
     "ConsumerRemaining": undefined;
@@ -774,6 +776,188 @@ export type Ia76qmhhg4jvb9 = AnonymousEnum<{
      */
     "AlreadyStored": undefined;
 }>;
+export type I58r1150kmj18u = AnonymousEnum<{
+    /**
+     * The signing account has no permission to do the operation.
+     */
+    "NoPermission": undefined;
+    /**
+     * The given item ID is unknown.
+     */
+    "UnknownCollection": undefined;
+    /**
+     * The item ID has already been used for an item.
+     */
+    "AlreadyExists": undefined;
+    /**
+     * The approval had a deadline that expired, so the approval isn't valid anymore.
+     */
+    "ApprovalExpired": undefined;
+    /**
+     * The owner turned out to be different to what was expected.
+     */
+    "WrongOwner": undefined;
+    /**
+     * The witness data given does not match the current state of the chain.
+     */
+    "BadWitness": undefined;
+    /**
+     * Collection ID is already taken.
+     */
+    "CollectionIdInUse": undefined;
+    /**
+     * Items within that collection are non-transferable.
+     */
+    "ItemsNonTransferable": undefined;
+    /**
+     * The provided account is not a delegate.
+     */
+    "NotDelegate": undefined;
+    /**
+     * The delegate turned out to be different to what was expected.
+     */
+    "WrongDelegate": undefined;
+    /**
+     * No approval exists that would allow the transfer.
+     */
+    "Unapproved": undefined;
+    /**
+     * The named owner has not signed ownership acceptance of the collection.
+     */
+    "Unaccepted": undefined;
+    /**
+     * The item is locked (non-transferable).
+     */
+    "ItemLocked": undefined;
+    /**
+     * Item's attributes are locked.
+     */
+    "LockedItemAttributes": undefined;
+    /**
+     * Collection's attributes are locked.
+     */
+    "LockedCollectionAttributes": undefined;
+    /**
+     * Item's metadata is locked.
+     */
+    "LockedItemMetadata": undefined;
+    /**
+     * Collection's metadata is locked.
+     */
+    "LockedCollectionMetadata": undefined;
+    /**
+     * All items have been minted.
+     */
+    "MaxSupplyReached": undefined;
+    /**
+     * The max supply is locked and can't be changed.
+     */
+    "MaxSupplyLocked": undefined;
+    /**
+     * The provided max supply is less than the number of items a collection already has.
+     */
+    "MaxSupplyTooSmall": undefined;
+    /**
+     * The given item ID is unknown.
+     */
+    "UnknownItem": undefined;
+    /**
+     * Swap doesn't exist.
+     */
+    "UnknownSwap": undefined;
+    /**
+     * The given item has no metadata set.
+     */
+    "MetadataNotFound": undefined;
+    /**
+     * The provided attribute can't be found.
+     */
+    "AttributeNotFound": undefined;
+    /**
+     * Item is not for sale.
+     */
+    "NotForSale": undefined;
+    /**
+     * The provided bid is too low.
+     */
+    "BidTooLow": undefined;
+    /**
+     * The item has reached its approval limit.
+     */
+    "ReachedApprovalLimit": undefined;
+    /**
+     * The deadline has already expired.
+     */
+    "DeadlineExpired": undefined;
+    /**
+     * The duration provided should be less than or equal to `MaxDeadlineDuration`.
+     */
+    "WrongDuration": undefined;
+    /**
+     * The method is disabled by system settings.
+     */
+    "MethodDisabled": undefined;
+    /**
+     * The provided setting can't be set.
+     */
+    "WrongSetting": undefined;
+    /**
+     * Item's config already exists and should be equal to the provided one.
+     */
+    "InconsistentItemConfig": undefined;
+    /**
+     * Config for a collection or an item can't be found.
+     */
+    "NoConfig": undefined;
+    /**
+     * Some roles were not cleared.
+     */
+    "RolesNotCleared": undefined;
+    /**
+     * Mint has not started yet.
+     */
+    "MintNotStarted": undefined;
+    /**
+     * Mint has already ended.
+     */
+    "MintEnded": undefined;
+    /**
+     * The provided Item was already used for claiming.
+     */
+    "AlreadyClaimed": undefined;
+    /**
+     * The provided data is incorrect.
+     */
+    "IncorrectData": undefined;
+    /**
+     * The extrinsic was sent by the wrong origin.
+     */
+    "WrongOrigin": undefined;
+    /**
+     * The provided signature is incorrect.
+     */
+    "WrongSignature": undefined;
+    /**
+     * The provided metadata might be too long.
+     */
+    "IncorrectMetadata": undefined;
+    /**
+     * Can't set more attributes per one call.
+     */
+    "MaxAttributesLimitReached": undefined;
+    /**
+     * The provided namespace isn't supported in this call.
+     */
+    "WrongNamespace": undefined;
+    /**
+     * Can't delete non-empty collections.
+     */
+    "CollectionNotEmpty": undefined;
+    /**
+     * The witness data should be provided.
+     */
+    "WitnessRequired": undefined;
+}>;
 export type I54rjnlnsa98ib = AnonymousEnum<{
     /**
      * Invalid schedule supplied, e.g. with zero weight of a basic operation.
@@ -1080,9 +1264,9 @@ export type Ibgl04rn6nbfm6 = {
     "code_hash": FixedSizeBinary<32>;
     "check_version": boolean;
 };
-export type I3qu7hfmg8354d = {
+export type Ifeuu7tnpbic7h = {
     "code_hash": FixedSizeBinary<32>;
-    "error": Anonymize<Ifniq47gsrm6hi>;
+    "error": Anonymize<If5r96j2ibokne>;
 };
 export type Icbsekf57miplo = AnonymousEnum<{
     /**
@@ -1339,11 +1523,11 @@ export type Ier2cke86dqbr2 = {
     "actual_fee": bigint;
     "tip": bigint;
 };
-export type Id80ol0gptgio1 = AnonymousEnum<{
+export type I66vd2si3vpddd = AnonymousEnum<{
     /**
      * A sudo call just took place.
      */
-    "Sudid": Anonymize<I7u62tltpg6pbm>;
+    "Sudid": Anonymize<I4f5hj19d7s2kf>;
     /**
      * The sudo key has been updated.
      */
@@ -1355,26 +1539,27 @@ export type Id80ol0gptgio1 = AnonymousEnum<{
     /**
      * A [sudo_as](Pallet::sudo_as) call just took place.
      */
-    "SudoAsDone": Anonymize<I7u62tltpg6pbm>;
+    "SudoAsDone": Anonymize<I4f5hj19d7s2kf>;
 }>;
-export type I7u62tltpg6pbm = {
+export type I4f5hj19d7s2kf = {
     /**
      * The result of the call made by the sudo user.
      */
-    "sudo_result": Anonymize<Ic3qtd0qg910nq>;
+    "sudo_result": Anonymize<Iej8tfiah0rn91>;
 };
-export type Ic3qtd0qg910nq = ResultPayload<undefined, Anonymize<Ifniq47gsrm6hi>>;
+export type Iej8tfiah0rn91 = ResultPayload<undefined, Anonymize<If5r96j2ibokne>>;
 export type I5rtkmhm2dng4u = {
     /**
      * The old sudo key (if one was previously set).
      */
-    "old"?: (SS58String) | undefined;
+    "old"?: Anonymize<Ihfphjolmsqq1>;
     /**
      * The new sudo key (if one was set).
      */
     "new": SS58String;
 };
-export type I499m9p0dvdomc = AnonymousEnum<{
+export type Ihfphjolmsqq1 = (SS58String) | undefined;
+export type I1eh46495umthn = AnonymousEnum<{
     /**
      * Scheduled some task.
      */
@@ -1386,7 +1571,7 @@ export type I499m9p0dvdomc = AnonymousEnum<{
     /**
      * Dispatched some task.
      */
-    "Dispatched": Anonymize<I4g2la3u85bnj7>;
+    "Dispatched": Anonymize<Ichutf6gbbjhuv>;
     /**
      * Set a retry configuration for some task.
      */
@@ -1421,10 +1606,10 @@ export type I5n4sebgkfr760 = {
     "when": number;
     "index": number;
 };
-export type I4g2la3u85bnj7 = {
+export type Ichutf6gbbjhuv = {
     "task": Anonymize<I9jd27rnpm8ttv>;
     "id"?: Anonymize<I4s6vifaf8k998>;
-    "result": Anonymize<Ic3qtd0qg910nq>;
+    "result": Anonymize<Iej8tfiah0rn91>;
 };
 export type I9jd27rnpm8ttv = FixedSizeArray<2, number>;
 export type Ia3c82eadg79bj = {
@@ -2476,7 +2661,7 @@ export type I815pbp5omtss = {
 };
 export type I4arjljr6dpflb = (number) | undefined;
 export type Iabpgqcjikia83 = (Binary) | undefined;
-export type I42iaj51jfmrkl = AnonymousEnum<{
+export type Idm9rlpqp9208n = AnonymousEnum<{
     /**
      * A new will was registered and its auto-execution scheduled.
      */
@@ -2486,13 +2671,23 @@ export type I42iaj51jfmrkl = AnonymousEnum<{
      */
     "HeartbeatReceived": Anonymize<I7p099b5deqg11>;
     /**
-     * The will executed — bequests dispatched (best-effort).
+     * The will executed — bequests dispatched (best-effort) and
+     * soulbound certificates minted to unique beneficiaries.
      */
-    "WillExecuted": Anonymize<I9th30r4kse3i5>;
+    "WillExecuted": Anonymize<I5sp6j0dcrjun8>;
     /**
      * A bequest was dispatched during execution.
      */
-    "BequestDispatched": Anonymize<Icmgugqn6dfmuc>;
+    "BequestDispatched": Anonymize<I4ovs6liongile>;
+    /**
+     * An inheritance certificate NFT was successfully minted.
+     */
+    "InheritanceCertificateMinted": Anonymize<I9h8j73phqu764>;
+    /**
+     * Minting a certificate failed for this beneficiary. The rest of
+     * the execution still proceeded.
+     */
+    "InheritanceCertificateFailed": Anonymize<I202ei5bka3tk2>;
     /**
      * The will was cancelled by the owner.
      */
@@ -2508,24 +2703,35 @@ export type I7p099b5deqg11 = {
     "id": bigint;
     "new_expiry_block": number;
 };
-export type I9th30r4kse3i5 = {
+export type I5sp6j0dcrjun8 = {
     "id": bigint;
     "bequests_executed": number;
     "bequests_failed": number;
+    "certificates_minted": number;
+    "certificates_failed": number;
 };
-export type Icmgugqn6dfmuc = {
+export type I4ovs6liongile = {
     "id": bigint;
     "index": number;
-    "result": Anonymize<Ic3qtd0qg910nq>;
+    "result": Anonymize<Iej8tfiah0rn91>;
+};
+export type I9h8j73phqu764 = {
+    "id": bigint;
+    "beneficiary": SS58String;
+};
+export type I202ei5bka3tk2 = {
+    "id": bigint;
+    "beneficiary": SS58String;
+    "error": Anonymize<If5r96j2ibokne>;
 };
 export type I4ov6e94l79mbg = {
     "id": bigint;
 };
-export type Idq9mclavl2gv0 = AnonymousEnum<{
+export type Ic5hhee7vfaoe3 = AnonymousEnum<{
     /**
      * A proxy was executed correctly, with the given.
      */
-    "ProxyExecuted": Anonymize<I3mnt7748ivma3>;
+    "ProxyExecuted": Anonymize<Idn17svagjrn3q>;
     /**
      * A pure account has been created by new proxy with given
      * disambiguation index and proxy type.
@@ -2552,8 +2758,8 @@ export type Idq9mclavl2gv0 = AnonymousEnum<{
      */
     "DepositPoked": Anonymize<I1bhd210c3phjj>;
 }>;
-export type I3mnt7748ivma3 = {
-    "result": Anonymize<Ic3qtd0qg910nq>;
+export type Idn17svagjrn3q = {
+    "result": Anonymize<Iej8tfiah0rn91>;
 };
 export type I30an4pagav86d = {
     "pure": SS58String;
@@ -2593,7 +2799,7 @@ export type I1bhd210c3phjj = {
     "old_deposit": bigint;
     "new_deposit": bigint;
 };
-export type Ij3h72879l5mk = AnonymousEnum<{
+export type Icdr1uddl9ooe5 = AnonymousEnum<{
     /**
      * A new multisig operation has begun.
      */
@@ -2605,7 +2811,7 @@ export type Ij3h72879l5mk = AnonymousEnum<{
     /**
      * A multisig operation has been executed.
      */
-    "MultisigExecuted": Anonymize<I38hj3qmmsp0k4>;
+    "MultisigExecuted": Anonymize<Icr4fffis3jut7>;
     /**
      * A multisig operation has been cancelled.
      */
@@ -2630,12 +2836,12 @@ export type Itvprrpb0nm3o = {
     "height": number;
     "index": number;
 };
-export type I38hj3qmmsp0k4 = {
+export type Icr4fffis3jut7 = {
     "approving": SS58String;
     "timepoint": Anonymize<Itvprrpb0nm3o>;
     "multisig": SS58String;
     "call_hash": FixedSizeBinary<32>;
-    "result": Anonymize<Ic3qtd0qg910nq>;
+    "result": Anonymize<Iej8tfiah0rn91>;
 };
 export type I5qolde99acmd1 = {
     "cancelling": SS58String;
@@ -2649,7 +2855,328 @@ export type I8gtde5abn1g9a = {
     "old_deposit": bigint;
     "new_deposit": bigint;
 };
-export type I6ebdf7go94i5u = AnonymousEnum<{
+export type I6qicn8jn4fftj = AnonymousEnum<{
+    /**
+     * A `collection` was created.
+     */
+    "Created": Anonymize<I9gqanbbbe917p>;
+    /**
+     * A `collection` was force-created.
+     */
+    "ForceCreated": Anonymize<Id1m1230297f7a>;
+    /**
+     * A `collection` was destroyed.
+     */
+    "Destroyed": Anonymize<I6cu7obfo0rr0o>;
+    /**
+     * An `item` was issued.
+     */
+    "Issued": Anonymize<Ifvb1p5munhhv4>;
+    /**
+     * An `item` was transferred.
+     */
+    "Transferred": Anonymize<I46h83ilqeed3g>;
+    /**
+     * An `item` was destroyed.
+     */
+    "Burned": Anonymize<Ifvb1p5munhhv4>;
+    /**
+     * An `item` became non-transferable.
+     */
+    "ItemTransferLocked": Anonymize<Iafkqus0ohh6l6>;
+    /**
+     * An `item` became transferable.
+     */
+    "ItemTransferUnlocked": Anonymize<Iafkqus0ohh6l6>;
+    /**
+     * `item` metadata or attributes were locked.
+     */
+    "ItemPropertiesLocked": Anonymize<I1jj31tn29ie3c>;
+    /**
+     * Some `collection` was locked.
+     */
+    "CollectionLocked": Anonymize<I6cu7obfo0rr0o>;
+    /**
+     * The owner changed.
+     */
+    "OwnerChanged": Anonymize<Icahse3uoi76n7>;
+    /**
+     * The management team changed.
+     */
+    "TeamChanged": Anonymize<Ico8bnjc6taa27>;
+    /**
+     * An `item` of a `collection` has been approved by the `owner` for transfer by
+     * a `delegate`.
+     */
+    "TransferApproved": Anonymize<I78i1bvlonei69>;
+    /**
+     * An approval for a `delegate` account to transfer the `item` of an item
+     * `collection` was cancelled by its `owner`.
+     */
+    "ApprovalCancelled": Anonymize<I5fjkvcb5vr6nb>;
+    /**
+     * All approvals of an item got cancelled.
+     */
+    "AllApprovalsCancelled": Anonymize<Ifvb1p5munhhv4>;
+    /**
+     * A `collection` has had its config changed by the `Force` origin.
+     */
+    "CollectionConfigChanged": Anonymize<I6cu7obfo0rr0o>;
+    /**
+     * New metadata has been set for a `collection`.
+     */
+    "CollectionMetadataSet": Anonymize<I78u60nqh0etah>;
+    /**
+     * Metadata has been cleared for a `collection`.
+     */
+    "CollectionMetadataCleared": Anonymize<I6cu7obfo0rr0o>;
+    /**
+     * New metadata has been set for an item.
+     */
+    "ItemMetadataSet": Anonymize<Icrkms46uh8tpb>;
+    /**
+     * Metadata has been cleared for an item.
+     */
+    "ItemMetadataCleared": Anonymize<Iafkqus0ohh6l6>;
+    /**
+     * The deposit for a set of `item`s within a `collection` has been updated.
+     */
+    "Redeposited": Anonymize<I2gr1toekv86b9>;
+    /**
+     * New attribute metadata has been set for a `collection` or `item`.
+     */
+    "AttributeSet": Anonymize<I5llu6o6a0go5i>;
+    /**
+     * Attribute metadata has been cleared for a `collection` or `item`.
+     */
+    "AttributeCleared": Anonymize<I93r2effh7od84>;
+    /**
+     * A new approval to modify item attributes was added.
+     */
+    "ItemAttributesApprovalAdded": Anonymize<I9i1f9mrso1hmf>;
+    /**
+     * A new approval to modify item attributes was removed.
+     */
+    "ItemAttributesApprovalRemoved": Anonymize<I9i1f9mrso1hmf>;
+    /**
+     * Ownership acceptance has changed for an account.
+     */
+    "OwnershipAcceptanceChanged": Anonymize<I2v2ikqt2trp52>;
+    /**
+     * Max supply has been set for a collection.
+     */
+    "CollectionMaxSupplySet": Anonymize<I6h88h8vba22v8>;
+    /**
+     * Mint settings for a collection had changed.
+     */
+    "CollectionMintSettingsUpdated": Anonymize<I6cu7obfo0rr0o>;
+    /**
+     * Event gets emitted when the `NextCollectionId` gets incremented.
+     */
+    "NextCollectionIdIncremented": Anonymize<I9ksla2si91s56>;
+    /**
+     * The price was set for the item.
+     */
+    "ItemPriceSet": Anonymize<If3057hi1g5qlo>;
+    /**
+     * The price for the item was removed.
+     */
+    "ItemPriceRemoved": Anonymize<Iafkqus0ohh6l6>;
+    /**
+     * An item was bought.
+     */
+    "ItemBought": Anonymize<Iaii5qf41d5n3d>;
+    /**
+     * A tip was sent.
+     */
+    "TipSent": Anonymize<Id9j7b85otvjru>;
+    /**
+     * An `item` swap intent was created.
+     */
+    "SwapCreated": Anonymize<Iaihk9pek2ajl9>;
+    /**
+     * The swap was cancelled.
+     */
+    "SwapCancelled": Anonymize<Iaihk9pek2ajl9>;
+    /**
+     * The swap has been claimed.
+     */
+    "SwapClaimed": Anonymize<Id9av23h47ufb2>;
+    /**
+     * New attributes have been set for an `item` of the `collection`.
+     */
+    "PreSignedAttributesSet": Anonymize<Ib4kpnijas4jqp>;
+    /**
+     * A new attribute in the `Pallet` namespace was set for the `collection` or an `item`
+     * within that `collection`.
+     */
+    "PalletAttributeSet": Anonymize<I2vnu5k0u1i65h>;
+}>;
+export type I9gqanbbbe917p = {
+    "collection": number;
+    "creator": SS58String;
+    "owner": SS58String;
+};
+export type Id1m1230297f7a = {
+    "collection": number;
+    "owner": SS58String;
+};
+export type I6cu7obfo0rr0o = {
+    "collection": number;
+};
+export type Ifvb1p5munhhv4 = {
+    "collection": number;
+    "item": number;
+    "owner": SS58String;
+};
+export type I46h83ilqeed3g = {
+    "collection": number;
+    "item": number;
+    "from": SS58String;
+    "to": SS58String;
+};
+export type Iafkqus0ohh6l6 = {
+    "collection": number;
+    "item": number;
+};
+export type I1jj31tn29ie3c = {
+    "collection": number;
+    "item": number;
+    "lock_metadata": boolean;
+    "lock_attributes": boolean;
+};
+export type Icahse3uoi76n7 = {
+    "collection": number;
+    "new_owner": SS58String;
+};
+export type Ico8bnjc6taa27 = {
+    "collection": number;
+    "issuer"?: Anonymize<Ihfphjolmsqq1>;
+    "admin"?: Anonymize<Ihfphjolmsqq1>;
+    "freezer"?: Anonymize<Ihfphjolmsqq1>;
+};
+export type I78i1bvlonei69 = {
+    "collection": number;
+    "item": number;
+    "owner": SS58String;
+    "delegate": SS58String;
+    "deadline"?: Anonymize<I4arjljr6dpflb>;
+};
+export type I5fjkvcb5vr6nb = {
+    "collection": number;
+    "item": number;
+    "owner": SS58String;
+    "delegate": SS58String;
+};
+export type I78u60nqh0etah = {
+    "collection": number;
+    "data": Binary;
+};
+export type Icrkms46uh8tpb = {
+    "collection": number;
+    "item": number;
+    "data": Binary;
+};
+export type I2gr1toekv86b9 = {
+    "collection": number;
+    "successful_items": Anonymize<Icgljjb6j82uhn>;
+};
+export type Icgljjb6j82uhn = Array<number>;
+export type I5llu6o6a0go5i = {
+    "collection": number;
+    "maybe_item"?: Anonymize<I4arjljr6dpflb>;
+    "key": Binary;
+    "value": Binary;
+    "namespace": Anonymize<If3jjadhmug6qc>;
+};
+export type If3jjadhmug6qc = AnonymousEnum<{
+    "Pallet": undefined;
+    "CollectionOwner": undefined;
+    "ItemOwner": undefined;
+    "Account": SS58String;
+}>;
+export type I93r2effh7od84 = {
+    "collection": number;
+    "maybe_item"?: Anonymize<I4arjljr6dpflb>;
+    "key": Binary;
+    "namespace": Anonymize<If3jjadhmug6qc>;
+};
+export type I9i1f9mrso1hmf = {
+    "collection": number;
+    "item": number;
+    "delegate": SS58String;
+};
+export type I2v2ikqt2trp52 = {
+    "who": SS58String;
+    "maybe_collection"?: Anonymize<I4arjljr6dpflb>;
+};
+export type I6h88h8vba22v8 = {
+    "collection": number;
+    "max_supply": number;
+};
+export type I9ksla2si91s56 = {
+    "next_id"?: Anonymize<I4arjljr6dpflb>;
+};
+export type If3057hi1g5qlo = {
+    "collection": number;
+    "item": number;
+    "price": bigint;
+    "whitelisted_buyer"?: Anonymize<Ihfphjolmsqq1>;
+};
+export type Iaii5qf41d5n3d = {
+    "collection": number;
+    "item": number;
+    "price": bigint;
+    "seller": SS58String;
+    "buyer": SS58String;
+};
+export type Id9j7b85otvjru = {
+    "collection": number;
+    "item": number;
+    "sender": SS58String;
+    "receiver": SS58String;
+    "amount": bigint;
+};
+export type Iaihk9pek2ajl9 = {
+    "offered_collection": number;
+    "offered_item": number;
+    "desired_collection": number;
+    "desired_item"?: Anonymize<I4arjljr6dpflb>;
+    "price"?: Anonymize<I6oogc1jbmmi81>;
+    "deadline": number;
+};
+export type I6oogc1jbmmi81 = ({
+    "amount": bigint;
+    "direction": Enum<{
+        "Send": undefined;
+        "Receive": undefined;
+    }>;
+}) | undefined;
+export type Id9av23h47ufb2 = {
+    "sent_collection": number;
+    "sent_item": number;
+    "sent_item_owner": SS58String;
+    "received_collection": number;
+    "received_item": number;
+    "received_item_owner": SS58String;
+    "price"?: Anonymize<I6oogc1jbmmi81>;
+    "deadline": number;
+};
+export type Ib4kpnijas4jqp = {
+    "collection": number;
+    "item": number;
+    "namespace": Anonymize<If3jjadhmug6qc>;
+};
+export type I2vnu5k0u1i65h = {
+    "collection": number;
+    "item"?: Anonymize<I4arjljr6dpflb>;
+    "attribute": Enum<{
+        "UsedToClaim": number;
+        "TransferDisabled": undefined;
+    }>;
+    "value": Binary;
+};
+export type I5l59auip2ms1 = AnonymousEnum<{
     /**
      * A custom event emitted by the contract.
      */
@@ -2666,7 +3193,7 @@ export type I6ebdf7go94i5u = AnonymousEnum<{
      * To distinguish reverted calls from successful ones, this event is emitted
      * for failed Ethereum transactions.
      */
-    "EthExtrinsicRevert": Anonymize<I7r4c3o51an46>;
+    "EthExtrinsicRevert": Anonymize<I6s4jjm8iu4j1a>;
 }>;
 export type I7svbvm6hg57aj = {
     /**
@@ -2689,8 +3216,8 @@ export type I8jhsbaiultviu = {
     "deployer": FixedSizeBinary<20>;
     "contract": FixedSizeBinary<20>;
 };
-export type I7r4c3o51an46 = {
-    "dispatch_error": Anonymize<Ifniq47gsrm6hi>;
+export type I6s4jjm8iu4j1a = {
+    "dispatch_error": Anonymize<If5r96j2ibokne>;
 };
 export type I95g6i7ilua7lq = Array<Anonymize<I9jd27rnpm8ttv>>;
 export type Ieniouoqkq4icf = {
@@ -2837,7 +3364,6 @@ export type Iep1lmt6q3s6r3 = {
 export type Ifvgo9568rpmqc = Array<Anonymize<I8uo3fpd3bcc6f>>;
 export type I8uo3fpd3bcc6f = [SS58String, FixedSizeBinary<32>];
 export type I6cs1itejju2vv = [bigint, number];
-export type Icgljjb6j82uhn = Array<number>;
 export type Ib77b0fp1a6mjr = Array<{
     "recipient": number;
     "state": Enum<{
@@ -3029,6 +3555,59 @@ export type Iag146hmjgqfgj = {
     "deposit": bigint;
     "depositor": SS58String;
     "approvals": Anonymize<Ia2lhg7l2hilo3>;
+};
+export type I18m6a0sc4k7s9 = {
+    "owner": SS58String;
+    "owner_deposit": bigint;
+    "items": number;
+    "item_metadatas": number;
+    "item_configs": number;
+    "attributes": number;
+};
+export type Id32h28hjj1tch = [SS58String, number, number];
+export type I6ouflveob4eli = [SS58String, number];
+export type I7svnfko10tq2e = [number, SS58String];
+export type Ic9iokm15iigt6 = {
+    "owner": SS58String;
+    "approvals": Array<[SS58String, Anonymize<I4arjljr6dpflb>]>;
+    "deposit": Anonymize<Ic262ibdoec56a>;
+};
+export type I35m96p3u4vl0p = {
+    "deposit": bigint;
+    "data": Binary;
+};
+export type Iapmji0h53pmkn = {
+    "deposit": Anonymize<I6e70ge7ubff75>;
+    "data": Binary;
+};
+export type I6e70ge7ubff75 = {
+    "account"?: Anonymize<Ihfphjolmsqq1>;
+    "amount": bigint;
+};
+export type Idrr42svup341f = [Binary, Anonymize<I6e70ge7ubff75>];
+export type I4ugih6gb4fmug = [number, Anonymize<I4arjljr6dpflb>, Anonymize<If3jjadhmug6qc>, Binary];
+export type Ic9nev69d8grv1 = [bigint, Anonymize<Ihfphjolmsqq1>];
+export type Idac0t49lnd4ls = {
+    "desired_collection": number;
+    "desired_item"?: Anonymize<I4arjljr6dpflb>;
+    "price"?: Anonymize<I6oogc1jbmmi81>;
+    "deadline": number;
+};
+export type I72ndo6phms8ik = {
+    "settings": bigint;
+    "max_supply"?: Anonymize<I4arjljr6dpflb>;
+    "mint_settings": Anonymize<Ia3s8qquibn97v>;
+};
+export type Ia3s8qquibn97v = {
+    "mint_type": Enum<{
+        "Issuer": undefined;
+        "Public": undefined;
+        "HolderOf": number;
+    }>;
+    "price"?: Anonymize<I35p85j063s0il>;
+    "start_block"?: Anonymize<I4arjljr6dpflb>;
+    "end_block"?: Anonymize<I4arjljr6dpflb>;
+    "default_item_settings": bigint;
 };
 export type I834nfrf667ag1 = {
     "owner": SS58String;
@@ -3379,8 +3958,9 @@ export type I6pjjpfvhvcfru = {
     "code": Binary;
 };
 export type I9pj91mj79qekl = {
-    "items": Array<Anonymize<Idkbvh6dahk1v7>>;
+    "items": Anonymize<I6pi5ou8r1hblk>;
 };
+export type I6pi5ou8r1hblk = Array<Anonymize<Idkbvh6dahk1v7>>;
 export type I39uah9nss64h9 = {
     "keys": Anonymize<Itom7fk49o0c9>;
 };
@@ -3601,11 +4181,11 @@ export type I5utcetro501ir = {
     "value": bigint;
     "keep_alive": boolean;
 };
-export type I25i6fv62q8gfo = AnonymousEnum<{
+export type I1fudb7j4esfkg = AnonymousEnum<{
     /**
      * Authenticates the sudo key and dispatches a function call with `Root` origin.
      */
-    "sudo": Anonymize<Iarnbtjm5euvte>;
+    "sudo": Anonymize<I84a2nk2orbji5>;
     /**
      * Authenticates the sudo key and dispatches a function call with `Root` origin.
      * This function does not check the weight of the call, and instead allows the
@@ -3613,7 +4193,7 @@ export type I25i6fv62q8gfo = AnonymousEnum<{
      *
      * The dispatch origin for this call must be _Signed_.
      */
-    "sudo_unchecked_weight": Anonymize<I9sd8nmktp59v2>;
+    "sudo_unchecked_weight": Anonymize<I5266n6kd41g5s>;
     /**
      * Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo
      * key.
@@ -3625,7 +4205,7 @@ export type I25i6fv62q8gfo = AnonymousEnum<{
      *
      * The dispatch origin for this call must be _Signed_.
      */
-    "sudo_as": Anonymize<I34kirrc28gb4n>;
+    "sudo_as": Anonymize<I4ifkccqhsvl32>;
     /**
      * Permanently removes the sudo key.
      *
@@ -3633,25 +4213,25 @@ export type I25i6fv62q8gfo = AnonymousEnum<{
      */
     "remove_key": undefined;
 }>;
-export type Iarnbtjm5euvte = {
+export type I84a2nk2orbji5 = {
     "call": TxCallData;
 };
-export type I9sd8nmktp59v2 = {
+export type I5266n6kd41g5s = {
     "call": TxCallData;
     "weight": Anonymize<I4q39t5hn830vp>;
 };
 export type I8k3rnvpeeh4hv = {
     "new": MultiAddress;
 };
-export type I34kirrc28gb4n = {
+export type I4ifkccqhsvl32 = {
     "who": MultiAddress;
     "call": TxCallData;
 };
-export type I3ca0n74nkihgr = AnonymousEnum<{
+export type Idovpokvh1gp45 = AnonymousEnum<{
     /**
      * Anonymously schedule a task.
      */
-    "schedule": Anonymize<Ifd11b34ihcgn>;
+    "schedule": Anonymize<I6nnijocnkjgp5>;
     /**
      * Cancel an anonymously scheduled task.
      */
@@ -3659,7 +4239,7 @@ export type I3ca0n74nkihgr = AnonymousEnum<{
     /**
      * Schedule a named task.
      */
-    "schedule_named": Anonymize<Iesn2nl6sbp05b>;
+    "schedule_named": Anonymize<I5qblv1e2k5bef>;
     /**
      * Cancel a named scheduled task.
      */
@@ -3667,11 +4247,11 @@ export type I3ca0n74nkihgr = AnonymousEnum<{
     /**
      * Anonymously schedule a task after a delay.
      */
-    "schedule_after": Anonymize<I3j2dbbee9dtss>;
+    "schedule_after": Anonymize<I8elnui7i6s9a3>;
     /**
      * Schedule a named task after a delay.
      */
-    "schedule_named_after": Anonymize<Id9kdjepgu6tqv>;
+    "schedule_named_after": Anonymize<Ia3rosrlpdsknt>;
     /**
      * Set a retry configuration for a task so that, in case its scheduled run fails, it will
      * be retried after `period` blocks, for a total amount of `retries` retries or until it
@@ -3711,13 +4291,13 @@ export type I3ca0n74nkihgr = AnonymousEnum<{
      */
     "cancel_retry_named": Anonymize<Ifs1i5fk9cqvr6>;
 }>;
-export type Ifd11b34ihcgn = {
+export type I6nnijocnkjgp5 = {
     "when": number;
     "maybe_periodic"?: Anonymize<Iep7au1720bm0e>;
     "priority": number;
     "call": TxCallData;
 };
-export type Iesn2nl6sbp05b = {
+export type I5qblv1e2k5bef = {
     "id": FixedSizeBinary<32>;
     "when": number;
     "maybe_periodic"?: Anonymize<Iep7au1720bm0e>;
@@ -3727,13 +4307,13 @@ export type Iesn2nl6sbp05b = {
 export type Ifs1i5fk9cqvr6 = {
     "id": FixedSizeBinary<32>;
 };
-export type I3j2dbbee9dtss = {
+export type I8elnui7i6s9a3 = {
     "after": number;
     "maybe_periodic"?: Anonymize<Iep7au1720bm0e>;
     "priority": number;
     "call": TxCallData;
 };
-export type Id9kdjepgu6tqv = {
+export type Ia3rosrlpdsknt = {
     "id": FixedSizeBinary<32>;
     "after": number;
     "maybe_periodic"?: Anonymize<Iep7au1720bm0e>;
@@ -4621,7 +5201,7 @@ export type I4cl0f6hqrk7ej = {
     "bequests": Anonymize<I8f5h3nehu1u5e>;
     "block_interval": number;
 };
-export type Iaubclmbufij1d = AnonymousEnum<{
+export type Idj73e5a67hrr7 = AnonymousEnum<{
     /**
      * Dispatch the given `call` from an account that the sender is authorised for through
      * `add_proxy`.
@@ -4633,7 +5213,7 @@ export type Iaubclmbufij1d = AnonymousEnum<{
      * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
      * - `call`: The call to be made by the `real` account.
      */
-    "proxy": Anonymize<Ich6vl60ria1ei>;
+    "proxy": Anonymize<Ibv8d24vm82781>;
     /**
      * Register a proxy account for the sender that is able to make calls on its behalf.
      *
@@ -4762,7 +5342,7 @@ export type Iaubclmbufij1d = AnonymousEnum<{
      * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
      * - `call`: The call to be made by the `real` account.
      */
-    "proxy_announced": Anonymize<Iah7rt2b7s9e98>;
+    "proxy_announced": Anonymize<I90gnlregqu9oj>;
     /**
      * Poke / Adjust deposits made for proxies and announcements based on current values.
      * This can be used by accounts to possibly lower their locked amount.
@@ -4775,7 +5355,7 @@ export type Iaubclmbufij1d = AnonymousEnum<{
      */
     "poke_deposit": undefined;
 }>;
-export type Ich6vl60ria1ei = {
+export type Ibv8d24vm82781 = {
     "real": MultiAddress;
     "force_proxy_type"?: Anonymize<I60s50emabmvsg>;
     "call": TxCallData;
@@ -4806,13 +5386,13 @@ export type Ianmuoljk2sk1u = {
     "delegate": MultiAddress;
     "call_hash": FixedSizeBinary<32>;
 };
-export type Iah7rt2b7s9e98 = {
+export type I90gnlregqu9oj = {
     "delegate": MultiAddress;
     "real": MultiAddress;
     "force_proxy_type"?: Anonymize<I60s50emabmvsg>;
     "call": TxCallData;
 };
-export type I3qvuemkr94jkp = AnonymousEnum<{
+export type Ifa16m94gf6nf4 = AnonymousEnum<{
     /**
      * Immediately dispatch a multi-signature call using a single approval from the caller.
      *
@@ -4827,7 +5407,7 @@ export type I3qvuemkr94jkp = AnonymousEnum<{
      * ## Complexity
      * O(Z + C) where Z is the length of the call and C its execution weight.
      */
-    "as_multi_threshold_1": Anonymize<I44djhq0d93guk>;
+    "as_multi_threshold_1": Anonymize<I8hduk4t7ggmnn>;
     /**
      * Register approval for a dispatch to be made from a deterministic composite account if
      * approved by a total of `threshold - 1` of `other_signatories`.
@@ -4869,7 +5449,7 @@ export type I3qvuemkr94jkp = AnonymousEnum<{
      * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
      * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
      */
-    "as_multi": Anonymize<Iffibu7n4gf3mj>;
+    "as_multi": Anonymize<I3mrgd4hqc4ggi>;
     /**
      * Register approval for a dispatch to be made from a deterministic composite account if
      * approved by a total of `threshold - 1` of `other_signatories`.
@@ -4944,11 +5524,11 @@ export type I3qvuemkr94jkp = AnonymousEnum<{
      */
     "poke_deposit": Anonymize<I6lqh1vgb4mcja>;
 }>;
-export type I44djhq0d93guk = {
+export type I8hduk4t7ggmnn = {
     "other_signatories": Anonymize<Ia2lhg7l2hilo3>;
     "call": TxCallData;
 };
-export type Iffibu7n4gf3mj = {
+export type I3mrgd4hqc4ggi = {
     "threshold": number;
     "other_signatories": Anonymize<Ia2lhg7l2hilo3>;
     "maybe_timepoint"?: Anonymize<I95jfd8j5cr5eh>;
@@ -4974,7 +5554,791 @@ export type I6lqh1vgb4mcja = {
     "other_signatories": Anonymize<Ia2lhg7l2hilo3>;
     "call_hash": FixedSizeBinary<32>;
 };
-export type I1na3mcndkv8sd = AnonymousEnum<{
+export type Ibbvnm4ub46ibv = AnonymousEnum<{
+    /**
+     * Issue a new collection of non-fungible items from a public origin.
+     *
+     * This new collection has no items initially and its owner is the origin.
+     *
+     * The origin must be Signed and the sender must have sufficient funds free.
+     *
+     * `CollectionDeposit` funds of sender are reserved.
+     *
+     * Parameters:
+     * - `admin`: The admin of this collection. The admin is the initial address of each
+     * member of the collection's admin team.
+     *
+     * Emits `Created` event when successful.
+     *
+     * Weight: `O(1)`
+     */
+    "create": Anonymize<I43aobns89nbkh>;
+    /**
+     * Issue a new collection of non-fungible items from a privileged origin.
+     *
+     * This new collection has no items initially.
+     *
+     * The origin must conform to `ForceOrigin`.
+     *
+     * Unlike `create`, no funds are reserved.
+     *
+     * - `owner`: The owner of this collection of items. The owner has full superuser
+     * permissions over this item, but may later change and configure the permissions using
+     * `transfer_ownership` and `set_team`.
+     *
+     * Emits `ForceCreated` event when successful.
+     *
+     * Weight: `O(1)`
+     */
+    "force_create": Anonymize<Iamd7rovec1hfb>;
+    /**
+     * Destroy a collection of fungible items.
+     *
+     * The origin must conform to `ForceOrigin` or must be `Signed` and the sender must be the
+     * owner of the `collection`.
+     *
+     * NOTE: The collection must have 0 items to be destroyed.
+     *
+     * - `collection`: The identifier of the collection to be destroyed.
+     * - `witness`: Information on the items minted in the collection. This must be
+     * correct.
+     *
+     * Emits `Destroyed` event when successful.
+     *
+     * Weight: `O(m + c + a)` where:
+     * - `m = witness.item_metadatas`
+     * - `c = witness.item_configs`
+     * - `a = witness.attributes`
+     */
+    "destroy": Anonymize<I77ie723ncd4co>;
+    /**
+     * Mint an item of a particular collection.
+     *
+     * The origin must be Signed and the sender must comply with the `mint_settings` rules.
+     *
+     * - `collection`: The collection of the item to be minted.
+     * - `item`: An identifier of the new item.
+     * - `mint_to`: Account into which the item will be minted.
+     * - `witness_data`: When the mint type is `HolderOf(collection_id)`, then the owned
+     * item_id from that collection needs to be provided within the witness data object. If
+     * the mint price is set, then it should be additionally confirmed in the `witness_data`.
+     *
+     * Note: the deposit will be taken from the `origin` and not the `owner` of the `item`.
+     *
+     * Emits `Issued` event when successful.
+     *
+     * Weight: `O(1)`
+     */
+    "mint": Anonymize<Ieebloeahma3ke>;
+    /**
+     * Mint an item of a particular collection from a privileged origin.
+     *
+     * The origin must conform to `ForceOrigin` or must be `Signed` and the sender must be the
+     * Issuer of the `collection`.
+     *
+     * - `collection`: The collection of the item to be minted.
+     * - `item`: An identifier of the new item.
+     * - `mint_to`: Account into which the item will be minted.
+     * - `item_config`: A config of the new item.
+     *
+     * Emits `Issued` event when successful.
+     *
+     * Weight: `O(1)`
+     */
+    "force_mint": Anonymize<I4mbtpf4pu3rec>;
+    /**
+     * Destroy a single item.
+     *
+     * The origin must conform to `ForceOrigin` or must be Signed and the signing account must
+     * be the owner of the `item`.
+     *
+     * - `collection`: The collection of the item to be burned.
+     * - `item`: The item to be burned.
+     *
+     * Emits `Burned`.
+     *
+     * Weight: `O(1)`
+     */
+    "burn": Anonymize<Iafkqus0ohh6l6>;
+    /**
+     * Move an item from the sender account to another.
+     *
+     * Origin must be Signed and the signing account must be either:
+     * - the Owner of the `item`;
+     * - the approved delegate for the `item` (in this case, the approval is reset).
+     *
+     * Arguments:
+     * - `collection`: The collection of the item to be transferred.
+     * - `item`: The item to be transferred.
+     * - `dest`: The account to receive ownership of the item.
+     *
+     * Emits `Transferred`.
+     *
+     * Weight: `O(1)`
+     */
+    "transfer": Anonymize<Ibgvkh96s68a66>;
+    /**
+     * Re-evaluate the deposits on some items.
+     *
+     * Origin must be Signed and the sender should be the Owner of the `collection`.
+     *
+     * - `collection`: The collection of the items to be reevaluated.
+     * - `items`: The items of the collection whose deposits will be reevaluated.
+     *
+     * NOTE: This exists as a best-effort function. Any items which are unknown or
+     * in the case that the owner account does not have reservable funds to pay for a
+     * deposit increase are ignored. Generally the owner isn't going to call this on items
+     * whose existing deposit is less than the refreshed deposit as it would only cost them,
+     * so it's of little consequence.
+     *
+     * It will still return an error in the case that the collection is unknown or the signer
+     * is not permitted to call it.
+     *
+     * Weight: `O(items.len())`
+     */
+    "redeposit": Anonymize<If9vko7pv0231m>;
+    /**
+     * Disallow further unprivileged transfer of an item.
+     *
+     * Origin must be Signed and the sender should be the Freezer of the `collection`.
+     *
+     * - `collection`: The collection of the item to be changed.
+     * - `item`: The item to become non-transferable.
+     *
+     * Emits `ItemTransferLocked`.
+     *
+     * Weight: `O(1)`
+     */
+    "lock_item_transfer": Anonymize<Iafkqus0ohh6l6>;
+    /**
+     * Re-allow unprivileged transfer of an item.
+     *
+     * Origin must be Signed and the sender should be the Freezer of the `collection`.
+     *
+     * - `collection`: The collection of the item to be changed.
+     * - `item`: The item to become transferable.
+     *
+     * Emits `ItemTransferUnlocked`.
+     *
+     * Weight: `O(1)`
+     */
+    "unlock_item_transfer": Anonymize<Iafkqus0ohh6l6>;
+    /**
+     * Disallows specified settings for the whole collection.
+     *
+     * Origin must be Signed and the sender should be the Owner of the `collection`.
+     *
+     * - `collection`: The collection to be locked.
+     * - `lock_settings`: The settings to be locked.
+     *
+     * Note: it's possible to only lock(set) the setting, but not to unset it.
+     *
+     * Emits `CollectionLocked`.
+     *
+     * Weight: `O(1)`
+     */
+    "lock_collection": Anonymize<I1ahf3pvgsgbu>;
+    /**
+     * Change the Owner of a collection.
+     *
+     * Origin must be Signed and the sender should be the Owner of the `collection`.
+     *
+     * - `collection`: The collection whose owner should be changed.
+     * - `owner`: The new Owner of this collection. They must have called
+     * `set_accept_ownership` with `collection` in order for this operation to succeed.
+     *
+     * Emits `OwnerChanged`.
+     *
+     * Weight: `O(1)`
+     */
+    "transfer_ownership": Anonymize<I736lv5q9m5bot>;
+    /**
+     * Change the Issuer, Admin and Freezer of a collection.
+     *
+     * Origin must be either `ForceOrigin` or Signed and the sender should be the Owner of the
+     * `collection`.
+     *
+     * Note: by setting the role to `None` only the `ForceOrigin` will be able to change it
+     * after to `Some(account)`.
+     *
+     * - `collection`: The collection whose team should be changed.
+     * - `issuer`: The new Issuer of this collection.
+     * - `admin`: The new Admin of this collection.
+     * - `freezer`: The new Freezer of this collection.
+     *
+     * Emits `TeamChanged`.
+     *
+     * Weight: `O(1)`
+     */
+    "set_team": Anonymize<I9uapdn16emsti>;
+    /**
+     * Change the Owner of a collection.
+     *
+     * Origin must be `ForceOrigin`.
+     *
+     * - `collection`: The identifier of the collection.
+     * - `owner`: The new Owner of this collection.
+     *
+     * Emits `OwnerChanged`.
+     *
+     * Weight: `O(1)`
+     */
+    "force_collection_owner": Anonymize<Ie5i0q2glmr0md>;
+    /**
+     * Change the config of a collection.
+     *
+     * Origin must be `ForceOrigin`.
+     *
+     * - `collection`: The identifier of the collection.
+     * - `config`: The new config of this collection.
+     *
+     * Emits `CollectionConfigChanged`.
+     *
+     * Weight: `O(1)`
+     */
+    "force_collection_config": Anonymize<I97qcg6i3l8gee>;
+    /**
+     * Approve an item to be transferred by a delegated third-party account.
+     *
+     * Origin must be either `ForceOrigin` or Signed and the sender should be the Owner of the
+     * `item`.
+     *
+     * - `collection`: The collection of the item to be approved for delegated transfer.
+     * - `item`: The item to be approved for delegated transfer.
+     * - `delegate`: The account to delegate permission to transfer the item.
+     * - `maybe_deadline`: Optional deadline for the approval. Specified by providing the
+     * number of blocks after which the approval will expire
+     *
+     * Emits `TransferApproved` on success.
+     *
+     * Weight: `O(1)`
+     */
+    "approve_transfer": Anonymize<Ib5udrahak005b>;
+    /**
+     * Cancel one of the transfer approvals for a specific item.
+     *
+     * Origin must be either:
+     * - the `Force` origin;
+     * - `Signed` with the signer being the Owner of the `item`;
+     *
+     * Arguments:
+     * - `collection`: The collection of the item of whose approval will be cancelled.
+     * - `item`: The item of the collection of whose approval will be cancelled.
+     * - `delegate`: The account that is going to loose their approval.
+     *
+     * Emits `ApprovalCancelled` on success.
+     *
+     * Weight: `O(1)`
+     */
+    "cancel_approval": Anonymize<Ib92t90p616grb>;
+    /**
+     * Cancel all the approvals of a specific item.
+     *
+     * Origin must be either:
+     * - the `Force` origin;
+     * - `Signed` with the signer being the Owner of the `item`;
+     *
+     * Arguments:
+     * - `collection`: The collection of the item of whose approvals will be cleared.
+     * - `item`: The item of the collection of whose approvals will be cleared.
+     *
+     * Emits `AllApprovalsCancelled` on success.
+     *
+     * Weight: `O(1)`
+     */
+    "clear_all_transfer_approvals": Anonymize<Iafkqus0ohh6l6>;
+    /**
+     * Disallows changing the metadata or attributes of the item.
+     *
+     * Origin must be either `ForceOrigin` or Signed and the sender should be the Admin
+     * of the `collection`.
+     *
+     * - `collection`: The collection if the `item`.
+     * - `item`: An item to be locked.
+     * - `lock_metadata`: Specifies whether the metadata should be locked.
+     * - `lock_attributes`: Specifies whether the attributes in the `CollectionOwner` namespace
+     * should be locked.
+     *
+     * Note: `lock_attributes` affects the attributes in the `CollectionOwner` namespace only.
+     * When the metadata or attributes are locked, it won't be possible the unlock them.
+     *
+     * Emits `ItemPropertiesLocked`.
+     *
+     * Weight: `O(1)`
+     */
+    "lock_item_properties": Anonymize<I1jj31tn29ie3c>;
+    /**
+     * Set an attribute for a collection or item.
+     *
+     * Origin must be Signed and must conform to the namespace ruleset:
+     * - `CollectionOwner` namespace could be modified by the `collection` Admin only;
+     * - `ItemOwner` namespace could be modified by the `maybe_item` owner only. `maybe_item`
+     * should be set in that case;
+     * - `Account(AccountId)` namespace could be modified only when the `origin` was given a
+     * permission to do so;
+     *
+     * The funds of `origin` are reserved according to the formula:
+     * `AttributeDepositBase + DepositPerByte * (key.len + value.len)` taking into
+     * account any already reserved funds.
+     *
+     * - `collection`: The identifier of the collection whose item's metadata to set.
+     * - `maybe_item`: The identifier of the item whose metadata to set.
+     * - `namespace`: Attribute's namespace.
+     * - `key`: The key of the attribute.
+     * - `value`: The value to which to set the attribute.
+     *
+     * Emits `AttributeSet`.
+     *
+     * Weight: `O(1)`
+     */
+    "set_attribute": Anonymize<I5llu6o6a0go5i>;
+    /**
+     * Force-set an attribute for a collection or item.
+     *
+     * Origin must be `ForceOrigin`.
+     *
+     * If the attribute already exists and it was set by another account, the deposit
+     * will be returned to the previous owner.
+     *
+     * - `set_as`: An optional owner of the attribute.
+     * - `collection`: The identifier of the collection whose item's metadata to set.
+     * - `maybe_item`: The identifier of the item whose metadata to set.
+     * - `namespace`: Attribute's namespace.
+     * - `key`: The key of the attribute.
+     * - `value`: The value to which to set the attribute.
+     *
+     * Emits `AttributeSet`.
+     *
+     * Weight: `O(1)`
+     */
+    "force_set_attribute": Anonymize<Ic8b8561e6t9ie>;
+    /**
+     * Clear an attribute for a collection or item.
+     *
+     * Origin must be either `ForceOrigin` or Signed and the sender should be the Owner of the
+     * attribute.
+     *
+     * Any deposit is freed for the collection's owner.
+     *
+     * - `collection`: The identifier of the collection whose item's metadata to clear.
+     * - `maybe_item`: The identifier of the item whose metadata to clear.
+     * - `namespace`: Attribute's namespace.
+     * - `key`: The key of the attribute.
+     *
+     * Emits `AttributeCleared`.
+     *
+     * Weight: `O(1)`
+     */
+    "clear_attribute": Anonymize<I93r2effh7od84>;
+    /**
+     * Approve item's attributes to be changed by a delegated third-party account.
+     *
+     * Origin must be Signed and must be an owner of the `item`.
+     *
+     * - `collection`: A collection of the item.
+     * - `item`: The item that holds attributes.
+     * - `delegate`: The account to delegate permission to change attributes of the item.
+     *
+     * Emits `ItemAttributesApprovalAdded` on success.
+     */
+    "approve_item_attributes": Anonymize<Ib92t90p616grb>;
+    /**
+     * Cancel the previously provided approval to change item's attributes.
+     * All the previously set attributes by the `delegate` will be removed.
+     *
+     * Origin must be Signed and must be an owner of the `item`.
+     *
+     * - `collection`: Collection that the item is contained within.
+     * - `item`: The item that holds attributes.
+     * - `delegate`: The previously approved account to remove.
+     *
+     * Emits `ItemAttributesApprovalRemoved` on success.
+     */
+    "cancel_item_attributes_approval": Anonymize<I6afd7fllr8otc>;
+    /**
+     * Set the metadata for an item.
+     *
+     * Origin must be either `ForceOrigin` or Signed and the sender should be the Admin of the
+     * `collection`.
+     *
+     * If the origin is Signed, then funds of signer are reserved according to the formula:
+     * `MetadataDepositBase + DepositPerByte * data.len` taking into
+     * account any already reserved funds.
+     *
+     * - `collection`: The identifier of the collection whose item's metadata to set.
+     * - `item`: The identifier of the item whose metadata to set.
+     * - `data`: The general information of this item. Limited in length by `StringLimit`.
+     *
+     * Emits `ItemMetadataSet`.
+     *
+     * Weight: `O(1)`
+     */
+    "set_metadata": Anonymize<Icrkms46uh8tpb>;
+    /**
+     * Clear the metadata for an item.
+     *
+     * Origin must be either `ForceOrigin` or Signed and the sender should be the Admin of the
+     * `collection`.
+     *
+     * Any deposit is freed for the collection's owner.
+     *
+     * - `collection`: The identifier of the collection whose item's metadata to clear.
+     * - `item`: The identifier of the item whose metadata to clear.
+     *
+     * Emits `ItemMetadataCleared`.
+     *
+     * Weight: `O(1)`
+     */
+    "clear_metadata": Anonymize<Iafkqus0ohh6l6>;
+    /**
+     * Set the metadata for a collection.
+     *
+     * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Admin of
+     * the `collection`.
+     *
+     * If the origin is `Signed`, then funds of signer are reserved according to the formula:
+     * `MetadataDepositBase + DepositPerByte * data.len` taking into
+     * account any already reserved funds.
+     *
+     * - `collection`: The identifier of the item whose metadata to update.
+     * - `data`: The general information of this item. Limited in length by `StringLimit`.
+     *
+     * Emits `CollectionMetadataSet`.
+     *
+     * Weight: `O(1)`
+     */
+    "set_collection_metadata": Anonymize<I78u60nqh0etah>;
+    /**
+     * Clear the metadata for a collection.
+     *
+     * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Admin of
+     * the `collection`.
+     *
+     * Any deposit is freed for the collection's owner.
+     *
+     * - `collection`: The identifier of the collection whose metadata to clear.
+     *
+     * Emits `CollectionMetadataCleared`.
+     *
+     * Weight: `O(1)`
+     */
+    "clear_collection_metadata": Anonymize<I6cu7obfo0rr0o>;
+    /**
+     * Set (or reset) the acceptance of ownership for a particular account.
+     *
+     * Origin must be `Signed` and if `maybe_collection` is `Some`, then the signer must have a
+     * provider reference.
+     *
+     * - `maybe_collection`: The identifier of the collection whose ownership the signer is
+     * willing to accept, or if `None`, an indication that the signer is willing to accept no
+     * ownership transferal.
+     *
+     * Emits `OwnershipAcceptanceChanged`.
+     */
+    "set_accept_ownership": Anonymize<Ibqooroq6rr5kr>;
+    /**
+     * Set the maximum number of items a collection could have.
+     *
+     * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Owner of
+     * the `collection`.
+     *
+     * - `collection`: The identifier of the collection to change.
+     * - `max_supply`: The maximum number of items a collection could have.
+     *
+     * Emits `CollectionMaxSupplySet` event when successful.
+     */
+    "set_collection_max_supply": Anonymize<I6h88h8vba22v8>;
+    /**
+     * Update mint settings.
+     *
+     * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Issuer
+     * of the `collection`.
+     *
+     * - `collection`: The identifier of the collection to change.
+     * - `mint_settings`: The new mint settings.
+     *
+     * Emits `CollectionMintSettingsUpdated` event when successful.
+     */
+    "update_mint_settings": Anonymize<I1lso3vlgherue>;
+    /**
+     * Set (or reset) the price for an item.
+     *
+     * Origin must be Signed and must be the owner of the `item`.
+     *
+     * - `collection`: The collection of the item.
+     * - `item`: The item to set the price for.
+     * - `price`: The price for the item. Pass `None`, to reset the price.
+     * - `buyer`: Restricts the buy operation to a specific account.
+     *
+     * Emits `ItemPriceSet` on success if the price is not `None`.
+     * Emits `ItemPriceRemoved` on success if the price is `None`.
+     */
+    "set_price": Anonymize<Ia9cd4jqb5eecb>;
+    /**
+     * Allows to buy an item if it's up for sale.
+     *
+     * Origin must be Signed and must not be the owner of the `item`.
+     *
+     * - `collection`: The collection of the item.
+     * - `item`: The item the sender wants to buy.
+     * - `bid_price`: The price the sender is willing to pay.
+     *
+     * Emits `ItemBought` on success.
+     */
+    "buy_item": Anonymize<I19jiel1ftbcce>;
+    /**
+     * Allows to pay the tips.
+     *
+     * Origin must be Signed.
+     *
+     * - `tips`: Tips array.
+     *
+     * Emits `TipSent` on every tip transfer.
+     */
+    "pay_tips": Anonymize<I26c8p47106toa>;
+    /**
+     * Register a new atomic swap, declaring an intention to send an `item` in exchange for
+     * `desired_item` from origin to target on the current blockchain.
+     * The target can execute the swap during the specified `duration` of blocks (if set).
+     * Additionally, the price could be set for the desired `item`.
+     *
+     * Origin must be Signed and must be an owner of the `item`.
+     *
+     * - `collection`: The collection of the item.
+     * - `item`: The item an owner wants to give.
+     * - `desired_collection`: The collection of the desired item.
+     * - `desired_item`: The desired item an owner wants to receive.
+     * - `maybe_price`: The price an owner is willing to pay or receive for the desired `item`.
+     * - `duration`: A deadline for the swap. Specified by providing the number of blocks
+     * after which the swap will expire.
+     *
+     * Emits `SwapCreated` on success.
+     */
+    "create_swap": Anonymize<Iq82b3qvf20ne>;
+    /**
+     * Cancel an atomic swap.
+     *
+     * Origin must be Signed.
+     * Origin must be an owner of the `item` if the deadline hasn't expired.
+     *
+     * - `collection`: The collection of the item.
+     * - `item`: The item an owner wants to give.
+     *
+     * Emits `SwapCancelled` on success.
+     */
+    "cancel_swap": Anonymize<Ic3j8ku6mbsms4>;
+    /**
+     * Claim an atomic swap.
+     * This method executes a pending swap, that was created by a counterpart before.
+     *
+     * Origin must be Signed and must be an owner of the `item`.
+     *
+     * - `send_collection`: The collection of the item to be sent.
+     * - `send_item`: The item to be sent.
+     * - `receive_collection`: The collection of the item to be received.
+     * - `receive_item`: The item to be received.
+     * - `witness_price`: A price that was previously agreed on.
+     *
+     * Emits `SwapClaimed` on success.
+     */
+    "claim_swap": Anonymize<I3nvoqsi8f05ph>;
+    /**
+     * Mint an item by providing the pre-signed approval.
+     *
+     * Origin must be Signed.
+     *
+     * - `mint_data`: The pre-signed approval that consists of the information about the item,
+     * its metadata, attributes, who can mint it (`None` for anyone) and until what block
+     * number.
+     * - `signature`: The signature of the `data` object.
+     * - `signer`: The `data` object's signer. Should be an Issuer of the collection.
+     *
+     * Emits `Issued` on success.
+     * Emits `AttributeSet` if the attributes were provided.
+     * Emits `ItemMetadataSet` if the metadata was not empty.
+     */
+    "mint_pre_signed": Anonymize<I4dr6q8duftm2l>;
+    /**
+     * Set attributes for an item by providing the pre-signed approval.
+     *
+     * Origin must be Signed and must be an owner of the `data.item`.
+     *
+     * - `data`: The pre-signed approval that consists of the information about the item,
+     * attributes to update and until what block number.
+     * - `signature`: The signature of the `data` object.
+     * - `signer`: The `data` object's signer. Should be an Admin of the collection for the
+     * `CollectionOwner` namespace.
+     *
+     * Emits `AttributeSet` for each provided attribute.
+     * Emits `ItemAttributesApprovalAdded` if the approval wasn't set before.
+     * Emits `PreSignedAttributesSet` on success.
+     */
+    "set_attributes_pre_signed": Anonymize<I4da75oqso1rqj>;
+}>;
+export type I43aobns89nbkh = {
+    "admin": MultiAddress;
+    "config": Anonymize<I72ndo6phms8ik>;
+};
+export type Iamd7rovec1hfb = {
+    "owner": MultiAddress;
+    "config": Anonymize<I72ndo6phms8ik>;
+};
+export type I77ie723ncd4co = {
+    "collection": number;
+    "witness": {
+        "item_metadatas": number;
+        "item_configs": number;
+        "attributes": number;
+    };
+};
+export type Ieebloeahma3ke = {
+    "collection": number;
+    "item": number;
+    "mint_to": MultiAddress;
+    "witness_data"?: ({
+        "owned_item"?: Anonymize<I4arjljr6dpflb>;
+        "mint_price"?: Anonymize<I35p85j063s0il>;
+    }) | undefined;
+};
+export type I4mbtpf4pu3rec = {
+    "collection": number;
+    "item": number;
+    "mint_to": MultiAddress;
+    "item_config": bigint;
+};
+export type Ibgvkh96s68a66 = {
+    "collection": number;
+    "item": number;
+    "dest": MultiAddress;
+};
+export type If9vko7pv0231m = {
+    "collection": number;
+    "items": Anonymize<Icgljjb6j82uhn>;
+};
+export type I1ahf3pvgsgbu = {
+    "collection": number;
+    "lock_settings": bigint;
+};
+export type I736lv5q9m5bot = {
+    "collection": number;
+    "new_owner": MultiAddress;
+};
+export type I9uapdn16emsti = {
+    "collection": number;
+    "issuer"?: Anonymize<Ia0jlc0rcbskuk>;
+    "admin"?: Anonymize<Ia0jlc0rcbskuk>;
+    "freezer"?: Anonymize<Ia0jlc0rcbskuk>;
+};
+export type Ia0jlc0rcbskuk = (MultiAddress) | undefined;
+export type Ie5i0q2glmr0md = {
+    "collection": number;
+    "owner": MultiAddress;
+};
+export type I97qcg6i3l8gee = {
+    "collection": number;
+    "config": Anonymize<I72ndo6phms8ik>;
+};
+export type Ib5udrahak005b = {
+    "collection": number;
+    "item": number;
+    "delegate": MultiAddress;
+    "maybe_deadline"?: Anonymize<I4arjljr6dpflb>;
+};
+export type Ib92t90p616grb = {
+    "collection": number;
+    "item": number;
+    "delegate": MultiAddress;
+};
+export type Ic8b8561e6t9ie = {
+    "set_as"?: Anonymize<Ihfphjolmsqq1>;
+    "collection": number;
+    "maybe_item"?: Anonymize<I4arjljr6dpflb>;
+    "namespace": Anonymize<If3jjadhmug6qc>;
+    "key": Binary;
+    "value": Binary;
+};
+export type I6afd7fllr8otc = {
+    "collection": number;
+    "item": number;
+    "delegate": MultiAddress;
+    "witness": number;
+};
+export type Ibqooroq6rr5kr = {
+    "maybe_collection"?: Anonymize<I4arjljr6dpflb>;
+};
+export type I1lso3vlgherue = {
+    "collection": number;
+    "mint_settings": Anonymize<Ia3s8qquibn97v>;
+};
+export type Ia9cd4jqb5eecb = {
+    "collection": number;
+    "item": number;
+    "price"?: Anonymize<I35p85j063s0il>;
+    "whitelisted_buyer"?: Anonymize<Ia0jlc0rcbskuk>;
+};
+export type I19jiel1ftbcce = {
+    "collection": number;
+    "item": number;
+    "bid_price": bigint;
+};
+export type I26c8p47106toa = {
+    "tips": Array<{
+        "collection": number;
+        "item": number;
+        "receiver": SS58String;
+        "amount": bigint;
+    }>;
+};
+export type Iq82b3qvf20ne = {
+    "offered_collection": number;
+    "offered_item": number;
+    "desired_collection": number;
+    "maybe_desired_item"?: Anonymize<I4arjljr6dpflb>;
+    "maybe_price"?: Anonymize<I6oogc1jbmmi81>;
+    "duration": number;
+};
+export type Ic3j8ku6mbsms4 = {
+    "offered_collection": number;
+    "offered_item": number;
+};
+export type I3nvoqsi8f05ph = {
+    "send_collection": number;
+    "send_item": number;
+    "receive_collection": number;
+    "receive_item": number;
+    "witness_price"?: Anonymize<I6oogc1jbmmi81>;
+};
+export type I4dr6q8duftm2l = {
+    "mint_data": {
+        "collection": number;
+        "item": number;
+        "attributes": Anonymize<I6pi5ou8r1hblk>;
+        "metadata": Binary;
+        "only_account"?: Anonymize<Ihfphjolmsqq1>;
+        "deadline": number;
+        "mint_price"?: Anonymize<I35p85j063s0il>;
+    };
+    "signature": Anonymize<I3fo6882e5tjh8>;
+    "signer": SS58String;
+};
+export type I3fo6882e5tjh8 = AnonymousEnum<{
+    "Ed25519": FixedSizeBinary<64>;
+    "Sr25519": FixedSizeBinary<64>;
+    "Ecdsa": FixedSizeBinary<65>;
+    "Eth": FixedSizeBinary<65>;
+}>;
+export type I4da75oqso1rqj = {
+    "data": {
+        "collection": number;
+        "item": number;
+        "attributes": Anonymize<I6pi5ou8r1hblk>;
+        "namespace": Anonymize<If3jjadhmug6qc>;
+        "deadline": number;
+    };
+    "signature": Anonymize<I3fo6882e5tjh8>;
+    "signer": SS58String;
+};
+export type I20if1874jd50n = AnonymousEnum<{
     /**
      * A raw EVM transaction, typically dispatched by an Ethereum JSON-RPC server.
      *
@@ -5102,7 +6466,7 @@ export type I1na3mcndkv8sd = AnonymousEnum<{
      * * `call`: The Substrate runtime call to execute.
      * * `transaction_encoded`: The RLP encoding of the Ethereum transaction,
      */
-    "eth_substrate_call": Anonymize<I6jej5d5k8p87e>;
+    "eth_substrate_call": Anonymize<I2gbnl5q85o7ul>;
     /**
      * Upload new `code` without instantiating a contract from it.
      *
@@ -5161,7 +6525,7 @@ export type I1na3mcndkv8sd = AnonymousEnum<{
      * is the `AccountId20` with the last 12 bytes set to `0xEE`. This is essentially a
      * recovery function in case an `AccountId20` was used without creating a mapping first.
      */
-    "dispatch_as_fallback_account": Anonymize<Iarnbtjm5euvte>;
+    "dispatch_as_fallback_account": Anonymize<I84a2nk2orbji5>;
 }>;
 export type Ida37oe44osb06 = {
     "payload": Binary;
@@ -5209,7 +6573,7 @@ export type Iav55bcqlrqn51 = {
     "effective_gas_price": Anonymize<I4totqt881mlti>;
     "encoded_len": number;
 };
-export type I6jej5d5k8p87e = {
+export type I2gbnl5q85o7ul = {
     "call": TxCallData;
     "transaction_encoded": Binary;
 };
@@ -5221,14 +6585,14 @@ export type I1uihehkdsggvp = {
     "dest": FixedSizeBinary<20>;
     "code_hash": FixedSizeBinary<32>;
 };
-export type I44p0rf4699mn8 = AnonymousEnum<{
+export type Iehrj3kdjgfo5j = AnonymousEnum<{
     "System": Anonymize<Iekve0i6djpd9f>;
     "ParachainSystem": Anonymize<I3u72uvpuo4qrt>;
     "Timestamp": Anonymize<I7d75gqfg6jh9c>;
     "ParachainInfo": undefined;
     "Balances": Anonymize<I9svldsp29mh87>;
-    "Sudo": Anonymize<I25i6fv62q8gfo>;
-    "Scheduler": Anonymize<I3ca0n74nkihgr>;
+    "Sudo": Anonymize<I1fudb7j4esfkg>;
+    "Scheduler": Anonymize<Idovpokvh1gp45>;
     "CollatorSelection": Anonymize<I9dpq5287dur8b>;
     "Session": Anonymize<I77dda7hps0u37>;
     "XcmpQueue": Anonymize<Ib7tahn20bvsep>;
@@ -5236,9 +6600,10 @@ export type I44p0rf4699mn8 = AnonymousEnum<{
     "CumulusXcm": undefined;
     "MessageQueue": Anonymize<Ic2uoe7jdksosp>;
     "EstateExecutor": Anonymize<Ibgo44n0j5msng>;
-    "Proxy": Anonymize<Iaubclmbufij1d>;
-    "Multisig": Anonymize<I3qvuemkr94jkp>;
-    "Revive": Anonymize<I1na3mcndkv8sd>;
+    "Proxy": Anonymize<Idj73e5a67hrr7>;
+    "Multisig": Anonymize<Ifa16m94gf6nf4>;
+    "Nfts": Anonymize<Ibbvnm4ub46ibv>;
+    "Revive": Anonymize<I20if1874jd50n>;
 }>;
 export type Iaqet9jc3ihboe = {
     "header": Anonymize<Ic952bubvq4k7d>;
@@ -5257,7 +6622,7 @@ export type I7u915mvkdsb08 = ResultPayload<Binary, Enum<{
     "NotFound": Anonymize<I4gil44d08grh>;
     "Codec": undefined;
 }>>;
-export type Ierji3lq0r1rbg = ResultPayload<Anonymize<Ic3qtd0qg910nq>, Anonymize<I5nrjkj9qumobs>>;
+export type Ic3ask3jgs84f0 = ResultPayload<Anonymize<Iej8tfiah0rn91>, Anonymize<I5nrjkj9qumobs>>;
 export type I5nrjkj9qumobs = AnonymousEnum<{
     "Invalid": Enum<{
         "Call": undefined;
@@ -5340,13 +6705,13 @@ export type Iafqnechp3omqg = Array<bigint>;
 export type Ie9sr1iqcg3cgm = ResultPayload<undefined, string>;
 export type I1mqgk2tmnn9i2 = (string) | undefined;
 export type I6lr8sctk0bi4e = Array<string>;
-export type Id5d9vlkh361bh = {
+export type I2djjceu8dt4ha = {
     "weight_consumed": Anonymize<I4q39t5hn830vp>;
     "weight_required": Anonymize<I4q39t5hn830vp>;
     "storage_deposit": Anonymize<If7bmpttbdmqu4>;
     "max_storage_deposit": Anonymize<If7bmpttbdmqu4>;
     "gas_consumed": bigint;
-    "result": ResultPayload<Anonymize<I620n7irgfspm4>, Anonymize<Ifniq47gsrm6hi>>;
+    "result": ResultPayload<Anonymize<I620n7irgfspm4>, Anonymize<If5r96j2ibokne>>;
 };
 export type If7bmpttbdmqu4 = AnonymousEnum<{
     "Refund": bigint;
@@ -5360,7 +6725,7 @@ export type I9sijb8gfrns29 = AnonymousEnum<{
     "Upload": Binary;
     "Existing": FixedSizeBinary<32>;
 }>;
-export type Iaa11m677iqfvm = {
+export type Iujt3rhnedbr0 = {
     "weight_consumed": Anonymize<I4q39t5hn830vp>;
     "weight_required": Anonymize<I4q39t5hn830vp>;
     "storage_deposit": Anonymize<If7bmpttbdmqu4>;
@@ -5369,7 +6734,7 @@ export type Iaa11m677iqfvm = {
     "result": ResultPayload<{
         "result": Anonymize<I620n7irgfspm4>;
         "addr": FixedSizeBinary<20>;
-    }, Anonymize<Ifniq47gsrm6hi>>;
+    }, Anonymize<If5r96j2ibokne>>;
 };
 export type I6f9v7emp7t5ba = {
     "access_list"?: (Anonymize<Ieap15h2pjii9u>) | undefined;
@@ -5407,14 +6772,14 @@ export type Idmrtv8jbbitnu = {
     "timestamp_override"?: Anonymize<I35p85j063s0il>;
     "reserved": boolean;
 };
-export type I9ulf4u84e9g7b = ResultPayload<{
+export type Idi09uq5khm08t = ResultPayload<{
     "code_hash": FixedSizeBinary<32>;
     "deposit": bigint;
-}, Anonymize<Ifniq47gsrm6hi>>;
-export type I9cqsdvp8729hk = ResultPayload<Anonymize<Iabpgqcjikia83>, Enum<{
+}, Anonymize<If5r96j2ibokne>>;
+export type I6ftipe9ubn5f8 = ResultPayload<Anonymize<Iabpgqcjikia83>, Enum<{
     "DoesntExist": undefined;
     "KeyDecodingFailed": undefined;
-    "StorageWriteFailed": Anonymize<Ifniq47gsrm6hi>;
+    "StorageWriteFailed": Anonymize<If5r96j2ibokne>;
 }>>;
 export type I63nhnkgg114n5 = AnonymousEnum<{
     "CallTracer"?: ({
@@ -7101,12 +8466,7 @@ export type Ie83f0p0ke1f4u = {
 export type Ib9nmpn9ru9aeh = {
     "who": MultiAddress;
     "username": Binary;
-    "signature"?: (Enum<{
-        "Ed25519": FixedSizeBinary<64>;
-        "Sr25519": FixedSizeBinary<64>;
-        "Ecdsa": FixedSizeBinary<65>;
-        "Eth": FixedSizeBinary<65>;
-    }>) | undefined;
+    "signature"?: (Anonymize<I3fo6882e5tjh8>) | undefined;
     "use_allocation": boolean;
 };
 export type I4oqb168b2d4er = AnonymousEnum<{

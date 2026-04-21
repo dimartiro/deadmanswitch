@@ -34,7 +34,7 @@ use super::{
 	AccountId, Aura, Balance, Balances, Block, BlockNumber, CollatorSelection, ConsensusHook, Hash,
 	MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Runtime, RuntimeCall,
 	RuntimeEvent, RuntimeFreezeReason, RuntimeHoldReason, RuntimeOrigin, RuntimeTask, Scheduler,
-	Session, SessionKeys, System, Timestamp, XcmpQueue, AVERAGE_ON_INITIALIZE_RATIO,
+	Session, SessionKeys, Signature, System, Timestamp, XcmpQueue, AVERAGE_ON_INITIALIZE_RATIO,
 	EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT, MICRO_UNIT, NORMAL_DISPATCH_RATIO,
 	SLOT_DURATION, VERSION,
 };
@@ -394,6 +394,77 @@ impl pallet_estate_executor::IdentityCheck<Runtime> for IdentityCheckStub {
 	}
 }
 
+// ── Estate Executor certificate minter ────────────────────────────────
+//
+// Translates the pallet's `mint_inheritance_certificate` call into
+// concrete `pallet-nfts` operations. Keeps the pallet agnostic of which
+// NFT pallet is in the runtime.
+
+pub const ESTATE_EXECUTOR_PALLET_ID: frame_support::PalletId =
+	frame_support::PalletId(*b"estateex");
+
+pub struct RuntimeCertificateMinter;
+
+impl pallet_estate_executor::CertificateMinter<Runtime> for RuntimeCertificateMinter {
+	fn mint_inheritance_certificate(
+		will_id: pallet_estate_executor::WillId,
+		beneficiary: AccountId,
+		_executed_block: BlockNumber,
+		_owner: AccountId,
+	) -> frame_support::dispatch::DispatchResult {
+		use codec::Encode;
+		use sp_runtime::traits::AccountIdConversion;
+
+		let sovereign: AccountId = ESTATE_EXECUTOR_PALLET_ID.into_account_truncating();
+
+		// Lazily create the "Estate Inheritance Certificates" collection
+		// on first mint. The collection id allocated by pallet-nfts is
+		// remembered in the estate-executor pallet for future mints and
+		// for the frontend to query.
+		let collection_id = match pallet_estate_executor::Pallet::<Runtime>::certificate_collection_id() {
+			Some(id) => id,
+			None => {
+				let id = pallet_nfts::NextCollectionId::<Runtime>::get().unwrap_or(0);
+				let config = pallet_nfts::CollectionConfig {
+					settings: pallet_nfts::CollectionSettings::all_enabled(),
+					max_supply: None,
+					mint_settings: pallet_nfts::MintSettings::default(),
+				};
+				pallet_nfts::Pallet::<Runtime>::create(
+					frame_system::RawOrigin::Signed(sovereign.clone()).into(),
+					sovereign.clone().into(),
+					config,
+				)?;
+				pallet_estate_executor::Pallet::<Runtime>::set_certificate_collection_id(id);
+				id
+			},
+		};
+
+		// Derive a deterministic u32 item id from (will_id, beneficiary).
+		let digest = sp_io::hashing::blake2_256(&(will_id, &beneficiary).encode());
+		let mut id_bytes = [0u8; 4];
+		id_bytes.copy_from_slice(&digest[..4]);
+		let item_id = u32::from_le_bytes(id_bytes);
+
+		// Mint to the beneficiary, then lock so the NFT is non-transferable
+		// (soulbound).
+		pallet_nfts::Pallet::<Runtime>::mint(
+			frame_system::RawOrigin::Signed(sovereign.clone()).into(),
+			collection_id,
+			item_id,
+			beneficiary.into(),
+			None,
+		)?;
+		pallet_nfts::Pallet::<Runtime>::lock_item_transfer(
+			frame_system::RawOrigin::Signed(sovereign).into(),
+			collection_id,
+			item_id,
+		)?;
+
+		Ok(())
+	}
+}
+
 impl pallet_estate_executor::Config for Runtime {
 	type WeightInfo = pallet_estate_executor::weights::SubstrateWeight<Runtime>;
 	type Balance = Balance;
@@ -402,6 +473,7 @@ impl pallet_estate_executor::Config for Runtime {
 	type Scheduler = Scheduler;
 	type BequestBuilder = RuntimeBequestBuilder;
 	type IdentityCheck = IdentityCheckStub;
+	type CertificateMinter = RuntimeCertificateMinter;
 	type MaxBequests = ConstU32<5>;
 }
 
@@ -487,6 +559,58 @@ impl pallet_multisig::Config for Runtime {
 	type DepositFactor = MultisigDepositFactor;
 	type MaxSignatories = ConstU32<10>;
 	type WeightInfo = ();
+	type BlockNumberProvider = System;
+}
+
+// ── pallet-nfts ────────────────────────────────────────────────────────
+//
+// Hosts the "Estate Inheritance Certificates" collection. The Estate
+// Executor pallet mints one soulbound certificate per (will, beneficiary)
+// pair when a will executes.
+
+parameter_types! {
+	pub NftsPalletFeatures: pallet_nfts::PalletFeatures = pallet_nfts::PalletFeatures::all_enabled();
+	pub const NftsMaxDeadlineDuration: BlockNumber = 12 * HOURS;
+	// Deposits disabled in this dev configuration: the Estate Executor
+	// sovereign account is the only entity that creates/mints in the
+	// certificate collection and it has no balance. Production would set
+	// non-zero deposits and fund the sovereign or gate collection
+	// creation to Root.
+	pub const NftsCollectionDeposit: Balance = 0;
+	pub const NftsItemDeposit: Balance = 0;
+	pub const NftsMetadataDepositBase: Balance = 0;
+	pub const NftsAttributeDepositBase: Balance = 0;
+	pub const NftsDepositPerByte: Balance = 0;
+}
+
+impl pallet_nfts::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type CollectionId = u32;
+	type ItemId = u32;
+	type Currency = Balances;
+	type CreateOrigin =
+		frame_support::traits::AsEnsureOriginWithArg<EnsureSigned<AccountId>>;
+	type ForceOrigin = EnsureRoot<AccountId>;
+	type Locker = ();
+	type CollectionDeposit = NftsCollectionDeposit;
+	type ItemDeposit = NftsItemDeposit;
+	type MetadataDepositBase = NftsMetadataDepositBase;
+	type AttributeDepositBase = NftsAttributeDepositBase;
+	type DepositPerByte = NftsDepositPerByte;
+	type StringLimit = ConstU32<256>;
+	type KeyLimit = ConstU32<64>;
+	type ValueLimit = ConstU32<256>;
+	type ApprovalsLimit = ConstU32<20>;
+	type ItemAttributesApprovalsLimit = ConstU32<30>;
+	type MaxTips = ConstU32<10>;
+	type MaxDeadlineDuration = NftsMaxDeadlineDuration;
+	type MaxAttributesPerCall = ConstU32<10>;
+	type Features = NftsPalletFeatures;
+	type OffchainSignature = Signature;
+	type OffchainPublic = <Signature as sp_runtime::traits::Verify>::Signer;
+	type WeightInfo = pallet_nfts::weights::SubstrateWeight<Runtime>;
+	#[cfg(feature = "runtime-benchmarks")]
+	type Helper = ();
 	type BlockNumberProvider = System;
 }
 

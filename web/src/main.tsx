@@ -9,6 +9,7 @@ const WillsPage = lazy(() => import("./pages/WillsPage"));
 const CreateWillPage = lazy(() => import("./pages/CreateWillPage"));
 const AccountsPage = lazy(() => import("./pages/AccountsPage"));
 const IdentityPage = lazy(() => import("./pages/IdentityPage"));
+const CertificatesPage = lazy(() => import("./pages/CertificatesPage"));
 
 const routeFallback = (
 	<div className="card animate-pulse">
@@ -59,6 +60,14 @@ createRoot(document.getElementById("root")!).render(
 						element={
 							<Suspense fallback={routeFallback}>
 								<IdentityPage />
+							</Suspense>
+						}
+					/>
+					<Route
+						path="certificates"
+						element={
+							<Suspense fallback={routeFallback}>
+								<CertificatesPage />
 							</Suspense>
 						}
 					/>

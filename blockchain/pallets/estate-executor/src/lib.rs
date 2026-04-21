@@ -64,6 +64,9 @@ pub use bequest::{Bequest, BequestBuilder, MaxMultisigDelegates};
 pub mod identity;
 pub use identity::IdentityCheck;
 
+pub mod certificate;
+pub use certificate::CertificateMinter;
+
 pub mod tx_extensions;
 pub use tx_extensions::BoostUrgentHeartbeats;
 
@@ -76,6 +79,7 @@ mod benchmarking;
 pub mod pallet {
 	use alloc::vec::Vec;
 	use crate::bequest::{Bequest, BequestBuilder};
+	use crate::certificate::CertificateMinter;
 	use crate::identity::IdentityCheck;
 	use crate::weights::WeightInfo;
 	use codec::Codec;
@@ -128,6 +132,10 @@ pub mod pallet {
 		/// in production it checks `pallet-identity` for a Reasonable or
 		/// better judgment.
 		type IdentityCheck: IdentityCheck<Self>;
+
+		/// Mints a soulbound inheritance certificate NFT to a beneficiary
+		/// once per (will, beneficiary) pair during execution.
+		type CertificateMinter: CertificateMinter<Self>;
 
 		/// Maximum number of bequests per will.
 		#[pallet::constant]
@@ -194,6 +202,13 @@ pub mod pallet {
 		OptionQuery,
 	>;
 
+	/// Remembered NFT-collection id for the inheritance certificates
+	/// collection. Lazily set the first time a certificate is minted.
+	/// The actual collection lives in `pallet-nfts` in the runtime; this
+	/// storage just bookkeeps which id was assigned.
+	#[pallet::storage]
+	pub type CertificateCollectionId<T: Config> = StorageValue<_, u32, OptionQuery>;
+
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
@@ -206,17 +221,32 @@ pub mod pallet {
 		},
 		/// The owner sent a heartbeat; expiry and scheduled execution moved.
 		HeartbeatReceived { id: WillId, new_expiry_block: BlockNumberFor<T> },
-		/// The will executed — bequests dispatched (best-effort).
+		/// The will executed — bequests dispatched (best-effort) and
+		/// soulbound certificates minted to unique beneficiaries.
 		WillExecuted {
 			id: WillId,
 			bequests_executed: u32,
 			bequests_failed: u32,
+			certificates_minted: u32,
+			certificates_failed: u32,
 		},
 		/// A bequest was dispatched during execution.
 		BequestDispatched {
 			id: WillId,
 			index: u32,
 			result: DispatchResult,
+		},
+		/// An inheritance certificate NFT was successfully minted.
+		InheritanceCertificateMinted {
+			id: WillId,
+			beneficiary: T::AccountId,
+		},
+		/// Minting a certificate failed for this beneficiary. The rest of
+		/// the execution still proceeded.
+		InheritanceCertificateFailed {
+			id: WillId,
+			beneficiary: T::AccountId,
+			error: DispatchError,
 		},
 		/// The will was cancelled by the owner.
 		WillCancelled { id: WillId },
@@ -398,6 +428,10 @@ pub mod pallet {
 
 			let mut bequests_executed = 0u32;
 			let mut bequests_failed = 0u32;
+			// Collect the deduplicated recipient set so we mint exactly one
+			// certificate per (will, beneficiary) pair even if a recipient
+			// appears across multiple bequests.
+			let mut unique_recipients: Vec<T::AccountId> = Vec::new();
 			if let Some(stored) = WillBequests::<T>::get(id) {
 				let owner_origin: T::RuntimeOrigin =
 					frame_system::RawOrigin::Signed(will.owner.clone()).into();
@@ -415,17 +449,57 @@ pub mod pallet {
 						index: i as u32,
 						result: dispatch_result,
 					});
+					for r in dist.recipients() {
+						if !unique_recipients.contains(&r) {
+							unique_recipients.push(r);
+						}
+					}
 				}
 			}
 
 			will.status = WillStatus::Executed;
-			will.executed_block = frame_system::Pallet::<T>::block_number();
-			Wills::<T>::insert(id, will);
+			let executed_block = frame_system::Pallet::<T>::block_number();
+			will.executed_block = executed_block;
+			Wills::<T>::insert(id, will.clone());
+
+			// Mint one inheritance certificate per unique recipient.
+			// Individual mint failures are logged but do not revert the
+			// whole execution — the bequests themselves already dispatched
+			// as best-effort above.
+			let mut certificates_minted = 0u32;
+			let mut certificates_failed = 0u32;
+			for beneficiary in unique_recipients.into_iter() {
+				let mint_result = T::CertificateMinter::mint_inheritance_certificate(
+					id,
+					beneficiary.clone(),
+					executed_block,
+					will.owner.clone(),
+				);
+				match mint_result {
+					Ok(()) => {
+						certificates_minted += 1;
+						Self::deposit_event(Event::InheritanceCertificateMinted {
+							id,
+							beneficiary,
+						});
+					},
+					Err(e) => {
+						certificates_failed += 1;
+						Self::deposit_event(Event::InheritanceCertificateFailed {
+							id,
+							beneficiary,
+							error: e,
+						});
+					},
+				}
+			}
 
 			Self::deposit_event(Event::WillExecuted {
 				id,
 				bequests_executed,
 				bequests_failed,
+				certificates_minted,
+				certificates_failed,
 			});
 			Ok(())
 		}
@@ -454,6 +528,18 @@ pub mod pallet {
 	}
 
 	impl<T: Config> Pallet<T> {
+		/// Public accessor for the certificate collection id. Returns
+		/// `None` if no certificate has been minted yet.
+		pub fn certificate_collection_id() -> Option<u32> {
+			CertificateCollectionId::<T>::get()
+		}
+
+		/// Used by the runtime `CertificateMinter` impl to remember which
+		/// `pallet-nfts` collection id was allocated on first mint.
+		pub fn set_certificate_collection_id(id: u32) {
+			CertificateCollectionId::<T>::put(id);
+		}
+
 		/// Returns the union of all recipients across a will's
 		/// bequests. Deduplication is up to the caller.
 		pub fn beneficiaries_of(id: WillId) -> Vec<T::AccountId> {
