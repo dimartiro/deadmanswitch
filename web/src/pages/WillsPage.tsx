@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
 import { useAllAccounts } from "../hooks/useAllAccounts";
@@ -6,6 +7,24 @@ import { getClient } from "../hooks/useChain";
 import { stack_template } from "@polkadot-api/descriptors";
 import { formatDuration } from "../utils/format";
 import { submitAndWait } from "../utils/tx";
+import { ss58Decode } from "@polkadot-labs/hdkd-helpers";
+
+// Compare two SS58 addresses by their pubkey, ignoring the address's
+// network prefix. Store-side addresses and on-chain addresses can be
+// encoded with different SS58 prefixes and still refer to the same key.
+function sameAccount(a: string, b: string): boolean {
+	if (!a || !b) return false;
+	if (a === b) return true;
+	try {
+		const [p1] = ss58Decode(a);
+		const [p2] = ss58Decode(b);
+		if (p1.length !== p2.length) return false;
+		for (let i = 0; i < p1.length; i++) if (p1[i] !== p2[i]) return false;
+		return true;
+	} catch {
+		return false;
+	}
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Bequest = any;
@@ -21,16 +40,18 @@ interface WillData {
 	bequests: Bequest[];
 }
 
+type FilterKey = "all" | "mine" | "inherits" | "expired" | "executed";
+
 function formatBalanceUnit(planck: bigint): string {
 	const whole = planck / 1_000_000_000_000n;
 	const frac = planck % 1_000_000_000_000n;
-	if (frac === 0n) return whole.toString() + " UNIT";
+	if (frac === 0n) return whole.toString() + " ROC";
 	const fracStr = frac.toString().padStart(12, "0").replace(/0+$/, "");
-	return `${whole}.${fracStr} UNIT`;
+	return `${whole}.${fracStr} ROC`;
 }
 
 function truncateAddress(addr: string): string {
-	return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
+	return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
 function accountLabel(addr: string): string {
@@ -38,36 +59,24 @@ function accountLabel(addr: string): string {
 	return dev ? dev.name : truncateAddress(addr);
 }
 
-function renderBequest(bequest: Bequest): { title: string; detail: string } {
+function renderBequest(bequest: Bequest): string {
 	const type = bequest.type as string;
 	const value = bequest.value;
 	switch (type) {
 		case "Transfer":
-			return {
-				title: `Transfer ${formatBalanceUnit(value.amount)} on Asset Hub`,
-				detail: `to ${accountLabel(value.dest)}`,
-			};
+			return `Transfer ${formatBalanceUnit(value.amount)} to ${accountLabel(value.dest)}`;
 		case "TransferAll":
-			return {
-				title: "Transfer everything on Asset Hub",
-				detail: `to ${accountLabel(value.dest)}`,
-			};
+			return `Transfer entire Asset Hub balance to ${accountLabel(value.dest)}`;
 		case "Proxy":
-			return {
-				title: "Grant proxy access on Asset Hub",
-				detail: `to ${accountLabel(value.delegate)}`,
-			};
+			return `Grant ${accountLabel(value.delegate)} full proxy over Asset Hub account`;
 		case "MultisigProxy": {
 			const delegates = (value.delegates as string[])
 				.map(accountLabel)
 				.join(", ");
-			return {
-				title: `Grant multisig proxy on Asset Hub (${value.threshold} of ${value.delegates.length})`,
-				detail: delegates,
-			};
+			return `Grant ${value.threshold}-of-${value.delegates.length} multisig (${delegates}) full proxy`;
 		}
 		default:
-			return { title: `Unknown (${type})`, detail: "" };
+			return `Unknown (${type})`;
 	}
 }
 
@@ -91,9 +100,9 @@ export default function WillsPage() {
 	const { wsUrl, connected, blockNumber, selectedAccount } = useChainStore();
 	const { accounts, selected } = useAllAccounts();
 	const [wills, setWills] = useState<WillData[]>([]);
-	const [inheritanceIds, setInheritanceIds] = useState<bigint[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [actionStatus, setActionStatus] = useState<Record<string, string>>({});
+	const [filter, setFilter] = useState<FilterKey>("all");
 
 	const fetchWills = useCallback(async () => {
 		if (!connected) return;
@@ -101,10 +110,9 @@ export default function WillsPage() {
 		try {
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
-			// papi defaults storage queries to the latest finalized block.
-			// On zombienet that's ~12-18s behind best, so we'd miss wills
-			// that just got included. Force best-block reads.
-			const willEntries = await api.query.EstateExecutor.Wills.getEntries({ at: "best" });
+			const willEntries = await api.query.EstateExecutor.Wills.getEntries({
+				at: "best",
+			});
 			const bequestEntries =
 				await api.query.EstateExecutor.WillBequests.getEntries({ at: "best" });
 
@@ -128,53 +136,34 @@ export default function WillsPage() {
 				};
 			});
 
-			items.sort((a, b) => Number(a.id) - Number(b.id));
+			items.sort((a, b) => Number(b.id) - Number(a.id));
 			setWills(items);
-
-			if (selected) {
-				try {
-					const ids = await api.apis.EstateExecutorApi.inheritances_of(
-						selected.address,
-						{ at: "best" },
-					);
-					setInheritanceIds(ids as bigint[]);
-				} catch {
-					setInheritanceIds([]);
-				}
-			} else {
-				setInheritanceIds([]);
-			}
 		} catch (e) {
 			console.error("Failed to fetch wills:", e);
 		} finally {
 			setLoading(false);
 		}
-	}, [connected, wsUrl, selected?.address]);
+	}, [connected, wsUrl]);
 
 	useEffect(() => {
 		fetchWills();
 	}, [fetchWills, blockNumber]);
 
-	async function handleAction(
-		willId: bigint,
-		action: "heartbeat" | "cancel",
-	) {
+	async function handleAction(willId: bigint, action: "heartbeat" | "cancel") {
 		const key = `${willId}-${action}`;
-		setActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
+		setActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
 		try {
 			if (!selected) throw new Error("No account selected");
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
 			const signer = selected.signer;
-
 			const tx =
 				action === "heartbeat"
 					? api.tx.EstateExecutor.heartbeat({ id: willId })
 					: api.tx.EstateExecutor.cancel({ id: willId });
-
 			const result = await submitAndWait(tx, signer, client);
 			if (result.ok) {
-				setActionStatus((s) => ({ ...s, [key]: "Success" }));
+				setActionStatus((s) => ({ ...s, [key]: "Done" }));
 				fetchWills();
 			} else {
 				setActionStatus((s) => ({
@@ -191,204 +180,274 @@ export default function WillsPage() {
 	}
 
 	const currentAccount = selected?.address ?? "";
+	// Computed client-side from the same bequests we already have. Avoids
+	// any mismatch between the runtime API's account-id encoding and the
+	// SS58 address format the frontend holds.
+	const isInheritance = (w: WillData) => {
+		if (!currentAccount) return false;
+		return w.bequests.some((b) =>
+			recipientsOf(b).some((r) => sameAccount(r, currentAccount)),
+		);
+	};
 
-	const myWillsActive = wills.filter(
-		(w) =>
-			w.owner === currentAccount &&
-			w.status === "Active" &&
-			blockNumber <= w.expiryBlock,
-	);
-	const isInheritance = (w: WillData) =>
-		inheritanceIds.some((id) => id === w.id);
-	const inheritances = wills.filter(
-		(w) =>
-			isInheritance(w) &&
-			w.owner !== currentAccount &&
-			w.status === "Active" &&
-			blockNumber <= w.expiryBlock,
-	);
-	const expiredWills = wills.filter(
-		(w) => w.status === "Active" && blockNumber > w.expiryBlock,
-	);
-	const otherActive = wills.filter(
-		(w) =>
-			w.owner !== currentAccount &&
-			!isInheritance(w) &&
-			w.status === "Active" &&
-			blockNumber <= w.expiryBlock,
-	);
-	const executedWills = wills.filter(
-		(w) => w.status === "Executed" && w.owner === currentAccount,
-	);
+	const counts = useMemo(() => {
+		let active = 0;
+		let executed = 0;
+		let expired = 0;
+		let mine = 0;
+		let inherits = 0;
+		for (const w of wills) {
+			if (w.status === "Executed") executed++;
+			else if (blockNumber > w.expiryBlock) expired++;
+			else active++;
+			if (sameAccount(w.owner, currentAccount)) mine++;
+			if (isInheritance(w)) inherits++;
+		}
+		return { active, executed, expired, mine, inherits };
+		// isInheritance reads currentAccount + wills, both in deps.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [wills, blockNumber, currentAccount]);
+
+	const filtered = wills.filter((w) => {
+		const isExpired = w.status === "Active" && blockNumber > w.expiryBlock;
+		const isExec = w.status === "Executed";
+		switch (filter) {
+			case "mine":
+				return sameAccount(w.owner, currentAccount);
+			case "inherits":
+				return isInheritance(w) && !sameAccount(w.owner, currentAccount);
+			case "expired":
+				return isExpired;
+			case "executed":
+				return isExec;
+			default:
+				return true;
+		}
+	});
 
 	return (
-		<div className="space-y-6 animate-fade-in">
-			<div className="space-y-2">
-				<h1 className="page-title">Dashboard</h1>
-				<p className="text-text-secondary">
-					View all wills on the chain. Send heartbeats or cancel your own
-					— expired wills auto-execute via the on-chain scheduler.
-				</p>
+		<div className="space-y-8 stagger">
+			{/* Page header */}
+			<div className="flex items-end justify-between gap-4 flex-wrap">
+				<div>
+					<div className="eyebrow mb-1">The Ledger</div>
+					<h1 className="h-display text-4xl md:text-5xl">
+						All <span className="italic text-estate-500">wills</span>, on chain
+					</h1>
+					<p className="text-sm text-ink-500 mt-2 max-w-xl">
+						Every will registered through Estate Protocol, grouped by your
+						relationship to them.
+					</p>
+				</div>
+				<Link to="/create" className="btn-accent">
+					New will
+					<span>→</span>
+				</Link>
 			</div>
 
-			{/* Account selector */}
-			<div className="card space-y-3">
-				<h2 className="section-title">Viewing as</h2>
-				<div className="flex flex-wrap gap-2">
-					{accounts.map((acc, i) => (
-						<button
-							key={acc.address}
-							onClick={() =>
-								useChainStore.getState().setSelectedAccount(i)
-							}
-							className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-								selectedAccount === i
-									? "bg-polka-500/20 text-white border border-polka-500/30"
-									: "text-text-secondary hover:text-text-primary hover:bg-white/[0.04] border border-transparent"
-							}`}
-						>
-							{acc.name}
-						</button>
-					))}
+			{/* Top strip: stat cards (differentiated vs. rest of page) */}
+			<section className="grid grid-cols-2 md:grid-cols-4 gap-3">
+				<StatCard label="Active" value={counts.active} tone="estate" />
+				<StatCard label="Expired" value={counts.expired} tone="danger" />
+				<StatCard label="Executed" value={counts.executed} tone="brass" />
+				<StatCard label="Yours" value={counts.mine} tone="neutral" />
+			</section>
+
+			{/* Control row */}
+			<section className="card-padded">
+				<div className="flex items-center justify-between flex-wrap gap-4">
+					<div>
+						<div className="eyebrow mb-1">Reading as</div>
+						<div className="flex flex-wrap gap-2">
+							{accounts.map((acc, i) => (
+								<button
+									key={acc.address}
+									onClick={() =>
+										useChainStore.getState().setSelectedAccount(i)
+									}
+									className={`text-sm px-3 py-1.5 rounded-full transition-all ${
+										selectedAccount === i
+											? "bg-ink-900 text-canvas shadow-soft"
+											: "bg-muted text-ink-700 hover:bg-mist"
+									}`}
+								>
+									{acc.name}
+								</button>
+							))}
+						</div>
+					</div>
+
+					{selected && (
+						<div className="hidden md:block">
+							<div className="eyebrow mb-1 text-right">Signer</div>
+							<div className="font-mono text-xs text-ink-500">
+								{selected.address}
+							</div>
+						</div>
+					)}
 				</div>
-				{selected && (
-					<p className="text-xs text-text-muted font-mono">
-						{selected.address}
-					</p>
+
+				<div className="mt-5 pt-5 border-t border-hairline">
+					<div className="eyebrow mb-2">Filter</div>
+					<div className="flex flex-wrap gap-2">
+						<FilterPill
+							active={filter === "all"}
+							onClick={() => setFilter("all")}
+							count={wills.length}
+						>
+							Everything
+						</FilterPill>
+						<FilterPill
+							active={filter === "mine"}
+							onClick={() => setFilter("mine")}
+							count={counts.mine}
+						>
+							Yours
+						</FilterPill>
+						<FilterPill
+							active={filter === "inherits"}
+							onClick={() => setFilter("inherits")}
+							count={counts.inherits}
+						>
+							Name you
+						</FilterPill>
+						<FilterPill
+							active={filter === "expired"}
+							onClick={() => setFilter("expired")}
+							count={counts.expired}
+						>
+							Expired
+						</FilterPill>
+						<FilterPill
+							active={filter === "executed"}
+							onClick={() => setFilter("executed")}
+							count={counts.executed}
+						>
+							Executed
+						</FilterPill>
+					</div>
+				</div>
+			</section>
+
+			{/* List */}
+			<section>
+				{loading && wills.length === 0 ? (
+					<div className="card-padded text-center text-ink-500 text-sm py-12">
+						Loading the ledger…
+					</div>
+				) : filtered.length === 0 ? (
+					<div className="card-padded text-center py-16">
+						<div className="text-5xl mb-3">📜</div>
+						<h3 className="h-section mb-1">Nothing here yet</h3>
+						<p className="text-sm text-ink-500 max-w-xs mx-auto mb-5">
+							{filter === "all"
+								? "No wills have been registered yet."
+								: "No wills match this filter right now."}
+						</p>
+						{filter === "all" && (
+							<Link to="/create" className="btn-accent">
+								Draft the first
+							</Link>
+						)}
+					</div>
+				) : (
+					<div className="space-y-3">
+						{filtered.map((w) => (
+							<WillRow
+								key={Number(w.id)}
+								w={w}
+								blockNumber={blockNumber}
+								currentAccount={currentAccount}
+								isInheritance={isInheritance(w)}
+								onAction={handleAction}
+								actionStatus={actionStatus}
+							/>
+						))}
+					</div>
 				)}
-			</div>
-
-			{loading && wills.length === 0 && (
-				<div className="card animate-pulse">
-					<div className="h-4 w-48 rounded bg-white/[0.06]" />
-				</div>
-			)}
-
-			{!loading && wills.length === 0 && (
-				<div className="card">
-					<p className="text-text-muted">
-						No wills found.{" "}
-						<a
-							href="#/create"
-							className="text-polka-400 hover:text-polka-300"
-						>
-							Register one
-						</a>
-						.
-					</p>
-				</div>
-			)}
-
-			{/* Inheritances — wills naming the current account as beneficiary */}
-			{inheritances.length > 0 && (
-				<div className="space-y-3">
-					<h2 className="section-title text-accent-blue">
-						Inheritances (you are listed as beneficiary)
-					</h2>
-					<p className="text-xs text-text-muted -mt-2">
-						Source:{" "}
-						<span className="font-mono">
-							EstateExecutorApi.inheritances_of
-						</span>{" "}
-						runtime API
-					</p>
-					{inheritances.map((w) => (
-						<WillCard
-							key={Number(w.id)}
-							w={w}
-							blockNumber={blockNumber}
-							currentAccount={currentAccount}
-							onAction={handleAction}
-							actionStatus={actionStatus}
-						/>
-					))}
-				</div>
-			)}
-
-			{myWillsActive.length > 0 && (
-				<div className="space-y-3">
-					<h2 className="section-title">My Wills</h2>
-					{myWillsActive.map((w) => (
-						<WillCard
-							key={Number(w.id)}
-							w={w}
-							blockNumber={blockNumber}
-							currentAccount={currentAccount}
-							onAction={handleAction}
-							actionStatus={actionStatus}
-						/>
-					))}
-				</div>
-			)}
-
-			{otherActive.length > 0 && (
-				<div className="space-y-3">
-					<h2 className="section-title">Other Active Wills</h2>
-					{otherActive.map((w) => (
-						<WillCard
-							key={Number(w.id)}
-							w={w}
-							blockNumber={blockNumber}
-							currentAccount={currentAccount}
-							onAction={handleAction}
-							actionStatus={actionStatus}
-						/>
-					))}
-				</div>
-			)}
-
-			{expiredWills.length > 0 && (
-				<div className="space-y-3">
-					<h2 className="section-title text-accent-yellow">
-						Expired — Awaiting Scheduled Execution
-					</h2>
-					{expiredWills.map((w) => (
-						<WillCard
-							key={Number(w.id)}
-							w={w}
-							blockNumber={blockNumber}
-							currentAccount={currentAccount}
-							onAction={handleAction}
-							actionStatus={actionStatus}
-						/>
-					))}
-				</div>
-			)}
-
-			{executedWills.length > 0 && (
-				<div className="space-y-3">
-					<h2 className="section-title text-text-muted">Executed</h2>
-					{executedWills.map((w) => (
-						<WillCard
-							key={Number(w.id)}
-							w={w}
-							blockNumber={blockNumber}
-							currentAccount={currentAccount}
-							onAction={handleAction}
-							actionStatus={actionStatus}
-						/>
-					))}
-				</div>
-			)}
+			</section>
 		</div>
 	);
 }
 
-function WillCard({
+function StatCard({
+	label,
+	value,
+	tone,
+}: {
+	label: string;
+	value: number;
+	tone: "estate" | "brass" | "danger" | "neutral";
+}) {
+	const text =
+		tone === "estate"
+			? "text-estate-500"
+			: tone === "brass"
+				? "text-brass-500"
+				: tone === "danger"
+					? "text-danger"
+					: "text-ink-900";
+	return (
+		<div className="stat">
+			<div className="stat-label">{label}</div>
+			<div className={`stat-value ${text}`}>{value}</div>
+		</div>
+	);
+}
+
+function FilterPill({
+	active,
+	onClick,
+	count,
+	children,
+}: {
+	active: boolean;
+	onClick: () => void;
+	count?: number;
+	children: React.ReactNode;
+}) {
+	return (
+		<button
+			onClick={onClick}
+			className={`text-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 transition-all ${
+				active
+					? "bg-estate-400 text-canvas shadow-soft"
+					: "bg-muted text-ink-700 hover:bg-mist"
+			}`}
+		>
+			<span>{children}</span>
+			{count !== undefined && (
+				<span
+					className={`text-[0.7rem] rounded-full px-1.5 py-0.5 tabular ${
+						active
+							? "bg-white/20 text-white"
+							: "bg-paper text-ink-500"
+					}`}
+				>
+					{count}
+				</span>
+			)}
+		</button>
+	);
+}
+
+function WillRow({
 	w,
 	blockNumber,
 	currentAccount,
+	isInheritance,
 	onAction,
 	actionStatus,
 }: {
 	w: WillData;
 	blockNumber: number;
 	currentAccount: string;
+	isInheritance: boolean;
 	onAction: (id: bigint, action: "heartbeat" | "cancel") => void;
 	actionStatus: Record<string, string>;
 }) {
 	const [expanded, setExpanded] = useState(false);
-	const isOwner = w.owner === currentAccount;
+	const isOwner = sameAccount(w.owner, currentAccount);
 	const isActive = w.status === "Active";
 	const isExpired = isActive && blockNumber > w.expiryBlock;
 	const blocksLeft = isActive ? w.expiryBlock - blockNumber : 0;
@@ -396,162 +455,198 @@ function WillCard({
 	const secondsLeft = Math.max(0, blocksLeft * blockTime);
 
 	const ownerLabel = accountLabel(w.owner);
+	const allRecipients = Array.from(new Set(w.bequests.flatMap(recipientsOf)));
 
-	// Derive beneficiaries client-side as the union of all bequest recipients.
-	const allRecipients = Array.from(
-		new Set(w.bequests.flatMap(recipientsOf)),
-	);
+	const rowClass = isExpired
+		? "row-accent row-accent-danger"
+		: isInheritance && isActive
+			? "row-accent row-accent-brass"
+			: isOwner && isActive
+				? "row-accent"
+				: "row";
 
-	let statusBadge;
+	let chip: React.ReactNode;
 	if (w.status === "Executed") {
-		statusBadge = (
-			<span className="status-badge bg-text-muted/10 text-text-muted border border-text-muted/20">
-				Executed
+		chip = (
+			<span className="chip-brass">
+				<span className="dot" /> Executed
 			</span>
 		);
 	} else if (isExpired) {
-		statusBadge = (
-			<span className="status-badge bg-accent-red/10 text-accent-red border border-accent-red/20 animate-pulse-slow">
-				Expired
+		chip = (
+			<span className="chip-danger">
+				<span className="dot" /> Expired
 			</span>
 		);
 	} else {
-		statusBadge = (
-			<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
-				Active
+		chip = (
+			<span className="chip-positive">
+				<span className="dot" /> Active
 			</span>
 		);
 	}
 
 	return (
-		<div className="card space-y-3">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-3">
-					<span className="text-lg font-semibold text-text-primary font-mono">
-						#{Number(w.id)}
-					</span>
-					{statusBadge}
-				</div>
-				<span className="text-sm text-text-secondary">
-					Owner:{" "}
-					<span className="font-medium text-text-primary">{ownerLabel}</span>
-				</span>
-			</div>
-
-			<div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-				<div
-					onClick={() => w.bequests.length > 0 && setExpanded(!expanded)}
-					className={w.bequests.length > 0 ? "cursor-pointer group" : ""}
-				>
-					<span className="text-text-muted">Bequests</span>
-					<p className="font-mono text-text-primary">
-						{w.bequestCount}
-						{w.bequests.length > 0 && (
-							<span className="text-text-muted group-hover:text-text-secondary ml-1">
-								{expanded ? "▲" : "▼"}
-							</span>
+		<article className={rowClass}>
+			<button
+				onClick={() => setExpanded(!expanded)}
+				className="w-full text-left flex items-center gap-4"
+			>
+				<div className="flex-1 min-w-0">
+					<div className="flex items-center gap-2.5 mb-1 flex-wrap">
+						<span className="font-mono text-xs text-ink-400 tabular">
+							№{String(Number(w.id)).padStart(3, "0")}
+						</span>
+						{chip}
+						{isInheritance && (
+							<span className="chip-brass">Names you</span>
 						)}
-					</p>
+						{isOwner && isActive && (
+							<span className="chip-estate">Yours</span>
+						)}
+					</div>
+					<h3 className="h-card leading-tight truncate">
+						{isOwner ? (
+							<>Your will · {w.bequestCount} {w.bequestCount === 1 ? "instruction" : "instructions"}</>
+						) : (
+							<>
+								{ownerLabel} · {w.bequestCount}{" "}
+								{w.bequestCount === 1 ? "instruction" : "instructions"}
+							</>
+						)}
+					</h3>
+					{allRecipients.length > 0 && (
+						<p className="text-sm text-ink-500 mt-1 truncate">
+							To: {allRecipients.map(accountLabel).join(", ")}
+						</p>
+					)}
 				</div>
-				<div>
-					<span className="text-text-muted">Expiry Block</span>
-					<p className="font-mono text-text-primary">#{w.expiryBlock}</p>
-				</div>
-				<div>
-					<span className="text-text-muted">
-						{w.status === "Executed" ? "Executed at" : "Countdown"}
-					</span>
-					<p
-						className={`font-mono ${
-							w.status === "Executed"
-								? "text-text-primary"
-								: isExpired
-									? "text-accent-red"
-									: blocksLeft < 10
-										? "text-accent-yellow"
-										: "text-text-primary"
-						}`}
-					>
-						{w.status === "Executed"
-							? `Block #${w.executedBlock}`
-							: isExpired
-								? `Expired ${Math.abs(blocksLeft)} blocks ago`
-								: `${blocksLeft} blocks (~${formatDuration(secondsLeft)})`}
-					</p>
-				</div>
-			</div>
 
-			{allRecipients.length > 0 && (
-				<div className="text-sm">
-					<span className="text-text-muted">Beneficiaries: </span>
-					<span className="text-text-primary text-xs">
-						{allRecipients.map(accountLabel).join(", ")}
-					</span>
-				</div>
-			)}
-
-			{expanded && w.bequests.length > 0 && (
-				<div className="space-y-2 pt-1">
-					{w.bequests.map((bequest, i) => {
-						const { title, detail } = renderBequest(bequest);
-						return (
-							<div
-								key={i}
-								className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 space-y-1"
+				<div className="hidden md:flex flex-col items-end text-right">
+					<div className="eyebrow mb-0.5">
+						{w.status === "Executed" ? "Fired at" : isExpired ? "Status" : "Countdown"}
+					</div>
+					{w.status === "Executed" ? (
+						<span className="font-mono text-sm tabular">
+							№{w.executedBlock.toLocaleString()}
+						</span>
+					) : isExpired ? (
+						<span className="text-sm font-medium text-danger">
+							Awaiting scheduler
+						</span>
+					) : (
+						<div>
+							<span
+								className={`font-semibold tabular ${blocksLeft < 10 ? "text-danger" : "text-ink-900"}`}
 							>
-								<div className="flex items-center gap-2">
-									<span className="text-xs font-medium text-accent-blue">
-										#{i + 1}
-									</span>
-									<span className="text-sm font-semibold text-text-primary">
-										{title}
-									</span>
-								</div>
-								<p className="text-xs text-text-secondary">{detail}</p>
+								{formatDuration(secondsLeft)}
+							</span>
+							<div className="text-xs text-ink-500 tabular">
+								{blocksLeft} blk
 							</div>
+						</div>
+					)}
+				</div>
+
+				<span className="text-ink-400 text-sm ml-2">
+					{expanded ? "▴" : "▾"}
+				</span>
+			</button>
+
+			{expanded && (
+				<div className="mt-4 pt-4 border-t border-hairline space-y-4 animate-slide-up">
+					<dl className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+						<Field label="Owner" mono>
+							{ownerLabel}
+						</Field>
+						<Field label="Expiry" mono>
+							№{w.expiryBlock.toLocaleString()}
+						</Field>
+						<Field label="Interval">
+							{w.blockInterval} blocks
+						</Field>
+						<Field label="Will id" mono>
+							{Number(w.id)}
+						</Field>
+					</dl>
+
+					{w.bequests.length > 0 && (
+						<div>
+							<div className="eyebrow mb-2">Instructions</div>
+							<ol className="space-y-2">
+								{w.bequests.map((bequest, i) => (
+									<li
+										key={i}
+										className="flex gap-3 p-3 rounded-xl bg-muted"
+									>
+										<span className="font-mono text-xs text-ink-400 tabular pt-0.5">
+											{String(i + 1).padStart(2, "0")}
+										</span>
+										<span className="text-sm">{renderBequest(bequest)}</span>
+									</li>
+								))}
+							</ol>
+						</div>
+					)}
+
+					{isActive && isOwner && (
+						<div className="flex flex-wrap gap-2 pt-2">
+							{!isExpired && (
+								<button
+									onClick={() => onAction(w.id, "heartbeat")}
+									className="btn-accent btn-sm"
+								>
+									♥ Heartbeat
+								</button>
+							)}
+							<button
+								onClick={() => onAction(w.id, "cancel")}
+								className="btn-danger btn-sm"
+							>
+								Cancel
+							</button>
+						</div>
+					)}
+
+					{["heartbeat", "cancel"].map((action) => {
+						const key = `${w.id}-${action}`;
+						const status = actionStatus[key];
+						if (!status) return null;
+						const color = status.startsWith("Error")
+							? "text-danger"
+							: status === "Done"
+								? "text-positive"
+								: "text-caution";
+						return (
+							<p key={key} className={`text-xs ${color}`}>
+								<span className="font-semibold capitalize">{action}</span>:{" "}
+								{status}
+							</p>
 						);
 					})}
 				</div>
 			)}
+		</article>
+	);
+}
 
-			{isActive && isOwner && (
-				<div className="flex gap-2 pt-1">
-					{!isExpired && (
-						<button
-							onClick={() => onAction(w.id, "heartbeat")}
-							className="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/20 hover:bg-accent-green/20 transition-colors"
-						>
-							Heartbeat
-						</button>
-					)}
-					<button
-						onClick={() => onAction(w.id, "cancel")}
-						className="px-3 py-1.5 rounded-lg text-xs font-medium bg-text-muted/10 text-text-secondary border border-text-muted/20 hover:bg-text-muted/20 transition-colors"
-					>
-						Cancel
-					</button>
-				</div>
-			)}
-
-			{["heartbeat", "cancel"].map((action) => {
-				const key = `${w.id}-${action}`;
-				const status = actionStatus[key];
-				if (!status) return null;
-				return (
-					<p
-						key={key}
-						className={`text-xs font-medium ${
-							status.startsWith("Error")
-								? "text-accent-red"
-								: status === "Success"
-									? "text-accent-green"
-									: "text-accent-yellow"
-						}`}
-					>
-						{action}: {status}
-					</p>
-				);
-			})}
+function Field({
+	label,
+	mono,
+	children,
+}: {
+	label: string;
+	mono?: boolean;
+	children: React.ReactNode;
+}) {
+	return (
+		<div>
+			<div className="eyebrow mb-0.5">{label}</div>
+			<div
+				className={`${mono ? "font-mono tabular text-[0.85rem]" : ""} text-ink-900 truncate`}
+			>
+				{children}
+			</div>
 		</div>
 	);
 }

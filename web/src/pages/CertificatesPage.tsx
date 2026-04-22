@@ -18,20 +18,18 @@ interface Certificate {
 }
 
 function truncateAddress(addr: string): string {
-	return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
+	return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
-
 function accountLabel(addr: string): string {
 	const dev = devAccounts.find((a) => a.address === addr);
 	return dev ? dev.name : truncateAddress(addr);
 }
-
 function formatBalanceUnit(planck: bigint): string {
 	const whole = planck / 1_000_000_000_000n;
 	const frac = planck % 1_000_000_000_000n;
-	if (frac === 0n) return whole.toString() + " UNIT";
+	if (frac === 0n) return whole.toString() + " ROC";
 	const fracStr = frac.toString().padStart(12, "0").replace(/0+$/, "");
-	return `${whole}.${fracStr} UNIT`;
+	return `${whole}.${fracStr} ROC`;
 }
 
 function renderReceivedBequest(bequest: Bequest, owner?: string): string {
@@ -40,13 +38,13 @@ function renderReceivedBequest(bequest: Bequest, owner?: string): string {
 	const value = bequest.value;
 	switch (type) {
 		case "Transfer":
-			return `Received ${formatBalanceUnit(value.amount)} on Asset Hub from ${from}`;
+			return `Received ${formatBalanceUnit(value.amount)} from ${from}`;
 		case "TransferAll":
 			return `Received ${from}'s entire Asset Hub balance`;
 		case "Proxy":
-			return `Granted proxy access over ${from}'s Asset Hub account`;
+			return `Granted proxy over ${from}'s Asset Hub account`;
 		case "MultisigProxy":
-			return `Granted multisig proxy (${value.threshold} of ${value.delegates.length}) over ${from}'s Asset Hub account`;
+			return `Granted ${value.threshold}-of-${value.delegates.length} multisig proxy over ${from}'s Asset Hub account`;
 		default:
 			return `Unknown bequest (${type})`;
 	}
@@ -68,9 +66,6 @@ function bequestRecipients(bequest: Bequest): string[] {
 	}
 }
 
-// Mirrors the runtime's item_id derivation:
-//   blake2_256(SCALE::encode((will_id: u64, &beneficiary: AccountId32)))[..4]
-//   interpreted as u32 LE.
 function deriveItemId(willId: bigint, address: string): number {
 	const [pubkey] = ss58Decode(address);
 	const buf = new Uint8Array(8 + pubkey.length);
@@ -97,17 +92,19 @@ export default function CertificatesPage() {
 		try {
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
-			const cid = await api.query.EstateExecutor.CertificateCollectionId.getValue({ at: "best" });
+			const cid =
+				await api.query.EstateExecutor.CertificateCollectionId.getValue({
+					at: "best",
+				});
 			setCollectionId(cid ?? null);
 			if (cid === undefined) {
 				setCertificates([]);
 				return;
 			}
-			// Nfts.Account is keyed (owner, collection, item) and stores
-			// ownership. Query entries under (owner, collection) to list
-			// the items held by the current account in that collection.
 			const [entries, willEntries, bequestEntries] = await Promise.all([
-				api.query.Nfts.Account.getEntries(selected.address, cid, { at: "best" }),
+				api.query.Nfts.Account.getEntries(selected.address, cid, {
+					at: "best",
+				}),
 				api.query.EstateExecutor.Wills.getEntries({ at: "best" }),
 				api.query.EstateExecutor.WillBequests.getEntries({ at: "best" }),
 			]);
@@ -117,11 +114,6 @@ export default function CertificatesPage() {
 				bequestsByWill.set(String(entry.keyArgs[0]), entry.value as Bequest[]);
 			}
 
-			// Build item_id → (will data, received bequests) map over every
-			// executed will that names the current account. When the mint
-			// succeeds for a (will, beneficiary) pair, item_id is
-			// deterministic, so we can look up what the certificate
-			// represents without reading an index off-chain.
 			const itemIdToWill = new Map<
 				number,
 				{ executedBlock: number; owner: string; received: Bequest[] }
@@ -158,7 +150,7 @@ export default function CertificatesPage() {
 					};
 				},
 			);
-			items.sort((a, b) => (a.executedBlock ?? 0) - (b.executedBlock ?? 0));
+			items.sort((a, b) => (b.executedBlock ?? 0) - (a.executedBlock ?? 0));
 			setCertificates(items);
 		} finally {
 			setLoading(false);
@@ -170,141 +162,160 @@ export default function CertificatesPage() {
 	}, [fetchCertificates, blockNumber]);
 
 	return (
-		<div className="space-y-6 animate-fade-in">
-			<div className="space-y-2">
-				<h1 className="page-title">Certificates</h1>
-				<p className="text-text-secondary">
-					Permanent, non-transferable proofs that a will naming you as a beneficiary has
-					executed. The underlying bequest might be a transfer, proxy grant, or any other
-					pattern — the certificate just records that you were named.
+		<div className="space-y-8 stagger">
+			{/* Header */}
+			<div>
+				<div className="eyebrow mb-1">Inheritance</div>
+				<h1 className="h-display text-4xl md:text-5xl">
+					Your <span className="italic text-brass-500">certificates</span>
+				</h1>
+				<p className="text-sm text-ink-500 mt-2 max-w-xl">
+					Permanent, non-transferable proofs that a will naming you as a
+					beneficiary has executed. Minted as soulbound NFTs on Estate
+					Protocol.
 				</p>
 			</div>
 
-			{/* Account selector */}
-			<div className="card space-y-3">
-				<h2 className="section-title">Viewing as</h2>
-				<div className="flex flex-wrap gap-2">
-					{accounts.map((acc, i) => (
-						<button
-							key={acc.address}
-							onClick={() => useChainStore.getState().setSelectedAccount(i)}
-							className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-								selectedAccount === i
-									? "bg-polka-500/20 text-white border border-polka-500/30"
-									: "text-text-secondary hover:text-text-primary hover:bg-white/[0.04] border border-transparent"
-							}`}
-						>
-							{acc.name}
-						</button>
-					))}
+			{/* Viewing as */}
+			<section className="card-padded">
+				<div className="flex items-center justify-between flex-wrap gap-4">
+					<div>
+						<div className="eyebrow mb-1">Viewing as</div>
+						<div className="flex flex-wrap gap-2">
+							{accounts.map((acc, i) => (
+								<button
+									key={acc.address}
+									onClick={() =>
+										useChainStore.getState().setSelectedAccount(i)
+									}
+									className={`text-sm px-3 py-1.5 rounded-full transition-all ${
+										selectedAccount === i
+											? "bg-ink-900 text-canvas shadow-soft"
+											: "bg-muted text-ink-700 hover:bg-mist"
+									}`}
+								>
+									{acc.name}
+								</button>
+							))}
+						</div>
+					</div>
+					{collectionId !== null && (
+						<div className="text-right">
+							<div className="eyebrow mb-0.5">Collection</div>
+							<div className="font-mono text-sm tabular">
+								pallet-nfts · №{collectionId}
+							</div>
+						</div>
+					)}
 				</div>
 				{selected && (
-					<p className="text-xs text-text-muted font-mono">
-						{accountLabel(selected.address)} — {selected.address}
+					<p className="text-xs text-ink-400 font-mono mt-3">
+						{selected.address}
 					</p>
 				)}
-			</div>
+			</section>
 
 			{/* Certificates */}
-			{loading && (
-				<div className="card animate-pulse">
-					<div className="h-4 w-48 rounded bg-white/[0.06]" />
-				</div>
-			)}
+			<section>
+				{loading && (
+					<div className="card-padded text-center text-sm text-ink-500 py-10">
+						Loading certificates…
+					</div>
+				)}
 
-			{!loading && (collectionId === null || certificates.length === 0) && (
-				<div className="card text-center space-y-2 py-8">
-					<p className="text-4xl">🪦</p>
-					<p className="text-text-secondary">No certificates yet</p>
-					<p className="text-xs text-text-muted">
-						Certificates appear here when a will naming you as a beneficiary executes.
-					</p>
-				</div>
-			)}
-
-			{certificates.length > 0 && (
-				<div className="space-y-3">
-					{certificates.map((cert, i) => (
-						<div key={cert.itemId} className="card space-y-3">
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-3">
-									<span className="text-2xl">🎖️</span>
-									<div>
-										<p className="text-base font-semibold text-text-primary">
-											Execution Certificate #{i + 1}
-										</p>
-										<p className="text-xs text-text-muted">
-											Soulbound NFT — non-transferable, permanent record of a
-											will naming you as a beneficiary.
-										</p>
-									</div>
-								</div>
-								<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
-									✓ soulbound
-								</span>
-							</div>
-
-							{(cert.executedBlock !== undefined || cert.owner) && (
-								<div className="grid grid-cols-2 gap-3 text-sm pt-3 border-t border-white/[0.06]">
-									{cert.executedBlock !== undefined && (
-										<div>
-											<span className="text-text-muted">Executed at</span>
-											<p className="font-mono text-text-primary">
-												Block #{cert.executedBlock}
-											</p>
-										</div>
-									)}
-									{cert.owner && (
-										<div>
-											<span className="text-text-muted">From</span>
-											<p className="font-medium text-text-primary">
-												{accountLabel(cert.owner)}
-											</p>
-										</div>
-									)}
-								</div>
-							)}
-
-							{cert.receivedBequests.length > 0 && (
-								<div className="space-y-1.5 pt-3 border-t border-white/[0.06]">
-									<p className="text-xs text-text-muted uppercase tracking-wider">
-										You received
-									</p>
-									<ul className="space-y-1">
-										{cert.receivedBequests.map((b, j) => (
-											<li
-												key={j}
-												className="text-sm text-text-primary flex gap-2"
-											>
-												<span className="text-accent-green">•</span>
-												<span>
-													{renderReceivedBequest(b, cert.owner)}
-													{cert.executedBlock !== undefined && (
-														<span className="text-text-muted font-mono">
-															{" "}
-															· block #{cert.executedBlock}
-														</span>
-													)}
-												</span>
-											</li>
-										))}
-									</ul>
-								</div>
-							)}
-
-							<details className="text-xs text-text-muted pt-3 border-t border-white/[0.06]">
-								<summary className="cursor-pointer hover:text-text-secondary">
-									On-chain reference
-								</summary>
-								<p className="font-mono mt-1">
-									pallet-nfts · collection {cert.collectionId} · item{" "}
-									{cert.itemId}
-								</p>
-							</details>
+				{!loading &&
+					(collectionId === null || certificates.length === 0) && (
+						<div className="card-padded text-center py-16 bg-gradient-to-br from-brass-50/40 to-paper">
+							<div className="text-5xl mb-3">🏅</div>
+							<h3 className="h-section mb-1">No certificates yet</h3>
+							<p className="text-sm text-ink-500 max-w-sm mx-auto">
+								Certificates appear here when a will naming you as a
+								beneficiary executes.
+							</p>
 						</div>
-					))}
-				</div>
-			)}
+					)}
+
+				{certificates.length > 0 && (
+					<div className="grid md:grid-cols-2 gap-4">
+						{certificates.map((cert) => (
+							<CertificateCard
+								key={cert.itemId}
+								cert={cert}
+							/>
+						))}
+					</div>
+				)}
+			</section>
 		</div>
+	);
+}
+
+function CertificateCard({ cert }: { cert: Certificate }) {
+	return (
+		<article className="relative rounded-2xl overflow-hidden bg-paper border border-hairline shadow-soft hover:shadow-card transition-shadow">
+			{/* Ribbon strip */}
+			<div className="absolute top-0 right-0 bottom-0 w-1 bg-gradient-to-b from-brass-300 via-brass-400 to-brass-500" />
+
+			{/* Header strip */}
+			<div className="bg-gradient-to-br from-brass-50 via-paper to-estate-50 px-6 py-6 border-b border-hairline">
+				<div className="flex items-start justify-between gap-4">
+					<div>
+						<div className="eyebrow text-brass-500 mb-2">Soulbound record</div>
+						<h3 className="h-display text-3xl md:text-4xl leading-tight">
+							Execution <span className="italic text-brass-500">Certificate</span>
+						</h3>
+					</div>
+					<div className="shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-brass-200 to-brass-400 flex items-center justify-center text-xl shadow-soft">
+						🏅
+					</div>
+				</div>
+			</div>
+
+			{/* Body */}
+			<div className="px-6 py-5 space-y-4">
+				{(cert.executedBlock !== undefined || cert.owner) && (
+					<dl className="grid grid-cols-2 gap-4 text-sm">
+						{cert.executedBlock !== undefined && (
+							<div>
+								<div className="eyebrow mb-0.5">Executed at</div>
+								<div className="font-mono text-sm tabular">
+									№{cert.executedBlock.toLocaleString()}
+								</div>
+							</div>
+						)}
+						{cert.owner && (
+							<div>
+								<div className="eyebrow mb-0.5">From</div>
+								<div className="font-medium text-sm">
+									{accountLabel(cert.owner)}
+								</div>
+							</div>
+						)}
+					</dl>
+				)}
+
+				{cert.receivedBequests.length > 0 && (
+					<div className="pt-4 border-t border-hairline">
+						<div className="eyebrow mb-2">You received</div>
+						<ul className="space-y-1.5">
+							{cert.receivedBequests.map((b, j) => (
+								<li key={j} className="flex gap-2 text-sm text-ink-700">
+									<span className="text-estate-500 mt-0.5">◆</span>
+									<span>{renderReceivedBequest(b, cert.owner)}</span>
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+
+				<div className="flex items-center justify-between pt-4 border-t border-hairline">
+					<span className="chip-brass">
+						<span className="dot" />
+						Soulbound
+					</span>
+					<span className="text-xs text-ink-400">non-transferable</span>
+				</div>
+			</div>
+		</article>
 	);
 }

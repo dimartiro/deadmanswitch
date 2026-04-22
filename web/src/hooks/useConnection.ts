@@ -101,20 +101,39 @@ export function useConnectionManagement() {
 		// inclusion, and storage queries target best-block by default,
 		// so the refetch driven by this subscription sees the tx's
 		// state on the same tick it fires.
+		//
+		// Average the block time over the last 50 observed intervals so
+		// UI countdowns stay stable across occasional slow/fast blocks.
+		// Default to 6s until we've collected enough samples.
+		//
+		// `bestBlocks$` can emit multiple times per block (e.g. when
+		// forks resolve) so we only recompute intervals when the block
+		// number actually advances, and normalise by blocks advanced in
+		// case several parachain blocks get imported in a burst.
 		const setBlockTime = useChainStore.getState().setBlockTime;
+		const WINDOW_SIZE = 50;
+		const intervals: number[] = [];
+		let lastBlockNumber = -1;
 		let lastTimestamp = 0;
 		const client = getClient(wsUrl);
 		const subscription = client.bestBlocks$.subscribe((blocks) => {
 			const best = blocks[0];
 			if (!best) return;
 			setBlockNumber(best.number);
+			if (best.number <= lastBlockNumber) return;
 			const now = Date.now();
 			if (lastTimestamp > 0) {
-				const elapsed = (now - lastTimestamp) / 1000;
-				if (elapsed > 0.5 && elapsed < 30) {
-					setBlockTime(Math.round(elapsed));
+				const advanced = best.number - lastBlockNumber;
+				const perBlock = (now - lastTimestamp) / 1000 / advanced;
+				if (perBlock > 0.1 && perBlock < 60) {
+					intervals.push(perBlock);
+					if (intervals.length > WINDOW_SIZE) intervals.shift();
+					const avg =
+						intervals.reduce((a, b) => a + b, 0) / intervals.length;
+					setBlockTime(Math.max(1, Math.round(avg)));
 				}
 			}
+			lastBlockNumber = best.number;
 			lastTimestamp = now;
 		});
 

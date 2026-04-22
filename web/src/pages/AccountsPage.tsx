@@ -17,13 +17,9 @@ import {
 	connectInjectedExtension,
 	type InjectedPolkadotAccount,
 } from "polkadot-api/pjs-signer";
-import { injectSpektrExtension, SpektrExtensionName } from "@novasamatech/product-sdk";
 import { Binary, FixedSizeBinary, type PolkadotSigner } from "polkadot-api";
 import { ss58Address } from "@polkadot-labs/hdkd-helpers";
 
-// Sibling parachain sovereign account on Asset Hub, derived per
-// `polkadot_parachain_primitives::primitives::Sibling`:
-//   b"sibl" ++ u32_le(para_id) ++ padding to 32 bytes
 const ESTATE_PARA_ID = 2000;
 function estateSovereignOnAssetHub(): string {
 	const buf = new Uint8Array(32);
@@ -33,41 +29,20 @@ function estateSovereignOnAssetHub(): string {
 }
 const ESTATE_SOVEREIGN_ON_ASSETHUB = estateSovereignOnAssetHub();
 
-type HostEnvironment = "desktop-webview" | "web-iframe" | "standalone";
-
-function detectHostEnvironment(): HostEnvironment {
-	if (typeof window === "undefined") return "standalone";
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	if ((window as any).__HOST_WEBVIEW_MARK__) return "desktop-webview";
-	try {
-		if (window !== window.top) return "web-iframe";
-	} catch {
-		return "web-iframe";
-	}
-	return "standalone";
-}
-
-function isInHost(): boolean {
-	return detectHostEnvironment() !== "standalone";
-}
-
 interface DisplayAccount {
 	name: string;
 	ss58: string;
-	type: "dev" | "extension" | "spektr";
+	type: "dev" | "extension";
 	signer: PolkadotSigner;
 }
-
 interface AccountInfo {
 	balance: bigint;
 	nonce: number;
 }
-
 interface IdentityStatus {
 	hasIdentity: boolean;
 	display?: string;
 }
-
 interface AssetHubLinkStatus {
 	linked: boolean;
 	balance?: bigint;
@@ -81,35 +56,14 @@ function formatBalance(planck: bigint): string {
 	return `${whole.toLocaleString()}.${fracStr}`;
 }
 
-function CopyableAddress({ label, address }: { label: string; address: string }) {
-	const [copied, setCopied] = useState(false);
-	function handleCopy() {
-		navigator.clipboard.writeText(address);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 1500);
-	}
-	return (
-		<div
-			onClick={handleCopy}
-			className="flex items-center gap-2 cursor-pointer group"
-			title="Click to copy"
-		>
-			<span className="text-xs text-text-muted w-8 shrink-0 uppercase font-medium">
-				{label}
-			</span>
-			<code className="text-xs text-text-secondary font-mono break-all flex-1 group-hover:text-text-primary transition-colors">
-				{address}
-			</code>
-			<span className="text-xs text-text-muted group-hover:text-text-secondary shrink-0 transition-colors">
-				{copied ? "Copied!" : "Copy"}
-			</span>
-		</div>
-	);
+function formatBalanceShort(planck: bigint): string {
+	const whole = planck / 1_000_000_000_000n;
+	const frac = planck % 1_000_000_000_000n;
+	if (frac === 0n) return whole.toLocaleString();
+	const fracStr = frac.toString().padStart(12, "0").slice(0, 4);
+	return `${whole.toLocaleString()}.${fracStr.replace(/0+$/, "") || "0"}`;
 }
 
-// Read the display name out of a People Chain IdentityInfo. The Raw*
-// variants encode a fixed-size byte buffer; Raw0 means "no data"; Raw1
-// is a bare u8; Raw2..Raw32 wrap a FixedSizeBinary.
 function extractDisplayName(info: unknown): string | undefined {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const rawDisplay = (info as any)?.info?.display;
@@ -122,9 +76,25 @@ function extractDisplayName(info: unknown): string | undefined {
 		if (bin?.asText) return bin.asText();
 		if (bin instanceof Binary) return bin.asText();
 	} catch {
-		// fall through
+		/* */
 	}
 	return undefined;
+}
+
+function CopyButton({ text }: { text: string }) {
+	const [copied, setCopied] = useState(false);
+	return (
+		<button
+			onClick={() => {
+				navigator.clipboard.writeText(text);
+				setCopied(true);
+				setTimeout(() => setCopied(false), 1500);
+			}}
+			className="text-xs text-ink-400 hover:text-ink-700 transition-colors"
+		>
+			{copied ? "Copied" : "Copy"}
+		</button>
+	);
 }
 
 export default function AccountsPage() {
@@ -137,32 +107,18 @@ export default function AccountsPage() {
 	} = useChainStore();
 	const bypassIdentity = peopleChainAvailable === false;
 	const showAssetHub = assetHubAvailable === true;
-	const spektrUnsubscribeRef = useRef<(() => void) | null>(null);
 	const extensionUnsubscribeRef = useRef<(() => void) | null>(null);
 	const [availableWallets, setAvailableWallets] = useState<string[]>([]);
 	const [extensionAccounts, setExtensionAccounts] = useState<InjectedPolkadotAccount[]>([]);
 	const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
-	const [spektrAccounts, setSpektrAccounts] = useState<InjectedPolkadotAccount[]>([]);
-	const [spektrStatus, setSpektrStatus] = useState<
-		"detecting" | "injecting" | "connected" | "unavailable" | "failed"
-	>("detecting");
 	const [fundStatus, setFundStatus] = useState<string | null>(null);
 	const [fundAmount, setFundAmount] = useState("10000");
 	const [accountInfos, setAccountInfos] = useState<Record<string, AccountInfo>>({});
-	const [identityStatuses, setIdentityStatuses] = useState<
-		Record<string, IdentityStatus>
-	>({});
-	const [identityActionStatus, setIdentityActionStatus] = useState<
-		Record<string, string>
-	>({});
-	const [assetHubLinks, setAssetHubLinks] = useState<
-		Record<string, AssetHubLinkStatus>
-	>({});
-	const [linkActionStatus, setLinkActionStatus] = useState<
-		Record<string, string>
-	>({});
+	const [identityStatuses, setIdentityStatuses] = useState<Record<string, IdentityStatus>>({});
+	const [identityActionStatus, setIdentityActionStatus] = useState<Record<string, string>>({});
+	const [assetHubLinks, setAssetHubLinks] = useState<Record<string, AssetHubLinkStatus>>({});
+	const [linkActionStatus, setLinkActionStatus] = useState<Record<string, string>>({});
 
-	// Build dev account display list
 	const devDisplayAccounts: DisplayAccount[] = devAccounts.map((acc) => ({
 		name: acc.name,
 		ss58: acc.address,
@@ -170,14 +126,11 @@ export default function AccountsPage() {
 		signer: acc.signer,
 	}));
 
-	// All SS58 addresses to query
 	const allAddresses = [
 		...devAccounts.map((a) => a.address),
 		...extensionAccounts.map((a) => a.address),
-		...spektrAccounts.map((a) => a.address),
 	];
 
-	// Query balances and nonces from Estate Protocol
 	const fetchAccountInfos = useCallback(async () => {
 		if (!connected || allAddresses.length === 0) return;
 		try {
@@ -186,13 +139,12 @@ export default function AccountsPage() {
 			const infos: Record<string, AccountInfo> = {};
 			for (const addr of allAddresses) {
 				try {
-					const info = await api.query.System.Account.getValue(addr, { at: "best" });
-					infos[addr] = {
-						balance: info.data.free,
-						nonce: info.nonce,
-					};
+					const info = await api.query.System.Account.getValue(addr, {
+						at: "best",
+					});
+					infos[addr] = { balance: info.data.free, nonce: info.nonce };
 				} catch {
-					// Skip accounts that fail
+					/* skip */
 				}
 			}
 			setAccountInfos(infos);
@@ -201,7 +153,6 @@ export default function AccountsPage() {
 		}
 	}, [connected, wsUrl, allAddresses.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
-	// Query identity status from People Chain (separate parachain)
 	const fetchIdentities = useCallback(async () => {
 		if (allAddresses.length === 0) return;
 		if (bypassIdentity) {
@@ -214,7 +165,9 @@ export default function AccountsPage() {
 			const results = await Promise.all(
 				allAddresses.map(async (addr) => {
 					try {
-						const info = await api.query.Identity.IdentityOf.getValue(addr, { at: "best" });
+						const info = await api.query.Identity.IdentityOf.getValue(addr, {
+							at: "best",
+						});
 						const hasIdentity = info !== undefined;
 						const display = hasIdentity ? extractDisplayName(info) : undefined;
 						return [addr, { hasIdentity, display }] as const;
@@ -225,13 +178,10 @@ export default function AccountsPage() {
 			);
 			setIdentityStatuses(Object.fromEntries(results));
 		} catch {
-			// People Chain not reachable — leave statuses empty.
+			/* */
 		}
 	}, [allAddresses.join(","), bypassIdentity]); // eslint-disable-line react-hooks/exhaustive-deps
 
-	// Query proxy+balance on Asset Hub for each known account. A link
-	// exists when the account's Proxies storage entry includes our
-	// sovereign account as a delegate.
 	const fetchAssetHubLinks = useCallback(async () => {
 		if (allAddresses.length === 0) return;
 		if (!showAssetHub) {
@@ -266,83 +216,30 @@ export default function AccountsPage() {
 			);
 			setAssetHubLinks(Object.fromEntries(results));
 		} catch {
-			// Asset Hub not reachable — leave links empty.
+			/* */
 		}
 	}, [allAddresses.join(","), showAssetHub]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	useEffect(() => {
 		fetchAccountInfos();
 	}, [fetchAccountInfos, blockNumber]);
-
 	useEffect(() => {
 		fetchIdentities();
 	}, [fetchIdentities, blockNumber]);
-
 	useEffect(() => {
 		fetchAssetHubLinks();
 	}, [fetchAssetHubLinks, blockNumber]);
 
-	// Detect host environment and inject Spektr on mount
-	useEffect(() => {
-		let cancelled = false;
-
-		async function initSpektr() {
-			if (!isInHost()) {
-				setSpektrStatus("unavailable");
-				return;
-			}
-			setSpektrStatus("injecting");
-			try {
-				let injected = false;
-				for (let i = 0; i < 10; i++) {
-					if (await injectSpektrExtension()) {
-						injected = true;
-						break;
-					}
-					if (i < 9) await new Promise((r) => setTimeout(r, 500));
-				}
-				if (!injected) {
-					setSpektrStatus("failed");
-					return;
-				}
-				const ext = await connectInjectedExtension(SpektrExtensionName);
-				if (cancelled) {
-					ext.disconnect();
-					return;
-				}
-				const accounts = ext.getAccounts();
-				setSpektrAccounts(accounts);
-				setSpektrStatus("connected");
-				spektrUnsubscribeRef.current?.();
-				spektrUnsubscribeRef.current = ext.subscribe((updated) => {
-					setSpektrAccounts(updated);
-				});
-			} catch (e) {
-				console.error("[Spektr] Init failed:", e);
-				setSpektrStatus("failed");
-			}
-		}
-
-		initSpektr();
-
-		return () => {
-			cancelled = true;
-			spektrUnsubscribeRef.current?.();
-			spektrUnsubscribeRef.current = null;
-		};
-	}, []);
-
-	// Detect available browser extension wallets and auto-reconnect on mount
 	useEffect(() => {
 		try {
-			const wallets = getInjectedExtensions().filter((name) => name !== SpektrExtensionName);
+			const wallets = getInjectedExtensions();
 			setAvailableWallets(wallets);
 			const saved = localStorage.getItem("connected-wallet");
 			if (saved && wallets.includes(saved)) {
 				connectWallet(saved);
 			}
 		} catch {
-			// No injected extensions available
+			/* */
 		}
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -387,7 +284,6 @@ export default function AccountsPage() {
 
 	useEffect(() => {
 		return () => {
-			spektrUnsubscribeRef.current?.();
 			extensionUnsubscribeRef.current?.();
 		};
 	}, []);
@@ -399,7 +295,7 @@ export default function AccountsPage() {
 		}
 		try {
 			const amount = BigInt(fundAmount) * 1_000_000_000_000n;
-			setFundStatus(`Funding ${accountName}...`);
+			setFundStatus(`Funding ${accountName}…`);
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
 			const aliceSigner = devAccounts[0].signer;
@@ -414,7 +310,7 @@ export default function AccountsPage() {
 				setFundStatus(`Error: ${result.errorMessage ?? "unknown"}`);
 				return;
 			}
-			setFundStatus(`Funded ${accountName} with ${fundAmount} tokens!`);
+			setFundStatus(`Funded ${accountName} with ${fundAmount} tokens`);
 			fetchAccountInfos();
 		} catch (e) {
 			console.error("Fund failed:", e);
@@ -424,30 +320,22 @@ export default function AccountsPage() {
 
 	async function registerIdentity(acc: DisplayAccount) {
 		const key = `reg-${acc.ss58}`;
-		setIdentityActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
+		setIdentityActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
 		try {
 			const client = getPeopleChainClient();
 			const api = client.getTypedApi(people_chain);
-			// Papi's IdentityData enum has one variant per byte length
-			// (Raw0..Raw32). Raw0 and None carry no value; Raw1 is a bare
-			// u8 (number); Raw2..=Raw32 use FixedSizeBinary<N>.
 			const displayName = acc.name.slice(0, 32);
 			const bytes = new TextEncoder().encode(displayName).slice(0, 32);
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			let display: any;
-			if (bytes.length === 0) {
-				display = { type: "None", value: undefined };
-			} else if (bytes.length === 1) {
-				display = { type: "Raw1", value: bytes[0] };
-			} else {
+			if (bytes.length === 0) display = { type: "None", value: undefined };
+			else if (bytes.length === 1) display = { type: "Raw1", value: bytes[0] };
+			else
 				display = {
 					type: `Raw${bytes.length}`,
 					value: FixedSizeBinary.fromBytes(bytes),
 				};
-			}
 			const none = { type: "None" as const, value: undefined };
-			// People Chain uses the modernised IdentityInfo (no `additional`,
-			// `riot` renamed to `matrix`, `github` + `discord` added).
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const info: any = {
 				display,
@@ -482,7 +370,7 @@ export default function AccountsPage() {
 
 	async function clearIdentity(acc: DisplayAccount) {
 		const key = `clr-${acc.ss58}`;
-		setIdentityActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
+		setIdentityActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
 		try {
 			const client = getPeopleChainClient();
 			const api = client.getTypedApi(people_chain);
@@ -507,7 +395,7 @@ export default function AccountsPage() {
 
 	async function linkAssetHub(acc: DisplayAccount) {
 		const key = `link-${acc.ss58}`;
-		setLinkActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
+		setLinkActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
 		try {
 			const client = getAssetHubClient();
 			const api = client.getTypedApi(asset_hub);
@@ -536,7 +424,7 @@ export default function AccountsPage() {
 
 	async function unlinkAssetHub(acc: DisplayAccount) {
 		const key = `unlink-${acc.ss58}`;
-		setLinkActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
+		setLinkActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
 		try {
 			const client = getAssetHubClient();
 			const api = client.getTypedApi(asset_hub);
@@ -569,76 +457,64 @@ export default function AccountsPage() {
 		talisman: "Talisman",
 	};
 
-	const typeBadge: Record<string, { className: string; label: string }> = {
-		dev: {
-			className: "bg-accent-blue/10 text-accent-blue border border-accent-blue/20",
-			label: "Dev",
-		},
-		extension: {
-			className: "bg-accent-purple/10 text-accent-purple border border-accent-purple/20",
-			label: "Extension",
-		},
-		spektr: {
-			className: "bg-polka-500/10 text-polka-400 border border-polka-500/20",
-			label: "Host",
-		},
-	};
-
 	return (
-		<div className="space-y-6 animate-fade-in">
-			<div className="space-y-2">
-				<h1 className="page-title text-polka-400">Accounts</h1>
-				<p className="text-text-secondary">
-					Manage dev accounts, connect browser extension wallets, or use Polkadot Host
-					accounts. Each card shows the chain balance on Estate Protocol and the
-					identity registered on People Chain.
-				</p>
+		<div className="space-y-8 stagger">
+			<div className="flex items-end justify-between gap-4 flex-wrap">
+				<div>
+					<div className="eyebrow mb-1">Keys</div>
+					<h1 className="h-display text-4xl md:text-5xl">
+						Your <span className="italic text-estate-500">accounts</span>
+					</h1>
+					<p className="text-sm text-ink-500 mt-2 max-w-xl">
+						Manage dev accounts, connect browser wallets, register on-chain
+						identities and link each account to Asset Hub for XCM flows.
+					</p>
+				</div>
+				<div className="flex items-end gap-2">
+					<div>
+						<label className="eyebrow mb-1 block">Fund amount</label>
+						<input
+							type="number"
+							value={fundAmount}
+							onChange={(e) => setFundAmount(e.target.value)}
+							className="input-mono w-32"
+						/>
+					</div>
+					<button onClick={fetchAccountInfos} className="btn-outline">
+						Refresh
+					</button>
+				</div>
 			</div>
 
+			{fundStatus && (
+				<div
+					className={
+						fundStatus.startsWith("Error") ? "alert-danger" : "alert-positive"
+					}
+				>
+					{fundStatus}
+				</div>
+			)}
+
 			{bypassIdentity && (
-				<div className="card border border-accent-yellow/20 bg-accent-yellow/5 space-y-1">
-					<p className="text-sm text-accent-yellow font-medium">
-						Identities support disabled
-					</p>
-					<p className="text-xs text-text-muted">
+				<div className="alert-caution">
+					<p className="font-medium">Identity support disabled</p>
+					<p className="text-xs opacity-80 mt-1">
 						People Chain isn't reachable at{" "}
 						<span className="font-mono">ws://localhost:9946</span>. Identity
-						registration is hidden here, and identity checks are bypassed
-						when creating wills.
+						registration is hidden and checks are bypassed when creating
+						wills.
 					</p>
 				</div>
 			)}
 
-			{/* Fund amount */}
-			<div className="card space-y-3">
-				<h2 className="section-title">Funding</h2>
-				<div className="flex gap-3 items-center">
-					<label className="text-sm text-text-secondary">Amount (tokens):</label>
-					<input
-						type="number"
-						value={fundAmount}
-						onChange={(e) => setFundAmount(e.target.value)}
-						className="input-field w-40"
-					/>
-					<button onClick={fetchAccountInfos} className="btn-secondary text-xs">
-						Refresh Balances
-					</button>
-				</div>
-				{fundStatus && (
-					<p
-						className={`text-sm font-medium ${fundStatus.startsWith("Error") ? "text-accent-red" : "text-accent-green"}`}
-					>
-						{fundStatus}
-					</p>
-				)}
-			</div>
-
-			{/* Dev Accounts */}
-			<div className="card space-y-4">
-				<h2 className="section-title">Dev Accounts</h2>
-				<p className="text-sm text-text-muted">
-					Pre-funded accounts from the well-known dev seed phrase.
-				</p>
+			{/* DEV ACCOUNTS */}
+			<section>
+				<SectionHeader
+					eyebrow="Dev"
+					title="Development accounts"
+					subtitle="Pre-funded accounts from the well-known Substrate dev seed."
+				/>
 				<div className="space-y-3">
 					{devDisplayAccounts.map((acc) => (
 						<AccountCard
@@ -647,56 +523,56 @@ export default function AccountsPage() {
 							info={accountInfos[acc.ss58]}
 							identity={identityStatuses[acc.ss58]}
 							identityActionStatus={identityActionStatus}
-							badge={typeBadge[acc.type]}
+							connected={connected}
+							showIdentity={!bypassIdentity}
+							showAssetHub={showAssetHub}
+							link={assetHubLinks[acc.ss58]}
+							linkActionStatus={linkActionStatus}
 							onFund={() => fundAccount(acc.ss58, acc.name)}
 							onRegisterIdentity={() => registerIdentity(acc)}
 							onClearIdentity={() => clearIdentity(acc)}
-							connected={connected}
-							showIdentity={!bypassIdentity}
-						showAssetHub={showAssetHub}
-						link={assetHubLinks[acc.ss58]}
-						linkActionStatus={linkActionStatus}
-						onLinkAssetHub={() => linkAssetHub(acc)}
-						onUnlinkAssetHub={() => unlinkAssetHub(acc)}
+							onLinkAssetHub={() => linkAssetHub(acc)}
+							onUnlinkAssetHub={() => unlinkAssetHub(acc)}
 						/>
 					))}
 				</div>
-			</div>
+			</section>
 
-			{/* Polkadot Host Accounts */}
-			<div className="card space-y-4">
-				<h2 className="section-title">Polkadot Host Accounts</h2>
-				{spektrStatus === "detecting" && (
-					<p className="text-sm text-accent-yellow">
-						Detecting Polkadot host environment...
-					</p>
-				)}
-				{spektrStatus === "injecting" && (
-					<p className="text-sm text-accent-yellow">Connecting to Polkadot Host...</p>
-				)}
-				{spektrStatus === "unavailable" && (
-					<p className="text-sm text-text-muted">
-						Not running inside a Polkadot Host. These accounts are only available when
-						this app is loaded through a Polkadot Host client.
-					</p>
-				)}
-				{spektrStatus === "failed" && (
-					<p className="text-sm text-accent-red">
-						Failed to connect to Polkadot Host. The host environment may not be
-						available.
-					</p>
-				)}
-				{spektrStatus === "connected" && (
+			{/* BROWSER EXTENSIONS */}
+			<section>
+				<SectionHeader
+					eyebrow="Wallets"
+					title="Browser wallets"
+					subtitle={
+						connectedWallet
+							? `Connected via ${walletNames[connectedWallet] ?? connectedWallet}.`
+							: availableWallets.length > 0
+								? "Connect a browser wallet to sign with its accounts."
+								: "Install Polkadot.js, Talisman, or SubWallet to unlock this section."
+					}
+				/>
+				{connectedWallet ? (
 					<div className="space-y-3">
-						<p className="text-sm text-accent-green font-medium">
-							Connected to Polkadot Host ({spektrAccounts.length} account
-							{spektrAccounts.length !== 1 ? "s" : ""})
-						</p>
-						{spektrAccounts.map((acc) => {
+						<div className="card-padded flex items-center justify-between flex-wrap gap-3">
+							<div className="flex items-center gap-2">
+								<span className="chip-positive">
+									<span className="dot" />
+									{walletNames[connectedWallet] ?? connectedWallet}
+								</span>
+								<span className="text-sm text-ink-500">
+									{extensionAccounts.length} account
+									{extensionAccounts.length !== 1 ? "s" : ""}
+								</span>
+							</div>
+							<button onClick={disconnectWallet} className="btn-outline btn-sm">
+								Disconnect
+							</button>
+						</div>
+						{extensionAccounts.map((acc) => {
 							const display: DisplayAccount = {
-								name: acc.name || "Host Account",
+								name: acc.name || "Unnamed",
 								ss58: acc.address,
-								type: "spektr",
+								type: "extension",
 								signer: acc.polkadotSigner,
 							};
 							return (
@@ -706,121 +582,152 @@ export default function AccountsPage() {
 									info={accountInfos[acc.address]}
 									identity={identityStatuses[acc.address]}
 									identityActionStatus={identityActionStatus}
-									badge={typeBadge.spektr}
+									connected={connected}
+									showIdentity={!bypassIdentity}
+									showAssetHub={showAssetHub}
+									link={assetHubLinks[display.ss58]}
+									linkActionStatus={linkActionStatus}
 									onFund={() => fundAccount(acc.address, display.name)}
 									onRegisterIdentity={() => registerIdentity(display)}
 									onClearIdentity={() => clearIdentity(display)}
-									connected={connected}
-								showIdentity={!bypassIdentity}
-								showAssetHub={showAssetHub}
-								link={assetHubLinks[display.ss58]}
-								linkActionStatus={linkActionStatus}
-								onLinkAssetHub={() => linkAssetHub(display)}
-								onUnlinkAssetHub={() => unlinkAssetHub(display)}
+									onLinkAssetHub={() => linkAssetHub(display)}
+									onUnlinkAssetHub={() => unlinkAssetHub(display)}
 								/>
 							);
 						})}
 					</div>
-				)}
-			</div>
-
-			{/* Extension Wallets */}
-			<div className="card space-y-4">
-				<h2 className="section-title">Browser Extension Wallets</h2>
-				{connectedWallet ? (
-					<div className="space-y-3">
-						<div className="flex items-center gap-3">
-							<span className="text-sm text-accent-green font-medium">
-								Connected to {walletNames[connectedWallet] || connectedWallet}
-							</span>
-							<button
-								onClick={disconnectWallet}
-								className="px-3 py-1 rounded-md bg-accent-red/10 text-accent-red text-xs font-medium hover:bg-accent-red/20 transition-colors"
-							>
-								Disconnect
-							</button>
-						</div>
-						{extensionAccounts.length === 0 ? (
-							<p className="text-sm text-text-muted">
-								No accounts found in this wallet.
-							</p>
-						) : (
-							extensionAccounts.map((acc) => {
-								const display: DisplayAccount = {
-									name: acc.name || "Unnamed",
-									ss58: acc.address,
-									type: "extension",
-									signer: acc.polkadotSigner,
-								};
-								return (
-									<AccountCard
-										key={acc.address}
-										account={display}
-										info={accountInfos[acc.address]}
-										identity={identityStatuses[acc.address]}
-										identityActionStatus={identityActionStatus}
-										badge={typeBadge.extension}
-										onFund={() => fundAccount(acc.address, display.name)}
-										onRegisterIdentity={() => registerIdentity(display)}
-										onClearIdentity={() => clearIdentity(display)}
-										connected={connected}
-								showIdentity={!bypassIdentity}
-									showAssetHub={showAssetHub}
-									link={assetHubLinks[display.ss58]}
-									linkActionStatus={linkActionStatus}
-									onLinkAssetHub={() => linkAssetHub(display)}
-									onUnlinkAssetHub={() => unlinkAssetHub(display)}
-									/>
-								);
-							})
-						)}
-					</div>
 				) : availableWallets.length > 0 ? (
-					<div className="flex flex-wrap gap-2">
-						{availableWallets.map((name) => (
-							<button
-								key={name}
-								onClick={() => connectWallet(name)}
-								className="btn-primary"
-							>
-								Connect {walletNames[name] || name}
-							</button>
-						))}
+					<div className="card-padded">
+						<div className="flex flex-wrap gap-2">
+							{availableWallets.map((name) => (
+								<button
+									key={name}
+									onClick={() => connectWallet(name)}
+									className="btn-primary btn-sm"
+								>
+									Connect {walletNames[name] || name}
+								</button>
+							))}
+						</div>
 					</div>
 				) : (
-					<p className="text-sm text-text-muted">
-						No browser extension wallets detected. Install{" "}
-						<a
-							href="https://polkadot.js.org/extension/"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-polka-400 underline hover:text-polka-300"
-						>
-							Polkadot.js
-						</a>
-						,{" "}
-						<a
-							href="https://www.talisman.xyz/"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-polka-400 underline hover:text-polka-300"
-						>
-							Talisman
-						</a>
-						, or{" "}
-						<a
-							href="https://www.subwallet.app/"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-polka-400 underline hover:text-polka-300"
-						>
-							SubWallet
-						</a>{" "}
-						to connect.
-					</p>
+					<div className="card-padded">
+						<p className="text-sm text-ink-500">
+							No browser extension wallets detected. Install{" "}
+							<a
+								href="https://polkadot.js.org/extension/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-estate-500 underline"
+							>
+								Polkadot.js
+							</a>
+							,{" "}
+							<a
+								href="https://www.talisman.xyz/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-estate-500 underline"
+							>
+								Talisman
+							</a>
+							, or{" "}
+							<a
+								href="https://www.subwallet.app/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-estate-500 underline"
+							>
+								SubWallet
+							</a>
+							.
+						</p>
+					</div>
 				)}
-			</div>
+			</section>
 		</div>
+	);
+}
+
+function SectionHeader({
+	eyebrow,
+	title,
+	subtitle,
+}: {
+	eyebrow: string;
+	title: string;
+	subtitle: string;
+}) {
+	return (
+		<div className="mb-4">
+			<div className="eyebrow mb-1">{eyebrow}</div>
+			<h2 className="h-section">{title}</h2>
+			<p className="text-sm text-ink-500 mt-1">{subtitle}</p>
+		</div>
+	);
+}
+
+function DismissiblePill({
+	label,
+	onDismiss,
+	dismissing,
+	tone = "positive",
+}: {
+	label: string;
+	onDismiss: () => void;
+	dismissing: boolean;
+	tone?: "positive";
+}) {
+	const bg =
+		tone === "positive"
+			? "rgba(79, 174, 110, 0.10)"
+			: "rgba(79, 174, 110, 0.10)";
+	const border =
+		tone === "positive"
+			? "rgba(79, 174, 110, 0.25)"
+			: "rgba(79, 174, 110, 0.25)";
+	return (
+		<span
+			className="inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-1 py-1 text-xs font-medium text-positive border"
+			style={{ background: bg, borderColor: border }}
+		>
+			<span className="w-1.5 h-1.5 rounded-full bg-current" />
+			<span>{label}</span>
+			<button
+				onClick={onDismiss}
+				disabled={dismissing}
+				className="w-5 h-5 rounded-full hover:bg-[rgba(79,174,110,0.2)] flex items-center justify-center text-positive disabled:opacity-40 transition-colors"
+				title="Remove"
+			>
+				<svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+					<path d="M1.5 1.5 L8.5 8.5 M8.5 1.5 L1.5 8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+				</svg>
+			</button>
+		</span>
+	);
+}
+
+function InfoTooltip({ children }: { children: React.ReactNode }) {
+	return (
+		<span className="relative inline-flex items-center group">
+			<button
+				type="button"
+				className="w-4 h-4 rounded-full border border-hairline flex items-center justify-center text-[0.62rem] font-medium text-ink-400 hover:text-ink-900 hover:border-rule transition-colors"
+				aria-label="More info"
+			>
+				i
+			</button>
+			<span
+				className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 rounded-xl border border-hairline bg-paper shadow-card px-3 py-2.5 text-xs text-ink-700 leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50"
+				style={{ transitionDuration: "150ms" }}
+			>
+				{children}
+				<span
+					className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-paper border-r border-b border-hairline"
+					style={{ transform: "translate(-50%, -50%) rotate(45deg)" }}
+				/>
+			</span>
+		</span>
 	);
 }
 
@@ -829,15 +736,14 @@ function AccountCard({
 	info,
 	identity,
 	identityActionStatus,
-	badge,
-	onFund,
-	onRegisterIdentity,
-	onClearIdentity,
 	connected,
 	showIdentity,
 	showAssetHub,
 	link,
 	linkActionStatus,
+	onFund,
+	onRegisterIdentity,
+	onClearIdentity,
 	onLinkAssetHub,
 	onUnlinkAssetHub,
 }: {
@@ -845,15 +751,14 @@ function AccountCard({
 	info?: AccountInfo;
 	identity?: IdentityStatus;
 	identityActionStatus: Record<string, string>;
-	badge: { className: string; label: string };
-	onFund: () => void;
-	onRegisterIdentity: () => void;
-	onClearIdentity: () => void;
 	connected: boolean;
 	showIdentity: boolean;
 	showAssetHub: boolean;
 	link?: AssetHubLinkStatus;
 	linkActionStatus: Record<string, string>;
+	onFund: () => void;
+	onRegisterIdentity: () => void;
+	onClearIdentity: () => void;
 	onLinkAssetHub: () => void;
 	onUnlinkAssetHub: () => void;
 }) {
@@ -861,133 +766,184 @@ function AccountCard({
 	const clrKey = `clr-${account.ss58}`;
 	const pendingIdentityMsg =
 		identityActionStatus[regKey] ?? identityActionStatus[clrKey];
+	const clearing = identityActionStatus[clrKey] === "Submitting…";
 	const linkKey = `link-${account.ss58}`;
 	const unlinkKey = `unlink-${account.ss58}`;
 	const pendingLinkMsg =
 		linkActionStatus[linkKey] ?? linkActionStatus[unlinkKey];
+	const unlinking = linkActionStatus[unlinkKey] === "Submitting…";
+
+	const typeChipClass =
+		account.type === "dev" ? "chip-neutral" : "chip-estate";
+	const typeLabel = account.type === "dev" ? "Dev" : "Extension";
 
 	return (
-		<div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 space-y-2">
-			<div className="flex items-center justify-between">
-				<span className="font-semibold text-text-primary">{account.name}</span>
-				<div className="flex gap-2 items-center">
-					{info && (
-						<span className="text-xs text-text-tertiary font-mono">
-							{formatBalance(info.balance)} | nonce: {info.nonce}
-						</span>
+		<article className="card overflow-hidden">
+			{/* Header — Asset Hub balance is the hero number */}
+			<div className="px-6 py-5 border-b border-hairline flex items-start justify-between gap-6 flex-wrap">
+				<div className="flex items-start gap-3 min-w-0">
+					<div className="w-10 h-10 rounded-xl bg-ink-900 text-canvas flex items-center justify-center font-semibold text-sm shrink-0">
+						{account.name[0]?.toUpperCase() ?? "?"}
+					</div>
+					<div className="min-w-0">
+						<div className="flex items-center gap-2">
+							<h3 className="h-card truncate">{account.name}</h3>
+							<span className={typeChipClass}>{typeLabel}</span>
+						</div>
+						<div className="flex items-center gap-2 text-xs text-ink-400 font-mono mt-0.5 truncate">
+							<span className="truncate">{account.ss58}</span>
+							<CopyButton text={account.ss58} />
+						</div>
+					</div>
+				</div>
+
+				<div className="text-right shrink-0 flex flex-col items-end">
+					{showAssetHub && link?.balance !== undefined ? (
+						<>
+							<div className="text-[0.65rem] uppercase tracking-[0.12em] text-brass-500 font-medium mb-0.5">
+								Asset Hub
+							</div>
+							<div className="font-semibold tabular text-2xl text-ink-900">
+								{formatBalanceShort(link.balance)}
+								<span className="text-sm text-ink-400 ml-1">ROC</span>
+							</div>
+						</>
+					) : showAssetHub ? (
+						<>
+							<div className="text-[0.65rem] uppercase tracking-[0.12em] text-ink-400 font-medium mb-0.5">
+								Asset Hub
+							</div>
+							<div className="text-sm text-ink-400">—</div>
+						</>
+					) : (
+						info && (
+							<>
+								<div className="eyebrow mb-0.5">On Estate</div>
+								<div className="font-mono tabular text-sm">
+									{formatBalance(info.balance)}
+								</div>
+							</>
+						)
 					)}
-					{connected && (
+					{showAssetHub && info && (
+						<div className="text-[0.7rem] text-ink-400 mt-1 font-mono tabular flex items-center gap-2">
+							<span>
+								{formatBalanceShort(info.balance)} on Estate · nonce {info.nonce}
+							</span>
+							{connected && (
+								<button
+									onClick={onFund}
+									className="text-[0.7rem] text-ink-400 hover:text-estate-500 transition-colors"
+									title="Top up dev balance on Estate"
+								>
+									＋fund
+								</button>
+							)}
+						</div>
+					)}
+					{!showAssetHub && info && connected && (
 						<button
 							onClick={onFund}
-							className="px-2 py-1 rounded-md bg-accent-yellow/10 text-accent-yellow text-xs font-medium hover:bg-accent-yellow/20 transition-colors"
+							className="text-[0.7rem] text-ink-400 hover:text-estate-500 transition-colors mt-1"
+							title="Top up dev balance on Estate"
 						>
-							Fund
+							＋fund
 						</button>
 					)}
-					<span className={`status-badge ${badge.className}`}>{badge.label}</span>
 				</div>
 			</div>
-			<div className="space-y-1">
-				<CopyableAddress label="SS58" address={account.ss58} />
+
+			{/* Actions row — identity + AH link side by side */}
+			<div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-hairline">
+				{/* Identity */}
+				{showIdentity ? (
+					<div className="p-5">
+						<div className="eyebrow mb-2">Identity</div>
+						<div className="flex items-center gap-2 flex-wrap min-h-[28px]">
+							{identity?.hasIdentity ? (
+								<DismissiblePill
+									label={identity.display ?? "registered"}
+									onDismiss={onClearIdentity}
+									dismissing={clearing}
+								/>
+							) : (
+								<button onClick={onRegisterIdentity} className="btn-outline btn-sm">
+									+ Create identity
+								</button>
+							)}
+						</div>
+						{pendingIdentityMsg && (
+							<p
+								className={`text-xs mt-2 ${
+									pendingIdentityMsg.startsWith("Error")
+										? "text-danger"
+										: pendingIdentityMsg === "Registered" ||
+											  pendingIdentityMsg === "Cleared"
+											? "text-positive"
+											: "text-caution"
+								}`}
+							>
+								{pendingIdentityMsg}
+							</p>
+						)}
+					</div>
+				) : (
+					<div className="p-5">
+						<div className="eyebrow mb-2">Identity</div>
+						<div className="text-xs text-ink-400">People Chain unavailable</div>
+					</div>
+				)}
+
+				{/* Asset Hub link */}
+				{showAssetHub ? (
+					<div className="p-5">
+						<div className="eyebrow mb-2">Asset Hub link</div>
+						<div className="flex items-center gap-2 flex-wrap min-h-[28px]">
+							{link?.linked ? (
+								<DismissiblePill
+									label="linked as proxy"
+									onDismiss={onUnlinkAssetHub}
+									dismissing={unlinking}
+								/>
+							) : (
+								<>
+									<button
+										onClick={onLinkAssetHub}
+										className="btn-accent btn-sm"
+									>
+										+ Link to Asset Hub
+									</button>
+									<InfoTooltip>
+										Adds Estate Protocol's sovereign account as a full proxy
+										on your Asset Hub account. When a will executes, the
+										protocol signs calls (transfers, proxies, etc.) as you.
+										Revoke at any time by clicking the × on the pill.
+									</InfoTooltip>
+								</>
+							)}
+						</div>
+						{pendingLinkMsg && (
+							<p
+								className={`text-xs mt-2 ${
+									pendingLinkMsg.startsWith("Error")
+										? "text-danger"
+										: pendingLinkMsg === "Linked" ||
+											  pendingLinkMsg === "Unlinked"
+											? "text-positive"
+											: "text-caution"
+								}`}
+							>
+								{pendingLinkMsg}
+							</p>
+						)}
+					</div>
+				) : (
+					<div className="p-5">
+						<div className="eyebrow mb-2">Asset Hub link</div>
+						<div className="text-xs text-ink-400">Not reachable</div>
+					</div>
+				)}
 			</div>
-			{showIdentity && (
-				<div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
-					<div className="flex items-center gap-2">
-						<span className="text-xs text-text-muted uppercase font-medium w-8 shrink-0">
-							ID
-						</span>
-						{identity?.hasIdentity ? (
-							<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
-								✓ {identity.display ?? "registered"}
-							</span>
-						) : (
-							<span className="status-badge bg-accent-red/10 text-accent-red border border-accent-red/20">
-								✗ no identity
-							</span>
-						)}
-					</div>
-					{identity?.hasIdentity ? (
-						<button
-							onClick={onClearIdentity}
-							className="px-2 py-1 rounded-md bg-text-muted/10 text-text-secondary border border-text-muted/20 text-xs font-medium hover:bg-text-muted/20 transition-colors"
-						>
-							Clear identity
-						</button>
-					) : (
-						<button
-							onClick={onRegisterIdentity}
-							className="px-2 py-1 rounded-md bg-accent-blue/10 text-accent-blue border border-accent-blue/20 text-xs font-medium hover:bg-accent-blue/20 transition-colors"
-						>
-							Register identity
-						</button>
-					)}
-				</div>
-			)}
-			{showIdentity && pendingIdentityMsg && (
-				<p
-					className={`text-xs font-medium ${
-						pendingIdentityMsg.startsWith("Error")
-							? "text-accent-red"
-							: pendingIdentityMsg === "Registered" ||
-								  pendingIdentityMsg === "Cleared"
-								? "text-accent-green"
-								: "text-accent-yellow"
-					}`}
-				>
-					{pendingIdentityMsg}
-				</p>
-			)}
-			{showAssetHub && (
-				<div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
-					<div className="flex items-center gap-2">
-						<span className="text-xs text-text-muted uppercase font-medium w-8 shrink-0">
-							AH
-						</span>
-						{link?.linked ? (
-							<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
-								✓ linked
-							</span>
-						) : (
-							<span className="status-badge bg-text-muted/10 text-text-muted border border-text-muted/20">
-								not linked
-							</span>
-						)}
-						{link?.balance !== undefined && (
-							<span className="text-xs text-text-tertiary font-mono">
-								{formatBalance(link.balance)} ROC
-							</span>
-						)}
-					</div>
-					{link?.linked ? (
-						<button
-							onClick={onUnlinkAssetHub}
-							className="px-2 py-1 rounded-md bg-text-muted/10 text-text-secondary border border-text-muted/20 text-xs font-medium hover:bg-text-muted/20 transition-colors"
-						>
-							Unlink
-						</button>
-					) : (
-						<button
-							onClick={onLinkAssetHub}
-							className="px-2 py-1 rounded-md bg-polka-500/10 text-polka-400 border border-polka-500/20 text-xs font-medium hover:bg-polka-500/20 transition-colors"
-						>
-							Link to Asset Hub
-						</button>
-					)}
-				</div>
-			)}
-			{showAssetHub && pendingLinkMsg && (
-				<p
-					className={`text-xs font-medium ${
-						pendingLinkMsg.startsWith("Error")
-							? "text-accent-red"
-							: pendingLinkMsg === "Linked" || pendingLinkMsg === "Unlinked"
-								? "text-accent-green"
-								: "text-accent-yellow"
-					}`}
-				>
-					{pendingLinkMsg}
-				</p>
-			)}
-		</div>
+		</article>
 	);
 }

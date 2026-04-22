@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
 import { useAllAccounts } from "../hooks/useAllAccounts";
@@ -16,9 +17,6 @@ import { formatDuration } from "../utils/format";
 import { submitAndWait } from "../utils/tx";
 import { ss58Address } from "@polkadot-labs/hdkd-helpers";
 
-// Sibling parachain sovereign derivation (mirrors
-// `polkadot_parachain_primitives::primitives::Sibling`):
-//   b"sibl" ++ u32_le(2000) ++ pad-to-32-bytes
 const ESTATE_SOVEREIGN_ON_ASSETHUB = (() => {
 	const buf = new Uint8Array(32);
 	buf.set(new TextEncoder().encode("sibl"), 0);
@@ -26,20 +24,13 @@ const ESTATE_SOVEREIGN_ON_ASSETHUB = (() => {
 	return ss58Address(buf);
 })();
 
-type PatternKind =
-	| "Transfer"
-	| "TransferAll"
-	| "Proxy"
-	| "MultisigProxy";
+type PatternKind = "Transfer" | "TransferAll" | "Proxy" | "MultisigProxy";
 
 interface Entry {
 	id: number;
 	kind: PatternKind;
-	// Transfer / TransferAll / Proxy
 	dest: string;
-	// Transfer
 	amount: string;
-	// MultisigProxy
 	delegates: string[];
 	threshold: string;
 }
@@ -57,6 +48,32 @@ function newEntry(): Entry {
 	};
 }
 
+const PATTERN_META: Record<
+	PatternKind,
+	{ label: string; description: string; emoji: string }
+> = {
+	Transfer: {
+		label: "Transfer",
+		description: "Send a fixed amount of ROC from Asset Hub",
+		emoji: "↗",
+	},
+	TransferAll: {
+		label: "Transfer all",
+		description: "Send the entire Asset Hub balance",
+		emoji: "⇉",
+	},
+	Proxy: {
+		label: "Grant proxy",
+		description: "Grant full proxy over your Asset Hub account",
+		emoji: "🗝",
+	},
+	MultisigProxy: {
+		label: "Grant multisig proxy",
+		description: "M-of-N multisig gains full proxy",
+		emoji: "⛨",
+	},
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildBequest(entry: Entry): any {
 	switch (entry.kind) {
@@ -69,15 +86,9 @@ function buildBequest(entry: Entry): any {
 				},
 			};
 		case "TransferAll":
-			return {
-				type: "TransferAll",
-				value: { dest: entry.dest },
-			};
+			return { type: "TransferAll", value: { dest: entry.dest } };
 		case "Proxy":
-			return {
-				type: "Proxy",
-				value: { delegate: entry.dest },
-			};
+			return { type: "Proxy", value: { delegate: entry.dest } };
 		case "MultisigProxy":
 			return {
 				type: "MultisigProxy",
@@ -89,14 +100,14 @@ function buildBequest(entry: Entry): any {
 	}
 }
 
-function IdentityBadge({ verified }: { verified: boolean }) {
+function IdentityChip({ verified }: { verified: boolean }) {
 	return verified ? (
-		<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
-			✓ verified
+		<span className="chip-positive">
+			<span className="dot" /> verified
 		</span>
 	) : (
-		<span className="status-badge bg-accent-red/10 text-accent-red border border-accent-red/20">
-			✗ no identity
+		<span className="chip-danger">
+			<span className="dot" /> unverified
 		</span>
 	);
 }
@@ -131,44 +142,46 @@ function AccountSelect({
 	return (
 		<div>
 			{label && (
-				<div className="flex items-center justify-between mb-1">
-					<label className="label">{label}</label>
+				<div className="flex items-baseline justify-between mb-1.5">
+					<label className="eyebrow">{label}</label>
 					{value && verified !== undefined && (
-						<IdentityBadge verified={verified} />
+						<IdentityChip verified={verified} />
 					)}
 				</div>
 			)}
-			<select
-				value={showCustom ? "__custom__" : value}
-				onChange={(e) => {
-					const v = e.target.value;
-					if (v === "__custom__") {
-						setShowCustom(true);
-						onChange("");
-					} else {
-						setShowCustom(false);
-						onChange(v);
-					}
-				}}
-				className="input-field w-full mb-2"
-			>
-				<option value="" disabled>
-					Select account...
-				</option>
-				{known.map((acc) => (
-					<option key={acc.address} value={acc.address}>
-						{acc.name}
+			<div className="select-wrap">
+				<select
+					value={showCustom ? "__custom__" : value}
+					onChange={(e) => {
+						const v = e.target.value;
+						if (v === "__custom__") {
+							setShowCustom(true);
+							onChange("");
+						} else {
+							setShowCustom(false);
+							onChange(v);
+						}
+					}}
+					className="input"
+				>
+					<option value="" disabled>
+						Select an account…
 					</option>
-				))}
-				<option value="__custom__">Custom address...</option>
-			</select>
+					{known.map((acc) => (
+						<option key={acc.address} value={acc.address}>
+							{acc.name}
+						</option>
+					))}
+					<option value="__custom__">By address…</option>
+				</select>
+			</div>
 			{showCustom && (
 				<input
 					type="text"
 					value={value}
 					onChange={(e) => onChange(e.target.value)}
-					placeholder={placeholder || "5Grwva..."}
-					className="input-field w-full"
+					placeholder={placeholder || "5Grwva…"}
+					className="input-mono mt-2"
 				/>
 			)}
 		</div>
@@ -199,7 +212,6 @@ function DelegatesInput({
 		if (!addr || value.includes(addr)) return;
 		onChange([...value, addr]);
 	}
-
 	function remove(idx: number) {
 		onChange(value.filter((_, i) => i !== idx));
 	}
@@ -211,35 +223,36 @@ function DelegatesInput({
 				return (
 					<div
 						key={i}
-						className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-1.5"
+						className="flex items-center justify-between gap-3 rounded-xl bg-muted border border-hairline px-3 py-2"
 					>
-						<span className="text-sm text-text-primary flex-1">
-							{k ? k.name : `${addr.slice(0, 8)}...${addr.slice(-6)}`}
+						<span className="text-sm font-medium">
+							{k ? k.name : `${addr.slice(0, 8)}…${addr.slice(-6)}`}
 						</span>
-						<IdentityBadge verified={isVerified(addr)} />
-						<button
-							onClick={() => remove(i)}
-							className="text-xs text-accent-red hover:text-accent-red/80"
-						>
-							Remove
-						</button>
+						<div className="flex items-center gap-2">
+							<IdentityChip verified={isVerified(addr)} />
+							<button onClick={() => remove(i)} className="btn-ghost btn-sm">
+								Remove
+							</button>
+						</div>
 					</div>
 				);
 			})}
-			<select
-				value=""
-				onChange={(e) => add(e.target.value)}
-				className="input-field w-full"
-			>
-				<option value="">Add delegate...</option>
-				{known
-					.filter((a) => !value.includes(a.address))
-					.map((acc) => (
-						<option key={acc.address} value={acc.address}>
-							{acc.name}
-						</option>
-					))}
-			</select>
+			<div className="select-wrap">
+				<select
+					value=""
+					onChange={(e) => add(e.target.value)}
+					className="input"
+				>
+					<option value="">Add a delegate…</option>
+					{known
+						.filter((a) => !value.includes(a.address))
+						.map((acc) => (
+							<option key={acc.address} value={acc.address}>
+								{acc.name}
+							</option>
+						))}
+				</select>
+			</div>
 		</div>
 	);
 }
@@ -253,9 +266,6 @@ export default function CreateWillPage() {
 		peopleChainAvailable,
 		assetHubAvailable,
 	} = useChainStore();
-	// Solo-node dev mode (no relay, no People Chain). Identity checks
-	// are bypassed so create-will isn't gated on a registry that doesn't
-	// exist in this topology.
 	const bypassIdentity = peopleChainAvailable === false;
 	const showAssetHub = assetHubAvailable === true;
 	const { accounts, selected } = useAllAccounts();
@@ -266,6 +276,7 @@ export default function CreateWillPage() {
 	const [ownerAhBalance, setOwnerAhBalance] = useState<number>(0);
 	const [ownerAhLinked, setOwnerAhLinked] = useState<boolean>(false);
 	const [verified, setVerified] = useState<Record<string, boolean>>({});
+	const navigate = useNavigate();
 
 	const fetchAhBalance = useCallback(async () => {
 		if (!selected || !showAssetHub) {
@@ -300,9 +311,6 @@ export default function CreateWillPage() {
 		fetchAhBalance();
 	}, [fetchAhBalance, blockNumber]);
 
-	// Collect every beneficiary address across all entries and query
-	// pallet-identity for each. The result drives the per-row badges and
-	// the "can submit?" gate.
 	const allRecipients = Array.from(
 		new Set(
 			entries.flatMap((e) => {
@@ -316,8 +324,6 @@ export default function CreateWillPage() {
 		if (allRecipients.length === 0) return;
 		if (bypassIdentity) return;
 		let cancelled = false;
-		// Identity is queried from People Chain, not our own chain —
-		// Estate Protocol doesn't host pallet-identity anymore.
 		(async () => {
 			try {
 				const peopleClient = getPeopleChainClient();
@@ -325,7 +331,10 @@ export default function CreateWillPage() {
 				const results = await Promise.all(
 					allRecipients.map(async (addr) => {
 						try {
-							const info = await peopleApi.query.Identity.IdentityOf.getValue(addr, { at: "best" });
+							const info = await peopleApi.query.Identity.IdentityOf.getValue(
+								addr,
+								{ at: "best" },
+							);
 							return [addr, info !== undefined] as const;
 						} catch {
 							return [addr, false] as const;
@@ -336,8 +345,7 @@ export default function CreateWillPage() {
 					setVerified(Object.fromEntries(results));
 				}
 			} catch {
-				// Ignore — if People Chain is unreachable, badges will read
-				// "no identity" and submit stays blocked.
+				/* people chain unreachable */
 			}
 		})();
 		return () => {
@@ -354,11 +362,8 @@ export default function CreateWillPage() {
 	const hasRecipients = allRecipients.length > 0;
 
 	function updateEntry(id: number, update: Partial<Entry>) {
-		setEntries((prev) =>
-			prev.map((e) => (e.id === id ? { ...e, ...update } : e)),
-		);
+		setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...update } : e)));
 	}
-
 	function removeEntry(id: number) {
 		if (entries.length <= 1) return;
 		setEntries((prev) => prev.filter((e) => e.id !== id));
@@ -366,17 +371,16 @@ export default function CreateWillPage() {
 
 	async function handleSubmit() {
 		if (!connected) {
-			setStatus("Error: Not connected to chain");
+			setStatus("Error: Not connected to chain.");
 			return;
 		}
 		setSubmitting(true);
-		setStatus("Submitting...");
+		setStatus("Submitting…");
 		try {
 			if (!selected) throw new Error("No account selected");
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
 			const signer = selected.signer;
-
 			const bequests = entries.map(buildBequest);
 			const tx = api.tx.EstateExecutor.create_will({
 				bequests,
@@ -384,10 +388,9 @@ export default function CreateWillPage() {
 			});
 			const result = await submitAndWait(tx, signer, client);
 			if (result.ok) {
-				setStatus(
-					`Will registered in block #${result.block?.number ?? "?"}`,
-				);
+				setStatus(`Registered in block №${result.block?.number ?? "?"}.`);
 				setEntries([newEntry()]);
+				setTimeout(() => navigate("/dashboard"), 800);
 			} else {
 				setStatus(`Error: ${result.errorMessage ?? "unknown"}`);
 			}
@@ -401,19 +404,33 @@ export default function CreateWillPage() {
 
 	const blockTime = useChainStore((s) => s.blockTime);
 	const estimatedTime = Math.round((parseInt(blockInterval) || 0) * blockTime);
+	const canSubmit =
+		!submitting &&
+		connected &&
+		hasRecipients &&
+		allRecipientsVerified &&
+		(!showAssetHub || ownerAhLinked);
 
 	return (
-		<div className="space-y-6 animate-fade-in">
-			<div className="space-y-2">
-				<h1 className="page-title">Register a Will</h1>
-				<p className="text-text-secondary">
-					Declare how your estate is distributed if you stop sending heartbeats.
+		<div className="space-y-6 stagger">
+			{/* Page header */}
+			<div>
+				<div className="eyebrow mb-1">Draft</div>
+				<h1 className="h-display text-4xl md:text-5xl">
+					Compose a <span className="italic text-estate-500">will</span>
+				</h1>
+				<p className="text-sm text-ink-500 mt-2 max-w-xl">
+					Pick an owner, a heartbeat interval, and one or more instructions.
+					Silence longer than the interval fires the will automatically.
 				</p>
 			</div>
 
-			{/* Owner */}
-			<div className="card space-y-3">
-				<h2 className="section-title">Owner Account</h2>
+			{/* STEP 1 — Owner */}
+			<Panel
+				step="01"
+				title="Sign as"
+				description="Whichever account signs will be the will's owner and the only one who can heartbeat or cancel."
+			>
 				<div className="flex flex-wrap gap-2">
 					{accounts.map((acc, i) => (
 						<button
@@ -421,10 +438,10 @@ export default function CreateWillPage() {
 							onClick={() =>
 								useChainStore.getState().setSelectedAccount(i)
 							}
-							className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+							className={`text-sm px-4 py-2 rounded-full transition-all ${
 								selectedAccount === i
-									? "bg-polka-500/20 text-white border border-polka-500/30"
-									: "text-text-secondary hover:text-text-primary hover:bg-white/[0.04] border border-transparent"
+									? "bg-ink-900 text-canvas shadow-soft"
+									: "bg-muted text-ink-700 hover:bg-mist"
 							}`}
 						>
 							{acc.name}
@@ -432,255 +449,379 @@ export default function CreateWillPage() {
 					))}
 				</div>
 				{selected && (
-					<p className="text-xs text-text-muted font-mono">
-						{selected.address}
-					</p>
+					<div className="mt-3 grid md:grid-cols-3 gap-3">
+						<Field label="Address" mono>
+							{selected.address}
+						</Field>
+						{showAssetHub && (
+							<>
+								<Field label="Asset Hub balance">
+									<span className="tabular font-medium">
+										{ownerAhBalance.toFixed(4)} ROC
+									</span>
+								</Field>
+								<Field label="Linked to Asset Hub">
+									{ownerAhLinked ? (
+										<span className="chip-positive">
+											<span className="dot" /> linked
+										</span>
+									) : (
+										<span className="chip-danger">
+											<span className="dot" /> not linked
+										</span>
+									)}
+								</Field>
+							</>
+						)}
+					</div>
 				)}
-			</div>
+			</Panel>
 
-			{/* Settings */}
-			<div className="card space-y-4">
-				<h2 className="section-title">Settings</h2>
-				<div>
-					<label className="label">Heartbeat Interval (blocks)</label>
-					<input
-						type="number"
-						value={blockInterval}
-						onChange={(e) => setBlockInterval(e.target.value)}
-						placeholder="100"
-						className="input-field w-full md:w-64"
-					/>
-					<p className="text-xs text-text-muted mt-1">
-						~{formatDuration(estimatedTime)} at {blockTime}s/block. After
-						this many blocks without a heartbeat, the will auto-executes.
-					</p>
+			{/* STEP 2 — Heartbeat */}
+			<Panel
+				step="02"
+				title="Heartbeat interval"
+				description="Length of silence after which the will executes. Send a heartbeat any time to reset."
+				variant="heartbeat"
+			>
+				<div className="grid md:grid-cols-2 gap-6 items-start">
+					<div>
+						<label className="eyebrow mb-1.5 block">Interval, in blocks</label>
+						<input
+							type="range"
+							min="1"
+							max="1000"
+							value={blockInterval}
+							onChange={(e) => setBlockInterval(e.target.value)}
+							className="w-full accent-estate-700"
+						/>
+						<div className="flex items-center gap-3 mt-3">
+							<input
+								type="number"
+								value={blockInterval}
+								onChange={(e) => setBlockInterval(e.target.value)}
+								className="input-mono w-28"
+							/>
+							<span className="text-sm text-ink-500">blocks</span>
+						</div>
+					</div>
+					<div className="rounded-2xl p-5 bg-estate-50 border border-estate-100">
+						<div className="eyebrow text-estate-500 mb-1">Estimated silence</div>
+						<div className="h-display text-4xl text-estate-500">
+							{formatDuration(estimatedTime)}
+						</div>
+						<p className="text-xs text-estate-500/70 mt-2">
+							at {blockTime}s per parachain block
+						</p>
+					</div>
 				</div>
-			</div>
+			</Panel>
 
-			{/* Bequests */}
-			<div className="card space-y-4">
-				<div className="flex items-center justify-between">
-					<h2 className="section-title">Bequests</h2>
+			{/* STEP 3 — Instructions */}
+			<Panel
+				step="03"
+				title="Instructions"
+				description="Actions that will run on Asset Hub as your proxy. Multiple instructions are dispatched in order."
+				variant="instructions"
+				action={
 					<button
 						onClick={() => setEntries([...entries, newEntry()])}
-						className="btn-secondary text-xs"
+						className="btn-outline btn-sm"
 					>
-						+ add bequest
+						+ Add instruction
 					</button>
-				</div>
-				<div className="space-y-3">
+				}
+			>
+				<div className="space-y-4">
 					{entries.map((entry, idx) => (
 						<div
 							key={entry.id}
-							className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-3"
+							className="card-muted p-5"
 						>
-							<div className="flex items-center justify-between">
-								<span className="text-sm font-medium text-text-primary">
-									#{idx + 1}
-								</span>
+							<div className="flex items-center justify-between mb-4">
+								<div className="flex items-center gap-2">
+									<span className="font-mono text-xs text-ink-400 tabular">
+										{String(idx + 1).padStart(2, "0")}
+									</span>
+									<span className="text-xs text-ink-500">
+										{PATTERN_META[entry.kind].description}
+									</span>
+								</div>
 								{entries.length > 1 && (
 									<button
 										onClick={() => removeEntry(entry.id)}
-										className="text-xs text-accent-red hover:text-accent-red/80"
+										className="btn-ghost btn-sm"
 									>
 										Remove
 									</button>
 								)}
 							</div>
 
-							<div>
-								<label className="label">Pattern</label>
-								<select
-									value={entry.kind}
-									onChange={(e) =>
-										updateEntry(entry.id, {
-											kind: e.target.value as PatternKind,
-										})
-									}
-									className="input-field w-full"
-								>
-									<option value="Transfer">Transfer fixed amount</option>
-									<option value="TransferAll">Transfer everything</option>
-									<option value="Proxy">Grant proxy access</option>
-									<option value="MultisigProxy">
-										Grant multisig proxy access
-									</option>
-								</select>
+							{/* Pattern picker — segmented buttons */}
+							<div className="flex gap-1 flex-wrap mb-4 p-1 rounded-full bg-paper border border-hairline w-fit">
+								{(Object.keys(PATTERN_META) as PatternKind[]).map((k) => (
+									<button
+										key={k}
+										onClick={() => updateEntry(entry.id, { kind: k })}
+										className={`text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all ${
+											entry.kind === k
+												? "bg-estate-400 text-canvas"
+												: "text-ink-500 hover:text-ink-900"
+										}`}
+									>
+										<span>{PATTERN_META[k].emoji}</span>
+										{PATTERN_META[k].label}
+									</button>
+								))}
 							</div>
 
-							{entry.kind === "Transfer" && (
-								<>
-									<AccountSelect
-										label="Beneficiary on Asset Hub"
-										value={entry.dest}
-										onChange={(v) => updateEntry(entry.id, { dest: v })}
-										verified={
-											entry.dest ? isVerified(entry.dest) : undefined
-										}
-										excludeAddress={selected?.address}
-									/>
-									<div>
-										<label className="label">
-											Amount (ROC) — max {ownerAhBalance.toFixed(4)}
-										</label>
-										<div className="flex gap-2">
-											<input
-												type="number"
-												min="0"
-												max={ownerAhBalance}
-												value={entry.amount}
-												onChange={(e) =>
-													updateEntry(entry.id, {
-														amount: String(
-															Math.min(
-																parseFloat(e.target.value) || 0,
-																ownerAhBalance,
+							<div className="space-y-4">
+								{entry.kind === "Transfer" && (
+									<>
+										<AccountSelect
+											label="Beneficiary"
+											value={entry.dest}
+											onChange={(v) => updateEntry(entry.id, { dest: v })}
+											verified={entry.dest ? isVerified(entry.dest) : undefined}
+											excludeAddress={selected?.address}
+										/>
+										<div>
+											<div className="flex items-baseline justify-between mb-1.5">
+												<label className="eyebrow">Amount (ROC)</label>
+												<span className="text-xs text-ink-500">
+													balance{" "}
+													<span className="font-mono tabular">
+														{ownerAhBalance.toFixed(4)}
+													</span>
+												</span>
+											</div>
+											<div className="flex gap-2">
+												<input
+													type="number"
+													min="0"
+													max={ownerAhBalance}
+													value={entry.amount}
+													onChange={(e) =>
+														updateEntry(entry.id, {
+															amount: String(
+																Math.min(
+																	parseFloat(e.target.value) || 0,
+																	ownerAhBalance,
+																),
 															),
-														),
-													})
-												}
-												placeholder="1"
-												className="input-field flex-1"
-											/>
-											<button
-												type="button"
-												onClick={() =>
-													updateEntry(entry.id, {
-														amount: String(ownerAhBalance),
-													})
-												}
-												className="btn-secondary text-xs"
-											>
-												Max
-											</button>
+														})
+													}
+													placeholder="1"
+													className="input-mono flex-1"
+												/>
+												<button
+													onClick={() =>
+														updateEntry(entry.id, {
+															amount: String(ownerAhBalance),
+														})
+													}
+													className="btn-outline btn-sm"
+												>
+													Max
+												</button>
+											</div>
 										</div>
-									</div>
-								</>
-							)}
+									</>
+								)}
 
-							{entry.kind === "TransferAll" && (
-								<AccountSelect
-									label="Beneficiary on Asset Hub"
-									value={entry.dest}
-									onChange={(v) => updateEntry(entry.id, { dest: v })}
-									verified={entry.dest ? isVerified(entry.dest) : undefined}
-									excludeAddress={selected?.address}
-								/>
-							)}
-
-							{entry.kind === "Proxy" && (
-								<>
+								{entry.kind === "TransferAll" && (
 									<AccountSelect
-										label="Delegate on Asset Hub"
+										label="Beneficiary"
 										value={entry.dest}
 										onChange={(v) => updateEntry(entry.id, { dest: v })}
 										verified={entry.dest ? isVerified(entry.dest) : undefined}
 										excludeAddress={selected?.address}
 									/>
-									<p className="text-xs text-text-muted">
-										This account gains unrestricted proxy access to your
-										Asset Hub account when the will fires.
-									</p>
-								</>
-							)}
+								)}
 
-							{entry.kind === "MultisigProxy" && (
-								<>
-									<div>
-										<label className="label">Delegates on Asset Hub</label>
-										<DelegatesInput
-											value={entry.delegates}
-											onChange={(v) =>
-												updateEntry(entry.id, { delegates: v })
-											}
-											isVerified={isVerified}
+								{entry.kind === "Proxy" && (
+									<>
+										<AccountSelect
+											label="Delegate"
+											value={entry.dest}
+											onChange={(v) => updateEntry(entry.id, { dest: v })}
+											verified={entry.dest ? isVerified(entry.dest) : undefined}
 											excludeAddress={selected?.address}
 										/>
-										{entry.delegates.length < 2 && (
-											<p className="text-xs text-accent-yellow mt-1">
-												Multisig Proxy needs at least 2 delegates.
-											</p>
-										)}
-									</div>
-									<div>
-										<label className="label">Threshold</label>
-										<input
-											type="number"
-											min="1"
-											max={entry.delegates.length || 2}
-											value={entry.threshold}
-											onChange={(e) =>
-												updateEntry(entry.id, {
-													threshold: e.target.value,
-												})
-											}
-											className="input-field w-32"
-										/>
-										<p className="text-xs text-text-muted mt-1">
-											Number of delegates required to approve actions as
-											the multisig.
+										<p className="text-xs text-ink-500 leading-relaxed">
+											From the moment of execution, this account may act as you
+											on Asset Hub — any call type, unrestricted.
 										</p>
-									</div>
-								</>
-							)}
+									</>
+								)}
 
-							<p className="text-xs text-text-muted">
-								Bequests execute against <em>your</em> Asset Hub account.
-								Make sure it's linked via the Accounts tab before creating
-								a will.
-							</p>
+								{entry.kind === "MultisigProxy" && (
+									<>
+										<div>
+											<label className="eyebrow mb-1.5 block">Delegates</label>
+											<DelegatesInput
+												value={entry.delegates}
+												onChange={(v) =>
+													updateEntry(entry.id, { delegates: v })
+												}
+												isVerified={isVerified}
+												excludeAddress={selected?.address}
+											/>
+											{entry.delegates.length < 2 && (
+												<p className="text-xs text-caution mt-1">
+													A multisig needs at least two delegates.
+												</p>
+											)}
+										</div>
+										<div>
+											<label className="eyebrow mb-1.5 block">Threshold</label>
+											<div className="flex items-center gap-2">
+												<input
+													type="number"
+													min="1"
+													max={entry.delegates.length || 2}
+													value={entry.threshold}
+													onChange={(e) =>
+														updateEntry(entry.id, {
+															threshold: e.target.value,
+														})
+													}
+													className="input-mono w-20"
+												/>
+												<span className="text-sm text-ink-500">
+													of {entry.delegates.length || "…"} delegates must sign
+												</span>
+											</div>
+										</div>
+									</>
+								)}
+							</div>
 						</div>
 					))}
 				</div>
-			</div>
+			</Panel>
 
 			{/* Submit */}
-			<div className="card space-y-3">
-				{bypassIdentity && (
-					<p className="text-xs text-accent-yellow">
-						Identities support disabled — People Chain is unreachable, so
-						identity checks are bypassed.
-					</p>
-				)}
-				{!bypassIdentity && hasRecipients && !allRecipientsVerified && (
-					<p className="text-xs text-accent-red">
-						All beneficiaries must have a registered on-chain identity
-						before you can submit. Head to the Accounts page to register.
-					</p>
-				)}
-				{showAssetHub && !ownerAhLinked && (
-					<p className="text-xs text-accent-red">
-						Your account isn't linked to Asset Hub. All bequests run there
-						as your proxy, so you can't create a will without the link.
-						Head to the Accounts page and click "Link to Asset Hub".
-					</p>
-				)}
-				<button
-					onClick={handleSubmit}
-					disabled={
-						submitting ||
-						!connected ||
-						!hasRecipients ||
-						!allRecipientsVerified ||
-						(showAssetHub && !ownerAhLinked)
-					}
-					className="btn-primary w-full py-3"
-				>
-					{submitting ? "Creating..." : "Create Will"}
-				</button>
-				{status && (
-					<p
-						className={`text-sm font-medium ${
-							status.startsWith("Error")
-								? "text-accent-red"
-								: status.startsWith("Will registered")
-									? "text-accent-green"
-									: "text-accent-yellow"
-						}`}
-					>
-						{status}
-					</p>
-				)}
+			<section className="card-padded bg-estate-50 border-estate-100">
+				<div className="flex items-start justify-between flex-wrap gap-4">
+					<div className="flex-1 min-w-[260px]">
+						<div className="eyebrow text-estate-500 mb-1">Review & sign</div>
+						<h3 className="h-page">Ready to register?</h3>
+						<p className="text-sm text-ink-500 mt-1 max-w-lg">
+							The will is SCALE-encoded and sent to pallet-estate-executor.
+							Execution is scheduled at creation, no keeper required.
+						</p>
+						{bypassIdentity && (
+							<p className="text-xs text-caution mt-3">
+								⚠ Identities are bypassed — People Chain unreachable, so
+								beneficiaries are not verified.
+							</p>
+						)}
+						{!bypassIdentity && hasRecipients && !allRecipientsVerified && (
+							<p className="text-xs text-danger mt-3">
+								⚠ At least one beneficiary lacks identity. Register them in{" "}
+								<a href="#/accounts" className="underline">
+									Accounts
+								</a>
+								.
+							</p>
+						)}
+						{showAssetHub && !ownerAhLinked && (
+							<p className="text-xs text-danger mt-3">
+								⚠ Your account isn't linked to Asset Hub. Link it in{" "}
+								<a href="#/accounts" className="underline">
+									Accounts
+								</a>{" "}
+								first.
+							</p>
+						)}
+					</div>
+					<div className="flex flex-col items-end gap-2">
+						<button
+							onClick={handleSubmit}
+							disabled={!canSubmit}
+							className="btn-accent"
+						>
+							{submitting ? "Sealing…" : "Sign & register"}
+						</button>
+						{status && (
+							<p
+								className={`text-xs max-w-[260px] text-right ${
+									status.startsWith("Error")
+										? "text-danger"
+										: status.startsWith("Registered")
+											? "text-positive"
+											: "text-caution"
+								}`}
+							>
+								{status}
+							</p>
+						)}
+					</div>
+				</div>
+			</section>
+		</div>
+	);
+}
+
+function Panel({
+	step,
+	title,
+	description,
+	children,
+	action,
+	variant,
+}: {
+	step: string;
+	title: string;
+	description: string;
+	children: React.ReactNode;
+	action?: React.ReactNode;
+	variant?: "heartbeat" | "instructions";
+}) {
+	const accent =
+		variant === "heartbeat"
+			? "border-estate-100 bg-gradient-to-br from-paper to-estate-50/40"
+			: variant === "instructions"
+				? "border-brass-100 bg-gradient-to-br from-paper to-brass-50/30"
+				: "";
+	return (
+		<section className={`card-padded ${accent}`}>
+			<div className="flex items-start justify-between gap-4 flex-wrap mb-5">
+				<div className="flex items-start gap-4">
+					<div className="flex flex-col items-center justify-center w-10 h-10 rounded-full bg-ink-900 text-canvas shrink-0">
+						<span className="font-mono text-xs tabular">{step}</span>
+					</div>
+					<div>
+						<h2 className="h-section">{title}</h2>
+						<p className="text-sm text-ink-500 mt-0.5 max-w-lg">
+							{description}
+						</p>
+					</div>
+				</div>
+				{action}
+			</div>
+			{children}
+		</section>
+	);
+}
+
+function Field({
+	label,
+	mono,
+	children,
+}: {
+	label: string;
+	mono?: boolean;
+	children: React.ReactNode;
+}) {
+	return (
+		<div>
+			<div className="eyebrow mb-0.5">{label}</div>
+			<div
+				className={`${mono ? "font-mono tabular text-[0.85rem]" : "text-sm"} text-ink-900 truncate`}
+			>
+				{children}
 			</div>
 		</div>
 	);
