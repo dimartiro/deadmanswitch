@@ -234,7 +234,7 @@ export default function WillsPage() {
 					<h1 className="h-display text-4xl md:text-5xl">
 						All <span className="italic text-neon-500">wills</span>, on chain
 					</h1>
-					<p className="text-sm text-ink-500 mt-2 max-w-xl">
+					<p className="text-sm text-ink-500 mt-2">
 						Every will registered through Estate Protocol, grouped by your
 						relationship to them.
 					</p>

@@ -169,7 +169,7 @@ export default function CertificatesPage() {
 				<h1 className="h-display text-4xl md:text-5xl">
 					Your <span className="italic text-amber-500">certificates</span>
 				</h1>
-				<p className="text-sm text-ink-500 mt-2 max-w-xl">
+				<p className="text-sm text-ink-500 mt-2">
 					Permanent, non-transferable proofs that a will naming you as a
 					beneficiary has executed. Minted as soulbound NFTs on Estate
 					Protocol.
@@ -199,14 +199,6 @@ export default function CertificatesPage() {
 							))}
 						</div>
 					</div>
-					{collectionId !== null && (
-						<div className="text-right">
-							<div className="eyebrow mb-0.5">Collection</div>
-							<div className="font-mono text-sm tabular">
-								pallet-nfts · №{collectionId}
-							</div>
-						</div>
-					)}
 				</div>
 				{selected && (
 					<p className="text-xs text-ink-400 font-mono mt-3">

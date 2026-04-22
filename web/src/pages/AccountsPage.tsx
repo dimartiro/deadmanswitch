@@ -112,7 +112,7 @@ export default function AccountsPage() {
 	const [extensionAccounts, setExtensionAccounts] = useState<InjectedPolkadotAccount[]>([]);
 	const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
 	const [fundStatus, setFundStatus] = useState<string | null>(null);
-	const [fundAmount, setFundAmount] = useState("10000");
+	const FUND_AMOUNT = "10000";
 	const [accountInfos, setAccountInfos] = useState<Record<string, AccountInfo>>({});
 	const [identityStatuses, setIdentityStatuses] = useState<Record<string, IdentityStatus>>({});
 	const [identityActionStatus, setIdentityActionStatus] = useState<Record<string, string>>({});
@@ -294,7 +294,7 @@ export default function AccountsPage() {
 			return;
 		}
 		try {
-			const amount = BigInt(fundAmount) * 1_000_000_000_000n;
+			const amount = BigInt(FUND_AMOUNT) * 1_000_000_000_000n;
 			setFundStatus(`Funding ${accountName}…`);
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
@@ -310,7 +310,7 @@ export default function AccountsPage() {
 				setFundStatus(`Error: ${result.errorMessage ?? "unknown"}`);
 				return;
 			}
-			setFundStatus(`Funded ${accountName} with ${fundAmount} tokens`);
+			setFundStatus(`Funded ${accountName} with ${FUND_AMOUNT} tokens`);
 			fetchAccountInfos();
 		} catch (e) {
 			console.error("Fund failed:", e);
@@ -459,31 +459,15 @@ export default function AccountsPage() {
 
 	return (
 		<div className="space-y-8 stagger">
-			<div className="flex items-end justify-between gap-4 flex-wrap">
-				<div>
-					<div className="eyebrow mb-1">Keys</div>
-					<h1 className="h-display text-4xl md:text-5xl">
-						Your <span className="italic text-neon-500">accounts</span>
-					</h1>
-					<p className="text-sm text-ink-500 mt-2 max-w-xl">
-						Manage dev accounts, connect browser wallets, register on-chain
-						identities and link each account to Asset Hub for XCM flows.
-					</p>
-				</div>
-				<div className="flex items-end gap-2">
-					<div>
-						<label className="eyebrow mb-1 block">Fund amount</label>
-						<input
-							type="number"
-							value={fundAmount}
-							onChange={(e) => setFundAmount(e.target.value)}
-							className="input-mono w-32"
-						/>
-					</div>
-					<button onClick={fetchAccountInfos} className="btn-outline">
-						Refresh
-					</button>
-				</div>
+			<div>
+				<div className="eyebrow mb-1">Keys</div>
+				<h1 className="h-display text-4xl md:text-5xl">
+					Your <span className="italic text-neon-500">accounts</span>
+				</h1>
+				<p className="text-sm text-ink-500 mt-2">
+					Manage dev accounts, connect browser wallets, register on-chain
+					identities and link each account to Asset Hub for XCM flows.
+				</p>
 			</div>
 
 			{fundStatus && (
