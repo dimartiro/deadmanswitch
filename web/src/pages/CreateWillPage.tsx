@@ -269,10 +269,10 @@ export default function CreateWillPage() {
 	const bypassIdentity = peopleChainAvailable === false;
 	const showAssetHub = assetHubAvailable === true;
 	const { accounts, selected } = useAllAccounts();
-	const [intervalAmount, setIntervalAmount] = useState("1");
+	const [intervalAmount, setIntervalAmount] = useState("20");
 	const [intervalUnit, setIntervalUnit] = useState<
-		"min" | "h" | "d" | "w" | "mo" | "y"
-	>("h");
+		"s" | "min" | "h" | "d" | "w" | "mo" | "y"
+	>("s");
 	const [entries, setEntries] = useState<Entry[]>([newEntry()]);
 	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
@@ -407,6 +407,7 @@ export default function CreateWillPage() {
 
 	const blockTime = useChainStore((s) => s.blockTime);
 	const UNIT_SECONDS: Record<typeof intervalUnit, number> = {
+		s: 1,
 		min: 60,
 		h: 3600,
 		d: 86400,
@@ -506,6 +507,7 @@ export default function CreateWillPage() {
 									}
 									className="input"
 								>
+									<option value="s">seconds</option>
 									<option value="min">minutes</option>
 									<option value="h">hours</option>
 									<option value="d">days</option>
