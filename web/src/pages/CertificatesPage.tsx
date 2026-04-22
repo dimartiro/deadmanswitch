@@ -40,15 +40,13 @@ function renderReceivedBequest(bequest: Bequest, owner?: string): string {
 	const value = bequest.value;
 	switch (type) {
 		case "Transfer":
-			return `Received ${formatBalanceUnit(value.amount)} from ${from}`;
-		case "TransferAll":
-			return `Received ${from}'s entire free balance`;
-		case "Proxy":
-			return `Granted proxy access to ${from}'s account`;
-		case "MultisigProxy":
-			return `Granted multisig proxy (${value.threshold} of ${value.delegates.length}) to ${from}'s account`;
-		case "RemoteTransfer":
 			return `Received ${formatBalanceUnit(value.amount)} on Asset Hub from ${from}`;
+		case "TransferAll":
+			return `Received ${from}'s entire Asset Hub balance`;
+		case "Proxy":
+			return `Granted proxy access over ${from}'s Asset Hub account`;
+		case "MultisigProxy":
+			return `Granted multisig proxy (${value.threshold} of ${value.delegates.length}) over ${from}'s Asset Hub account`;
 		default:
 			return `Unknown bequest (${type})`;
 	}
@@ -65,8 +63,6 @@ function bequestRecipients(bequest: Bequest): string[] {
 			return [value.delegate as string];
 		case "MultisigProxy":
 			return value.delegates as string[];
-		case "RemoteTransfer":
-			return [value.dest as string];
 		default:
 			return [];
 	}

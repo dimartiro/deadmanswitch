@@ -108,51 +108,38 @@ impl pallet_scheduler::Config for Test {
 /// `BequestBuilder` impl for the mock runtime — maps each
 /// `Bequest<Test>` variant to the equivalent `RuntimeCall`.
 pub struct TestBequestBuilder;
+/// Structured record of a dispatched bequest, captured by the mock so
+/// tests can assert what would have been sent over XCM to Asset Hub.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum AhOp {
+	Transfer { owner: u64, dest: u64, amount: u64 },
+	TransferAll { owner: u64, dest: u64 },
+	AddProxy { owner: u64, delegate: u64 },
+}
+
 impl crate::bequest::BequestBuilder<Test> for TestBequestBuilder {
 	fn dispatch(
 		dist: &crate::bequest::Bequest<Test>,
 		owner: &u64,
 	) -> DispatchResult {
 		use crate::bequest::Bequest;
-		let owner_origin: RuntimeOrigin =
-			frame_system::RawOrigin::Signed(*owner).into();
-		let call: RuntimeCall = match dist {
+		let op = match dist {
 			Bequest::Transfer { dest, amount } =>
-				RuntimeCall::Balances(pallet_balances::Call::transfer_allow_death {
-					dest: (*dest).into(),
-					value: *amount,
-				}),
+				AhOp::Transfer { owner: *owner, dest: *dest, amount: *amount },
 			Bequest::TransferAll { dest } =>
-				RuntimeCall::Balances(pallet_balances::Call::transfer_all {
-					dest: (*dest).into(),
-					keep_alive: false,
-				}),
+				AhOp::TransferAll { owner: *owner, dest: *dest },
 			Bequest::Proxy { delegate } =>
-				RuntimeCall::Proxy(pallet_proxy::Call::add_proxy {
-					delegate: (*delegate).into(),
-					proxy_type: ProxyType::Any,
-					delay: 0,
-				}),
+				AhOp::AddProxy { owner: *owner, delegate: *delegate },
 			Bequest::MultisigProxy { delegates, threshold } => {
-				let multisig =
-					pallet_multisig::Pallet::<Test>::multi_account_id(
-						&delegates.to_vec(),
-						*threshold,
-					);
-				RuntimeCall::Proxy(pallet_proxy::Call::add_proxy {
-					delegate: multisig.into(),
-					proxy_type: ProxyType::Any,
-					delay: 0,
-				})
-			},
-			Bequest::RemoteTransfer { dest, amount } => {
-				REMOTE_TRANSFERS.with(|r| {
-					r.borrow_mut().push((*owner, *dest, *amount))
-				});
-				return Ok(());
+				let multisig = pallet_multisig::Pallet::<Test>::multi_account_id(
+					&delegates.to_vec(),
+					*threshold,
+				);
+				AhOp::AddProxy { owner: *owner, delegate: multisig }
 			},
 		};
-		call.dispatch(owner_origin).map(|_| ()).map_err(|e| e.error)
+		AH_OPS.with(|r| r.borrow_mut().push(op));
+		Ok(())
 	}
 }
 
@@ -171,7 +158,6 @@ impl crate::identity::IdentityCheck<Test> for MockIdentityCheck {
 /// bucket so tests can assert exactly which `(will_id, beneficiary)`
 /// pairs received a certificate. The real pallet-nfts is NOT required
 /// to be in the mock.
-use core::cell::RefCell;
 thread_local! {
 	static MINTED: RefCell<std::vec::Vec<(crate::WillId, u64)>> =
 		const { RefCell::new(std::vec::Vec::new()) };
@@ -202,16 +188,16 @@ pub fn reset_minted_certificates() {
 }
 
 thread_local! {
-	static REMOTE_TRANSFERS: RefCell<std::vec::Vec<(u64, u64, u128)>> =
+	static AH_OPS: RefCell<std::vec::Vec<AhOp>> =
 		const { RefCell::new(std::vec::Vec::new()) };
 }
 
-pub fn remote_transfers() -> std::vec::Vec<(u64, u64, u128)> {
-	REMOTE_TRANSFERS.with(|r| r.borrow().clone())
+pub fn ah_ops() -> std::vec::Vec<AhOp> {
+	AH_OPS.with(|r| r.borrow().clone())
 }
 
-pub fn reset_remote_transfers() {
-	REMOTE_TRANSFERS.with(|r| r.borrow_mut().clear());
+pub fn reset_ah_ops() {
+	AH_OPS.with(|r| r.borrow_mut().clear());
 }
 
 impl crate::Config for Test {

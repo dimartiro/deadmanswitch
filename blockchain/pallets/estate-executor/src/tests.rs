@@ -5,7 +5,7 @@ use crate::{
 	WillBequests, WillStatus, Wills,
 };
 use frame::testing_prelude::*;
-use polkadot_sdk::{pallet_multisig, pallet_proxy};
+use polkadot_sdk::pallet_multisig;
 
 // ── bequest helpers ──────────────────────────────────────────────
 
@@ -29,10 +29,6 @@ fn multisig_proxy(delegates: &[u64], threshold: u16) -> Bequest<Test> {
 	}
 }
 
-fn remote_transfer(dest: u64, amount: u128) -> Bequest<Test> {
-	Bequest::RemoteTransfer { dest, amount }
-}
-
 // ── create_will ────────────────────────────────────────────────────────
 
 #[test]
@@ -51,6 +47,8 @@ fn create_will_with_transfer() {
 		assert_eq!(will.status, WillStatus::Active);
 		assert_eq!(will.expiry_block, 11);
 		assert!(WillBequests::<Test>::get(0).is_some());
+		// No local balance movement at create time: the bequest will
+		// eventually execute against Asset Hub.
 		assert_eq!(Balances::free_balance(1), free_before);
 	});
 }
@@ -203,70 +201,82 @@ fn heartbeat_extends_scheduled_execution() {
 #[test]
 fn scheduler_executes_transfer_at_expiry() {
 	new_test_ext().execute_with(|| {
+		reset_ah_ops();
 		System::set_block_number(1);
-		let bal2_before = Balances::free_balance(2);
 		assert_ok!(EstateExecutor::create_will(
 			RuntimeOrigin::signed(1),
 			vec![transfer(2, 50_000)],
 			10,
 		));
 		run_to_block(12);
-		let will = Wills::<Test>::get(0).unwrap();
-		assert_eq!(will.status, WillStatus::Executed);
-		assert_eq!(Balances::free_balance(2), bal2_before + 50_000);
+		assert_eq!(Wills::<Test>::get(0).unwrap().status, WillStatus::Executed);
+		assert_eq!(
+			ah_ops(),
+			vec![AhOp::Transfer { owner: 1, dest: 2, amount: 50_000 }],
+		);
 	});
 }
 
 #[test]
 fn scheduler_executes_transfer_all() {
 	new_test_ext().execute_with(|| {
+		reset_ah_ops();
 		System::set_block_number(1);
-		let alice_before = Balances::free_balance(1);
-		let bob_before = Balances::free_balance(2);
 		assert_ok!(EstateExecutor::create_will(
 			RuntimeOrigin::signed(1),
 			vec![transfer_all(2)],
 			10,
 		));
 		run_to_block(12);
-		assert_eq!(Balances::free_balance(1), 0);
-		assert_eq!(Balances::free_balance(2), bob_before + alice_before);
+		assert_eq!(ah_ops(), vec![AhOp::TransferAll { owner: 1, dest: 2 }]);
 	});
 }
 
 #[test]
-fn scheduler_execute_succeeds_even_if_owner_lacks_balance() {
+fn scheduler_execute_dispatches_regardless_of_local_balance() {
 	new_test_ext().execute_with(|| {
+		reset_ah_ops();
 		System::set_block_number(1);
 		assert_ok!(EstateExecutor::create_will(
 			RuntimeOrigin::signed(1),
 			vec![transfer(2, 900_000)],
 			10,
 		));
+		// Drain the owner's local balance — bequests now target Asset Hub
+		// so local balance is irrelevant to dispatch success.
 		assert_ok!(Balances::transfer_allow_death(
 			RuntimeOrigin::signed(1), 4, 900_000,
 		));
 		run_to_block(12);
-		let will = Wills::<Test>::get(0).unwrap();
-		assert_eq!(will.status, WillStatus::Executed);
+		assert_eq!(Wills::<Test>::get(0).unwrap().status, WillStatus::Executed);
+		assert_eq!(
+			ah_ops(),
+			vec![AhOp::Transfer { owner: 1, dest: 2, amount: 900_000 }],
+		);
 	});
 }
 
 #[test]
-fn scheduler_executes_multiple_bequests_partial_success() {
+fn scheduler_executes_every_bequest_in_order() {
 	new_test_ext().execute_with(|| {
+		reset_ah_ops();
 		System::set_block_number(1);
-		let bal2_before = Balances::free_balance(2);
 		assert_ok!(EstateExecutor::create_will(
 			RuntimeOrigin::signed(1),
 			vec![
 				transfer(2, 50_000),
-				transfer(2, 999_999_999), // will fail — insufficient balance
+				transfer(3, 25_000),
 			],
 			10,
 		));
 		run_to_block(12);
-		assert_eq!(Balances::free_balance(2), bal2_before + 50_000);
+		assert_eq!(
+			ah_ops(),
+			vec![
+				AhOp::Transfer { owner: 1, dest: 2, amount: 50_000 },
+				AhOp::Transfer { owner: 1, dest: 3, amount: 25_000 },
+			],
+		);
 	});
 }
 
@@ -361,14 +371,14 @@ fn cancel_fails_if_not_owner() {
 #[test]
 fn cancel_prevents_scheduled_execution() {
 	new_test_ext().execute_with(|| {
+		reset_ah_ops();
 		System::set_block_number(1);
-		let bal2_before = Balances::free_balance(2);
 		assert_ok!(EstateExecutor::create_will(
 			RuntimeOrigin::signed(1), vec![transfer(2, 50_000)], 10,
 		));
 		assert_ok!(EstateExecutor::cancel(RuntimeOrigin::signed(1), 0));
 		run_to_block(20);
-		assert_eq!(Balances::free_balance(2), bal2_before);
+		assert!(ah_ops().is_empty());
 	});
 }
 
@@ -426,8 +436,6 @@ fn create_will_fails_if_beneficiary_unverified() {
 
 #[test]
 fn create_will_fails_if_any_recipient_unverified() {
-	// Alice (1) names two beneficiaries; one is verified, one isn't.
-	// The call should fail — identity is all-or-nothing per will.
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
 		assert_noop!(
@@ -460,19 +468,16 @@ fn create_will_fails_if_multisig_delegate_unverified() {
 fn inheritances_of_returns_active_wills_naming_account() {
 	new_test_ext().execute_with(|| {
 		System::set_block_number(1);
-		// Will 0: Bob, Charlie
 		assert_ok!(EstateExecutor::create_will(
 			RuntimeOrigin::signed(1),
 			vec![transfer(2, 100), transfer(3, 50)],
 			10,
 		));
-		// Will 1: Charlie
 		assert_ok!(EstateExecutor::create_will(
 			RuntimeOrigin::signed(1),
 			vec![transfer(3, 25)],
 			10,
 		));
-		// Will 2: Dave via multisig proxy
 		assert_ok!(EstateExecutor::create_will(
 			RuntimeOrigin::signed(1),
 			vec![multisig_proxy(&[4, 3], 2)],
@@ -531,39 +536,6 @@ fn execute_mints_certificate_once_per_unique_beneficiary() {
 }
 
 #[test]
-fn scheduler_executes_remote_transfer_bequest() {
-	new_test_ext().execute_with(|| {
-		reset_remote_transfers();
-		System::set_block_number(1);
-		// Owner 1 wills a remote transfer of 42 units to account 2.
-		// The source (the owner) is implicit.
-		assert_ok!(EstateExecutor::create_will(
-			RuntimeOrigin::signed(1),
-			vec![remote_transfer(2, 42)],
-			10,
-		));
-		run_to_block(12);
-		assert_eq!(remote_transfers(), vec![(1, 2, 42)]);
-	});
-}
-
-#[test]
-fn remote_transfer_beneficiaries_exclude_source() {
-	new_test_ext().execute_with(|| {
-		System::set_block_number(1);
-		// Source is implicit (the will owner, 1); only `dest` (2) is a
-		// beneficiary.
-		assert_ok!(EstateExecutor::create_will(
-			RuntimeOrigin::signed(1),
-			vec![remote_transfer(2, 10)],
-			10,
-		));
-		assert_eq!(crate::Pallet::<Test>::inheritances_of(&2), vec![0]);
-		assert!(crate::Pallet::<Test>::inheritances_of(&1).is_empty());
-	});
-}
-
-#[test]
 fn multisig_proxy_mints_one_certificate_per_delegate() {
 	new_test_ext().execute_with(|| {
 		reset_minted_certificates();
@@ -580,11 +552,12 @@ fn multisig_proxy_mints_one_certificate_per_delegate() {
 	});
 }
 
-// ── proxy ──────────────────────────────────────────────────────────────
+// ── proxy / multisig proxy ────────────────────────────────────────────
 
 #[test]
-fn scheduler_executes_proxy_grant() {
+fn scheduler_records_add_proxy_on_asset_hub() {
 	new_test_ext().execute_with(|| {
+		reset_ah_ops();
 		System::set_block_number(1);
 		assert_ok!(EstateExecutor::create_will(
 			RuntimeOrigin::signed(1),
@@ -592,17 +565,14 @@ fn scheduler_executes_proxy_grant() {
 			10,
 		));
 		run_to_block(12);
-		let proxies = pallet_proxy::Proxies::<Test>::get(1);
-		assert_eq!(proxies.0.len(), 1);
-		assert_eq!(proxies.0[0].delegate, 2);
+		assert_eq!(ah_ops(), vec![AhOp::AddProxy { owner: 1, delegate: 2 }]);
 	});
 }
 
-// ── multisig proxy ─────────────────────────────────────────────────────
-
 #[test]
-fn scheduler_grants_multisig_proxy_and_heirs_operate_owner_account() {
+fn scheduler_records_multisig_proxy_with_derived_account() {
 	new_test_ext().execute_with(|| {
+		reset_ah_ops();
 		System::set_block_number(1);
 		let multisig_account =
 			pallet_multisig::Pallet::<Test>::multi_account_id(&[2, 3], 2);
@@ -614,50 +584,10 @@ fn scheduler_grants_multisig_proxy_and_heirs_operate_owner_account() {
 		));
 		run_to_block(12);
 
-		let proxies = pallet_proxy::Proxies::<Test>::get(1);
-		assert_eq!(proxies.0.len(), 1);
-		assert_eq!(proxies.0[0].delegate, multisig_account);
-
-		// Bob + Charlie operate Alice's account via proxy+multisig.
-		let transfer_from_alice = RuntimeCall::Proxy(
-			pallet_proxy::Call::proxy {
-				real: 1u64.into(),
-				force_proxy_type: None,
-				call: Box::new(RuntimeCall::Balances(
-					polkadot_sdk::pallet_balances::Call::transfer_allow_death {
-						dest: 4u64.into(),
-						value: 50_000,
-					},
-				)),
-			},
+		assert_eq!(
+			ah_ops(),
+			vec![AhOp::AddProxy { owner: 1, delegate: multisig_account }],
 		);
-		let call_weight = transfer_from_alice.get_dispatch_info().call_weight;
-
-		let alice_before = Balances::free_balance(1);
-		let dave_before = Balances::free_balance(4);
-
-		assert_ok!(pallet_multisig::Pallet::<Test>::as_multi(
-			RuntimeOrigin::signed(2),
-			2,
-			vec![3],
-			None,
-			Box::new(transfer_from_alice.clone()),
-			call_weight,
-		));
-		assert_eq!(Balances::free_balance(4), dave_before);
-
-		let timepoint = pallet_multisig::Pallet::<Test>::timepoint();
-		assert_ok!(pallet_multisig::Pallet::<Test>::as_multi(
-			RuntimeOrigin::signed(3),
-			2,
-			vec![2],
-			Some(timepoint),
-			Box::new(transfer_from_alice),
-			call_weight,
-		));
-
-		assert_eq!(Balances::free_balance(4), dave_before + 50_000);
-		assert_eq!(Balances::free_balance(1), alice_before - 50_000);
 	});
 }
 

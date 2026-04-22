@@ -44,17 +44,17 @@ function renderBequest(bequest: Bequest): { title: string; detail: string } {
 	switch (type) {
 		case "Transfer":
 			return {
-				title: `Transfer ${formatBalanceUnit(value.amount)}`,
+				title: `Transfer ${formatBalanceUnit(value.amount)} on Asset Hub`,
 				detail: `to ${accountLabel(value.dest)}`,
 			};
 		case "TransferAll":
 			return {
-				title: "Transfer everything",
+				title: "Transfer everything on Asset Hub",
 				detail: `to ${accountLabel(value.dest)}`,
 			};
 		case "Proxy":
 			return {
-				title: "Grant proxy access",
+				title: "Grant proxy access on Asset Hub",
 				detail: `to ${accountLabel(value.delegate)}`,
 			};
 		case "MultisigProxy": {
@@ -62,15 +62,10 @@ function renderBequest(bequest: Bequest): { title: string; detail: string } {
 				.map(accountLabel)
 				.join(", ");
 			return {
-				title: `Grant multisig proxy (${value.threshold} of ${value.delegates.length})`,
+				title: `Grant multisig proxy on Asset Hub (${value.threshold} of ${value.delegates.length})`,
 				detail: delegates,
 			};
 		}
-		case "RemoteTransfer":
-			return {
-				title: `Remote transfer ${formatBalanceUnit(value.amount)} on Asset Hub`,
-				detail: `to ${accountLabel(value.dest)} (from the will's owner)`,
-			};
 		default:
 			return { title: `Unknown (${type})`, detail: "" };
 	}
@@ -87,8 +82,6 @@ function recipientsOf(bequest: Bequest): string[] {
 			return [value.delegate as string];
 		case "MultisigProxy":
 			return value.delegates as string[];
-		case "RemoteTransfer":
-			return [value.dest as string];
 		default:
 			return [];
 	}

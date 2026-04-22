@@ -14,20 +14,30 @@ import {
 } from "@polkadot-api/descriptors";
 import { formatDuration } from "../utils/format";
 import { submitAndWait } from "../utils/tx";
+import { ss58Address } from "@polkadot-labs/hdkd-helpers";
+
+// Sibling parachain sovereign derivation (mirrors
+// `polkadot_parachain_primitives::primitives::Sibling`):
+//   b"sibl" ++ u32_le(2000) ++ pad-to-32-bytes
+const ESTATE_SOVEREIGN_ON_ASSETHUB = (() => {
+	const buf = new Uint8Array(32);
+	buf.set(new TextEncoder().encode("sibl"), 0);
+	new DataView(buf.buffer).setUint32(4, 2000, true);
+	return ss58Address(buf);
+})();
 
 type PatternKind =
 	| "Transfer"
 	| "TransferAll"
 	| "Proxy"
-	| "MultisigProxy"
-	| "RemoteTransfer";
+	| "MultisigProxy";
 
 interface Entry {
 	id: number;
 	kind: PatternKind;
-	// Transfer / TransferAll / Proxy / RemoteTransfer
+	// Transfer / TransferAll / Proxy
 	dest: string;
-	// Transfer / RemoteTransfer
+	// Transfer
 	amount: string;
 	// MultisigProxy
 	delegates: string[];
@@ -74,14 +84,6 @@ function buildBequest(entry: Entry): any {
 				value: {
 					delegates: entry.delegates,
 					threshold: parseInt(entry.threshold || "2"),
-				},
-			};
-		case "RemoteTransfer":
-			return {
-				type: "RemoteTransfer",
-				value: {
-					dest: entry.dest,
-					amount: BigInt(Math.floor(parseFloat(entry.amount || "0") * 1e12)),
 				},
 			};
 	}
@@ -261,40 +263,38 @@ export default function CreateWillPage() {
 	const [entries, setEntries] = useState<Entry[]>([newEntry()]);
 	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
-	const [ownerBalance, setOwnerBalance] = useState<number>(0);
 	const [ownerAhBalance, setOwnerAhBalance] = useState<number>(0);
+	const [ownerAhLinked, setOwnerAhLinked] = useState<boolean>(false);
 	const [verified, setVerified] = useState<Record<string, boolean>>({});
-
-	const fetchBalance = useCallback(async () => {
-		if (!connected || !selected) return;
-		try {
-			const client = getClient(wsUrl);
-			const api = client.getTypedApi(stack_template);
-			const info = await api.query.System.Account.getValue(selected.address, { at: "best" });
-			setOwnerBalance(Number(info.data.free) / 1e12);
-		} catch {
-			setOwnerBalance(0);
-		}
-	}, [connected, wsUrl, selected?.address]);
 
 	const fetchAhBalance = useCallback(async () => {
 		if (!selected || !showAssetHub) {
 			setOwnerAhBalance(0);
+			setOwnerAhLinked(false);
 			return;
 		}
 		try {
 			const client = getAssetHubClient();
 			const api = client.getTypedApi(asset_hub);
-			const info = await api.query.System.Account.getValue(selected.address, { at: "best" });
+			const [info, proxies] = await Promise.all([
+				api.query.System.Account.getValue(selected.address, { at: "best" }),
+				api.query.Proxy.Proxies.getValue(selected.address, { at: "best" }),
+			]);
 			setOwnerAhBalance(Number(info.data.free) / 1e12);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const [delegates] = proxies as any;
+			setOwnerAhLinked(
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				(delegates as any[]).some(
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					(d: any) => d.delegate === ESTATE_SOVEREIGN_ON_ASSETHUB,
+				),
+			);
 		} catch {
 			setOwnerAhBalance(0);
+			setOwnerAhLinked(false);
 		}
 	}, [selected?.address, showAssetHub]);
-
-	useEffect(() => {
-		fetchBalance();
-	}, [fetchBalance]);
 
 	useEffect(() => {
 		fetchAhBalance();
@@ -505,125 +505,19 @@ export default function CreateWillPage() {
 									<option value="MultisigProxy">
 										Grant multisig proxy access
 									</option>
-									<option value="RemoteTransfer">
-										Remote transfer on Asset Hub
-									</option>
 								</select>
 							</div>
 
 							{entry.kind === "Transfer" && (
 								<>
 									<AccountSelect
-										label="Beneficiary"
-										value={entry.dest}
-										onChange={(v) => updateEntry(entry.id, { dest: v })}
-						excludeAddress={selected?.address}
-									/>
-									<div>
-										<label className="label">
-											Amount (UNIT) — max {ownerBalance.toFixed(4)}
-										</label>
-										<input
-											type="number"
-											min="0"
-											max={ownerBalance}
-											value={entry.amount}
-											onChange={(e) =>
-												updateEntry(entry.id, {
-													amount: String(
-														Math.min(
-															parseFloat(e.target.value) || 0,
-															ownerBalance,
-														),
-													),
-												})
-											}
-											placeholder="10"
-											className="input-field w-full"
-										/>
-									</div>
-								</>
-							)}
-
-							{entry.kind === "TransferAll" && (
-								<AccountSelect
-									label="Beneficiary"
-									value={entry.dest}
-									onChange={(v) => updateEntry(entry.id, { dest: v })}
-									verified={entry.dest ? isVerified(entry.dest) : undefined}
-						excludeAddress={selected?.address}
-								/>
-							)}
-
-							{entry.kind === "Proxy" && (
-								<>
-									<AccountSelect
-										label="Delegate"
-										value={entry.dest}
-										onChange={(v) => updateEntry(entry.id, { dest: v })}
-										verified={entry.dest ? isVerified(entry.dest) : undefined}
-						excludeAddress={selected?.address}
-									/>
-									<p className="text-xs text-text-muted">
-										This account gains unrestricted proxy access to your
-										account when the will fires.
-									</p>
-								</>
-							)}
-
-							{entry.kind === "MultisigProxy" && (
-								<>
-									<div>
-										<label className="label">Delegates</label>
-										<DelegatesInput
-											value={entry.delegates}
-											onChange={(v) =>
-												updateEntry(entry.id, { delegates: v })
-											}
-											isVerified={isVerified}
-							excludeAddress={selected?.address}
-										/>
-										{entry.delegates.length < 2 && (
-											<p className="text-xs text-accent-yellow mt-1">
-												Multisig Proxy needs at least 2 delegates.
-											</p>
-										)}
-									</div>
-									<div>
-										<label className="label">Threshold</label>
-										<input
-											type="number"
-											min="1"
-											max={entry.delegates.length || 2}
-											value={entry.threshold}
-											onChange={(e) =>
-												updateEntry(entry.id, {
-													threshold: e.target.value,
-												})
-											}
-											className="input-field w-32"
-										/>
-										<p className="text-xs text-text-muted mt-1">
-											Number of delegates required to approve actions as
-											the multisig.
-										</p>
-									</div>
-								</>
-							)}
-
-							{entry.kind === "RemoteTransfer" && (
-								<>
-									<AccountSelect
 										label="Beneficiary on Asset Hub"
 										value={entry.dest}
-										onChange={(v) =>
-											updateEntry(entry.id, { dest: v })
-										}
+										onChange={(v) => updateEntry(entry.id, { dest: v })}
 										verified={
 											entry.dest ? isVerified(entry.dest) : undefined
 										}
-										placeholder="5Grwva..."
-						excludeAddress={selected?.address}
+										excludeAddress={selected?.address}
 									/>
 									<div>
 										<label className="label">
@@ -661,17 +555,80 @@ export default function CreateWillPage() {
 											</button>
 										</div>
 									</div>
+								</>
+							)}
+
+							{entry.kind === "TransferAll" && (
+								<AccountSelect
+									label="Beneficiary on Asset Hub"
+									value={entry.dest}
+									onChange={(v) => updateEntry(entry.id, { dest: v })}
+									verified={entry.dest ? isVerified(entry.dest) : undefined}
+									excludeAddress={selected?.address}
+								/>
+							)}
+
+							{entry.kind === "Proxy" && (
+								<>
+									<AccountSelect
+										label="Delegate on Asset Hub"
+										value={entry.dest}
+										onChange={(v) => updateEntry(entry.id, { dest: v })}
+										verified={entry.dest ? isVerified(entry.dest) : undefined}
+										excludeAddress={selected?.address}
+									/>
 									<p className="text-xs text-text-muted">
-										Moves ROC from <em>your</em> Asset Hub account — make
-										sure it's linked via the Accounts tab. On execution,
-										Estate Protocol emits an XCM that runs{" "}
-										<span className="font-mono">
-											Proxy.proxy(Balances.transfer_keep_alive)
-										</span>{" "}
-										as your proxy.
+										This account gains unrestricted proxy access to your
+										Asset Hub account when the will fires.
 									</p>
 								</>
 							)}
+
+							{entry.kind === "MultisigProxy" && (
+								<>
+									<div>
+										<label className="label">Delegates on Asset Hub</label>
+										<DelegatesInput
+											value={entry.delegates}
+											onChange={(v) =>
+												updateEntry(entry.id, { delegates: v })
+											}
+											isVerified={isVerified}
+											excludeAddress={selected?.address}
+										/>
+										{entry.delegates.length < 2 && (
+											<p className="text-xs text-accent-yellow mt-1">
+												Multisig Proxy needs at least 2 delegates.
+											</p>
+										)}
+									</div>
+									<div>
+										<label className="label">Threshold</label>
+										<input
+											type="number"
+											min="1"
+											max={entry.delegates.length || 2}
+											value={entry.threshold}
+											onChange={(e) =>
+												updateEntry(entry.id, {
+													threshold: e.target.value,
+												})
+											}
+											className="input-field w-32"
+										/>
+										<p className="text-xs text-text-muted mt-1">
+											Number of delegates required to approve actions as
+											the multisig.
+										</p>
+									</div>
+								</>
+							)}
+
+							<p className="text-xs text-text-muted">
+								Bequests execute against <em>your</em> Asset Hub account.
+								Make sure it's linked via the Accounts tab before creating
+								a will.
+							</p>
 						</div>
 					))}
 				</div>
@@ -691,13 +648,21 @@ export default function CreateWillPage() {
 						before you can submit. Head to the Accounts page to register.
 					</p>
 				)}
+				{showAssetHub && !ownerAhLinked && (
+					<p className="text-xs text-accent-red">
+						Your account isn't linked to Asset Hub. All bequests run there
+						as your proxy, so you can't create a will without the link.
+						Head to the Accounts page and click "Link to Asset Hub".
+					</p>
+				)}
 				<button
 					onClick={handleSubmit}
 					disabled={
 						submitting ||
 						!connected ||
 						!hasRecipients ||
-						!allRecipientsVerified
+						!allRecipientsVerified ||
+						(showAssetHub && !ownerAhLinked)
 					}
 					className="btn-primary w-full py-3"
 				>

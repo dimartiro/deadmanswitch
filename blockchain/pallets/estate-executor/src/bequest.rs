@@ -36,26 +36,25 @@ pub type MaxMultisigDelegates = frame::traits::ConstU32<10>;
 )]
 #[scale_info(skip_type_params(T))]
 pub enum Bequest<T: Config> {
-	/// Transfer a fixed amount to `dest`.
+	/// Transfer a fixed amount on Asset Hub from the will's owner to
+	/// `dest`. Requires the owner to have pre-granted `ProxyType::Any`
+	/// to Estate Protocol's sovereign on Asset Hub.
 	Transfer { dest: T::AccountId, amount: T::Balance },
-	/// Transfer the owner's entire free balance to `dest`.
+	/// Transfer the owner's entire Asset Hub free balance to `dest`
+	/// (owner's Asset Hub account is reaped).
 	TransferAll { dest: T::AccountId },
-	/// Grant `delegate` unrestricted proxy access to the owner's account.
+	/// Grant `delegate` unrestricted proxy access to the owner's
+	/// Asset Hub account.
 	Proxy { delegate: T::AccountId },
-	/// Grant a multisig of `delegates` (threshold `threshold`) unrestricted
-	/// proxy access to the owner's account.
+	/// Grant a multisig of `delegates` (threshold `threshold`)
+	/// unrestricted proxy access to the owner's Asset Hub account.
+	/// The multisig account id is derived the standard way and can
+	/// subsequently dispatch calls on behalf of the owner as any
+	/// `threshold` of the delegates.
 	MultisigProxy {
 		delegates: BoundedVec<T::AccountId, MaxMultisigDelegates>,
 		threshold: u16,
 	},
-	/// Transfer `amount` on Asset Hub from the will's owner to `dest`.
-	/// The owner must have pre-granted `ProxyType::Any` on Asset Hub to
-	/// Estate Protocol's sovereign account (done once via the "Link to
-	/// Asset Hub" flow). Executed by emitting an XCM
-	/// `Transact(Proxy.proxy(Balances.transfer))` where `real` is taken
-	/// from the will's owner — not stored on-chain, so a will can't be
-	/// crafted to move another account's funds.
-	RemoteTransfer { dest: T::AccountId, amount: T::Balance },
 }
 
 impl<T: Config> Bequest<T> {
@@ -68,7 +67,6 @@ impl<T: Config> Bequest<T> {
 			Bequest::TransferAll { dest } => vec![dest.clone()],
 			Bequest::Proxy { delegate } => vec![delegate.clone()],
 			Bequest::MultisigProxy { delegates, .. } => delegates.to_vec(),
-			Bequest::RemoteTransfer { dest, .. } => vec![dest.clone()],
 		}
 	}
 }

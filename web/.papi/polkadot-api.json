@@ -5,8 +5,8 @@
     "stack_template": {
       "wsUrl": "ws://127.0.0.1:9944",
       "metadata": ".papi/metadata/stack_template.scale",
-      "genesis": "0x92d339ac7204b0b95eea767ac7cf8c0c01dfbb8e8f7455e8c9e010e2e6d2ae27",
-      "codeHash": "0x9a9515746493ed1608f618872a19f3d8997037505a6892a6dd8d6997aa21357a"
+      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545",
+      "codeHash": "0xc483cb56467f666de7b186be6e1267f27d4bed39445608e4f310cb6d331e3f0e"
     },
     "people_chain": {
       "wsUrl": "ws://127.0.0.1:9946",
@@ -17,7 +17,7 @@
     "asset_hub": {
       "wsUrl": "ws://127.0.0.1:9948",
       "metadata": ".papi/metadata/asset_hub.scale",
-      "genesis": "0x8f871a005f33320a64b398526c6118162fefe51bdcc5ce96afabf71251eb4796",
+      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545",
       "codeHash": "0x289e09fc2b2cb9989575679a8ca1b9df661f14d7465da403026d09986a2d2e45"
     },
     "bulletin": {
