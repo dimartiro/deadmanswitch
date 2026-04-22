@@ -27,6 +27,18 @@ STACK_RELAY_ALICE_PROMETHEUS_PORT="$((9617 + STACK_PORT_OFFSET))"
 STACK_RELAY_BOB_RPC_PORT="$((9951 + STACK_PORT_OFFSET))"
 STACK_RELAY_BOB_P2P_PORT="$((30336 + STACK_PORT_OFFSET))"
 STACK_RELAY_BOB_PROMETHEUS_PORT="$((9618 + STACK_PORT_OFFSET))"
+STACK_RELAY_CHARLIE_RPC_PORT="$((9953 + STACK_PORT_OFFSET))"
+STACK_RELAY_CHARLIE_P2P_PORT="$((30337 + STACK_PORT_OFFSET))"
+STACK_RELAY_CHARLIE_PROMETHEUS_PORT="$((9619 + STACK_PORT_OFFSET))"
+STACK_RELAY_DAVE_RPC_PORT="$((9955 + STACK_PORT_OFFSET))"
+STACK_RELAY_DAVE_P2P_PORT="$((30338 + STACK_PORT_OFFSET))"
+STACK_RELAY_DAVE_PROMETHEUS_PORT="$((9620 + STACK_PORT_OFFSET))"
+STACK_RELAY_EVE_RPC_PORT="$((9957 + STACK_PORT_OFFSET))"
+STACK_RELAY_EVE_P2P_PORT="$((30340 + STACK_PORT_OFFSET))"
+STACK_RELAY_EVE_PROMETHEUS_PORT="$((9622 + STACK_PORT_OFFSET))"
+STACK_RELAY_FERDIE_RPC_PORT="$((9959 + STACK_PORT_OFFSET))"
+STACK_RELAY_FERDIE_P2P_PORT="$((30341 + STACK_PORT_OFFSET))"
+STACK_RELAY_FERDIE_PROMETHEUS_PORT="$((9623 + STACK_PORT_OFFSET))"
 SUBSTRATE_RPC_HTTP="${SUBSTRATE_RPC_HTTP:-http://127.0.0.1:${STACK_SUBSTRATE_RPC_PORT}}"
 SUBSTRATE_RPC_WS="${SUBSTRATE_RPC_WS:-ws://127.0.0.1:${STACK_SUBSTRATE_RPC_PORT}}"
 PEOPLE_RPC_WS="${PEOPLE_RPC_WS:-ws://127.0.0.1:${STACK_PEOPLE_RPC_PORT}}"
@@ -149,6 +161,18 @@ validate_zombienet_ports() {
         "Relay Bob RPC" "$STACK_RELAY_BOB_RPC_PORT" \
         "Relay Bob P2P" "$STACK_RELAY_BOB_P2P_PORT" \
         "Relay Bob Prometheus" "$STACK_RELAY_BOB_PROMETHEUS_PORT" \
+        "Relay Charlie RPC" "$STACK_RELAY_CHARLIE_RPC_PORT" \
+        "Relay Charlie P2P" "$STACK_RELAY_CHARLIE_P2P_PORT" \
+        "Relay Charlie Prometheus" "$STACK_RELAY_CHARLIE_PROMETHEUS_PORT" \
+        "Relay Dave RPC" "$STACK_RELAY_DAVE_RPC_PORT" \
+        "Relay Dave P2P" "$STACK_RELAY_DAVE_P2P_PORT" \
+        "Relay Dave Prometheus" "$STACK_RELAY_DAVE_PROMETHEUS_PORT" \
+        "Relay Eve RPC" "$STACK_RELAY_EVE_RPC_PORT" \
+        "Relay Eve P2P" "$STACK_RELAY_EVE_P2P_PORT" \
+        "Relay Eve Prometheus" "$STACK_RELAY_EVE_PROMETHEUS_PORT" \
+        "Relay Ferdie RPC" "$STACK_RELAY_FERDIE_RPC_PORT" \
+        "Relay Ferdie P2P" "$STACK_RELAY_FERDIE_P2P_PORT" \
+        "Relay Ferdie Prometheus" "$STACK_RELAY_FERDIE_PROMETHEUS_PORT" \
         "Collator P2P" "$STACK_COLLATOR_P2P_PORT" \
         "Collator Prometheus" "$STACK_COLLATOR_PROMETHEUS_PORT"
 
@@ -166,6 +190,18 @@ validate_zombienet_ports() {
         "$STACK_RELAY_BOB_RPC_PORT" \
         "$STACK_RELAY_BOB_P2P_PORT" \
         "$STACK_RELAY_BOB_PROMETHEUS_PORT" \
+        "$STACK_RELAY_CHARLIE_RPC_PORT" \
+        "$STACK_RELAY_CHARLIE_P2P_PORT" \
+        "$STACK_RELAY_CHARLIE_PROMETHEUS_PORT" \
+        "$STACK_RELAY_DAVE_RPC_PORT" \
+        "$STACK_RELAY_DAVE_P2P_PORT" \
+        "$STACK_RELAY_DAVE_PROMETHEUS_PORT" \
+        "$STACK_RELAY_EVE_RPC_PORT" \
+        "$STACK_RELAY_EVE_P2P_PORT" \
+        "$STACK_RELAY_EVE_PROMETHEUS_PORT" \
+        "$STACK_RELAY_FERDIE_RPC_PORT" \
+        "$STACK_RELAY_FERDIE_P2P_PORT" \
+        "$STACK_RELAY_FERDIE_PROMETHEUS_PORT" \
         "$STACK_COLLATOR_P2P_PORT" \
         "$STACK_COLLATOR_PROMETHEUS_PORT"
 }
@@ -272,9 +308,29 @@ seed_dev_identities() {
         log_warn "seed-identities.sh not found or not executable — skipping."
         return 0
     fi
-    # Give the tx pool a moment to warm up after first blocks appear.
-    log_info "Warming up parachain RPCs (5s)..."
-    sleep 5
+    # With 3 parachains sharing the relay, individual paras produce less
+    # frequently early on. Wait for People Chain to accumulate a few
+    # blocks before submitting — a single-block warmup is not enough and
+    # caused tx subscriptions to stall on first boot.
+    log_info "Warming up People Chain (waiting for block #3)..."
+    local max_wait=60
+    for _ in $(seq 1 "$max_wait"); do
+        local hdr
+        hdr="$(curl -s -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","id":1,"method":"chain_getHeader","params":[]}' \
+            "http://127.0.0.1:${STACK_PEOPLE_RPC_PORT}" 2>/dev/null || true)"
+        local block_hex
+        block_hex="$(echo "$hdr" | sed -n 's/.*"number":"\(0x[0-9a-fA-F]*\)".*/\1/p')"
+        if [ -n "$block_hex" ]; then
+            local block_num
+            block_num="$((block_hex))"
+            if [ "$block_num" -ge 3 ]; then
+                log_info "People Chain at block #$block_num — ready to seed."
+                break
+            fi
+        fi
+        sleep 1
+    done
     log_info "Seeding dev identities on People Chain..."
     if "$COMMON_DIR/seed-identities.sh"; then
         log_info "Dev identities registered."
@@ -393,6 +449,10 @@ timeout = 1000
 chain = "rococo-local"
 default_command = "polkadot"
 
+  # Rococo-local ships with 6 availability cores. To keep every core
+  # staffed each rotation we need at least 6 validators — otherwise
+  # groups miss the cores holding Estate/AH/People, and paras stall at
+  # block 3 waiting for backing.
   [[relaychain.nodes]]
   name = "alice"
   validator = true
@@ -406,6 +466,34 @@ default_command = "polkadot"
   rpc_port = $STACK_RELAY_BOB_RPC_PORT
   p2p_port = $STACK_RELAY_BOB_P2P_PORT
   prometheus_port = $STACK_RELAY_BOB_PROMETHEUS_PORT
+
+  [[relaychain.nodes]]
+  name = "charlie"
+  validator = true
+  rpc_port = $STACK_RELAY_CHARLIE_RPC_PORT
+  p2p_port = $STACK_RELAY_CHARLIE_P2P_PORT
+  prometheus_port = $STACK_RELAY_CHARLIE_PROMETHEUS_PORT
+
+  [[relaychain.nodes]]
+  name = "dave"
+  validator = true
+  rpc_port = $STACK_RELAY_DAVE_RPC_PORT
+  p2p_port = $STACK_RELAY_DAVE_P2P_PORT
+  prometheus_port = $STACK_RELAY_DAVE_PROMETHEUS_PORT
+
+  [[relaychain.nodes]]
+  name = "eve"
+  validator = true
+  rpc_port = $STACK_RELAY_EVE_RPC_PORT
+  p2p_port = $STACK_RELAY_EVE_P2P_PORT
+  prometheus_port = $STACK_RELAY_EVE_PROMETHEUS_PORT
+
+  [[relaychain.nodes]]
+  name = "ferdie"
+  validator = true
+  rpc_port = $STACK_RELAY_FERDIE_RPC_PORT
+  p2p_port = $STACK_RELAY_FERDIE_P2P_PORT
+  prometheus_port = $STACK_RELAY_FERDIE_PROMETHEUS_PORT
 
 # Estate Protocol — our application parachain.
 [[parachains]]
@@ -422,22 +510,22 @@ cumulus_based = true
   command = "polkadot-omni-node"
   args = ["--enable-statement-store"]
 
-# People Chain is disabled in zombienet dev because running it
-# alongside Estate + Asset Hub overloads the 2-validator backing
-# capacity. The frontend detects People Chain is unavailable and
-# bypasses identity checks automatically.
-#
-# [[parachains]]
-# id = 1004
-# chain = "people-rococo-local"
-# cumulus_based = true
-#   [[parachains.collators]]
-#   name = "people-collator"
-#   validator = true
-#   rpc_port = $STACK_PEOPLE_RPC_PORT
-#   p2p_port = $STACK_PEOPLE_P2P_PORT
-#   prometheus_port = $STACK_PEOPLE_PROMETHEUS_PORT
-#   command = "polkadot-parachain"
+# People Chain — canonical identity registry in the Polkadot ecosystem.
+# Re-enabled alongside 4 relay validators + 3 scheduler cores so the
+# frontend's identity checks hit a real pallet-identity instead of
+# bypassing.
+[[parachains]]
+id = 1004
+chain = "people-rococo-local"
+cumulus_based = true
+
+  [[parachains.collators]]
+  name = "people-collator"
+  validator = true
+  rpc_port = $STACK_PEOPLE_RPC_PORT
+  p2p_port = $STACK_PEOPLE_P2P_PORT
+  prometheus_port = $STACK_PEOPLE_PROMETHEUS_PORT
+  command = "polkadot-parachain"
 
 # Asset Hub — Rococo's canonical assets parachain. Required for the
 # Estate Protocol XCM flow: wills with remote-transfer bequests emit

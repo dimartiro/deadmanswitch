@@ -48,7 +48,7 @@ function buildInfo(name) {
 // Resolve as soon as the tx is in a best block (or times out). Waiting
 // for finalisation hangs for ~30s on zombienet startup because the
 // relay chain hasn’t finalised any parachain blocks yet.
-function submitBestBlock(tx, signer, timeoutMs = 30000) {
+function submitBestBlock(tx, signer, name, timeoutMs = 90000) {
   return new Promise((resolve, reject) => {
     let sub;
     const timer = setTimeout(() => {
@@ -57,6 +57,7 @@ function submitBestBlock(tx, signer, timeoutMs = 30000) {
     }, timeoutMs);
     sub = tx.signSubmitAndWatch(signer).subscribe({
       next: (event) => {
+        console.log(`  [${name}] event=${event.type}${event.found !== undefined ? ` found=${event.found}` : ""}`);
         if ((event.type === "txBestBlocksState" && event.found) || event.type === "finalized") {
           clearTimeout(timer);
           sub?.unsubscribe();
@@ -79,7 +80,7 @@ function submitBestBlock(tx, signer, timeoutMs = 30000) {
 const results = await Promise.allSettled(
   accounts.map(async ({ name, signer }) => {
     const tx = api.tx.Identity.set_identity({ info: buildInfo(name) });
-    const res = await submitBestBlock(tx, signer);
+    const res = await submitBestBlock(tx, signer, name);
     return { name, block: res.block };
   }),
 );
