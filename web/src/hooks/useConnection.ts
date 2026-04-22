@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef } from "react";
-import { getClient, getPeopleChainClient, disconnectClient } from "./useChain";
+import {
+	getClient,
+	getPeopleChainClient,
+	getAssetHubClient,
+	disconnectClient,
+} from "./useChain";
 import { useChainStore } from "../store/chainStore";
 
 let connectId = 0;
@@ -51,28 +56,35 @@ export function useConnectionManagement() {
 
 	useEffect(() => {
 		connect(initialWsUrlRef.current).catch(() => {});
-		// Probe People Chain. If it responds in time, identity checks
-		// run normally. If not, we're in solo-node dev mode (start-dev.sh,
-		// no relay, no sibling parachains) and identity is bypassed.
+		// Probe sibling parachains. If they respond in time, their
+		// features are enabled; if not, we're in solo-node dev mode
+		// (start-dev.sh) and related UI is hidden / bypassed.
 		const setPeopleChainAvailable =
 			useChainStore.getState().setPeopleChainAvailable;
-		(async () => {
+		const setAssetHubAvailable =
+			useChainStore.getState().setAssetHubAvailable;
+		const probe = async (
+			client: () => ReturnType<typeof getClient>,
+			label: string,
+			set: (v: boolean) => void,
+		) => {
 			try {
-				const peopleClient = getPeopleChainClient();
 				await Promise.race([
-					peopleClient.getChainSpecData(),
+					client().getChainSpecData(),
 					new Promise<never>((_, reject) =>
 						setTimeout(
-							() => reject(new Error("People Chain probe timeout")),
+							() => reject(new Error(`${label} probe timeout`)),
 							5000,
 						),
 					),
 				]);
-				setPeopleChainAvailable(true);
+				set(true);
 			} catch {
-				setPeopleChainAvailable(false);
+				set(false);
 			}
-		})();
+		};
+		probe(getPeopleChainClient, "People Chain", setPeopleChainAvailable);
+		probe(getAssetHubClient, "Asset Hub", setAssetHubAvailable);
 
 		return () => {
 			connectId += 1;

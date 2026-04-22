@@ -1,8 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
-import { getClient, getPeopleChainClient } from "../hooks/useChain";
-import { stack_template, people_chain } from "@polkadot-api/descriptors";
+import {
+	getClient,
+	getPeopleChainClient,
+	getAssetHubClient,
+} from "../hooks/useChain";
+import {
+	stack_template,
+	people_chain,
+	asset_hub,
+} from "@polkadot-api/descriptors";
 import { submitAndWait } from "../utils/tx";
 import {
 	getInjectedExtensions,
@@ -11,6 +19,19 @@ import {
 } from "polkadot-api/pjs-signer";
 import { injectSpektrExtension, SpektrExtensionName } from "@novasamatech/product-sdk";
 import { Binary, FixedSizeBinary, type PolkadotSigner } from "polkadot-api";
+import { ss58Address } from "@polkadot-labs/hdkd-helpers";
+
+// Sibling parachain sovereign account on Asset Hub, derived per
+// `polkadot_parachain_primitives::primitives::Sibling`:
+//   b"sibl" ++ u32_le(para_id) ++ padding to 32 bytes
+const ESTATE_PARA_ID = 2000;
+function estateSovereignOnAssetHub(): string {
+	const buf = new Uint8Array(32);
+	buf.set(new TextEncoder().encode("sibl"), 0);
+	new DataView(buf.buffer).setUint32(4, ESTATE_PARA_ID, true);
+	return ss58Address(buf);
+}
+const ESTATE_SOVEREIGN_ON_ASSETHUB = estateSovereignOnAssetHub();
 
 type HostEnvironment = "desktop-webview" | "web-iframe" | "standalone";
 
@@ -45,6 +66,11 @@ interface AccountInfo {
 interface IdentityStatus {
 	hasIdentity: boolean;
 	display?: string;
+}
+
+interface AssetHubLinkStatus {
+	linked: boolean;
+	balance?: bigint;
 }
 
 function formatBalance(planck: bigint): string {
@@ -102,9 +128,15 @@ function extractDisplayName(info: unknown): string | undefined {
 }
 
 export default function AccountsPage() {
-	const { wsUrl, connected, blockNumber, peopleChainAvailable } =
-		useChainStore();
+	const {
+		wsUrl,
+		connected,
+		blockNumber,
+		peopleChainAvailable,
+		assetHubAvailable,
+	} = useChainStore();
 	const bypassIdentity = peopleChainAvailable === false;
+	const showAssetHub = assetHubAvailable === true;
 	const spektrUnsubscribeRef = useRef<(() => void) | null>(null);
 	const extensionUnsubscribeRef = useRef<(() => void) | null>(null);
 	const [availableWallets, setAvailableWallets] = useState<string[]>([]);
@@ -121,6 +153,12 @@ export default function AccountsPage() {
 		Record<string, IdentityStatus>
 	>({});
 	const [identityActionStatus, setIdentityActionStatus] = useState<
+		Record<string, string>
+	>({});
+	const [assetHubLinks, setAssetHubLinks] = useState<
+		Record<string, AssetHubLinkStatus>
+	>({});
+	const [linkActionStatus, setLinkActionStatus] = useState<
 		Record<string, string>
 	>({});
 
@@ -191,6 +229,47 @@ export default function AccountsPage() {
 		}
 	}, [allAddresses.join(","), bypassIdentity]); // eslint-disable-line react-hooks/exhaustive-deps
 
+	// Query proxy+balance on Asset Hub for each known account. A link
+	// exists when the account's Proxies storage entry includes our
+	// sovereign account as a delegate.
+	const fetchAssetHubLinks = useCallback(async () => {
+		if (allAddresses.length === 0) return;
+		if (!showAssetHub) {
+			setAssetHubLinks({});
+			return;
+		}
+		try {
+			const client = getAssetHubClient();
+			const api = client.getTypedApi(asset_hub);
+			const results = await Promise.all(
+				allAddresses.map(async (addr) => {
+					try {
+						const [proxiesEntry, account] = await Promise.all([
+							api.query.Proxy.Proxies.getValue(addr, { at: "best" }),
+							api.query.System.Account.getValue(addr, { at: "best" }),
+						]);
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						const [delegates] = proxiesEntry as any;
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						const linked = (delegates as any[]).some(
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							(d: any) => d.delegate === ESTATE_SOVEREIGN_ON_ASSETHUB,
+						);
+						return [
+							addr,
+							{ linked, balance: account.data.free as bigint },
+						] as const;
+					} catch {
+						return [addr, { linked: false }] as const;
+					}
+				}),
+			);
+			setAssetHubLinks(Object.fromEntries(results));
+		} catch {
+			// Asset Hub not reachable — leave links empty.
+		}
+	}, [allAddresses.join(","), showAssetHub]); // eslint-disable-line react-hooks/exhaustive-deps
+
 	useEffect(() => {
 		fetchAccountInfos();
 	}, [fetchAccountInfos, blockNumber]);
@@ -198,6 +277,10 @@ export default function AccountsPage() {
 	useEffect(() => {
 		fetchIdentities();
 	}, [fetchIdentities, blockNumber]);
+
+	useEffect(() => {
+		fetchAssetHubLinks();
+	}, [fetchAssetHubLinks, blockNumber]);
 
 	// Detect host environment and inject Spektr on mount
 	useEffect(() => {
@@ -422,6 +505,64 @@ export default function AccountsPage() {
 		}
 	}
 
+	async function linkAssetHub(acc: DisplayAccount) {
+		const key = `link-${acc.ss58}`;
+		setLinkActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
+		try {
+			const client = getAssetHubClient();
+			const api = client.getTypedApi(asset_hub);
+			const tx = api.tx.Proxy.add_proxy({
+				delegate: { type: "Id", value: ESTATE_SOVEREIGN_ON_ASSETHUB },
+				proxy_type: { type: "Any", value: undefined },
+				delay: 0,
+			});
+			const result = await submitAndWait(tx, acc.signer, client);
+			if (result.ok) {
+				setLinkActionStatus((s) => ({ ...s, [key]: "Linked" }));
+				fetchAssetHubLinks();
+			} else {
+				setLinkActionStatus((s) => ({
+					...s,
+					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
+				}));
+			}
+		} catch (e) {
+			setLinkActionStatus((s) => ({
+				...s,
+				[key]: `Error: ${e instanceof Error ? e.message : String(e)}`,
+			}));
+		}
+	}
+
+	async function unlinkAssetHub(acc: DisplayAccount) {
+		const key = `unlink-${acc.ss58}`;
+		setLinkActionStatus((s) => ({ ...s, [key]: "Submitting..." }));
+		try {
+			const client = getAssetHubClient();
+			const api = client.getTypedApi(asset_hub);
+			const tx = api.tx.Proxy.remove_proxy({
+				delegate: { type: "Id", value: ESTATE_SOVEREIGN_ON_ASSETHUB },
+				proxy_type: { type: "Any", value: undefined },
+				delay: 0,
+			});
+			const result = await submitAndWait(tx, acc.signer, client);
+			if (result.ok) {
+				setLinkActionStatus((s) => ({ ...s, [key]: "Unlinked" }));
+				fetchAssetHubLinks();
+			} else {
+				setLinkActionStatus((s) => ({
+					...s,
+					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
+				}));
+			}
+		} catch (e) {
+			setLinkActionStatus((s) => ({
+				...s,
+				[key]: `Error: ${e instanceof Error ? e.message : String(e)}`,
+			}));
+		}
+	}
+
 	const walletNames: Record<string, string> = {
 		"polkadot-js": "Polkadot.js",
 		"subwallet-js": "SubWallet",
@@ -457,14 +598,13 @@ export default function AccountsPage() {
 			{bypassIdentity && (
 				<div className="card border border-accent-yellow/20 bg-accent-yellow/5 space-y-1">
 					<p className="text-sm text-accent-yellow font-medium">
-						Solo-node dev mode
+						Identities support disabled
 					</p>
 					<p className="text-xs text-text-muted">
 						People Chain isn't reachable at{" "}
 						<span className="font-mono">ws://localhost:9946</span>. Identity
-						registration is disabled here, and identity checks are bypassed
-						when creating wills. Use <span className="font-mono">start-zombienet.sh</span>{" "}
-						to get the full stack back.
+						registration is hidden here, and identity checks are bypassed
+						when creating wills.
 					</p>
 				</div>
 			)}
@@ -513,6 +653,11 @@ export default function AccountsPage() {
 							onClearIdentity={() => clearIdentity(acc)}
 							connected={connected}
 							showIdentity={!bypassIdentity}
+						showAssetHub={showAssetHub}
+						link={assetHubLinks[acc.ss58]}
+						linkActionStatus={linkActionStatus}
+						onLinkAssetHub={() => linkAssetHub(acc)}
+						onUnlinkAssetHub={() => unlinkAssetHub(acc)}
 						/>
 					))}
 				</div>
@@ -567,6 +712,11 @@ export default function AccountsPage() {
 									onClearIdentity={() => clearIdentity(display)}
 									connected={connected}
 								showIdentity={!bypassIdentity}
+								showAssetHub={showAssetHub}
+								link={assetHubLinks[display.ss58]}
+								linkActionStatus={linkActionStatus}
+								onLinkAssetHub={() => linkAssetHub(display)}
+								onUnlinkAssetHub={() => unlinkAssetHub(display)}
 								/>
 							);
 						})}
@@ -615,6 +765,11 @@ export default function AccountsPage() {
 										onClearIdentity={() => clearIdentity(display)}
 										connected={connected}
 								showIdentity={!bypassIdentity}
+									showAssetHub={showAssetHub}
+									link={assetHubLinks[display.ss58]}
+									linkActionStatus={linkActionStatus}
+									onLinkAssetHub={() => linkAssetHub(display)}
+									onUnlinkAssetHub={() => unlinkAssetHub(display)}
 									/>
 								);
 							})
@@ -680,6 +835,11 @@ function AccountCard({
 	onClearIdentity,
 	connected,
 	showIdentity,
+	showAssetHub,
+	link,
+	linkActionStatus,
+	onLinkAssetHub,
+	onUnlinkAssetHub,
 }: {
 	account: DisplayAccount;
 	info?: AccountInfo;
@@ -691,11 +851,20 @@ function AccountCard({
 	onClearIdentity: () => void;
 	connected: boolean;
 	showIdentity: boolean;
+	showAssetHub: boolean;
+	link?: AssetHubLinkStatus;
+	linkActionStatus: Record<string, string>;
+	onLinkAssetHub: () => void;
+	onUnlinkAssetHub: () => void;
 }) {
 	const regKey = `reg-${account.ss58}`;
 	const clrKey = `clr-${account.ss58}`;
 	const pendingIdentityMsg =
 		identityActionStatus[regKey] ?? identityActionStatus[clrKey];
+	const linkKey = `link-${account.ss58}`;
+	const unlinkKey = `unlink-${account.ss58}`;
+	const pendingLinkMsg =
+		linkActionStatus[linkKey] ?? linkActionStatus[unlinkKey];
 
 	return (
 		<div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 space-y-2">
@@ -766,6 +935,57 @@ function AccountCard({
 					}`}
 				>
 					{pendingIdentityMsg}
+				</p>
+			)}
+			{showAssetHub && (
+				<div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
+					<div className="flex items-center gap-2">
+						<span className="text-xs text-text-muted uppercase font-medium w-8 shrink-0">
+							AH
+						</span>
+						{link?.linked ? (
+							<span className="status-badge bg-accent-green/10 text-accent-green border border-accent-green/20">
+								✓ linked
+							</span>
+						) : (
+							<span className="status-badge bg-text-muted/10 text-text-muted border border-text-muted/20">
+								not linked
+							</span>
+						)}
+						{link?.balance !== undefined && (
+							<span className="text-xs text-text-tertiary font-mono">
+								{formatBalance(link.balance)} ROC
+							</span>
+						)}
+					</div>
+					{link?.linked ? (
+						<button
+							onClick={onUnlinkAssetHub}
+							className="px-2 py-1 rounded-md bg-text-muted/10 text-text-secondary border border-text-muted/20 text-xs font-medium hover:bg-text-muted/20 transition-colors"
+						>
+							Unlink
+						</button>
+					) : (
+						<button
+							onClick={onLinkAssetHub}
+							className="px-2 py-1 rounded-md bg-polka-500/10 text-polka-400 border border-polka-500/20 text-xs font-medium hover:bg-polka-500/20 transition-colors"
+						>
+							Link to Asset Hub
+						</button>
+					)}
+				</div>
+			)}
+			{showAssetHub && pendingLinkMsg && (
+				<p
+					className={`text-xs font-medium ${
+						pendingLinkMsg.startsWith("Error")
+							? "text-accent-red"
+							: pendingLinkMsg === "Linked" || pendingLinkMsg === "Unlinked"
+								? "text-accent-green"
+								: "text-accent-yellow"
+					}`}
+				>
+					{pendingLinkMsg}
 				</p>
 			)}
 		</div>

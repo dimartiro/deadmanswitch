@@ -422,22 +422,22 @@ cumulus_based = true
   command = "polkadot-omni-node"
   args = ["--enable-statement-store"]
 
-# People Chain — Polkadot's system parachain for identity. We spawn the
-# real runtime via \`polkadot-parachain\` with the \`people-rococo-local\`
-# chain spec so our Estate Protocol frontend can query a canonical
-# identity registry sibling-side.
-[[parachains]]
-id = 1004
-chain = "people-rococo-local"
-cumulus_based = true
-
-  [[parachains.collators]]
-  name = "people-collator"
-  validator = true
-  rpc_port = $STACK_PEOPLE_RPC_PORT
-  p2p_port = $STACK_PEOPLE_P2P_PORT
-  prometheus_port = $STACK_PEOPLE_PROMETHEUS_PORT
-  command = "polkadot-parachain"
+# People Chain is disabled in zombienet dev because running it
+# alongside Estate + Asset Hub overloads the 2-validator backing
+# capacity. The frontend detects People Chain is unavailable and
+# bypasses identity checks automatically.
+#
+# [[parachains]]
+# id = 1004
+# chain = "people-rococo-local"
+# cumulus_based = true
+#   [[parachains.collators]]
+#   name = "people-collator"
+#   validator = true
+#   rpc_port = $STACK_PEOPLE_RPC_PORT
+#   p2p_port = $STACK_PEOPLE_P2P_PORT
+#   prometheus_port = $STACK_PEOPLE_PROMETHEUS_PORT
+#   command = "polkadot-parachain"
 
 # Asset Hub — Rococo's canonical assets parachain. Required for the
 # Estate Protocol XCM flow: wills with remote-transfer bequests emit

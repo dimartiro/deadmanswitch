@@ -5,14 +5,20 @@
     "stack_template": {
       "wsUrl": "ws://127.0.0.1:9944",
       "metadata": ".papi/metadata/stack_template.scale",
-      "genesis": "0x8d7f7759406a0033264df6f3ff71d283054d3082a20db0fe623f0224fb72997d",
-      "codeHash": "0x368e9bb9e1e0c082dec4e431d78994c547f0c33b1fa1a3f512ad8320dd54b83b"
+      "genesis": "0x36b0a9d0312be2e05b44c0618db999fc7fa9093fe69a39977ccbfb8c7285f03e",
+      "codeHash": "0x5010718b49237b6aa777cf00cc4abeb9f6c95986a987fb4324d72178145f46cf"
     },
     "people_chain": {
       "wsUrl": "ws://127.0.0.1:9946",
       "metadata": ".papi/metadata/people_chain.scale",
       "genesis": "0xac1021fc6b3651a538b0ff282bdb65ebb57ff24ef261bfe27fcd105b0ebcab68",
       "codeHash": "0x8244706f1d9dc6d5f6ebcf8b91e92f431a98e9c3ba5db88e77445e1c6292db16"
+    },
+    "asset_hub": {
+      "wsUrl": "ws://127.0.0.1:9948",
+      "metadata": ".papi/metadata/asset_hub.scale",
+      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545",
+      "codeHash": "0x289e09fc2b2cb9989575679a8ca1b9df661f14d7465da403026d09986a2d2e45"
     },
     "bulletin": {
       "wsUrl": "wss://paseo-bulletin-rpc.polkadot.io",

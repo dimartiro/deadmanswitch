@@ -1,7 +1,11 @@
 import { createClient, type PolkadotClient } from "polkadot-api";
 import { getWsProvider } from "polkadot-api/ws-provider/web";
 import { withPolkadotSdkCompat } from "polkadot-api/polkadot-sdk-compat";
-import { getDefaultWsUrl, PEOPLE_CHAIN_WS_URL } from "../config/network";
+import {
+	getDefaultWsUrl,
+	PEOPLE_CHAIN_WS_URL,
+	ASSET_HUB_WS_URL,
+} from "../config/network";
 
 // Multiple clients keyed by WebSocket URL. Estate Protocol
 // (ws://…:9944) and People Chain (ws://…:9946) are both online at once
@@ -22,6 +26,11 @@ export function getClient(wsUrl?: string): PolkadotClient {
 /// Convenience accessor for the People Chain client.
 export function getPeopleChainClient(): PolkadotClient {
 	return getClient(PEOPLE_CHAIN_WS_URL);
+}
+
+/// Convenience accessor for the Asset Hub client.
+export function getAssetHubClient(): PolkadotClient {
+	return getClient(ASSET_HUB_WS_URL);
 }
 
 export function disconnectClient(wsUrl?: string) {

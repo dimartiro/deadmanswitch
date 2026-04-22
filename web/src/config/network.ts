@@ -9,6 +9,13 @@ export const LOCAL_ETH_RPC_URL = import.meta.env.VITE_LOCAL_ETH_RPC_URL || "http
 export const PEOPLE_CHAIN_WS_URL =
 	import.meta.env.VITE_PEOPLE_CHAIN_WS_URL || "ws://localhost:9946";
 
+/// WebSocket endpoint for Asset Hub (system parachain that hosts real
+/// balances + pallet-proxy). Used for the "Link Asset Hub" flow: users
+/// grant Estate Protocol's sovereign account proxy rights here, and
+/// remote-transfer bequests target accounts on this chain.
+export const ASSET_HUB_WS_URL =
+	import.meta.env.VITE_ASSET_HUB_WS_URL || "ws://localhost:9948";
+
 export const TESTNET_WS_URL = "wss://services.polkadothub-rpc.com/testnet";
 export const TESTNET_ETH_RPC_URL = "https://services.polkadothub-rpc.com/testnet";
 

@@ -21,6 +21,9 @@ interface ChainState {
 	// `false` = unreachable, and we're running in solo-node dev mode.
 	// When false, identity checks are bypassed (isVerified is always true).
 	peopleChainAvailable: boolean | null;
+	// Same pattern for Asset Hub. When false, the "Link Asset Hub" UI
+	// is hidden and remote-transfer bequests are disabled.
+	assetHubAvailable: boolean | null;
 	setWsUrl: (url: string) => void;
 	setConnected: (connected: boolean) => void;
 	setBlockNumber: (blockNumber: number) => void;
@@ -29,6 +32,7 @@ interface ChainState {
 	setTxStatus: (status: string | null) => void;
 	setWalletAccounts: (accounts: WalletAccount[]) => void;
 	setPeopleChainAvailable: (available: boolean) => void;
+	setAssetHubAvailable: (available: boolean) => void;
 }
 
 export const useChainStore = create<ChainState>((set) => ({
@@ -40,6 +44,7 @@ export const useChainStore = create<ChainState>((set) => ({
 	txStatus: null,
 	walletAccounts: [],
 	peopleChainAvailable: null,
+	assetHubAvailable: null,
 	setWsUrl: (wsUrl) => {
 		localStorage.setItem("ws-url", wsUrl);
 		set({ wsUrl });
@@ -52,4 +57,5 @@ export const useChainStore = create<ChainState>((set) => ({
 	setWalletAccounts: (walletAccounts) => set({ walletAccounts }),
 	setPeopleChainAvailable: (peopleChainAvailable) =>
 		set({ peopleChainAvailable }),
+	setAssetHubAvailable: (assetHubAvailable) => set({ assetHubAvailable }),
 }));

@@ -560,8 +560,8 @@ export default function CreateWillPage() {
 			<div className="card space-y-3">
 				{bypassIdentity && (
 					<p className="text-xs text-accent-yellow">
-						Solo-node dev mode — People Chain is unreachable, so identity
-						checks are bypassed.
+						Identities support disabled — People Chain is unreachable, so
+						identity checks are bypassed.
 					</p>
 				)}
 				{!bypassIdentity && hasRecipients && !allRecipientsVerified && (

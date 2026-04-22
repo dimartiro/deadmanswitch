@@ -14,22 +14,22 @@ var toBinary = (base64) => {
 };
 
 // .papi/descriptors/src/stack_template.ts
-var descriptorValues = import("./descriptors-75NX6M5C.mjs").then((module) => module["Stack_template"]);
-var metadataTypes = import("./metadataTypes-N3QWXT3V.mjs").then(
+var descriptorValues = import("./descriptors-KWQFEOVY.mjs").then((module) => module["Stack_template"]);
+var metadataTypes = import("./metadataTypes-QD6EJYRK.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
 var asset = {};
 var extensions = {};
-var getMetadata = () => import("./stack_template_metadata-47DBORJB.mjs").then(
+var getMetadata = () => import("./stack_template_metadata-G7QWU7K2.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
-var genesis = "0x8d7f7759406a0033264df6f3ff71d283054d3082a20db0fe623f0224fb72997d";
+var genesis = "0x36b0a9d0312be2e05b44c0618db999fc7fa9093fe69a39977ccbfb8c7285f03e";
 var _allDescriptors = { descriptors: descriptorValues, metadataTypes, asset, extensions, getMetadata, genesis };
 var stack_template_default = _allDescriptors;
 
 // .papi/descriptors/src/people_chain.ts
-var descriptorValues2 = import("./descriptors-75NX6M5C.mjs").then((module) => module["People_chain"]);
-var metadataTypes2 = import("./metadataTypes-N3QWXT3V.mjs").then(
+var descriptorValues2 = import("./descriptors-KWQFEOVY.mjs").then((module) => module["People_chain"]);
+var metadataTypes2 = import("./metadataTypes-QD6EJYRK.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
 var asset2 = {};
@@ -41,19 +41,33 @@ var genesis2 = "0xac1021fc6b3651a538b0ff282bdb65ebb57ff24ef261bfe27fcd105b0ebcab
 var _allDescriptors2 = { descriptors: descriptorValues2, metadataTypes: metadataTypes2, asset: asset2, extensions: extensions2, getMetadata: getMetadata2, genesis: genesis2 };
 var people_chain_default = _allDescriptors2;
 
-// .papi/descriptors/src/bulletin.ts
-var descriptorValues3 = import("./descriptors-75NX6M5C.mjs").then((module) => module["Bulletin"]);
-var metadataTypes3 = import("./metadataTypes-N3QWXT3V.mjs").then(
+// .papi/descriptors/src/asset_hub.ts
+var descriptorValues3 = import("./descriptors-KWQFEOVY.mjs").then((module) => module["Asset_hub"]);
+var metadataTypes3 = import("./metadataTypes-QD6EJYRK.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
 var asset3 = {};
 var extensions3 = {};
-var getMetadata3 = () => import("./bulletin_metadata-6D4OUQ3Y.mjs").then(
+var getMetadata3 = () => import("./asset_hub_metadata-DRENER32.mjs").then(
   (module) => toBinary("default" in module ? module.default : module)
 );
-var genesis3 = "0x744960c32e3a3df5440e1ecd4d34096f1ce2230d7016a5ada8a765d5a622b4ea";
+var genesis3 = "0x4545454545454545454545454545454545454545454545454545454545454545";
 var _allDescriptors3 = { descriptors: descriptorValues3, metadataTypes: metadataTypes3, asset: asset3, extensions: extensions3, getMetadata: getMetadata3, genesis: genesis3 };
-var bulletin_default = _allDescriptors3;
+var asset_hub_default = _allDescriptors3;
+
+// .papi/descriptors/src/bulletin.ts
+var descriptorValues4 = import("./descriptors-KWQFEOVY.mjs").then((module) => module["Bulletin"]);
+var metadataTypes4 = import("./metadataTypes-QD6EJYRK.mjs").then(
+  (module) => toBinary("default" in module ? module.default : module)
+);
+var asset4 = {};
+var extensions4 = {};
+var getMetadata4 = () => import("./bulletin_metadata-6D4OUQ3Y.mjs").then(
+  (module) => toBinary("default" in module ? module.default : module)
+);
+var genesis4 = "0x744960c32e3a3df5440e1ecd4d34096f1ce2230d7016a5ada8a765d5a622b4ea";
+var _allDescriptors4 = { descriptors: descriptorValues4, metadataTypes: metadataTypes4, asset: asset4, extensions: extensions4, getMetadata: getMetadata4, genesis: genesis4 };
+var bulletin_default = _allDescriptors4;
 
 // .papi/descriptors/src/common-types.ts
 import { _Enum } from "polkadot-api";
@@ -110,14 +124,16 @@ var PolkadotRuntimeCommonIdentityMigratorEvent = _Enum;
 var IdentityJudgement = _Enum;
 var IdentityData = _Enum;
 var XcmVersionedAsset = _Enum;
+var TraitsScheduleDispatchTime = _Enum;
 
 // .papi/descriptors/src/index.ts
 var metadatas = {
-  ["0x368e9bb9e1e0c082dec4e431d78994c547f0c33b1fa1a3f512ad8320dd54b83b"]: stack_template_default,
+  ["0x5010718b49237b6aa777cf00cc4abeb9f6c95986a987fb4324d72178145f46cf"]: stack_template_default,
   ["0x8244706f1d9dc6d5f6ebcf8b91e92f431a98e9c3ba5db88e77445e1c6292db16"]: people_chain_default,
+  ["0x289e09fc2b2cb9989575679a8ca1b9df661f14d7465da403026d09986a2d2e45"]: asset_hub_default,
   ["0x1a82e5143be3211ded412b0368b486ce83bd41a80ec95eb267f6c204adda8365"]: bulletin_default
 };
-var getMetadata4 = async (codeHash) => {
+var getMetadata5 = async (codeHash) => {
   try {
     return await metadatas[codeHash].getMetadata();
   } catch {
@@ -138,6 +154,7 @@ export {
   PolkadotRuntimeCommonIdentityMigratorEvent,
   PreimagesBounded,
   TokenError,
+  TraitsScheduleDispatchTime,
   TransactionPaymentEvent,
   TransactionPaymentReleases,
   TransactionValidityTransactionSource,
@@ -178,8 +195,9 @@ export {
   XcmVersionedAssets,
   XcmVersionedLocation,
   XcmVersionedXcm,
+  asset_hub_default as asset_hub,
   bulletin_default as bulletin,
-  getMetadata4 as getMetadata,
+  getMetadata5 as getMetadata,
   people_chain_default as people_chain,
   stack_template_default as stack_template
 };
