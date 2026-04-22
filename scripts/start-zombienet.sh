@@ -28,7 +28,14 @@ echo "[4/5] Waiting for both parachains to produce blocks..."
 wait_for_substrate_rpc
 wait_for_people_chain
 
-echo "[5/5] Seeding dev identities on People Chain..."
+echo "[5/5] Opening HRMP channels and seeding identities..."
+if [ -x "$SCRIPT_DIR/open-hrmp.sh" ]; then
+    if "$SCRIPT_DIR/open-hrmp.sh"; then
+        log_info "HRMP channels opened."
+    else
+        log_warn "HRMP channel opening failed — XCM bequests will fail until fixed."
+    fi
+fi
 seed_dev_identities
 
 echo ""
