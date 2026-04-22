@@ -14,6 +14,9 @@ STACK_SUBSTRATE_RPC_PORT="${STACK_SUBSTRATE_RPC_PORT:-$((9944 + STACK_PORT_OFFSE
 STACK_PEOPLE_RPC_PORT="${STACK_PEOPLE_RPC_PORT:-$((9946 + STACK_PORT_OFFSET))}"
 STACK_PEOPLE_P2P_PORT="$((30334 + STACK_PORT_OFFSET))"
 STACK_PEOPLE_PROMETHEUS_PORT="$((9616 + STACK_PORT_OFFSET))"
+STACK_ASSETHUB_RPC_PORT="${STACK_ASSETHUB_RPC_PORT:-$((9948 + STACK_PORT_OFFSET))}"
+STACK_ASSETHUB_P2P_PORT="$((30339 + STACK_PORT_OFFSET))"
+STACK_ASSETHUB_PROMETHEUS_PORT="$((9621 + STACK_PORT_OFFSET))"
 STACK_ETH_RPC_PORT="${STACK_ETH_RPC_PORT:-$((8545 + STACK_PORT_OFFSET))}"
 STACK_FRONTEND_PORT="${STACK_FRONTEND_PORT:-$((5173 + STACK_PORT_OFFSET))}"
 STACK_COLLATOR_P2P_PORT="$((30333 + STACK_PORT_OFFSET))"
@@ -42,6 +45,7 @@ ETH_RPC_PID="${ETH_RPC_PID:-}"
 export STACK_PORT_OFFSET
 export STACK_SUBSTRATE_RPC_PORT
 export STACK_PEOPLE_RPC_PORT
+export STACK_ASSETHUB_RPC_PORT
 export STACK_ETH_RPC_PORT
 export STACK_FRONTEND_PORT
 export SUBSTRATE_RPC_HTTP
@@ -136,6 +140,9 @@ validate_zombienet_ports() {
         "People RPC" "$STACK_PEOPLE_RPC_PORT" \
         "People P2P" "$STACK_PEOPLE_P2P_PORT" \
         "People Prometheus" "$STACK_PEOPLE_PROMETHEUS_PORT" \
+        "Asset Hub RPC" "$STACK_ASSETHUB_RPC_PORT" \
+        "Asset Hub P2P" "$STACK_ASSETHUB_P2P_PORT" \
+        "Asset Hub Prometheus" "$STACK_ASSETHUB_PROMETHEUS_PORT" \
         "Relay Alice RPC" "$STACK_RELAY_ALICE_RPC_PORT" \
         "Relay Alice P2P" "$STACK_RELAY_ALICE_P2P_PORT" \
         "Relay Alice Prometheus" "$STACK_RELAY_ALICE_PROMETHEUS_PORT" \
@@ -150,6 +157,9 @@ validate_zombienet_ports() {
         "$STACK_PEOPLE_RPC_PORT" \
         "$STACK_PEOPLE_P2P_PORT" \
         "$STACK_PEOPLE_PROMETHEUS_PORT" \
+        "$STACK_ASSETHUB_RPC_PORT" \
+        "$STACK_ASSETHUB_P2P_PORT" \
+        "$STACK_ASSETHUB_PROMETHEUS_PORT" \
         "$STACK_RELAY_ALICE_RPC_PORT" \
         "$STACK_RELAY_ALICE_P2P_PORT" \
         "$STACK_RELAY_ALICE_PROMETHEUS_PORT" \
@@ -206,7 +216,7 @@ generate_chain_spec() {
         --chain-id "estate-protocol" \
         -t development \
         --relay-chain rococo-local \
-        --para-id 1000 \
+        --para-id 2000 \
         --runtime "$RUNTIME_WASM" \
         named-preset development
 }
@@ -399,7 +409,7 @@ default_command = "polkadot"
 
 # Estate Protocol — our application parachain.
 [[parachains]]
-id = 1000
+id = 2000
 chain = "./chain_spec.json"
 cumulus_based = true
 
@@ -427,6 +437,22 @@ cumulus_based = true
   rpc_port = $STACK_PEOPLE_RPC_PORT
   p2p_port = $STACK_PEOPLE_P2P_PORT
   prometheus_port = $STACK_PEOPLE_PROMETHEUS_PORT
+  command = "polkadot-parachain"
+
+# Asset Hub — Rococo's canonical assets parachain. Required for the
+# Estate Protocol XCM flow: wills with remote-transfer bequests emit
+# XCM Transact(Proxy.proxy(Balances.transfer)) here.
+[[parachains]]
+id = 1000
+chain = "asset-hub-rococo-local"
+cumulus_based = true
+
+  [[parachains.collators]]
+  name = "assethub-collator"
+  validator = true
+  rpc_port = $STACK_ASSETHUB_RPC_PORT
+  p2p_port = $STACK_ASSETHUB_P2P_PORT
+  prometheus_port = $STACK_ASSETHUB_PROMETHEUS_PORT
   command = "polkadot-parachain"
 EOF
 }
