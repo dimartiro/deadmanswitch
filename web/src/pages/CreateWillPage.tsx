@@ -269,7 +269,10 @@ export default function CreateWillPage() {
 	const bypassIdentity = peopleChainAvailable === false;
 	const showAssetHub = assetHubAvailable === true;
 	const { accounts, selected } = useAllAccounts();
-	const [blockInterval, setBlockInterval] = useState("5");
+	const [intervalAmount, setIntervalAmount] = useState("1");
+	const [intervalUnit, setIntervalUnit] = useState<
+		"min" | "h" | "d" | "w" | "mo" | "y"
+	>("h");
 	const [entries, setEntries] = useState<Entry[]>([newEntry()]);
 	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
@@ -384,7 +387,7 @@ export default function CreateWillPage() {
 			const bequests = entries.map(buildBequest);
 			const tx = api.tx.EstateExecutor.create_will({
 				bequests,
-				block_interval: parseInt(blockInterval),
+				block_interval: blockInterval,
 			});
 			const result = await submitAndWait(tx, signer, client);
 			if (result.ok) {
@@ -403,7 +406,19 @@ export default function CreateWillPage() {
 	}
 
 	const blockTime = useChainStore((s) => s.blockTime);
-	const estimatedTime = Math.round((parseInt(blockInterval) || 0) * blockTime);
+	const UNIT_SECONDS: Record<typeof intervalUnit, number> = {
+		min: 60,
+		h: 3600,
+		d: 86400,
+		w: 604800,
+		mo: 2592000,
+		y: 31536000,
+	};
+	const estimatedTime = Math.max(
+		0,
+		Math.round(parseFloat(intervalAmount || "0") * UNIT_SECONDS[intervalUnit]),
+	);
+	const blockInterval = Math.max(1, Math.round(estimatedTime / blockTime));
 	const canSubmit =
 		!submitting &&
 		connected &&
@@ -417,7 +432,7 @@ export default function CreateWillPage() {
 			<div>
 				<div className="eyebrow mb-1">Draft</div>
 				<h1 className="h-display text-4xl md:text-5xl">
-					Compose a <span className="italic text-estate-500">will</span>
+					Compose a <span className="italic text-neon-500">will</span>
 				</h1>
 				<p className="text-sm text-ink-500 mt-2 max-w-xl">
 					Pick an owner, a heartbeat interval, and one or more instructions.
@@ -449,29 +464,16 @@ export default function CreateWillPage() {
 					))}
 				</div>
 				{selected && (
-					<div className="mt-3 grid md:grid-cols-3 gap-3">
+					<div className="mt-3 grid md:grid-cols-2 gap-3">
 						<Field label="Address" mono>
 							{selected.address}
 						</Field>
 						{showAssetHub && (
-							<>
-								<Field label="Asset Hub balance">
-									<span className="tabular font-medium">
-										{ownerAhBalance.toFixed(4)} ROC
-									</span>
-								</Field>
-								<Field label="Linked to Asset Hub">
-									{ownerAhLinked ? (
-										<span className="chip-positive">
-											<span className="dot" /> linked
-										</span>
-									) : (
-										<span className="chip-danger">
-											<span className="dot" /> not linked
-										</span>
-									)}
-								</Field>
-							</>
+							<Field label="Asset Hub balance">
+								<span className="tabular font-medium">
+									{ownerAhBalance.toFixed(4)} ROC
+								</span>
+							</Field>
 						)}
 					</div>
 				)}
@@ -486,32 +488,66 @@ export default function CreateWillPage() {
 			>
 				<div className="grid md:grid-cols-2 gap-6 items-start">
 					<div>
-						<label className="eyebrow mb-1.5 block">Interval, in blocks</label>
-						<input
-							type="range"
-							min="1"
-							max="1000"
-							value={blockInterval}
-							onChange={(e) => setBlockInterval(e.target.value)}
-							className="w-full accent-estate-700"
-						/>
-						<div className="flex items-center gap-3 mt-3">
+						<label className="eyebrow mb-1.5 block">Duration</label>
+						<div className="flex items-stretch gap-2 mb-3">
 							<input
 								type="number"
-								value={blockInterval}
-								onChange={(e) => setBlockInterval(e.target.value)}
+								min="1"
+								step="1"
+								value={intervalAmount}
+								onChange={(e) => setIntervalAmount(e.target.value)}
 								className="input-mono w-28"
 							/>
-							<span className="text-sm text-ink-500">blocks</span>
+							<div className="select-wrap flex-1">
+								<select
+									value={intervalUnit}
+									onChange={(e) =>
+										setIntervalUnit(e.target.value as typeof intervalUnit)
+									}
+									className="input"
+								>
+									<option value="min">minutes</option>
+									<option value="h">hours</option>
+									<option value="d">days</option>
+									<option value="w">weeks</option>
+									<option value="mo">months</option>
+									<option value="y">years</option>
+								</select>
+							</div>
+						</div>
+						<div className="flex flex-wrap gap-1.5">
+							{[
+								{ label: "1h", amount: "1", unit: "h" as const },
+								{ label: "1d", amount: "1", unit: "d" as const },
+								{ label: "1w", amount: "1", unit: "w" as const },
+								{ label: "1mo", amount: "1", unit: "mo" as const },
+								{ label: "1y", amount: "1", unit: "y" as const },
+							].map((p) => {
+								const active =
+									intervalAmount === p.amount && intervalUnit === p.unit;
+								return (
+									<button
+										key={p.label}
+										onClick={() => {
+											setIntervalAmount(p.amount);
+											setIntervalUnit(p.unit);
+										}}
+										className={`btn-outline btn-sm ${active ? "text-neon-500 border-neon-500/40 bg-neon-500/5" : ""}`}
+										type="button"
+									>
+										{p.label}
+									</button>
+								);
+							})}
 						</div>
 					</div>
-					<div className="rounded-2xl p-5 bg-estate-50 border border-estate-100">
-						<div className="eyebrow text-estate-500 mb-1">Estimated silence</div>
-						<div className="h-display text-4xl text-estate-500">
+					<div className="rounded-2xl p-5 bg-neon-500/5 border border-neon-500/20">
+						<div className="eyebrow text-neon-500 mb-1">Time to execution</div>
+						<div className="h-display text-4xl text-neon-500">
 							{formatDuration(estimatedTime)}
 						</div>
-						<p className="text-xs text-estate-500/70 mt-2">
-							at {blockTime}s per parachain block
+						<p className="text-xs text-neon-500/70 mt-2 font-mono">
+							= {blockInterval.toLocaleString()} blocks · at {blockTime}s/block
 						</p>
 					</div>
 				</div>
@@ -565,7 +601,7 @@ export default function CreateWillPage() {
 										onClick={() => updateEntry(entry.id, { kind: k })}
 										className={`text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all ${
 											entry.kind === k
-												? "bg-estate-400 text-canvas"
+												? "bg-neon-500 text-canvas"
 												: "text-ink-500 hover:text-ink-900"
 										}`}
 									>
@@ -702,14 +738,13 @@ export default function CreateWillPage() {
 			</Panel>
 
 			{/* Submit */}
-			<section className="card-padded bg-estate-50 border-estate-100">
+			<section className="card-padded bg-neon-50/30 border-neon-500/20">
 				<div className="flex items-start justify-between flex-wrap gap-4">
 					<div className="flex-1 min-w-[260px]">
-						<div className="eyebrow text-estate-500 mb-1">Review & sign</div>
+						<div className="eyebrow text-neon-500 mb-1">Review & sign</div>
 						<h3 className="h-page">Ready to register?</h3>
 						<p className="text-sm text-ink-500 mt-1 max-w-lg">
-							The will is SCALE-encoded and sent to pallet-estate-executor.
-							Execution is scheduled at creation, no keeper required.
+							Execution is scheduled at creation — no keeper required.
 						</p>
 						{bypassIdentity && (
 							<p className="text-xs text-caution mt-3">
@@ -781,9 +816,9 @@ function Panel({
 }) {
 	const accent =
 		variant === "heartbeat"
-			? "border-estate-100 bg-gradient-to-br from-paper to-estate-50/40"
+			? "border-neon-500/20 bg-gradient-to-br from-paper to-neon-500/5/40"
 			: variant === "instructions"
-				? "border-brass-100 bg-gradient-to-br from-paper to-brass-50/30"
+				? "border-fuchsia-500/20 bg-gradient-to-br from-paper to-fuchsia-500/5/30"
 				: "";
 	return (
 		<section className={`card-padded ${accent}`}>

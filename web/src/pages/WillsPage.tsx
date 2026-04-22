@@ -230,9 +230,9 @@ export default function WillsPage() {
 			{/* Page header */}
 			<div className="flex items-end justify-between gap-4 flex-wrap">
 				<div>
-					<div className="eyebrow mb-1">The Ledger</div>
+					<div className="eyebrow mb-1">The Vault</div>
 					<h1 className="h-display text-4xl md:text-5xl">
-						All <span className="italic text-estate-500">wills</span>, on chain
+						All <span className="italic text-neon-500">wills</span>, on chain
 					</h1>
 					<p className="text-sm text-ink-500 mt-2 max-w-xl">
 						Every will registered through Estate Protocol, grouped by your
@@ -333,7 +333,7 @@ export default function WillsPage() {
 			<section>
 				{loading && wills.length === 0 ? (
 					<div className="card-padded text-center text-ink-500 text-sm py-12">
-						Loading the ledger…
+						Loading the vault…
 					</div>
 				) : filtered.length === 0 ? (
 					<div className="card-padded text-center py-16">
@@ -381,9 +381,9 @@ function StatCard({
 }) {
 	const text =
 		tone === "estate"
-			? "text-estate-500"
+			? "text-neon-500"
 			: tone === "brass"
-				? "text-brass-500"
+				? "text-fuchsia-500"
 				: tone === "danger"
 					? "text-danger"
 					: "text-ink-900";
@@ -409,19 +409,19 @@ function FilterPill({
 	return (
 		<button
 			onClick={onClick}
-			className={`text-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 transition-all ${
+			className={`text-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 transition-all border ${
 				active
-					? "bg-estate-400 text-canvas shadow-soft"
-					: "bg-muted text-ink-700 hover:bg-mist"
+					? "bg-neon-500/10 text-neon-500 border-neon-500/40 shadow-[0_0_12px_rgba(0,255,179,0.15)]"
+					: "bg-muted text-ink-700 border-hairline hover:bg-mist hover:border-rule"
 			}`}
 		>
 			<span>{children}</span>
 			{count !== undefined && (
 				<span
-					className={`text-[0.7rem] rounded-full px-1.5 py-0.5 tabular ${
+					className={`text-[0.7rem] rounded-full px-1.5 py-0.5 tabular font-mono ${
 						active
-							? "bg-white/20 text-white"
-							: "bg-paper text-ink-500"
+							? "bg-neon-500/20 text-neon-500"
+							: "bg-canvas text-ink-500"
 					}`}
 				>
 					{count}

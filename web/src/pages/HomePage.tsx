@@ -1,18 +1,11 @@
+import { stack_template } from "@polkadot-api/descriptors";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useChainStore } from "../store/chainStore";
-import { useConnection } from "../hooks/useConnection";
 import { getClient } from "../hooks/useChain";
-import { LOCAL_WS_URL } from "../config/network";
-import { stack_template } from "@polkadot-api/descriptors";
+import { useChainStore } from "../store/chainStore";
 
 export default function HomePage() {
 	const { wsUrl, connected, blockNumber } = useChainStore();
-	const { connect } = useConnection();
-	const [urlInput, setUrlInput] = useState(wsUrl);
-	const [error, setError] = useState<string | null>(null);
-	const [chainName, setChainName] = useState<string | null>(null);
-	const [connecting, setConnecting] = useState(false);
 	const [counts, setCounts] = useState<{
 		active: number;
 		executed: number;
@@ -20,16 +13,8 @@ export default function HomePage() {
 	} | null>(null);
 
 	useEffect(() => {
-		setUrlInput(wsUrl);
-	}, [wsUrl]);
-
-	useEffect(() => {
 		if (!connected) return;
 		const client = getClient(wsUrl);
-		client
-			.getChainSpecData()
-			.then((data) => setChainName(data.name))
-			.catch(() => {});
 		(async () => {
 			try {
 				const api = client.getTypedApi(stack_template);
@@ -53,193 +38,122 @@ export default function HomePage() {
 		})();
 	}, [connected, wsUrl, blockNumber]);
 
-	async function handleConnect() {
-		setConnecting(true);
-		setError(null);
-		setChainName(null);
-		try {
-			const result = await connect(urlInput);
-			if (result?.ok && result.chain) {
-				setChainName(result.chain.name);
-			}
-		} catch (e) {
-			setError(`Could not reach ${urlInput}.`);
-			console.error(e);
-		} finally {
-			setConnecting(false);
-		}
-	}
-
 	return (
 		<div className="space-y-10 stagger">
-			{/* Hero card — oversized typography + primary CTAs */}
-			<section className="card-hero p-8 md:p-12">
+			{/* Hero panel */}
+			<section className="card-hero p-8 md:p-12 scanlines">
 				<div className="grid md:grid-cols-12 gap-8 items-end">
 					<div className="md:col-span-8 space-y-6">
-						<span className="chip chip-estate">
-							<span className="dot" /> Polkadot SDK parachain
-						</span>
-						<h1 className="h-display text-[clamp(2.75rem,7vw,5rem)] text-balance">
-							Your on-chain{" "}
-							<span className="italic text-estate-500">legacy,</span>{" "}
-							set in stone.
+						<div className="flex items-center gap-3">
+							<span className="chip chip-estate">
+								<span className="dot animate-neon-pulse" />
+								polkadot SDK / parachain
+							</span>
+							<span className="chip chip-fuchsia">xcm → asset hub</span>
+						</div>
+
+						<h1 className="h-display text-[clamp(2.5rem,7vw,4.75rem)] text-balance">
+							YOUR ON-CHAIN
+							<br />
+							<span className="neon-text">LEGACY</span>{" "}
+							<span className="h-display-light italic normal-case text-ink-700">
+								set in stone.
+							</span>
 						</h1>
-						<p className="text-ink-500 max-w-xl text-[1.05rem] leading-relaxed">
-							Register a will of on-chain actions. Send a heartbeat now and
-							then to stay its hand. Fall silent and the ledger executes what
-							you authored — a transfer, a proxy, an inheritance — with no
-							keeper, no fee, no third party holding your keys.
+
+						<p className="font-mono text-[0.88rem] text-ink-700 max-w-xl leading-relaxed">
+							<span className="text-neon-500">&gt;</span> Register a will of on-chain
+							actions. Heartbeat at will. Silence fires the vault —
+							transfers, proxies, inheritances — with no keeper, no fee, no
+							third party holding your keys.
 						</p>
+
 						<div className="flex flex-wrap gap-3 pt-2">
 							<Link to="/create" className="btn-accent">
 								Draft a will
 								<span>→</span>
 							</Link>
 							<Link to="/dashboard" className="btn-outline">
-								View the ledger
+								Open vault
 							</Link>
 						</div>
 					</div>
 
 					<div className="md:col-span-4 grid grid-cols-2 gap-3">
-						<Stat label="Active" value={counts?.active ?? "—"} tone="muted" />
-						<Stat label="Executed" value={counts?.executed ?? "—"} tone="estate" />
+						<Stat label="ACTIVE" value={counts?.active ?? "—"} tone="muted" />
+						<Stat label="EXECUTED" value={counts?.executed ?? "—"} tone="neon" />
 					</div>
 				</div>
 			</section>
 
-			{/* Connection panel — a different treatment: a muted strip card */}
-			<section className="card-padded">
-				<div className="flex items-start justify-between gap-4 flex-wrap">
-					<div>
-						<div className="eyebrow mb-1">Endpoint</div>
-						<h2 className="h-section">Chain connection</h2>
-						<p className="text-sm text-ink-500 mt-1">
-							Estate Protocol lives on a specific parachain. Point this UI at
-							the right node.
-						</p>
-					</div>
-					<span
-						className={`chip ${connected ? "chip-positive" : "chip-neutral"}`}
-					>
-						<span className="dot" />
-						{connected ? "Connected" : connecting ? "Connecting…" : "Offline"}
-					</span>
-				</div>
-
-				<div className="mt-5 flex flex-col md:flex-row gap-3">
-					<div className="select-wrap flex-1">
-						<input
-							type="text"
-							value={urlInput}
-							onChange={(e) => setUrlInput(e.target.value)}
-							onKeyDown={(e) => e.key === "Enter" && handleConnect()}
-							placeholder={LOCAL_WS_URL}
-							className="input-mono"
-						/>
-					</div>
-					<button
-						onClick={handleConnect}
-						disabled={connecting}
-						className="btn-primary md:w-auto w-full"
-					>
-						{connecting ? "Connecting…" : "Connect"}
-					</button>
-				</div>
-
-				<div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-hairline">
-					<MiniStat
-						label="Status"
-						value={
-							error ? (
-								<span className="text-danger">Unreachable</span>
-							) : connected ? (
-								<span className="text-positive">Live</span>
-							) : (
-								<span className="text-ink-500">—</span>
-							)
-						}
-					/>
-					<MiniStat
-						label="Chain"
-						value={
-							chainName ? (
-								<span className="font-medium">{chainName}</span>
-							) : (
-								<span className="text-ink-400">—</span>
-							)
-						}
-					/>
-					<MiniStat
-						label="Head"
-						value={
-							<span className="font-mono tabular">
-								№{blockNumber.toLocaleString()}
-							</span>
-						}
-					/>
-				</div>
-				{error && (
-					<p className="text-sm text-danger mt-3">
-						{error}
-					</p>
-				)}
-			</section>
-
-			{/* Feature grid — three distinct treatments */}
+			{/* Feature tiles */}
 			<section className="grid md:grid-cols-3 gap-4">
 				<FeatureCard
 					to="/dashboard"
 					eyebrow="Record"
 					title="Wills"
-					description="Browse every will on chain. Send heartbeats. Watch the countdown to execution."
-					chip={<span className="chip chip-estate"><span className="dot" />Live</span>}
+					description="Every will on chain. Heartbeat. Countdown. Execute."
+					chip={
+						<span className="chip-estate">
+							<span className="dot" />
+							live
+						</span>
+					}
 				/>
 				<FeatureCard
 					to="/certificates"
 					eyebrow="Inheritance"
 					title="Certificates"
-					description="Soulbound NFTs minted when a will naming you executes. Non-transferable, permanent."
-					chip={<span className="chip chip-brass"><span className="dot" />Soulbound</span>}
+					description="Soulbound NFTs minted when a will naming you executes."
+					chip={
+						<span className="chip-fuchsia">
+							<span className="dot" />
+							soulbound
+						</span>
+					}
 				/>
 				<FeatureCard
 					to="/accounts"
 					eyebrow="Keys"
 					title="Accounts"
-					description="Connect wallets. Register an identity. Link your account to Asset Hub for XCM flows."
-					chip={<span className="chip chip-neutral"><span className="dot" />Keys</span>}
+					description="Wallets. Identities. Asset Hub proxy links."
+					chip={<span className="chip-neutral">manage</span>}
 				/>
 			</section>
 
-			{/* Mechanics strip — low-density, wide text */}
-			<section className="card rounded-3xl p-8 md:p-10">
+			{/* How it works */}
+			<section className="card p-8 md:p-10">
 				<div className="grid md:grid-cols-12 gap-8">
 					<div className="md:col-span-5">
-						<div className="eyebrow mb-2">How it works</div>
+						<div className="eyebrow mb-2">runbook</div>
 						<h2 className="h-page">
-							Four steps, from <em className="text-estate-500 not-italic font-display font-medium">draft</em> to <em className="text-estate-500 not-italic font-display font-medium">delivery</em>
+							<span className="text-neon-500">#</span> four steps
 						</h2>
+						<p className="font-mono text-xs text-ink-500 mt-3">
+							from <span className="text-neon-500">draft</span> to{" "}
+							<span className="text-fuchsia-500">delivery</span>
+						</p>
 					</div>
 					<ol className="md:col-span-7 space-y-4">
 						<Step
 							n="01"
 							title="Author"
-							desc="Pick beneficiaries, amounts, and a heartbeat interval. The pallet stores a typed list of bequests on chain."
+							desc="Typed bequests, a heartbeat interval. SCALE-encoded, stored on chain."
 						/>
 						<Step
 							n="02"
 							title="Heartbeat"
-							desc="Ping the chain at your leisure. Each heartbeat resets the countdown and reschedules execution."
+							desc="Ping at your leisure. Each heartbeat reschedules pallet-scheduler."
 						/>
 						<Step
 							n="03"
 							title="Silence"
-							desc="If the countdown elapses, pallet-scheduler fires execute_will automatically. No keeper, no reward."
+							desc="Countdown elapses, execute_will fires deterministically. No keepers."
 						/>
 						<Step
 							n="04"
 							title="Delivery"
-							desc="Each bequest dispatches over XCM to Asset Hub as your proxy. Beneficiaries receive a soulbound certificate."
+							desc="Each bequest dispatches over XCM to Asset Hub as your proxy."
 						/>
 					</ol>
 				</div>
@@ -255,39 +169,37 @@ function Stat({
 }: {
 	label: string;
 	value: string | number;
-	tone: "estate" | "brass" | "muted";
+	tone: "neon" | "fuchsia" | "muted";
 }) {
-	const bg =
-		tone === "estate"
-			? "bg-estate-50 border-estate-100"
-			: tone === "brass"
-				? "bg-brass-50 border-brass-100"
-				: "bg-muted border-hairline";
 	const text =
-		tone === "estate"
-			? "text-estate-500"
-			: tone === "brass"
-				? "text-brass-500"
+		tone === "neon"
+			? "text-neon-500"
+			: tone === "fuchsia"
+				? "text-fuchsia-500"
 				: "text-ink-400";
+	const borderClass =
+		tone === "neon"
+			? "border-neon-500/30"
+			: tone === "fuchsia"
+				? "border-fuchsia-500/30"
+				: "border-hairline";
+	const bg =
+		tone === "neon" ? "bg-neon-500/5" : tone === "fuchsia" ? "bg-fuchsia-500/5" : "bg-muted";
+	const glow = tone === "neon" ? "shadow-[0_0_24px_rgba(0,255,179,0.12)]" : "";
 	return (
-		<div className={`rounded-xl border ${bg} px-3 py-4 text-center`}>
-			<div className={`text-2xl font-semibold tabular ${text}`}>{value}</div>
-			<div className="eyebrow mt-1">{label}</div>
-		</div>
-	);
-}
-
-function MiniStat({
-	label,
-	value,
-}: {
-	label: string;
-	value: React.ReactNode;
-}) {
-	return (
-		<div>
-			<div className="eyebrow mb-1">{label}</div>
-			<div className="text-sm">{value}</div>
+		<div
+			className={`${bg} border ${borderClass} ${glow} px-3 py-4 text-center`}
+			style={{ borderRadius: "3px" }}
+		>
+			<div
+				className={`font-mono text-2xl font-bold tabular ${text}`}
+				style={{ letterSpacing: "-0.02em" }}
+			>
+				{value}
+			</div>
+			<div className="eyebrow mt-1 justify-center" style={{ fontSize: "0.55rem" }}>
+				{label}
+			</div>
 		</div>
 	);
 }
@@ -308,41 +220,34 @@ function FeatureCard({
 	return (
 		<Link
 			to={to}
-			className="group card-padded hover:shadow-card hover:border-rule transition-all"
+			className="group card-padded hover:border-neon-500/30 transition-all"
+			style={{ borderRadius: "3px" }}
 		>
 			<div className="flex items-start justify-between mb-4">
 				<div className="eyebrow">{eyebrow}</div>
 				{chip}
 			</div>
-			<h3 className="h-page mb-2 group-hover:text-estate-500 transition-colors">
+			<h3 className="h-page mb-2 group-hover:text-neon-500 group-hover:neon-text transition-all">
 				{title}
 			</h3>
-			<p className="text-sm text-ink-500 leading-relaxed">{description}</p>
-			<div className="mt-4 flex items-center gap-1 text-sm text-estate-500 font-medium">
-				Open
-				<span className="transition-transform group-hover:translate-x-1">
-					→
-				</span>
+			<p className="text-sm text-ink-500 leading-relaxed font-mono">{description}</p>
+			<div className="mt-4 flex items-center gap-1 text-xs text-neon-500 font-mono uppercase tracking-wider">
+				access
+				<span className="transition-transform group-hover:translate-x-1">→</span>
 			</div>
 		</Link>
 	);
 }
 
-function Step({
-	n,
-	title,
-	desc,
-}: {
-	n: string;
-	title: string;
-	desc: string;
-}) {
+function Step({ n, title, desc }: { n: string; title: string; desc: string }) {
 	return (
 		<li className="flex gap-4">
-			<span className="font-mono text-xs text-ink-400 pt-1 tabular">{n}</span>
+			<span className="font-mono text-xs text-neon-500 pt-1 tabular shrink-0">{n}</span>
 			<div>
-				<div className="font-semibold text-ink-900">{title}</div>
-				<p className="text-sm text-ink-500 leading-relaxed">{desc}</p>
+				<div className="font-display font-bold uppercase tracking-wider text-ink-900 text-sm">
+					{title}
+				</div>
+				<p className="text-sm text-ink-500 leading-relaxed font-mono">{desc}</p>
 			</div>
 		</li>
 	);

@@ -2,7 +2,11 @@ import prettyMs from "pretty-ms";
 
 /// Format seconds into a human-readable duration string.
 export function formatDuration(seconds: number): string {
-	return prettyMs(seconds * 1000, { compact: true });
+	if (seconds <= 0) return "0s";
+	return prettyMs(seconds * 1000, {
+		secondsDecimalDigits: 0,
+		unitCount: 2,
+	});
 }
 
 /// Format a PAPI dispatch error into a human-readable string.

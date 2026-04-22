@@ -463,7 +463,7 @@ export default function AccountsPage() {
 				<div>
 					<div className="eyebrow mb-1">Keys</div>
 					<h1 className="h-display text-4xl md:text-5xl">
-						Your <span className="italic text-estate-500">accounts</span>
+						Your <span className="italic text-neon-500">accounts</span>
 					</h1>
 					<p className="text-sm text-ink-500 mt-2 max-w-xl">
 						Manage dev accounts, connect browser wallets, register on-chain
@@ -618,7 +618,7 @@ export default function AccountsPage() {
 								href="https://polkadot.js.org/extension/"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="text-estate-500 underline"
+								className="text-neon-500 underline"
 							>
 								Polkadot.js
 							</a>
@@ -627,7 +627,7 @@ export default function AccountsPage() {
 								href="https://www.talisman.xyz/"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="text-estate-500 underline"
+								className="text-neon-500 underline"
 							>
 								Talisman
 							</a>
@@ -636,7 +636,7 @@ export default function AccountsPage() {
 								href="https://www.subwallet.app/"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="text-estate-500 underline"
+								className="text-neon-500 underline"
 							>
 								SubWallet
 							</a>
@@ -778,7 +778,7 @@ function AccountCard({
 	const typeLabel = account.type === "dev" ? "Dev" : "Extension";
 
 	return (
-		<article className="card overflow-hidden">
+		<article className="card">
 			{/* Header — Asset Hub balance is the hero number */}
 			<div className="px-6 py-5 border-b border-hairline flex items-start justify-between gap-6 flex-wrap">
 				<div className="flex items-start gap-3 min-w-0">
@@ -800,7 +800,7 @@ function AccountCard({
 				<div className="text-right shrink-0 flex flex-col items-end">
 					{showAssetHub && link?.balance !== undefined ? (
 						<>
-							<div className="text-[0.65rem] uppercase tracking-[0.12em] text-brass-500 font-medium mb-0.5">
+							<div className="text-[0.65rem] uppercase tracking-[0.12em] text-fuchsia-500 font-medium mb-0.5">
 								Asset Hub
 							</div>
 							<div className="font-semibold tabular text-2xl text-ink-900">
@@ -833,7 +833,7 @@ function AccountCard({
 							{connected && (
 								<button
 									onClick={onFund}
-									className="text-[0.7rem] text-ink-400 hover:text-estate-500 transition-colors"
+									className="text-[0.7rem] text-ink-400 hover:text-neon-500 transition-colors"
 									title="Top up dev balance on Estate"
 								>
 									＋fund
@@ -844,7 +844,7 @@ function AccountCard({
 					{!showAssetHub && info && connected && (
 						<button
 							onClick={onFund}
-							className="text-[0.7rem] text-ink-400 hover:text-estate-500 transition-colors mt-1"
+							className="text-[0.7rem] text-ink-400 hover:text-neon-500 transition-colors mt-1"
 							title="Top up dev balance on Estate"
 						>
 							＋fund

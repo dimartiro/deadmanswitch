@@ -3,33 +3,39 @@
 @tailwind utilities;
 
 /*
- * Estate Protocol — dark, warm, rounded. SubSquare-like horizontal
- * nav, distinct card treatments per section, but rendered on a warm
- * near-black canvas with pine and amber accents.
+ * Estate Protocol — cyberpunk terminal UI.
+ *
+ * Near-black canvas, aqua-cyan primary neon, hot magenta secondary.
+ * Mono-first typography with an Oxanium display face for headers.
+ * Sharp corners, bracket ornaments, grid backgrounds, faint scan
+ * lines. Buttons read like terminal prompts.
  */
 
 @layer base {
   html {
-    background: #0D0E0B;
-    color: #F2EFE6;
+    background: #07090B;
+    color: #E6EDF5;
   }
   body {
     @apply font-sans antialiased text-ink-900;
-    background: #0D0E0B;
-    /* Subtle grain to break up flat dark surfaces. */
+    background: #07090B;
     background-image:
+      /* Faint dot grid — terminal coordinates */
+      radial-gradient(rgba(0, 255, 179, 0.04) 1px, transparent 1px),
+      /* Corner glows */
       radial-gradient(
-        ellipse 900px 600px at 10% -10%,
-        rgba(94, 146, 103, 0.08) 0%,
-        transparent 60%
+        ellipse 900px 600px at 8% -10%,
+        rgba(0, 255, 179, 0.06) 0%,
+        transparent 55%
       ),
       radial-gradient(
         ellipse 700px 500px at 100% 110%,
-        rgba(200, 151, 36, 0.06) 0%,
+        rgba(255, 46, 147, 0.06) 0%,
         transparent 55%
       );
+    background-size: 24px 24px, auto, auto;
     background-attachment: fixed;
-    font-feature-settings: "ss01", "cv11", "kern";
+    font-feature-settings: "ss01", "calt", "kern";
   }
   ::-webkit-scrollbar {
     width: 10px;
@@ -39,16 +45,16 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(242, 239, 230, 0.12);
-    border: 3px solid #0D0E0B;
+    background: rgba(0, 255, 179, 0.15);
+    border: 3px solid #07090B;
     border-radius: 5px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(242, 239, 230, 0.22);
+    background: rgba(0, 255, 179, 0.3);
   }
   ::selection {
-    background: rgba(94, 146, 103, 0.35);
-    color: #F2EFE6;
+    background: rgba(0, 255, 179, 0.3);
+    color: #07090B;
   }
 
   button, input, select, textarea {
@@ -69,178 +75,253 @@
   /* ── Typography ─────────────────────────────────────────────────── */
 
   .h-display {
-    font-family: "Fraunces", Georgia, serif;
-    font-weight: 400;
-    font-variation-settings: "opsz" 120, "SOFT" 30;
+    font-family: "Oxanium", "Space Grotesk", sans-serif;
+    font-weight: 700;
     letter-spacing: -0.02em;
-    line-height: 1;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .h-display-light {
+    font-family: "Oxanium", "Space Grotesk", sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
   }
   .h-page {
-    @apply text-ink-900 font-semibold tracking-tight;
-    font-size: 1.75rem;
+    font-family: "Oxanium", "Space Grotesk", sans-serif;
+    @apply text-ink-900 font-bold uppercase tracking-wide;
+    font-size: 1.5rem;
     line-height: 1.1;
   }
   .h-section {
-    @apply text-ink-900 font-semibold tracking-tight;
-    font-size: 1.15rem;
-    line-height: 1.2;
+    font-family: "Oxanium", "Space Grotesk", sans-serif;
+    @apply text-ink-900 font-semibold uppercase tracking-wider;
+    font-size: 0.95rem;
   }
   .h-card {
     @apply text-ink-900 font-semibold;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
   }
   .eyebrow {
-    @apply font-medium text-ink-500 uppercase tracking-[0.12em];
+    @apply font-medium text-neon-500 uppercase tracking-[0.2em];
+    font-size: 0.65rem;
+    font-family: "JetBrains Mono", monospace;
+  }
+  .eyebrow::before {
+    content: "> ";
+    opacity: 0.7;
+  }
+  .small-caps {
+    @apply font-mono uppercase tracking-[0.15em] text-ink-500;
     font-size: 0.68rem;
   }
 
-  /* ── Card treatments (differentiated per section) ───────────────── */
+  /* ── Card treatments ────────────────────────────────────────────── */
 
   .card {
-    @apply bg-paper rounded-2xl border border-hairline shadow-soft;
+    position: relative;
+    @apply bg-paper border border-hairline shadow-soft;
+    border-radius: 3px;
   }
   .card-padded {
     @apply card p-6;
   }
-
-  /* Muted / secondary card — for nested panels. */
   .card-muted {
-    @apply bg-muted rounded-xl border border-hairline;
+    @apply bg-muted border border-hairline;
+    border-radius: 3px;
   }
 
-  /* Hero card — gradient surface, primary accent glows. */
+  /* Hero card — a HUD panel with bracketed corners */
   .card-hero {
     position: relative;
     overflow: hidden;
-    border-radius: 1.5rem;
+    border-radius: 4px;
     background:
       radial-gradient(
         900px 300px at 15% 0%,
-        rgba(94, 146, 103, 0.22) 0%,
+        rgba(0, 255, 179, 0.08) 0%,
         transparent 60%
       ),
       radial-gradient(
         700px 400px at 95% 100%,
-        rgba(200, 151, 36, 0.14) 0%,
+        rgba(255, 46, 147, 0.05) 0%,
         transparent 65%
       ),
-      #16171A;
-    border: 1px solid #2A2C2F;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.3);
+      #0E1114;
+    border: 1px solid #202731;
+    box-shadow:
+      0 0 0 1px rgba(0, 255, 179, 0.04),
+      0 0 40px rgba(0, 255, 179, 0.04),
+      0 8px 32px rgba(0, 0, 0, 0.5);
   }
-
-  /* Stat card — centered, compact. */
-  .stat {
-    @apply flex flex-col gap-1 rounded-xl bg-paper border border-hairline p-4;
-  }
-  .stat .stat-label {
-    @apply eyebrow text-ink-500;
-    font-size: 0.65rem;
-  }
-  .stat .stat-value {
-    @apply text-ink-900 font-semibold tabular-nums;
-    font-size: 1.25rem;
-  }
-
-  /* Entry row — for lists (wills, accounts). */
-  .row {
-    position: relative;
-    @apply rounded-xl bg-paper border border-hairline px-5 py-4 transition-all;
-  }
-  .row:hover {
-    border-color: #3A3C3F;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Accent strip on left for emphasized rows. */
-  .row-accent {
-    @apply row overflow-hidden;
-  }
-  .row-accent::before {
+  /* Top-edge neon hairline — a clean single stroke instead of corner
+   * brackets. Keeps the HUD feel without the "targeting reticle" vibe. */
+  .card-hero::before {
     content: "";
     position: absolute;
-    left: 0;
-    top: 12px;
-    bottom: 12px;
-    width: 3px;
-    border-radius: 0 2px 2px 0;
-    background: #5E9267;
+    top: 0;
+    left: 24px;
+    right: 24px;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 255, 179, 0.5) 20%,
+      rgba(0, 255, 179, 0.5) 80%,
+      transparent 100%
+    );
+    pointer-events: none;
   }
-  .row-accent-brass::before {
-    background: #C89724;
+
+  /* Stat tile — HUD readout */
+  .stat {
+    @apply flex flex-col gap-1 bg-paper border border-hairline p-4;
+    border-radius: 3px;
   }
-  .row-accent-danger::before {
-    background: #E07266;
+  .stat .stat-label {
+    @apply eyebrow;
+    font-size: 0.6rem;
+  }
+  .stat .stat-label::before {
+    content: "";
+  }
+  .stat .stat-value {
+    font-family: "JetBrains Mono", monospace;
+    @apply text-ink-900 font-bold tabular-nums;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+  }
+
+  /* Entry row */
+  .row {
+    position: relative;
+    @apply bg-paper border border-hairline px-5 py-4 transition-all;
+    border-radius: 3px;
+  }
+  .row:hover {
+    border-color: rgba(0, 255, 179, 0.3);
+    box-shadow:
+      0 0 0 1px rgba(0, 255, 179, 0.08),
+      0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+  .row-accent {
+    @apply row overflow-hidden;
+    border-left: 2px solid #00FFB3;
+    padding-left: calc(1.25rem - 2px);
+  }
+  .row-accent-brass {
+    border-left-color: #FFBE0B;
+  }
+  .row-accent-danger {
+    border-left-color: #FF3860;
   }
 
   /* ── Buttons ────────────────────────────────────────────────────── */
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-150;
-    @apply disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none;
+    @apply inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 uppercase tracking-wider;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    border-radius: 3px;
+    @apply disabled:opacity-35 disabled:cursor-not-allowed disabled:shadow-none;
   }
-  /* Primary — a warm bone pill on dark (inverse of body). */
   .btn-primary {
-    @apply btn bg-ink-900 text-canvas px-5 py-2.5 text-sm;
-    @apply hover:bg-ink-700;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 1px 2px rgba(0, 0, 0, 0.3);
+    @apply btn bg-ink-900 text-canvas px-5 py-2.5;
+    border: 1px solid #E6EDF5;
   }
   .btn-primary:not(:disabled):hover {
-    transform: translateY(-0.5px);
+    background: #FFFFFF;
+    box-shadow: 0 0 16px rgba(230, 237, 245, 0.25);
   }
-  /* Accent — green fill. */
+  /* Accent — the main "go" button. Neon aqua. */
   .btn-accent {
-    @apply btn bg-estate-400 text-canvas px-5 py-2.5 text-sm;
-    @apply hover:bg-estate-500;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 1px 3px rgba(0, 0, 0, 0.35);
+    @apply btn text-canvas px-5 py-2.5 font-semibold;
+    background: #00FFB3;
+    border: 1px solid #00FFB3;
+    box-shadow: 0 0 0 1px rgba(0, 255, 179, 0.3), 0 0 20px rgba(0, 255, 179, 0.25);
   }
   .btn-accent:not(:disabled):hover {
-    transform: translateY(-0.5px);
+    background: #7CFFD4;
+    border-color: #7CFFD4;
+    box-shadow: 0 0 0 1px rgba(0, 255, 179, 0.5), 0 0 28px rgba(0, 255, 179, 0.45);
   }
   .btn-ghost {
-    @apply btn bg-transparent text-ink-500 px-4 py-2 text-sm;
-    @apply hover:bg-muted hover:text-ink-900;
+    @apply btn bg-transparent text-ink-500 px-3 py-1.5 normal-case tracking-normal;
+    font-size: 0.78rem;
+    text-transform: none;
+  }
+  .btn-ghost:hover {
+    @apply text-neon-500 bg-muted;
   }
   .btn-outline {
-    @apply btn bg-transparent text-ink-700 px-4 py-2 text-sm border border-hairline;
-    @apply hover:bg-muted hover:border-rule hover:text-ink-900;
+    @apply btn bg-transparent text-ink-700 px-4 py-2 border border-hairline;
+  }
+  .btn-outline:not(:disabled):hover {
+    background: rgba(0, 255, 179, 0.05);
+    border-color: rgba(0, 255, 179, 0.4);
+    color: #00FFB3;
   }
   .btn-danger {
-    @apply btn bg-transparent text-danger px-4 py-2 text-sm border border-hairline;
-    @apply hover:bg-muted hover:border-danger/40;
+    @apply btn bg-transparent text-danger px-4 py-2 border border-hairline;
+  }
+  .btn-danger:not(:disabled):hover {
+    background: rgba(255, 56, 96, 0.08);
+    border-color: rgba(255, 56, 96, 0.4);
   }
   .btn-sm {
-    @apply text-xs px-3 py-1.5;
+    @apply text-[0.68rem] px-3 py-1.5;
+  }
+
+  /* Bracket-wrapped terminal button: [ LABEL ] */
+  .btn-bracket {
+    @apply btn px-3 py-1.5 text-neon-500 border-0;
+    background: transparent;
+    font-size: 0.78rem;
+  }
+  .btn-bracket::before {
+    content: "[ ";
+    opacity: 0.5;
+  }
+  .btn-bracket::after {
+    content: " ]";
+    opacity: 0.5;
+  }
+  .btn-bracket:hover::before,
+  .btn-bracket:hover::after {
+    opacity: 1;
   }
 
   /* ── Inputs ─────────────────────────────────────────────────────── */
 
   .input {
-    @apply block w-full rounded-xl bg-muted border border-hairline px-3.5 py-2.5;
-    @apply text-ink-900 placeholder:text-ink-400 text-[0.95rem];
+    @apply block w-full bg-muted border border-hairline px-3.5 py-2.5;
+    @apply text-ink-900 placeholder:text-ink-400;
     @apply transition-all outline-none;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.88rem;
+    border-radius: 3px;
   }
   .input:focus {
-    @apply border-estate-400 bg-paper;
-    box-shadow: 0 0 0 4px rgba(94, 146, 103, 0.18);
+    border-color: #00FFB3;
+    background: rgba(0, 255, 179, 0.03);
+    box-shadow: 0 0 0 3px rgba(0, 255, 179, 0.12);
   }
   .input-mono {
-    @apply input font-mono text-sm;
+    @apply input;
   }
   .select-wrap {
     position: relative;
   }
   .select-wrap::after {
-    content: "";
+    content: "▾";
     position: absolute;
-    right: 1rem;
+    right: 0.85rem;
     top: 50%;
-    width: 8px;
-    height: 8px;
-    border-right: 1.5px solid #8F8C82;
-    border-bottom: 1.5px solid #8F8C82;
-    transform: translateY(-70%) rotate(45deg);
+    transform: translateY(-50%);
+    color: #727C8A;
     pointer-events: none;
+    font-size: 0.75rem;
   }
   .select-wrap select {
     appearance: none;
@@ -248,28 +329,60 @@
     padding-right: 2.25rem;
   }
 
-  /* ── Pills / chips / badges ─────────────────────────────────────── */
+  /* ── Chips / pills / badges ─────────────────────────────────────── */
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 font-medium uppercase tracking-wider;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    border-radius: 2px;
+    border: 1px solid transparent;
   }
-  .chip-neutral  { @apply chip bg-muted text-ink-700 border border-hairline; }
-  .chip-estate   { @apply chip text-estate-500 border; background: rgba(94, 146, 103, 0.10); border-color: rgba(94, 146, 103, 0.25); }
-  .chip-brass    { @apply chip text-brass-500 border; background: rgba(200, 151, 36, 0.10); border-color: rgba(200, 151, 36, 0.25); }
-  .chip-positive { @apply chip text-positive border; background: rgba(79, 174, 110, 0.10); border-color: rgba(79, 174, 110, 0.25); }
-  .chip-caution  { @apply chip text-caution border; background: rgba(232, 162, 59, 0.10); border-color: rgba(232, 162, 59, 0.25); }
-  .chip-danger   { @apply chip text-danger border; background: rgba(224, 114, 102, 0.12); border-color: rgba(224, 114, 102, 0.25); }
-
-  /* Dot marker */
   .chip .dot {
     @apply w-1.5 h-1.5 rounded-full bg-current;
   }
+  .chip-neutral {
+    @apply chip bg-muted text-ink-500;
+    border-color: #202731;
+  }
+  .chip-estate {
+    @apply chip text-neon-500;
+    background: rgba(0, 255, 179, 0.08);
+    border-color: rgba(0, 255, 179, 0.25);
+  }
+  .chip-brass {
+    @apply chip text-amber-500;
+    background: rgba(255, 190, 11, 0.08);
+    border-color: rgba(255, 190, 11, 0.25);
+  }
+  .chip-fuchsia {
+    @apply chip text-fuchsia-500;
+    background: rgba(255, 46, 147, 0.08);
+    border-color: rgba(255, 46, 147, 0.3);
+  }
+  .chip-positive {
+    @apply chip text-neon-500;
+    background: rgba(0, 255, 179, 0.08);
+    border-color: rgba(0, 255, 179, 0.25);
+  }
+  .chip-caution {
+    @apply chip text-caution;
+    background: rgba(255, 190, 11, 0.08);
+    border-color: rgba(255, 190, 11, 0.25);
+  }
+  .chip-danger {
+    @apply chip text-danger;
+    background: rgba(255, 56, 96, 0.08);
+    border-color: rgba(255, 56, 96, 0.3);
+  }
 
-  /* ── Nav (SubSquare-style horizontal) ───────────────────────────── */
+  /* ── Navigation (terminal tabs) ─────────────────────────────────── */
 
   .nav-bar {
-    background: rgba(13, 14, 11, 0.8);
-    @apply backdrop-blur-md border-b border-hairline;
+    background: rgba(7, 9, 11, 0.85);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    @apply border-b border-hairline;
   }
   .nav-tabs {
     scrollbar-width: none;
@@ -278,13 +391,21 @@
     display: none;
   }
   .nav-tab {
-    @apply inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-ink-500 relative transition-colors;
+    font-family: "JetBrains Mono", monospace;
+    @apply inline-flex items-center gap-2 px-4 py-3 text-ink-500 relative transition-colors uppercase tracking-wider;
+    font-size: 0.78rem;
+    font-weight: 500;
   }
   .nav-tab:hover {
     @apply text-ink-900;
   }
   .nav-tab.is-active {
-    @apply text-ink-900;
+    color: #00FFB3;
+    text-shadow: 0 0 16px rgba(0, 255, 179, 0.4);
+  }
+  .nav-tab.is-active::before {
+    content: "▸ ";
+    color: #00FFB3;
   }
   .nav-tab.is-active::after {
     content: "";
@@ -293,44 +414,110 @@
     right: 0.75rem;
     bottom: -1px;
     height: 2px;
-    border-radius: 2px 2px 0 0;
-    background: #5E9267;
+    background: #00FFB3;
+    box-shadow: 0 0 8px rgba(0, 255, 179, 0.6);
   }
 
-  /* ── Misc ───────────────────────────────────────────────────────── */
+  /* ── Alerts ─────────────────────────────────────────────────────── */
+
+  .alert-positive {
+    @apply px-4 py-3 text-sm border;
+    border-radius: 3px;
+    background: rgba(0, 255, 179, 0.05);
+    border-color: rgba(0, 255, 179, 0.25);
+    color: #7CFFD4;
+  }
+  .alert-caution {
+    @apply px-4 py-3 text-sm border;
+    border-radius: 3px;
+    background: rgba(255, 190, 11, 0.05);
+    border-color: rgba(255, 190, 11, 0.25);
+    color: #FFD560;
+  }
+  .alert-danger {
+    @apply px-4 py-3 text-sm border;
+    border-radius: 3px;
+    background: rgba(255, 56, 96, 0.05);
+    border-color: rgba(255, 56, 96, 0.3);
+    color: #FF8FA3;
+  }
+
+  /* ── Misc helpers ───────────────────────────────────────────────── */
 
   .divider {
-    @apply border-0 h-px bg-hairline my-6;
+    @apply border-0 h-px my-6;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 255, 179, 0.2) 50%,
+      transparent 100%
+    );
   }
 
   .kbd {
-    @apply inline-flex items-center rounded-md bg-muted border border-hairline px-1.5 py-0.5 text-[0.68rem] font-mono text-ink-500;
+    @apply inline-flex items-center bg-muted border border-hairline px-1.5 py-0.5 text-[0.68rem] font-mono text-ink-500;
+    border-radius: 2px;
   }
 
-  /* Soft alert strips with warm translucent fills (on dark). */
-  .alert-positive {
-    @apply rounded-xl px-4 py-3 text-sm border;
-    background: rgba(79, 174, 110, 0.1);
-    border-color: rgba(79, 174, 110, 0.25);
-    color: #85C599;
+  /* Terminal cursor (blinking underscore) */
+  .cursor::after {
+    content: "▁";
+    animation: blink 1s step-end infinite;
+    margin-left: 2px;
+    color: #00FFB3;
   }
-  .alert-caution {
-    @apply rounded-xl px-4 py-3 text-sm border;
-    background: rgba(232, 162, 59, 0.1);
-    border-color: rgba(232, 162, 59, 0.25);
-    color: #F0BE6E;
+
+  /* Bracket frame — used around hero titles */
+  .bracket {
+    position: relative;
+    display: inline-block;
   }
-  .alert-danger {
-    @apply rounded-xl px-4 py-3 text-sm border;
-    background: rgba(224, 114, 102, 0.1);
-    border-color: rgba(224, 114, 102, 0.3);
-    color: #ED9A92;
+  .bracket::before {
+    content: "[";
+    color: #00FFB3;
+    margin-right: 0.25em;
+    opacity: 0.7;
+  }
+  .bracket::after {
+    content: "]";
+    color: #00FFB3;
+    margin-left: 0.25em;
+    opacity: 0.7;
+  }
+
+  /* Neon text glow */
+  .neon-text {
+    color: #00FFB3;
+    text-shadow: 0 0 12px rgba(0, 255, 179, 0.4);
+  }
+  .fuchsia-text {
+    color: #FF2E93;
+    text-shadow: 0 0 12px rgba(255, 46, 147, 0.4);
   }
 }
 
 @layer utilities {
   .tabular { font-variant-numeric: tabular-nums; }
   .text-balance { text-wrap: balance; }
+
+  /* CRT scan-line overlay — very subtle */
+  .scanlines {
+    position: relative;
+  }
+  .scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 2px,
+      rgba(0, 255, 179, 0.012) 2px,
+      rgba(0, 255, 179, 0.012) 3px
+    );
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
 
   .stagger > * { opacity: 0; animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
   .stagger > *:nth-child(1) { animation-delay: 0.02s; }

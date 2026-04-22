@@ -167,7 +167,7 @@ export default function CertificatesPage() {
 			<div>
 				<div className="eyebrow mb-1">Inheritance</div>
 				<h1 className="h-display text-4xl md:text-5xl">
-					Your <span className="italic text-brass-500">certificates</span>
+					Your <span className="italic text-amber-500">certificates</span>
 				</h1>
 				<p className="text-sm text-ink-500 mt-2 max-w-xl">
 					Permanent, non-transferable proofs that a will naming you as a
@@ -225,7 +225,7 @@ export default function CertificatesPage() {
 
 				{!loading &&
 					(collectionId === null || certificates.length === 0) && (
-						<div className="card-padded text-center py-16 bg-gradient-to-br from-brass-50/40 to-paper">
+						<div className="card-padded text-center py-16 bg-gradient-to-br from-amber-500/10 to-paper">
 							<div className="text-5xl mb-3">🏅</div>
 							<h3 className="h-section mb-1">No certificates yet</h3>
 							<p className="text-sm text-ink-500 max-w-sm mx-auto">
@@ -254,18 +254,18 @@ function CertificateCard({ cert }: { cert: Certificate }) {
 	return (
 		<article className="relative rounded-2xl overflow-hidden bg-paper border border-hairline shadow-soft hover:shadow-card transition-shadow">
 			{/* Ribbon strip */}
-			<div className="absolute top-0 right-0 bottom-0 w-1 bg-gradient-to-b from-brass-300 via-brass-400 to-brass-500" />
+			<div className="absolute top-0 right-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600" />
 
 			{/* Header strip */}
-			<div className="bg-gradient-to-br from-brass-50 via-paper to-estate-50 px-6 py-6 border-b border-hairline">
+			<div className="bg-gradient-to-br from-amber-500/8 via-paper to-neon-500/5 px-6 py-6 border-b border-hairline">
 				<div className="flex items-start justify-between gap-4">
 					<div>
-						<div className="eyebrow text-brass-500 mb-2">Soulbound record</div>
+						<div className="eyebrow text-amber-500 mb-2">Soulbound record</div>
 						<h3 className="h-display text-3xl md:text-4xl leading-tight">
-							Execution <span className="italic text-brass-500">Certificate</span>
+							Execution <span className="italic text-amber-500">Certificate</span>
 						</h3>
 					</div>
-					<div className="shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-brass-200 to-brass-400 flex items-center justify-center text-xl shadow-soft">
+					<div className="shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-xl shadow-soft">
 						🏅
 					</div>
 				</div>
@@ -300,7 +300,7 @@ function CertificateCard({ cert }: { cert: Certificate }) {
 						<ul className="space-y-1.5">
 							{cert.receivedBequests.map((b, j) => (
 								<li key={j} className="flex gap-2 text-sm text-ink-700">
-									<span className="text-estate-500 mt-0.5">◆</span>
+									<span className="text-neon-500 mt-0.5">◆</span>
 									<span>{renderReceivedBequest(b, cert.owner)}</span>
 								</li>
 							))}
