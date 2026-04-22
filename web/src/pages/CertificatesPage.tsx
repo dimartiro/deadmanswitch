@@ -47,6 +47,8 @@ function renderReceivedBequest(bequest: Bequest, owner?: string): string {
 			return `Granted proxy access to ${from}'s account`;
 		case "MultisigProxy":
 			return `Granted multisig proxy (${value.threshold} of ${value.delegates.length}) to ${from}'s account`;
+		case "RemoteTransfer":
+			return `Received ${formatBalanceUnit(value.amount)} on Asset Hub from ${from}`;
 		default:
 			return `Unknown bequest (${type})`;
 	}
@@ -63,6 +65,8 @@ function bequestRecipients(bequest: Bequest): string[] {
 			return [value.delegate as string];
 		case "MultisigProxy":
 			return value.delegates as string[];
+		case "RemoteTransfer":
+			return [value.dest as string];
 		default:
 			return [];
 	}

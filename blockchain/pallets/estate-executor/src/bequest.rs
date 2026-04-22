@@ -48,6 +48,14 @@ pub enum Bequest<T: Config> {
 		delegates: BoundedVec<T::AccountId, MaxMultisigDelegates>,
 		threshold: u16,
 	},
+	/// Transfer `amount` on Asset Hub from the will's owner to `dest`.
+	/// The owner must have pre-granted `ProxyType::Any` on Asset Hub to
+	/// Estate Protocol's sovereign account (done once via the "Link to
+	/// Asset Hub" flow). Executed by emitting an XCM
+	/// `Transact(Proxy.proxy(Balances.transfer))` where `real` is taken
+	/// from the will's owner — not stored on-chain, so a will can't be
+	/// crafted to move another account's funds.
+	RemoteTransfer { dest: T::AccountId, amount: T::Balance },
 }
 
 impl<T: Config> Bequest<T> {
@@ -60,6 +68,7 @@ impl<T: Config> Bequest<T> {
 			Bequest::TransferAll { dest } => vec![dest.clone()],
 			Bequest::Proxy { delegate } => vec![delegate.clone()],
 			Bequest::MultisigProxy { delegates, .. } => delegates.to_vec(),
+			Bequest::RemoteTransfer { dest, .. } => vec![dest.clone()],
 		}
 	}
 }
@@ -68,5 +77,13 @@ impl<T: Config> Bequest<T> {
 /// time. Implemented by the runtime so the pallet stays agnostic of
 /// which pallets provide Balances, Proxy, etc.
 pub trait BequestBuilder<T: Config> {
-	fn build_call(bequest: &Bequest<T>) -> <T as Config>::RuntimeCall;
+	/// Dispatch a single bequest. The trait owns the origin choice —
+	/// local variants run as `Signed(owner)`; XCM variants bypass the
+	/// dispatch system entirely (e.g. `pallet_xcm::send_xcm` with
+	/// `Here`) so the message arrives at its destination with a clean
+	/// parachain-sovereign origin instead of a descended one.
+	fn dispatch(
+		bequest: &Bequest<T>,
+		owner: &T::AccountId,
+	) -> DispatchResult;
 }

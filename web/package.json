@@ -9,7 +9,7 @@
   },
   "scripts": {
     "codegen": "papi generate",
-    "update-types": "papi update",
+    "update-types": "papi update stack_template,asset_hub",
     "dev": "vite",
     "dev:blockchain": "npm run update-types && vite",
     "build": "npm run codegen && tsc -b && vite build",

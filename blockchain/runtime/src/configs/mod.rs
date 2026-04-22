@@ -27,7 +27,8 @@ use codec::{Encode, Decode, MaxEncodedLen};
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_runtime::{traits::BlakeTwo256, Perbill, RuntimeDebug};
 use sp_version::RuntimeVersion;
-use xcm::latest::prelude::BodyId;
+use xcm::latest::prelude::*;
+use xcm::VersionedXcm;
 
 use super::{
 	weights::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight},
@@ -333,40 +334,156 @@ impl pallet_statement::Config for Runtime {
 
 pub struct RuntimeBequestBuilder;
 
+// Pallet call indices on Asset Hub (asset-hub-rococo runtime).
+// Verified against
+// `polkadot-sdk/cumulus/parachains/runtimes/assets/asset-hub-rococo/src/lib.rs`
+// construct_runtime! — update these constants when the upstream runtime
+// shuffles pallet_index values.
+const AH_BALANCES_PALLET: u8 = 10;
+const AH_PROXY_PALLET: u8 = 42;
+const AH_BALANCES_TRANSFER_KEEP_ALIVE: u8 = 3;
+const AH_PROXY_PROXY: u8 = 0;
+
+/// SCALE-encoded `AssetHubCall::Proxy(proxy { real, force_proxy_type:
+/// None, call: Balances(transfer_keep_alive { dest, value: amount }) })`.
+/// Manual encoding is necessary because our runtime does not link
+/// asset-hub-rococo-runtime — we only need the bytes for the Transact
+/// instruction.
+fn build_remote_transfer_call(
+	owner: &AccountId,
+	dest: &AccountId,
+	amount: Balance,
+) -> alloc::vec::Vec<u8> {
+	use codec::{Compact, Encode};
+	// MultiAddress::Id variant index (inner Balances.transfer_keep_alive).
+	const MULTIADDR_ID: u8 = 0;
+	// Option::None variant index (force_proxy_type).
+	const OPT_NONE: u8 = 0;
+
+	let mut balances_call = alloc::vec![
+		AH_BALANCES_PALLET,
+		AH_BALANCES_TRANSFER_KEEP_ALIVE,
+		MULTIADDR_ID,
+	];
+	balances_call.extend_from_slice(&dest.encode());
+	Compact::<u128>(amount).encode_to(&mut balances_call);
+
+	let mut proxy_call = alloc::vec![AH_PROXY_PALLET, AH_PROXY_PROXY, MULTIADDR_ID];
+	proxy_call.extend_from_slice(&owner.encode());
+	proxy_call.push(OPT_NONE);
+	proxy_call.extend_from_slice(&balances_call);
+
+	proxy_call
+}
+
+/// Build the XCM message that instructs Asset Hub to execute a
+/// `Proxy.proxy(Balances.transfer_keep_alive)` on behalf of `real`.
+/// Assumes `real` has pre-granted `ProxyType::Any` to Estate Protocol's
+/// sovereign account on Asset Hub (done via the "Link to Asset Hub"
+/// flow in the frontend).
+fn build_remote_transfer_xcm(
+	owner: &AccountId,
+	dest: &AccountId,
+	amount: Balance,
+) -> VersionedXcm<()> {
+	// Fees paid on Asset Hub in its native token (= relay-native, i.e.
+	// Parent location). 100 ROC is conservative dev-mode slack.
+	let fee_amount: u128 = 100_000_000_000_000;
+	let fees: Asset = (Location::parent(), fee_amount).into();
+	let proxy_call_bytes = build_remote_transfer_call(owner, dest, amount);
+
+	let message: Xcm<()> = Xcm(alloc::vec![
+		WithdrawAsset(fees.clone().into()),
+		BuyExecution { fees, weight_limit: WeightLimit::Unlimited },
+		Transact {
+			origin_kind: OriginKind::SovereignAccount,
+			call: proxy_call_bytes.into(),
+			fallback_max_weight: None,
+		},
+		// Any leftover fees stay trapped in Asset Hub's AssetTrap; in
+		// dev we accept the small leak rather than route them through
+		// DepositAsset (which needs a beneficiary the local
+		// AssetTransactor recognises).
+	]);
+	VersionedXcm::from(message)
+}
+
+// Our parachain's para_id on the relay chain. Kept in sync with
+// `blockchain/runtime/src/genesis_config_presets.rs::PARACHAIN_ID`.
+pub const ESTATE_EXECUTOR_PALLET_ID_PARA_ID: u32 = 2000;
+
 impl pallet_estate_executor::BequestBuilder<Runtime> for RuntimeBequestBuilder {
-	fn build_call(
+	fn dispatch(
 		dist: &pallet_estate_executor::Bequest<Runtime>,
-	) -> RuntimeCall {
+		owner: &AccountId,
+	) -> sp_runtime::DispatchResult {
 		use pallet_estate_executor::Bequest;
-		match dist {
-			Bequest::Transfer { dest, amount } =>
+		use sp_runtime::traits::Dispatchable;
+		// Locally-dispatched variants — run as Signed(owner) so the
+		// effect is attributed to the testator.
+		let local_call: Option<RuntimeCall> = match dist {
+			Bequest::Transfer { dest, amount } => Some(
 				RuntimeCall::Balances(pallet_balances::Call::transfer_allow_death {
 					dest: sp_runtime::MultiAddress::Id(dest.clone()),
 					value: *amount,
-				}),
-			Bequest::TransferAll { dest } =>
+				})
+			),
+			Bequest::TransferAll { dest } => Some(
 				RuntimeCall::Balances(pallet_balances::Call::transfer_all {
 					dest: sp_runtime::MultiAddress::Id(dest.clone()),
 					keep_alive: false,
-				}),
-			Bequest::Proxy { delegate } =>
+				})
+			),
+			Bequest::Proxy { delegate } => Some(
 				RuntimeCall::Proxy(pallet_proxy::Call::add_proxy {
 					delegate: sp_runtime::MultiAddress::Id(delegate.clone()),
 					proxy_type: ProxyType::Any,
 					delay: 0,
-				}),
+				})
+			),
 			Bequest::MultisigProxy { delegates, threshold } => {
 				let multisig = pallet_multisig::Pallet::<Runtime>::multi_account_id(
 					&delegates.to_vec(),
 					*threshold,
 				);
-				RuntimeCall::Proxy(pallet_proxy::Call::add_proxy {
+				Some(RuntimeCall::Proxy(pallet_proxy::Call::add_proxy {
 					delegate: sp_runtime::MultiAddress::Id(multisig),
 					proxy_type: ProxyType::Any,
 					delay: 0,
-				})
+				}))
 			},
+			Bequest::RemoteTransfer { .. } => None,
+		};
+
+		if let Some(call) = local_call {
+			let origin: RuntimeOrigin =
+				frame_system::RawOrigin::Signed(owner.clone()).into();
+			return call.dispatch(origin).map(|_| ()).map_err(|e| e.error);
 		}
+
+		// RemoteTransfer: bypass RuntimeCall dispatch and send the XCM
+		// directly via `pallet_xcm::send_xcm(Here, ...)`. Using `Here`
+		// keeps the outgoing origin at the parachain level, so the
+		// message arrives at Asset Hub with origin `(Parent,
+		// Parachain(2000))` and resolves to our ESP sovereign. Calling
+		// `PolkadotXcm.send` as `Signed(owner)` would instead produce a
+		// descended origin that no local AssetTransactor can resolve,
+		// and `WithdrawAsset` would fail.
+		if let Bequest::RemoteTransfer { dest, amount } = dist {
+			let target: Location = Location::new(1, [Parachain(1000)]);
+			let message_inner: Xcm<()> = match build_remote_transfer_xcm(
+				owner, dest, *amount,
+			) {
+				VersionedXcm::V5(m) => m,
+				_ => return Err(sp_runtime::DispatchError::Other(
+					"unsupported xcm version",
+				)),
+			};
+			pallet_xcm::Pallet::<Runtime>::send_xcm(Here, target, message_inner)
+				.map(|_| ())
+				.map_err(|_| sp_runtime::DispatchError::Other("xcm send failed"))?;
+		}
+		Ok(())
 	}
 }
 

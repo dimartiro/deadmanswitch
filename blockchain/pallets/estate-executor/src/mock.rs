@@ -3,8 +3,10 @@ use frame::{
 	prelude::*,
 	runtime::prelude::*,
 	testing_prelude::*,
+	traits::Dispatchable,
 };
 use polkadot_sdk::{pallet_balances, pallet_multisig, pallet_proxy, pallet_scheduler};
+use core::cell::RefCell;
 
 /// Proxy type for the mock runtime.
 #[derive(
@@ -107,9 +109,14 @@ impl pallet_scheduler::Config for Test {
 /// `Bequest<Test>` variant to the equivalent `RuntimeCall`.
 pub struct TestBequestBuilder;
 impl crate::bequest::BequestBuilder<Test> for TestBequestBuilder {
-	fn build_call(dist: &crate::bequest::Bequest<Test>) -> RuntimeCall {
+	fn dispatch(
+		dist: &crate::bequest::Bequest<Test>,
+		owner: &u64,
+	) -> DispatchResult {
 		use crate::bequest::Bequest;
-		match dist {
+		let owner_origin: RuntimeOrigin =
+			frame_system::RawOrigin::Signed(*owner).into();
+		let call: RuntimeCall = match dist {
 			Bequest::Transfer { dest, amount } =>
 				RuntimeCall::Balances(pallet_balances::Call::transfer_allow_death {
 					dest: (*dest).into(),
@@ -138,7 +145,14 @@ impl crate::bequest::BequestBuilder<Test> for TestBequestBuilder {
 					delay: 0,
 				})
 			},
-		}
+			Bequest::RemoteTransfer { dest, amount } => {
+				REMOTE_TRANSFERS.with(|r| {
+					r.borrow_mut().push((*owner, *dest, *amount))
+				});
+				return Ok(());
+			},
+		};
+		call.dispatch(owner_origin).map(|_| ()).map_err(|e| e.error)
 	}
 }
 
@@ -185,6 +199,19 @@ pub fn minted_certificates() -> std::vec::Vec<(crate::WillId, u64)> {
 /// Test-only: clear the mock's mint log between tests.
 pub fn reset_minted_certificates() {
 	MINTED.with(|m| m.borrow_mut().clear());
+}
+
+thread_local! {
+	static REMOTE_TRANSFERS: RefCell<std::vec::Vec<(u64, u64, u128)>> =
+		const { RefCell::new(std::vec::Vec::new()) };
+}
+
+pub fn remote_transfers() -> std::vec::Vec<(u64, u64, u128)> {
+	REMOTE_TRANSFERS.with(|r| r.borrow().clone())
+}
+
+pub fn reset_remote_transfers() {
+	REMOTE_TRANSFERS.with(|r| r.borrow_mut().clear());
 }
 
 impl crate::Config for Test {

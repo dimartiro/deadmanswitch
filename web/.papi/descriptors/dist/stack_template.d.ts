@@ -1,5 +1,5 @@
 import { StorageDescriptor, PlainDescriptor, TxDescriptor, RuntimeDescriptor, Enum, ApisFromDef, QueryFromPalletsDef, TxFromPalletsDef, EventsFromPalletsDef, ErrorsFromPalletsDef, ConstFromPalletsDef, ViewFnsFromPalletsDef, SS58String, FixedSizeBinary, Binary, FixedSizeArray } from "polkadot-api";
-import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, I7ore9mp2nrmr4, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, I63lqt6dl3kn9k, I9bin2jc70qt6q, TransactionPaymentReleases, I35oke5aiccrn, I56u24ncejr5kt, I9jd27rnpm8ttv, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, I6j4s4scthhrb3, I8f5h3nehu1u5e, I8qbv05tr0tcrs, I9p9lq3rej5bhc, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I18m6a0sc4k7s9, Id32h28hjj1tch, I6ouflveob4eli, I7svnfko10tq2e, Ic9iokm15iigt6, I35m96p3u4vl0p, Iapmji0h53pmkn, Idrr42svup341f, I4ugih6gb4fmug, Ic9nev69d8grv1, Idac0t49lnd4ls, I72ndo6phms8ik, I834nfrf667ag1, I14i9pui8lc778, I8t4pajubp34g3, I10nrsmn0hji4l, I3oiqcurom3m43, I20ichc5j0l1u7, I1p16diuhde12h, Id4f5q01qh34o3, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, I84a2nk2orbji5, I5266n6kd41g5s, I8k3rnvpeeh4hv, I4ifkccqhsvl32, I6nnijocnkjgp5, I5n4sebgkfr760, I5qblv1e2k5bef, Ifs1i5fk9cqvr6, I8elnui7i6s9a3, Ia3rosrlpdsknt, Ieg3fd8p4pkt10, I8kg5ll427kfqq, I467333262q1l9, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, I4cl0f6hqrk7ej, I4ov6e94l79mbg, Ibv8d24vm82781, Ifdtopefat0s6c, I2oa98tva0dcti, I8mjeo5oecbivt, I2eb501t8s6hsq, Ianmuoljk2sk1u, I90gnlregqu9oj, I8hduk4t7ggmnn, I3mrgd4hqc4ggi, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, I43aobns89nbkh, Iamd7rovec1hfb, I77ie723ncd4co, Ieebloeahma3ke, I4mbtpf4pu3rec, Iafkqus0ohh6l6, Ibgvkh96s68a66, If9vko7pv0231m, I1ahf3pvgsgbu, I736lv5q9m5bot, I9uapdn16emsti, Ie5i0q2glmr0md, I97qcg6i3l8gee, Ib5udrahak005b, Ib92t90p616grb, I1jj31tn29ie3c, I5llu6o6a0go5i, Ic8b8561e6t9ie, I93r2effh7od84, I6afd7fllr8otc, Icrkms46uh8tpb, I78u60nqh0etah, I6cu7obfo0rr0o, Ibqooroq6rr5kr, I6h88h8vba22v8, I1lso3vlgherue, Ia9cd4jqb5eecb, I19jiel1ftbcce, I26c8p47106toa, Iq82b3qvf20ne, Ic3j8ku6mbsms4, I3nvoqsi8f05ph, I4dr6q8duftm2l, I4da75oqso1rqj, Ida37oe44osb06, I6v02o6j4snahe, I27569neuh5t1o, Id92o6smntb9m5, I5nmb2hfkgk9ol, Iav55bcqlrqn51, I2gbnl5q85o7ul, I10ra4g1rl6k2f, I1uihehkdsggvp, Ia82mnkmeo2rhc, Ic43bru4oecnfd, Icbccs0ug47ilf, I855j4i3kr8ko1, Ifeuu7tnpbic7h, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, I2sjgp7v0b4kr7, Iq8n5b8q00vqa, Iaa6lo6ksjs4p7, Iph9c4rn81ub2, Ier2cke86dqbr2, I4f5hj19d7s2kf, I5rtkmhm2dng4u, Ichutf6gbbjhuv, Ia3c82eadg79bj, Ienusoeb625ftq, Ibtsa3docbr9el, Idmiumkhb8j79l, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I3uua81e9uvgnp, I129n1andhkrr8, I7p099b5deqg11, I5sp6j0dcrjun8, I4ovs6liongile, I9h8j73phqu764, I202ei5bka3tk2, Idn17svagjrn3q, I30an4pagav86d, I5si6c5m867t60, I2ur0oeqg495j8, Idg3gs8jbk37mt, I1bhd210c3phjj, Iep27ialq4a7o7, Iasu5jvoqr43mv, Icr4fffis3jut7, I5qolde99acmd1, I8gtde5abn1g9a, I9gqanbbbe917p, Id1m1230297f7a, Ifvb1p5munhhv4, I46h83ilqeed3g, Icahse3uoi76n7, Ico8bnjc6taa27, I78i1bvlonei69, I5fjkvcb5vr6nb, I2gr1toekv86b9, I9i1f9mrso1hmf, I2v2ikqt2trp52, I9ksla2si91s56, If3057hi1g5qlo, Iaii5qf41d5n3d, Id9j7b85otvjru, Iaihk9pek2ajl9, Id9av23h47ufb2, Ib4kpnijas4jqp, I2vnu5k0u1i65h, I7svbvm6hg57aj, I8jhsbaiultviu, I6s4jjm8iu4j1a, I5r8t4iaend96p, Iehrj3kdjgfo5j, I176ch6ftnp6d1, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I4gil44d08grh, I7u915mvkdsb08, Ic3ask3jgs84f0, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Ic1d4u2opv3fst, Ico18ks790i2bl, I815pbp5omtss, I3ju6ot8lfmk90, Iafqnechp3omqg, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, I4totqt881mlti, I4s6vifaf8k998, I35p85j063s0il, I2djjceu8dt4ha, I9sijb8gfrns29, Iujt3rhnedbr0, I6f9v7emp7t5ba, Ida7d8eqrkav55, Idmrtv8jbbitnu, Idi09uq5khm08t, I6ftipe9ubn5f8, I63nhnkgg114n5, I1l7ajs6s9ur3a, Ice9mpbhevl5b7, Idt5popft6i714, I512dtcl0pn07c, If5r96j2ibokne } from "./common-types";
+import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, I7ore9mp2nrmr4, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, I63lqt6dl3kn9k, I9bin2jc70qt6q, TransactionPaymentReleases, I35oke5aiccrn, I56u24ncejr5kt, I9jd27rnpm8ttv, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, I6j4s4scthhrb3, I5dbpfcdpgjc6u, I8qbv05tr0tcrs, I9p9lq3rej5bhc, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I18m6a0sc4k7s9, Id32h28hjj1tch, I6ouflveob4eli, I7svnfko10tq2e, Ic9iokm15iigt6, I35m96p3u4vl0p, Iapmji0h53pmkn, Idrr42svup341f, I4ugih6gb4fmug, Ic9nev69d8grv1, Idac0t49lnd4ls, I72ndo6phms8ik, I834nfrf667ag1, I14i9pui8lc778, I8t4pajubp34g3, I10nrsmn0hji4l, I3oiqcurom3m43, I20ichc5j0l1u7, I1p16diuhde12h, Id4f5q01qh34o3, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, I8d1kq4s3a84u, I49mh0tcc29ug3, I8k3rnvpeeh4hv, I9nejnqnrii07j, I6k87lmgqqb9j4, I5n4sebgkfr760, If1ofikiui3o54, Ifs1i5fk9cqvr6, I6a0rkdpjc940v, I3k5uaa0rvqbcr, Ieg3fd8p4pkt10, I8kg5ll427kfqq, I467333262q1l9, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, Imetqmuqdvm8t, I4ov6e94l79mbg, Ie7vl0oj1p5jpj, Ifdtopefat0s6c, I2oa98tva0dcti, I8mjeo5oecbivt, I2eb501t8s6hsq, Ianmuoljk2sk1u, Ib9psoav0un9ns, Ibevq9bv0lj0kv, I9ti0h6b6ktbgo, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, I43aobns89nbkh, Iamd7rovec1hfb, I77ie723ncd4co, Ieebloeahma3ke, I4mbtpf4pu3rec, Iafkqus0ohh6l6, Ibgvkh96s68a66, If9vko7pv0231m, I1ahf3pvgsgbu, I736lv5q9m5bot, I9uapdn16emsti, Ie5i0q2glmr0md, I97qcg6i3l8gee, Ib5udrahak005b, Ib92t90p616grb, I1jj31tn29ie3c, I5llu6o6a0go5i, Ic8b8561e6t9ie, I93r2effh7od84, I6afd7fllr8otc, Icrkms46uh8tpb, I78u60nqh0etah, I6cu7obfo0rr0o, Ibqooroq6rr5kr, I6h88h8vba22v8, I1lso3vlgherue, Ia9cd4jqb5eecb, I19jiel1ftbcce, I26c8p47106toa, Iq82b3qvf20ne, Ic3j8ku6mbsms4, I3nvoqsi8f05ph, I4dr6q8duftm2l, I4da75oqso1rqj, Ida37oe44osb06, I6v02o6j4snahe, I27569neuh5t1o, Id92o6smntb9m5, I5nmb2hfkgk9ol, Iav55bcqlrqn51, I5nv3h4fgh74et, I10ra4g1rl6k2f, I1uihehkdsggvp, Ia82mnkmeo2rhc, Ic43bru4oecnfd, Icbccs0ug47ilf, I855j4i3kr8ko1, Ifeuu7tnpbic7h, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, I2sjgp7v0b4kr7, Iq8n5b8q00vqa, Iaa6lo6ksjs4p7, Iph9c4rn81ub2, Ier2cke86dqbr2, I4f5hj19d7s2kf, I5rtkmhm2dng4u, Ichutf6gbbjhuv, Ia3c82eadg79bj, Ienusoeb625ftq, Ibtsa3docbr9el, Idmiumkhb8j79l, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I3uua81e9uvgnp, I129n1andhkrr8, I7p099b5deqg11, I5sp6j0dcrjun8, I4ovs6liongile, I9h8j73phqu764, I202ei5bka3tk2, Idn17svagjrn3q, I30an4pagav86d, I5si6c5m867t60, I2ur0oeqg495j8, Idg3gs8jbk37mt, I1bhd210c3phjj, Iep27ialq4a7o7, Iasu5jvoqr43mv, Icr4fffis3jut7, I5qolde99acmd1, I8gtde5abn1g9a, I9gqanbbbe917p, Id1m1230297f7a, Ifvb1p5munhhv4, I46h83ilqeed3g, Icahse3uoi76n7, Ico8bnjc6taa27, I78i1bvlonei69, I5fjkvcb5vr6nb, I2gr1toekv86b9, I9i1f9mrso1hmf, I2v2ikqt2trp52, I9ksla2si91s56, If3057hi1g5qlo, Iaii5qf41d5n3d, Id9j7b85otvjru, Iaihk9pek2ajl9, Id9av23h47ufb2, Ib4kpnijas4jqp, I2vnu5k0u1i65h, I7svbvm6hg57aj, I8jhsbaiultviu, I6s4jjm8iu4j1a, I5r8t4iaend96p, I6rnbidfpd9htc, I176ch6ftnp6d1, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I4gil44d08grh, I7u915mvkdsb08, Ic3ask3jgs84f0, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Ic1d4u2opv3fst, Ico18ks790i2bl, I815pbp5omtss, I3ju6ot8lfmk90, Iafqnechp3omqg, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, I4totqt881mlti, I4s6vifaf8k998, I35p85j063s0il, I2djjceu8dt4ha, I9sijb8gfrns29, Iujt3rhnedbr0, I6f9v7emp7t5ba, Ida7d8eqrkav55, Idmrtv8jbbitnu, Idi09uq5khm08t, I6ftipe9ubn5f8, I63nhnkgg114n5, I1l7ajs6s9ur3a, Ice9mpbhevl5b7, Idt5popft6i714, I512dtcl0pn07c, If5r96j2ibokne } from "./common-types";
 type AnonymousEnum<T extends {}> = T & {
     __anonymous: true;
 };
@@ -668,7 +668,7 @@ type IStorage = {
         /**
          * Typed bequests for each will.
          */
-        WillBequests: StorageDescriptor<[Key: bigint], Anonymize<I8f5h3nehu1u5e>, true, never>;
+        WillBequests: StorageDescriptor<[Key: bigint], Anonymize<I5dbpfcdpgjc6u>, true, never>;
         /**
          * Remembered NFT-collection id for the inheritance certificates
          * collection. Lazily set the first time a certificate is minted.
@@ -1048,7 +1048,7 @@ type ICalls = {
         /**
          * Authenticates the sudo key and dispatches a function call with `Root` origin.
          */
-        sudo: TxDescriptor<Anonymize<I84a2nk2orbji5>>;
+        sudo: TxDescriptor<Anonymize<I8d1kq4s3a84u>>;
         /**
          * Authenticates the sudo key and dispatches a function call with `Root` origin.
          * This function does not check the weight of the call, and instead allows the
@@ -1056,7 +1056,7 @@ type ICalls = {
          *
          * The dispatch origin for this call must be _Signed_.
          */
-        sudo_unchecked_weight: TxDescriptor<Anonymize<I5266n6kd41g5s>>;
+        sudo_unchecked_weight: TxDescriptor<Anonymize<I49mh0tcc29ug3>>;
         /**
          * Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo
          * key.
@@ -1068,7 +1068,7 @@ type ICalls = {
          *
          * The dispatch origin for this call must be _Signed_.
          */
-        sudo_as: TxDescriptor<Anonymize<I4ifkccqhsvl32>>;
+        sudo_as: TxDescriptor<Anonymize<I9nejnqnrii07j>>;
         /**
          * Permanently removes the sudo key.
          *
@@ -1080,7 +1080,7 @@ type ICalls = {
         /**
          * Anonymously schedule a task.
          */
-        schedule: TxDescriptor<Anonymize<I6nnijocnkjgp5>>;
+        schedule: TxDescriptor<Anonymize<I6k87lmgqqb9j4>>;
         /**
          * Cancel an anonymously scheduled task.
          */
@@ -1088,7 +1088,7 @@ type ICalls = {
         /**
          * Schedule a named task.
          */
-        schedule_named: TxDescriptor<Anonymize<I5qblv1e2k5bef>>;
+        schedule_named: TxDescriptor<Anonymize<If1ofikiui3o54>>;
         /**
          * Cancel a named scheduled task.
          */
@@ -1096,11 +1096,11 @@ type ICalls = {
         /**
          * Anonymously schedule a task after a delay.
          */
-        schedule_after: TxDescriptor<Anonymize<I8elnui7i6s9a3>>;
+        schedule_after: TxDescriptor<Anonymize<I6a0rkdpjc940v>>;
         /**
          * Schedule a named task after a delay.
          */
-        schedule_named_after: TxDescriptor<Anonymize<Ia3rosrlpdsknt>>;
+        schedule_named_after: TxDescriptor<Anonymize<I3k5uaa0rvqbcr>>;
         /**
          * Set a retry configuration for a task so that, in case its scheduled run fails, it will
          * be retried after `period` blocks, for a total amount of `retries` retries or until it
@@ -1608,7 +1608,7 @@ type ICalls = {
          * Schedules `execute_will(id)` at `expiry_block + 1` via
          * `pallet-scheduler`. The owner only pays the transaction fee.
          */
-        create_will: TxDescriptor<Anonymize<I4cl0f6hqrk7ej>>;
+        create_will: TxDescriptor<Anonymize<Imetqmuqdvm8t>>;
         /**
          * Send a heartbeat to reset the will's expiry and reschedule the
          * auto-execution task.
@@ -1647,7 +1647,7 @@ type ICalls = {
          * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
          * - `call`: The call to be made by the `real` account.
          */
-        proxy: TxDescriptor<Anonymize<Ibv8d24vm82781>>;
+        proxy: TxDescriptor<Anonymize<Ie7vl0oj1p5jpj>>;
         /**
          * Register a proxy account for the sender that is able to make calls on its behalf.
          *
@@ -1776,7 +1776,7 @@ type ICalls = {
          * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
          * - `call`: The call to be made by the `real` account.
          */
-        proxy_announced: TxDescriptor<Anonymize<I90gnlregqu9oj>>;
+        proxy_announced: TxDescriptor<Anonymize<Ib9psoav0un9ns>>;
         /**
          * Poke / Adjust deposits made for proxies and announcements based on current values.
          * This can be used by accounts to possibly lower their locked amount.
@@ -1804,7 +1804,7 @@ type ICalls = {
          * ## Complexity
          * O(Z + C) where Z is the length of the call and C its execution weight.
          */
-        as_multi_threshold_1: TxDescriptor<Anonymize<I8hduk4t7ggmnn>>;
+        as_multi_threshold_1: TxDescriptor<Anonymize<Ibevq9bv0lj0kv>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -1846,7 +1846,7 @@ type ICalls = {
          * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
          * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
          */
-        as_multi: TxDescriptor<Anonymize<I3mrgd4hqc4ggi>>;
+        as_multi: TxDescriptor<Anonymize<I9ti0h6b6ktbgo>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -2670,7 +2670,7 @@ type ICalls = {
          * * `call`: The Substrate runtime call to execute.
          * * `transaction_encoded`: The RLP encoding of the Ethereum transaction,
          */
-        eth_substrate_call: TxDescriptor<Anonymize<I2gbnl5q85o7ul>>;
+        eth_substrate_call: TxDescriptor<Anonymize<I5nv3h4fgh74et>>;
         /**
          * Upload new `code` without instantiating a contract from it.
          *
@@ -2729,7 +2729,7 @@ type ICalls = {
          * is the `AccountId20` with the last 12 bytes set to `0xEE`. This is essentially a
          * recovery function in case an `AccountId20` was used without creating a mapping first.
          */
-        dispatch_as_fallback_account: TxDescriptor<Anonymize<I84a2nk2orbji5>>;
+        dispatch_as_fallback_account: TxDescriptor<Anonymize<I8d1kq4s3a84u>>;
     };
 };
 type IEvent = {
@@ -5015,7 +5015,7 @@ type IViewFns = {
         /**
          * Check if a `RuntimeCall` is allowed for a given `ProxyType`.
          */
-        check_permissions: RuntimeDescriptor<[call: Anonymize<Iehrj3kdjgfo5j>, proxy_type: Anonymize<I176ch6ftnp6d1>], boolean>;
+        check_permissions: RuntimeDescriptor<[call: Anonymize<I6rnbidfpd9htc>, proxy_type: Anonymize<I176ch6ftnp6d1>], boolean>;
         /**
          * Check if one `ProxyType` is a subset of another `ProxyType`.
          */
@@ -5224,11 +5224,11 @@ type IRuntimeCalls = {
         /**
          * Query information of a dispatch class, weight, and fee of a given encoded `Call`.
          */
-        query_call_info: RuntimeDescriptor<[call: Anonymize<Iehrj3kdjgfo5j>, len: number], Anonymize<I6spmpef2c7svf>>;
+        query_call_info: RuntimeDescriptor<[call: Anonymize<I6rnbidfpd9htc>, len: number], Anonymize<I6spmpef2c7svf>>;
         /**
          * Query fee details of a given encoded `Call`.
          */
-        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<Iehrj3kdjgfo5j>, len: number], Anonymize<Iei2mvq0mjvt81>>;
+        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<I6rnbidfpd9htc>, len: number], Anonymize<Iei2mvq0mjvt81>>;
         /**
          * Query the output of the current `WeightToFee` given some input.
          */
@@ -5482,7 +5482,7 @@ export type Stack_templateEvents = EventsFromPalletsDef<PalletsTypedef>;
 export type Stack_templateErrors = ErrorsFromPalletsDef<PalletsTypedef>;
 export type Stack_templateConstants = ConstFromPalletsDef<PalletsTypedef>;
 export type Stack_templateViewFns = ViewFnsFromPalletsDef<PalletsTypedef>;
-export type Stack_templateCallData = Anonymize<Iehrj3kdjgfo5j> & {
+export type Stack_templateCallData = Anonymize<I6rnbidfpd9htc> & {
     value: {
         type: string;
     };

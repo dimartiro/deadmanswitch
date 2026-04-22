@@ -433,12 +433,9 @@ pub mod pallet {
 			// appears across multiple bequests.
 			let mut unique_recipients: Vec<T::AccountId> = Vec::new();
 			if let Some(stored) = WillBequests::<T>::get(id) {
-				let owner_origin: T::RuntimeOrigin =
-					frame_system::RawOrigin::Signed(will.owner.clone()).into();
 				for (i, dist) in stored.iter().enumerate() {
-					let call = T::BequestBuilder::build_call(dist);
-					let result = call.dispatch(owner_origin.clone());
-					let dispatch_result = result.map(|_| ()).map_err(|e| e.error);
+					let dispatch_result =
+						T::BequestBuilder::dispatch(dist, &will.owner);
 					if dispatch_result.is_ok() {
 						bequests_executed += 1;
 					} else {

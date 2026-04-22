@@ -103,6 +103,29 @@ for (let i = 0; i < results.length; i++) {
   }
 }
 
+// Fund the ESP sovereign so it can pay XCM execution fees on Asset
+// Hub. Without this, the first `WithdrawAsset` instruction in our
+// remote-transfer XCM would fail (sovereign balance 0), aborting the
+// Transact before the Proxy.proxy call runs. Dave donates his full
+// balance and gets reaped — Alice and Bob stay clean for testing.
+const sovBalance = (await api.query.System.Account.getValue(delegate)).data.free;
+const FUND_THRESHOLD = 10n * 10n ** 12n; // 10 ROC
+if (sovBalance < FUND_THRESHOLD) {
+  const payer = mk("Dave");
+  const fundTx = api.tx.Balances.transfer_all({
+    dest: { type: "Id", value: delegate },
+    keep_alive: false,
+  });
+  try {
+    const res = await submitBestBlock(fundTx, payer.signer);
+    console.log(`  sovereign funded by Dave (full balance) at block #${res.block}`);
+  } catch (e) {
+    console.log(`  sovereign funding FAILED - ${e?.message ?? e}`);
+  }
+} else {
+  console.log(`  sovereign already has ${sovBalance} planck, skipping funding`);
+}
+
 client.destroy();
 process.exit(results.some((r) => r.status === "rejected") ? 1 : 0);
 '

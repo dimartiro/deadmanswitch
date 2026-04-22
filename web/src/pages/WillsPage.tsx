@@ -66,6 +66,11 @@ function renderBequest(bequest: Bequest): { title: string; detail: string } {
 				detail: delegates,
 			};
 		}
+		case "RemoteTransfer":
+			return {
+				title: `Remote transfer ${formatBalanceUnit(value.amount)} on Asset Hub`,
+				detail: `to ${accountLabel(value.dest)} (from the will's owner)`,
+			};
 		default:
 			return { title: `Unknown (${type})`, detail: "" };
 	}
@@ -82,6 +87,8 @@ function recipientsOf(bequest: Bequest): string[] {
 			return [value.delegate as string];
 		case "MultisigProxy":
 			return value.delegates as string[];
+		case "RemoteTransfer":
+			return [value.dest as string];
 		default:
 			return [];
 	}

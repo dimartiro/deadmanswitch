@@ -2,19 +2,32 @@ import { useState, useEffect, useCallback } from "react";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
 import { useAllAccounts } from "../hooks/useAllAccounts";
-import { getClient, getPeopleChainClient } from "../hooks/useChain";
-import { stack_template, people_chain } from "@polkadot-api/descriptors";
+import {
+	getClient,
+	getPeopleChainClient,
+	getAssetHubClient,
+} from "../hooks/useChain";
+import {
+	stack_template,
+	people_chain,
+	asset_hub,
+} from "@polkadot-api/descriptors";
 import { formatDuration } from "../utils/format";
 import { submitAndWait } from "../utils/tx";
 
-type PatternKind = "Transfer" | "TransferAll" | "Proxy" | "MultisigProxy";
+type PatternKind =
+	| "Transfer"
+	| "TransferAll"
+	| "Proxy"
+	| "MultisigProxy"
+	| "RemoteTransfer";
 
 interface Entry {
 	id: number;
 	kind: PatternKind;
-	// Transfer / TransferAll / Proxy
+	// Transfer / TransferAll / Proxy / RemoteTransfer
 	dest: string;
-	// Transfer
+	// Transfer / RemoteTransfer
 	amount: string;
 	// MultisigProxy
 	delegates: string[];
@@ -63,6 +76,14 @@ function buildBequest(entry: Entry): any {
 					threshold: parseInt(entry.threshold || "2"),
 				},
 			};
+		case "RemoteTransfer":
+			return {
+				type: "RemoteTransfer",
+				value: {
+					dest: entry.dest,
+					amount: BigInt(Math.floor(parseFloat(entry.amount || "0") * 1e12)),
+				},
+			};
 	}
 }
 
@@ -84,12 +105,14 @@ function AccountSelect({
 	label,
 	placeholder,
 	verified,
+	excludeAddress,
 }: {
 	value: string;
 	onChange: (v: string) => void;
 	label?: string;
 	placeholder?: string;
 	verified?: boolean;
+	excludeAddress?: string;
 }) {
 	const walletAccounts = useChainStore((s) => s.walletAccounts);
 	const known = [
@@ -98,7 +121,7 @@ function AccountSelect({
 			name: `${a.name} (${a.source})`,
 			address: a.address,
 		})),
-	];
+	].filter((a) => a.address !== excludeAddress);
 	const isKnown = known.some((a) => a.address === value);
 	const isCustom = value !== "" && !isKnown;
 	const [showCustom, setShowCustom] = useState(isCustom);
@@ -154,10 +177,12 @@ function DelegatesInput({
 	value,
 	onChange,
 	isVerified,
+	excludeAddress,
 }: {
 	value: string[];
 	onChange: (v: string[]) => void;
 	isVerified: (addr: string) => boolean;
+	excludeAddress?: string;
 }) {
 	const walletAccounts = useChainStore((s) => s.walletAccounts);
 	const known = [
@@ -166,7 +191,7 @@ function DelegatesInput({
 			name: `${a.name} (${a.source})`,
 			address: a.address,
 		})),
-	];
+	].filter((a) => a.address !== excludeAddress);
 
 	function add(addr: string) {
 		if (!addr || value.includes(addr)) return;
@@ -218,18 +243,26 @@ function DelegatesInput({
 }
 
 export default function CreateWillPage() {
-	const { wsUrl, connected, selectedAccount, blockNumber, peopleChainAvailable } =
-		useChainStore();
+	const {
+		wsUrl,
+		connected,
+		selectedAccount,
+		blockNumber,
+		peopleChainAvailable,
+		assetHubAvailable,
+	} = useChainStore();
 	// Solo-node dev mode (no relay, no People Chain). Identity checks
 	// are bypassed so create-will isn't gated on a registry that doesn't
 	// exist in this topology.
 	const bypassIdentity = peopleChainAvailable === false;
+	const showAssetHub = assetHubAvailable === true;
 	const { accounts, selected } = useAllAccounts();
 	const [blockInterval, setBlockInterval] = useState("5");
 	const [entries, setEntries] = useState<Entry[]>([newEntry()]);
 	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
 	const [ownerBalance, setOwnerBalance] = useState<number>(0);
+	const [ownerAhBalance, setOwnerAhBalance] = useState<number>(0);
 	const [verified, setVerified] = useState<Record<string, boolean>>({});
 
 	const fetchBalance = useCallback(async () => {
@@ -244,9 +277,28 @@ export default function CreateWillPage() {
 		}
 	}, [connected, wsUrl, selected?.address]);
 
+	const fetchAhBalance = useCallback(async () => {
+		if (!selected || !showAssetHub) {
+			setOwnerAhBalance(0);
+			return;
+		}
+		try {
+			const client = getAssetHubClient();
+			const api = client.getTypedApi(asset_hub);
+			const info = await api.query.System.Account.getValue(selected.address, { at: "best" });
+			setOwnerAhBalance(Number(info.data.free) / 1e12);
+		} catch {
+			setOwnerAhBalance(0);
+		}
+	}, [selected?.address, showAssetHub]);
+
 	useEffect(() => {
 		fetchBalance();
 	}, [fetchBalance]);
+
+	useEffect(() => {
+		fetchAhBalance();
+	}, [fetchAhBalance, blockNumber]);
 
 	// Collect every beneficiary address across all entries and query
 	// pallet-identity for each. The result drives the per-row badges and
@@ -453,6 +505,9 @@ export default function CreateWillPage() {
 									<option value="MultisigProxy">
 										Grant multisig proxy access
 									</option>
+									<option value="RemoteTransfer">
+										Remote transfer on Asset Hub
+									</option>
 								</select>
 							</div>
 
@@ -462,6 +517,7 @@ export default function CreateWillPage() {
 										label="Beneficiary"
 										value={entry.dest}
 										onChange={(v) => updateEntry(entry.id, { dest: v })}
+						excludeAddress={selected?.address}
 									/>
 									<div>
 										<label className="label">
@@ -495,6 +551,7 @@ export default function CreateWillPage() {
 									value={entry.dest}
 									onChange={(v) => updateEntry(entry.id, { dest: v })}
 									verified={entry.dest ? isVerified(entry.dest) : undefined}
+						excludeAddress={selected?.address}
 								/>
 							)}
 
@@ -505,6 +562,7 @@ export default function CreateWillPage() {
 										value={entry.dest}
 										onChange={(v) => updateEntry(entry.id, { dest: v })}
 										verified={entry.dest ? isVerified(entry.dest) : undefined}
+						excludeAddress={selected?.address}
 									/>
 									<p className="text-xs text-text-muted">
 										This account gains unrestricted proxy access to your
@@ -523,6 +581,7 @@ export default function CreateWillPage() {
 												updateEntry(entry.id, { delegates: v })
 											}
 											isVerified={isVerified}
+							excludeAddress={selected?.address}
 										/>
 										{entry.delegates.length < 2 && (
 											<p className="text-xs text-accent-yellow mt-1">
@@ -549,6 +608,68 @@ export default function CreateWillPage() {
 											the multisig.
 										</p>
 									</div>
+								</>
+							)}
+
+							{entry.kind === "RemoteTransfer" && (
+								<>
+									<AccountSelect
+										label="Beneficiary on Asset Hub"
+										value={entry.dest}
+										onChange={(v) =>
+											updateEntry(entry.id, { dest: v })
+										}
+										verified={
+											entry.dest ? isVerified(entry.dest) : undefined
+										}
+										placeholder="5Grwva..."
+						excludeAddress={selected?.address}
+									/>
+									<div>
+										<label className="label">
+											Amount (ROC) — max {ownerAhBalance.toFixed(4)}
+										</label>
+										<div className="flex gap-2">
+											<input
+												type="number"
+												min="0"
+												max={ownerAhBalance}
+												value={entry.amount}
+												onChange={(e) =>
+													updateEntry(entry.id, {
+														amount: String(
+															Math.min(
+																parseFloat(e.target.value) || 0,
+																ownerAhBalance,
+															),
+														),
+													})
+												}
+												placeholder="1"
+												className="input-field flex-1"
+											/>
+											<button
+												type="button"
+												onClick={() =>
+													updateEntry(entry.id, {
+														amount: String(ownerAhBalance),
+													})
+												}
+												className="btn-secondary text-xs"
+											>
+												Max
+											</button>
+										</div>
+									</div>
+									<p className="text-xs text-text-muted">
+										Moves ROC from <em>your</em> Asset Hub account — make
+										sure it's linked via the Accounts tab. On execution,
+										Estate Protocol emits an XCM that runs{" "}
+										<span className="font-mono">
+											Proxy.proxy(Balances.transfer_keep_alive)
+										</span>{" "}
+										as your proxy.
+									</p>
 								</>
 							)}
 						</div>

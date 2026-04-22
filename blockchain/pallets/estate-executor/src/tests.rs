@@ -29,6 +29,10 @@ fn multisig_proxy(delegates: &[u64], threshold: u16) -> Bequest<Test> {
 	}
 }
 
+fn remote_transfer(dest: u64, amount: u128) -> Bequest<Test> {
+	Bequest::RemoteTransfer { dest, amount }
+}
+
 // ── create_will ────────────────────────────────────────────────────────
 
 #[test]
@@ -523,6 +527,39 @@ fn execute_mints_certificate_once_per_unique_beneficiary() {
 		let mut minted = minted_certificates();
 		minted.sort();
 		assert_eq!(minted, vec![(0, 2), (0, 3)]);
+	});
+}
+
+#[test]
+fn scheduler_executes_remote_transfer_bequest() {
+	new_test_ext().execute_with(|| {
+		reset_remote_transfers();
+		System::set_block_number(1);
+		// Owner 1 wills a remote transfer of 42 units to account 2.
+		// The source (the owner) is implicit.
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1),
+			vec![remote_transfer(2, 42)],
+			10,
+		));
+		run_to_block(12);
+		assert_eq!(remote_transfers(), vec![(1, 2, 42)]);
+	});
+}
+
+#[test]
+fn remote_transfer_beneficiaries_exclude_source() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		// Source is implicit (the will owner, 1); only `dest` (2) is a
+		// beneficiary.
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1),
+			vec![remote_transfer(2, 10)],
+			10,
+		));
+		assert_eq!(crate::Pallet::<Test>::inheritances_of(&2), vec![0]);
+		assert!(crate::Pallet::<Test>::inheritances_of(&1).is_empty());
 	});
 }
 
