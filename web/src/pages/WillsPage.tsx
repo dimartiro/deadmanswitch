@@ -104,6 +104,7 @@ export default function WillsPage() {
 	const [loading, setLoading] = useState(false);
 	const [pendingActions, setPendingActions] = useState<Set<string>>(new Set());
 	const [filter, setFilter] = useState<FilterKey>("all");
+	const [confirmingCancel, setConfirmingCancel] = useState<WillData | null>(null);
 
 	const fetchWills = useCallback(async () => {
 		if (!connected) return;
@@ -366,12 +367,101 @@ export default function WillsPage() {
 								currentAccount={currentAccount}
 								isInheritance={isInheritance(w)}
 								onAction={handleAction}
+								onRequestCancel={(will) => setConfirmingCancel(will)}
 								pendingActions={pendingActions}
 							/>
 						))}
 					</div>
 				)}
 			</section>
+
+			{confirmingCancel && (
+				<CancelConfirm
+					will={confirmingCancel}
+					pending={pendingActions.has(`${confirmingCancel.id}-cancel`)}
+					onClose={() => setConfirmingCancel(null)}
+					onConfirm={async () => {
+						const id = confirmingCancel.id;
+						setConfirmingCancel(null);
+						await handleAction(id, "cancel");
+					}}
+				/>
+			)}
+		</div>
+	);
+}
+
+function CancelConfirm({
+	will,
+	pending,
+	onClose,
+	onConfirm,
+}: {
+	will: WillData;
+	pending: boolean;
+	onClose: () => void;
+	onConfirm: () => void;
+}) {
+	useEffect(() => {
+		function handleKey(e: KeyboardEvent) {
+			if (e.key === "Escape" && !pending) onClose();
+		}
+		document.addEventListener("keydown", handleKey);
+		return () => document.removeEventListener("keydown", handleKey);
+	}, [onClose, pending]);
+
+	return (
+		<div
+			className="fixed inset-0 z-[90] flex items-center justify-center p-4 animate-fade-in"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="cancel-confirm-title"
+		>
+			<div
+				className="absolute inset-0 bg-canvas/80 backdrop-blur-sm"
+				onClick={() => !pending && onClose()}
+			/>
+			<div
+				className="relative card-padded w-[min(92vw,440px)] shadow-lifted animate-slide-up"
+				style={{ borderRadius: "4px" }}
+			>
+				<div className="eyebrow mb-1 text-danger">Destructive</div>
+				<h3 id="cancel-confirm-title" className="h-page mb-3">
+					Cancel this will?
+				</h3>
+				<p className="text-sm text-ink-500 mb-4">
+					Cancelling removes the will from the scheduler. The bequests will
+					not execute, and this cannot be undone.
+				</p>
+				<dl className="grid grid-cols-2 gap-3 mb-5 text-sm bg-muted border border-hairline p-3" style={{ borderRadius: "3px" }}>
+					<div>
+						<div className="eyebrow mb-0.5">Owner</div>
+						<div className="font-mono text-xs truncate">
+							{accountLabel(will.owner)}
+						</div>
+					</div>
+					<div>
+						<div className="eyebrow mb-0.5">Instructions</div>
+						<div className="font-mono text-xs">{will.bequestCount}</div>
+					</div>
+				</dl>
+				<div className="flex gap-2 justify-end">
+					<button
+						onClick={onClose}
+						disabled={pending}
+						className="btn-outline btn-sm"
+					>
+						Keep it
+					</button>
+					<button
+						onClick={onConfirm}
+						disabled={pending}
+						className="btn-danger btn-sm"
+					>
+						{pending ? "Cancelling…" : "Confirm cancel"}
+					</button>
+				</div>
+			</div>
 		</div>
 	);
 }
@@ -443,6 +533,7 @@ function WillRow({
 	currentAccount,
 	isInheritance,
 	onAction,
+	onRequestCancel,
 	pendingActions,
 }: {
 	w: WillData;
@@ -450,6 +541,7 @@ function WillRow({
 	currentAccount: string;
 	isInheritance: boolean;
 	onAction: (id: bigint, action: "heartbeat" | "cancel") => void;
+	onRequestCancel: (will: WillData) => void;
 	pendingActions: Set<string>;
 }) {
 	const [expanded, setExpanded] = useState(false);
@@ -606,7 +698,7 @@ function WillRow({
 								</button>
 							)}
 							<button
-								onClick={() => onAction(w.id, "cancel")}
+								onClick={() => onRequestCancel(w)}
 								disabled={pendingActions.has(`${w.id}-cancel`)}
 								className="btn-danger btn-sm"
 							>
