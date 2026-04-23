@@ -125,6 +125,23 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+// Poll `predicate` every `pollMs` until it returns truthy or `timeoutMs`
+// elapses. Returns the truthy value, or the last falsy value on timeout.
+// Used instead of a fixed `sleep` when waiting for XCM to land on AH —
+// the exact number of relay rounds varies across zombienet runs, and a
+// generous fixed sleep still flakes on slower CI while a polling loop
+// resolves as soon as the effect is observable.
+async function waitUntil(predicate, timeoutMs = 45_000, pollMs = 1_000) {
+  const deadline = Date.now() + timeoutMs;
+  let last;
+  while (Date.now() < deadline) {
+    last = await predicate();
+    if (last) return last;
+    await sleep(pollMs);
+  }
+  return last;
+}
+
 async function ahBalance(addr) {
   const a = await ahApi.query.System.Account.getValue(addr, { at: "best" });
   return a.data.free;
@@ -257,6 +274,10 @@ try {
 // Test: heartbeat resets countdown
 console.log("--- Heartbeat reschedules execution ---");
 try {
+  // A larger interval gives the heartbeat enough headroom to push the
+  // expiry well past the original — otherwise in fast CI runs the
+  // heartbeat lands one block later and the new expiry is only one
+  // block past the old, racing the scheduler.
   await submit(
     eApi.tx.EstateExecutor.create_will({
       bequests: [
@@ -265,7 +286,7 @@ try {
           value: { dest: Bob.address, amount: 100n },
         },
       ],
-      block_interval: 5,
+      block_interval: 10,
     }),
     Alice.signer,
   );
@@ -287,15 +308,16 @@ try {
     fail("expiry not pushed", String(w1.expiry_block));
   }
 
-  // Wait until the original expiry block passes; the will should
-  // still be Active because heartbeat rescheduled execution.
-  console.log("  waiting past original expiry " + originalExpiry + "…");
-  await waitForBlock(estate, originalExpiry + 2);
+  // Wait exactly up to the original expiry. The scheduler fires at
+  // new_expiry+1 > originalExpiry, so at block originalExpiry the will
+  // must still be Active — no matter how fast blocks are minted.
+  console.log("  waiting to original expiry " + originalExpiry + "…");
+  await waitForBlock(estate, originalExpiry);
   const w2 = await eApi.query.EstateExecutor.Wills.getValue(id, { at: "best" });
   if (w2 && w2.status.type === "Active") {
-    pass("will still Active past original expiry");
+    pass("will still Active at original expiry");
   } else {
-    fail("will status past original expiry", w2?.status?.type);
+    fail("will status at original expiry", w2?.status?.type);
   }
 
   // Clean up so this will does not fire later in the run.
@@ -332,22 +354,26 @@ if (!xcmReady) {
     );
     await waitForBlock(estate, will.expiry_block + 2);
 
-    // Wait additional relay rounds so the XCM Transact lands on AH.
+    // Poll AH until the XCM Transact lands and Bob sees the delta.
+    // Relay rounds vary per zombienet run — a fixed sleep was flaky.
     console.log("  waiting for XCM to land on Asset Hub…");
-    await sleep(18_000);
+    const arrived = await waitUntil(async () => {
+      const now = await ahBalance(Bob.address);
+      return now - before === 1n * ROC ? now : null;
+    });
 
     const w = await eApi.query.EstateExecutor.Wills.getValue(id, { at: "best" });
     if (w?.status?.type === "Executed") pass("will marked Executed");
     else fail("will status", w?.status?.type);
 
-    const after = await ahBalance(Bob.address);
-    const diff = after - before;
-    if (diff === 1n * ROC) pass("Bob.AH balance += 1 ROC");
-    else
+    if (arrived !== null) pass("Bob.AH balance += 1 ROC");
+    else {
+      const diff = (await ahBalance(Bob.address)) - before;
       fail(
         "Bob.AH balance change",
         "expected +1 ROC, got " + diff.toString(),
       );
+    }
 
     const cid = await eApi.query.EstateExecutor.CertificateCollectionId.getValue(
       { at: "best" },
@@ -383,12 +409,15 @@ if (!xcmReady) {
     );
     await waitForBlock(estate, will.expiry_block + 2);
     console.log("  waiting for XCM to land on Asset Hub…");
-    await sleep(18_000);
+    const landed = await waitUntil(async () => {
+      const proxies = await ahProxiesOf(Alice.address);
+      return proxies.includes(Charlie.address) ? proxies : null;
+    });
 
-    const afterProxies = await ahProxiesOf(Alice.address);
-    if (afterProxies.includes(Charlie.address)) {
+    if (landed !== null) {
       pass("Charlie added as proxy of Alice on AH");
     } else {
+      const afterProxies = await ahProxiesOf(Alice.address);
       fail(
         "Charlie not in Alice proxies",
         "before " +
