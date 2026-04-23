@@ -11,7 +11,7 @@
     "people_chain": {
       "wsUrl": "ws://127.0.0.1:9946",
       "metadata": ".papi/metadata/people_chain.scale",
-      "genesis": "0xac1021fc6b3651a538b0ff282bdb65ebb57ff24ef261bfe27fcd105b0ebcab68",
+      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545",
       "codeHash": "0x8244706f1d9dc6d5f6ebcf8b91e92f431a98e9c3ba5db88e77445e1c6292db16"
     },
     "asset_hub": {
