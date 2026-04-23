@@ -287,8 +287,10 @@ pub mod pallet {
 		BeneficiaryNotVerified,
 		/// A `Transfer` bequest was created with a zero amount.
 		ZeroTransferAmount,
-		/// A `MultisigProxy` bequest has an invalid threshold: either
-		/// zero, or greater than the number of delegates.
+		/// A `MultisigProxy` bequest with enough delegates has an invalid
+		/// threshold (zero, or greater than the number of delegates).
+		/// Multisigs with fewer than the minimum number of delegates
+		/// fail with [`Error::TooFewDelegates`] first.
 		InvalidThreshold,
 		/// A `MultisigProxy` bequest has fewer than the minimum number
 		/// of delegates (2) required for a meaningful multisig.
@@ -314,6 +316,14 @@ pub mod pallet {
 			ensure!(block_interval > Zero::zero(), Error::<T>::InvalidInterval);
 			ensure!(!bequests.is_empty(), Error::<T>::NoBequests);
 
+			// Enforce the bequest cap before any per-bequest work — cheap
+			// checks first, so an oversized submission is rejected without
+			// paying the cost of validating every element.
+			let bounded_bequests: BoundedVec<Bequest<T>, T::MaxBequests> =
+				bequests
+					.try_into()
+					.map_err(|_| Error::<T>::TooManyBequests)?;
+
 			// Per-bequest validation:
 			//   * shape checks that the pallet can settle from the inputs
 			//     alone (zero amount, multisig bounds), so bad data is
@@ -323,7 +333,7 @@ pub mod pallet {
 			//     on-chain identity — this is what makes the beneficiary
 			//     list meaningful (anyone can be named, only verified
 			//     accounts are accepted).
-			for bequest in &bequests {
+			for bequest in &bounded_bequests {
 				match bequest {
 					Bequest::Transfer { amount, .. } => {
 						ensure!(
@@ -351,11 +361,6 @@ pub mod pallet {
 					);
 				}
 			}
-
-			let bounded_bequests: BoundedVec<Bequest<T>, T::MaxBequests> =
-				bequests
-					.try_into()
-					.map_err(|_| Error::<T>::TooManyBequests)?;
 
 			let current_block = frame_system::Pallet::<T>::block_number();
 			let expiry_block = current_block
