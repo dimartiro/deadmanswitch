@@ -6,6 +6,34 @@ use frame::{
 };
 use polkadot_sdk::{pallet_balances, pallet_multisig, pallet_proxy, pallet_scheduler};
 use core::cell::RefCell;
+use frame::deps::frame_support::traits::{
+	tokens::imbalance::SplitTwoWays, Currency, OnUnbalanced,
+};
+use frame::deps::sp_runtime::Permill;
+
+pub const TREASURY_ACCOUNT: u64 = 999;
+
+parameter_types! {
+	pub const TestProtocolFeePermill: Permill = Permill::from_percent(10);
+}
+
+pub struct TestTreasurySink;
+impl OnUnbalanced<pallet_balances::NegativeImbalance<Test>> for TestTreasurySink {
+	fn on_nonzero_unbalanced(imb: pallet_balances::NegativeImbalance<Test>) {
+		Balances::resolve_creating(&TREASURY_ACCOUNT, imb);
+	}
+}
+
+/// 30% burn, 70% to treasury. Mirrors the runtime-side split so the
+/// unit tests exercise the same routing shape.
+pub type TestFeeRouter = SplitTwoWays<
+	u64,
+	pallet_balances::NegativeImbalance<Test>,
+	(),
+	TestTreasurySink,
+	30,
+	70,
+>;
 
 /// Proxy type for the mock runtime.
 #[derive(
@@ -206,8 +234,10 @@ impl crate::Config for Test {
 	type CertificateMinter = MockCertificateMinter;
 	type MaxBequests = MaxBequests;
 	type Currency = Balances;
-	type FeeRouter = ();
+	type FeeRouter = TestFeeRouter;
 	type FeePerBlock = ConstU64<1>;
+	type ProtocolFeePermill = TestProtocolFeePermill;
+	type FlatBequestFee = ConstU64<7>;
 }
 
 impl pallet_proxy::Config for Test {

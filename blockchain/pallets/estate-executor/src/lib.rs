@@ -88,8 +88,9 @@ pub mod pallet {
 	use frame::traits::schedule::DispatchTime;
 	use frame::deps::frame_support::traits::{
 		Bounded as PreimageBounded, Currency, ExistenceRequirement, OnUnbalanced,
-		WithdrawReasons,
+		ReservableCurrency, WithdrawReasons,
 	};
+	use frame::deps::sp_runtime::{Permill, SaturatedConversion};
 	use frame::traits::tokens::Balance as BalanceT;
 
 	pub type BalanceOf<T> =
@@ -163,7 +164,7 @@ pub mod pallet {
 		type MaxBequests: Get<u32>;
 
 		/// Native-token adapter used to charge protocol fees.
-		type Currency: Currency<Self::AccountId>;
+		type Currency: ReservableCurrency<Self::AccountId>;
 
 		/// Sink for the negative imbalance produced by fee withdrawals.
 		/// Runtime decides: burn, treasury, split.
@@ -173,6 +174,15 @@ pub mod pallet {
 		/// `block_interval * FeePerBlock`.
 		#[pallet::constant]
 		type FeePerBlock: Get<BalanceOf<Self>>;
+
+		/// Execution-time skim applied to each `Transfer` bequest's amount.
+		#[pallet::constant]
+		type ProtocolFeePermill: Get<Permill>;
+
+		/// Flat execution fee for bequests without a known amount at
+		/// create time (`TransferAll`, `Proxy`, `MultisigProxy`).
+		#[pallet::constant]
+		type FlatBequestFee: Get<BalanceOf<Self>>;
 	}
 
 	/// Unique identifier for each will.
@@ -285,6 +295,10 @@ pub mod pallet {
 		WillCancelled { id: WillId },
 		/// Longevity fee charged to the owner on create/heartbeat.
 		LongevityFeeCharged { id: WillId, who: T::AccountId, amount: BalanceOf<T> },
+		/// Execution fee bundle reserved at create time.
+		ExecutionFeeReserved { id: WillId, who: T::AccountId, amount: BalanceOf<T> },
+		/// Execution fee bundle routed through `FeeRouter` at execute time.
+		ExecutionFeeCharged { id: WillId, amount: BalanceOf<T> },
 	}
 
 	#[pallet::error]
@@ -401,6 +415,7 @@ pub mod pallet {
 			// before storage writes (an InsufficientFeeBalance bails
 			// out clean).
 			Self::charge_longevity_fee(&who, id, block_interval)?;
+			Self::reserve_execution_fee(&who, id, &bounded_bequests)?;
 
 			NextWillId::<T>::put(id + 1);
 
@@ -505,6 +520,7 @@ pub mod pallet {
 			// appears across multiple bequests.
 			let mut unique_recipients: Vec<T::AccountId> = Vec::new();
 			if let Some(stored) = WillBequests::<T>::get(id) {
+				Self::collect_execution_fee(&will.owner, id, &stored);
 				for (i, dist) in stored.iter().enumerate() {
 					let dispatch_result =
 						T::BequestBuilder::dispatch(dist, &will.owner);
@@ -586,6 +602,10 @@ pub mod pallet {
 			ensure!(will.owner == who, Error::<T>::NotOwner);
 			ensure!(will.status == WillStatus::Active, Error::<T>::WillNotActive);
 
+			if let Some(stored) = WillBequests::<T>::get(id) {
+				Self::unreserve_execution_fee(&will.owner, &stored);
+			}
+
 			let _ = T::Scheduler::cancel_named(task_name(id));
 
 			Wills::<T>::remove(id);
@@ -631,6 +651,76 @@ pub mod pallet {
 					if names_account { Some(id) } else { None }
 				})
 				.collect()
+		}
+
+		/// Protocol fee for a single bequest at execution time.
+		pub(crate) fn execution_fee_for(b: &Bequest<T>) -> BalanceOf<T> {
+			match b {
+				Bequest::Transfer { amount, .. } => {
+					let amount_u128 = (*amount).saturated_into::<u128>();
+					let fee_u128 = T::ProtocolFeePermill::get().mul_floor(amount_u128);
+					BalanceOf::<T>::saturated_from(fee_u128)
+				},
+				Bequest::TransferAll { .. }
+				| Bequest::Proxy { .. }
+				| Bequest::MultisigProxy { .. } => T::FlatBequestFee::get(),
+			}
+		}
+
+		pub(crate) fn total_execution_fee_for(bs: &[Bequest<T>]) -> BalanceOf<T> {
+			bs.iter()
+				.map(Self::execution_fee_for)
+				.fold(BalanceOf::<T>::zero(), |acc, f| acc.saturating_add(f))
+		}
+
+		/// Reserves the execution fee bundle at create time so execute
+		/// can never fail for lack of owner balance.
+		pub(crate) fn reserve_execution_fee(
+			who: &T::AccountId,
+			id: WillId,
+			bequests: &[Bequest<T>],
+		) -> Result<(), DispatchError> {
+			let total = Self::total_execution_fee_for(bequests);
+			if total.is_zero() {
+				return Ok(());
+			}
+			T::Currency::reserve(who, total)
+				.map_err(|_| Error::<T>::InsufficientFeeBalance)?;
+			Self::deposit_event(Event::ExecutionFeeReserved {
+				id,
+				who: who.clone(),
+				amount: total,
+			});
+			Ok(())
+		}
+
+		/// Returns the reserved bundle to the owner's free balance. Used
+		/// on cancel.
+		pub(crate) fn unreserve_execution_fee(
+			who: &T::AccountId,
+			bequests: &[Bequest<T>],
+		) {
+			let total = Self::total_execution_fee_for(bequests);
+			if total.is_zero() {
+				return;
+			}
+			let _ = T::Currency::unreserve(who, total);
+		}
+
+		/// Slashes the reserved bundle and routes the imbalance through
+		/// `FeeRouter`. Called at execute time.
+		pub(crate) fn collect_execution_fee(
+			who: &T::AccountId,
+			id: WillId,
+			bequests: &[Bequest<T>],
+		) {
+			let total = Self::total_execution_fee_for(bequests);
+			if total.is_zero() {
+				return;
+			}
+			let (imbalance, _missing) = T::Currency::slash_reserved(who, total);
+			T::FeeRouter::on_unbalanced(imbalance);
+			Self::deposit_event(Event::ExecutionFeeCharged { id, amount: total });
 		}
 
 		/// Withdraws `block_interval * FeePerBlock` from `who` and routes
