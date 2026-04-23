@@ -273,6 +273,14 @@ pub mod pallet {
 		/// A beneficiary named in a bequest does not have a verified
 		/// on-chain identity.
 		BeneficiaryNotVerified,
+		/// A `Transfer` bequest was created with a zero amount.
+		ZeroTransferAmount,
+		/// A `MultisigProxy` bequest has an invalid threshold: either
+		/// zero, or greater than the number of delegates.
+		InvalidThreshold,
+		/// A `MultisigProxy` bequest has fewer than the minimum number
+		/// of delegates (2) required for a meaningful multisig.
+		TooFewDelegates,
 		/// The scheduler refused to schedule or reschedule the task.
 		ScheduleFailed,
 	}
@@ -294,11 +302,36 @@ pub mod pallet {
 			ensure!(block_interval > Zero::zero(), Error::<T>::InvalidInterval);
 			ensure!(!bequests.is_empty(), Error::<T>::NoBequests);
 
-			// Validate every recipient across every bequest has a verified
-			// on-chain identity. This is what makes the beneficiary list
-			// meaningful — anyone can be named, but only verified accounts
-			// are accepted.
+			// Per-bequest validation:
+			//   * shape checks that the pallet can settle from the inputs
+			//     alone (zero amount, multisig bounds), so bad data is
+			//     rejected up front instead of creating a will that only
+			//     fails at execution time;
+			//   * identity checks that every named recipient has an
+			//     on-chain identity — this is what makes the beneficiary
+			//     list meaningful (anyone can be named, only verified
+			//     accounts are accepted).
 			for bequest in &bequests {
+				match bequest {
+					Bequest::Transfer { amount, .. } => {
+						ensure!(
+							*amount > Zero::zero(),
+							Error::<T>::ZeroTransferAmount,
+						);
+					},
+					Bequest::MultisigProxy { delegates, threshold } => {
+						ensure!(
+							delegates.len() >= 2,
+							Error::<T>::TooFewDelegates,
+						);
+						ensure!(
+							*threshold >= 1
+								&& (*threshold as usize) <= delegates.len(),
+							Error::<T>::InvalidThreshold,
+						);
+					},
+					Bequest::TransferAll { .. } | Bequest::Proxy { .. } => {},
+				}
 				for recipient in bequest.recipients() {
 					ensure!(
 						T::IdentityCheck::is_verified(&recipient),

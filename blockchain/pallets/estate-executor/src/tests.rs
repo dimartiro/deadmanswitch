@@ -83,7 +83,7 @@ fn create_will_fails_with_no_bequests() {
 #[test]
 fn create_will_fails_with_too_many_bequests() {
 	new_test_ext().execute_with(|| {
-		let d: Vec<_> = (0..6).map(|i| transfer(2, i)).collect();
+		let d: Vec<_> = (0..6).map(|i| transfer(2, i + 1)).collect();
 		assert_noop!(
 			EstateExecutor::create_will(RuntimeOrigin::signed(1), d, 10),
 			Error::<Test>::TooManyBequests,
@@ -112,6 +112,72 @@ fn create_will_overflow_block_interval() {
 				RuntimeOrigin::signed(1), vec![transfer(2, 100)], u64::MAX,
 			),
 			Error::<Test>::BlockIntervalTooLarge,
+		);
+	});
+}
+
+#[test]
+fn create_will_fails_with_zero_transfer_amount() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1), vec![transfer(2, 0)], 10,
+			),
+			Error::<Test>::ZeroTransferAmount,
+		);
+	});
+}
+
+#[test]
+fn create_will_fails_with_multisig_threshold_zero() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1),
+				vec![multisig_proxy(&[2, 3], 0)],
+				10,
+			),
+			Error::<Test>::InvalidThreshold,
+		);
+	});
+}
+
+#[test]
+fn create_will_fails_with_multisig_threshold_above_delegates() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1),
+				vec![multisig_proxy(&[2, 3], 3)],
+				10,
+			),
+			Error::<Test>::InvalidThreshold,
+		);
+	});
+}
+
+#[test]
+fn create_will_fails_with_multisig_too_few_delegates() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1),
+				vec![multisig_proxy(&[2], 1)],
+				10,
+			),
+			Error::<Test>::TooFewDelegates,
+		);
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1),
+				vec![multisig_proxy(&[], 1)],
+				10,
+			),
+			Error::<Test>::TooFewDelegates,
 		);
 	});
 }

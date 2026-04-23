@@ -15,9 +15,58 @@ import {
 } from "@polkadot-api/descriptors";
 import { formatDuration } from "../utils/format";
 import { submitAndWait } from "../utils/tx";
-import { ss58Address } from "@polkadot-labs/hdkd-helpers";
+import { ss58Address, ss58Decode } from "@polkadot-labs/hdkd-helpers";
 import { Dropdown } from "../components/Dropdown";
 import { toast } from "../store/toastStore";
+
+// Mirrors the pallet-side limits in pallets/estate-executor so the UI
+// rejects the same shapes the runtime would: MaxMultisigDelegates is 10,
+// and the pallet requires >= 2 delegates + threshold in [1, delegates.len()].
+const MAX_MULTISIG_DELEGATES = 10;
+const MIN_MULTISIG_DELEGATES = 2;
+
+function isValidSs58(addr: string): boolean {
+	if (!addr) return false;
+	try {
+		ss58Decode(addr);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+function validateEntry(e: Entry): string | null {
+	switch (e.kind) {
+		case "Transfer": {
+			if (!e.dest) return "Pick a beneficiary.";
+			if (!isValidSs58(e.dest)) return "Beneficiary address is not a valid SS58 address.";
+			const n = parseFloat(e.amount || "0");
+			if (!(n > 0)) return "Amount must be greater than zero.";
+			return null;
+		}
+		case "TransferAll":
+			if (!e.dest) return "Pick a beneficiary.";
+			if (!isValidSs58(e.dest)) return "Beneficiary address is not a valid SS58 address.";
+			return null;
+		case "Proxy":
+			if (!e.dest) return "Pick a delegate.";
+			if (!isValidSs58(e.dest)) return "Delegate address is not a valid SS58 address.";
+			return null;
+		case "MultisigProxy": {
+			if (e.delegates.length < MIN_MULTISIG_DELEGATES)
+				return `A multisig needs at least ${MIN_MULTISIG_DELEGATES} delegates.`;
+			if (e.delegates.length > MAX_MULTISIG_DELEGATES)
+				return `A multisig allows at most ${MAX_MULTISIG_DELEGATES} delegates.`;
+			const bad = e.delegates.find((d) => !isValidSs58(d));
+			if (bad) return "One of the delegate addresses is invalid.";
+			const t = parseInt(e.threshold || "0");
+			if (!(t >= 1)) return "Threshold must be at least 1.";
+			if (t > e.delegates.length)
+				return "Threshold can't exceed the number of delegates.";
+			return null;
+		}
+	}
+}
 
 const ESTATE_SOVEREIGN_ON_ASSETHUB = (() => {
 	const buf = new Uint8Array(32);
@@ -420,11 +469,14 @@ export default function CreateWillPage() {
 		Math.round(parseFloat(intervalAmount || "0") * UNIT_SECONDS[intervalUnit]),
 	);
 	const blockInterval = Math.max(1, Math.round(estimatedTime / blockTime));
+	const entryErrors = entries.map(validateEntry);
+	const allEntriesValid = entryErrors.every((e) => e === null);
 	const canSubmit =
 		!submitting &&
 		connected &&
 		hasRecipients &&
 		allRecipientsVerified &&
+		allEntriesValid &&
 		(!showAssetHub || ownerAhLinked);
 
 	return (
@@ -568,7 +620,9 @@ export default function CreateWillPage() {
 				}
 			>
 				<div className="space-y-4">
-					{entries.map((entry, idx) => (
+					{entries.map((entry, idx) => {
+						const entryError = entryErrors[idx];
+						return (
 						<div
 							key={entry.id}
 							className="card-muted p-5"
@@ -731,8 +785,16 @@ export default function CreateWillPage() {
 									</>
 								)}
 							</div>
+
+							{entryError && (
+								<p className="text-xs text-danger mt-3 flex items-start gap-1.5">
+									<span className="shrink-0">⚠</span>
+									<span>{entryError}</span>
+								</p>
+							)}
 						</div>
-					))}
+						);
+					})}
 				</div>
 			</Panel>
 
