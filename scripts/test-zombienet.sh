@@ -34,8 +34,7 @@ fi
 echo "[5/5] Preparing PAPI descriptors..."
 cd "$ROOT_DIR/web"
 [ ! -d node_modules ] && npm install --silent
-npx papi update 2>/dev/null
-npx papi generate 2>/dev/null
+update_papi_descriptors
 
 echo ""
 log_info "Testing against $SUBSTRATE_RPC_WS (Estate) + $STACK_ASSETHUB_RPC_PORT (Asset Hub)"

@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Shared helpers for the repo's two supported local topologies:
 # - Solo dev mode (`start-dev.sh`) for the fastest runtime/pallet loop
-# - Relay-backed Zombienet mode (`start-all.sh`, `start-local.sh`) for the full feature set
+# - Relay-backed Zombienet mode (`start-zombienet.sh`) for the full feature set
 
 COMMON_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$COMMON_DIR/.." && pwd)"
@@ -206,40 +206,6 @@ validate_zombienet_ports() {
         "$STACK_COLLATOR_PROMETHEUS_PORT"
 }
 
-validate_full_stack_ports() {
-    require_distinct_ports \
-        "Substrate RPC" "$STACK_SUBSTRATE_RPC_PORT" \
-        "People RPC" "$STACK_PEOPLE_RPC_PORT" \
-        "People P2P" "$STACK_PEOPLE_P2P_PORT" \
-        "People Prometheus" "$STACK_PEOPLE_PROMETHEUS_PORT" \
-        "Ethereum RPC" "$STACK_ETH_RPC_PORT" \
-        "Frontend" "$STACK_FRONTEND_PORT" \
-        "Relay Alice RPC" "$STACK_RELAY_ALICE_RPC_PORT" \
-        "Relay Alice P2P" "$STACK_RELAY_ALICE_P2P_PORT" \
-        "Relay Alice Prometheus" "$STACK_RELAY_ALICE_PROMETHEUS_PORT" \
-        "Relay Bob RPC" "$STACK_RELAY_BOB_RPC_PORT" \
-        "Relay Bob P2P" "$STACK_RELAY_BOB_P2P_PORT" \
-        "Relay Bob Prometheus" "$STACK_RELAY_BOB_PROMETHEUS_PORT" \
-        "Collator P2P" "$STACK_COLLATOR_P2P_PORT" \
-        "Collator Prometheus" "$STACK_COLLATOR_PROMETHEUS_PORT"
-
-    require_ports_free \
-        "$STACK_SUBSTRATE_RPC_PORT" \
-        "$STACK_PEOPLE_RPC_PORT" \
-        "$STACK_PEOPLE_P2P_PORT" \
-        "$STACK_PEOPLE_PROMETHEUS_PORT" \
-        "$STACK_ETH_RPC_PORT" \
-        "$STACK_FRONTEND_PORT" \
-        "$STACK_RELAY_ALICE_RPC_PORT" \
-        "$STACK_RELAY_ALICE_P2P_PORT" \
-        "$STACK_RELAY_ALICE_PROMETHEUS_PORT" \
-        "$STACK_RELAY_BOB_RPC_PORT" \
-        "$STACK_RELAY_BOB_P2P_PORT" \
-        "$STACK_RELAY_BOB_PROMETHEUS_PORT" \
-        "$STACK_COLLATOR_P2P_PORT" \
-        "$STACK_COLLATOR_PROMETHEUS_PORT"
-}
-
 build_runtime() {
     cargo build -p estate-protocol-runtime --release
 }
@@ -387,53 +353,6 @@ wait_for_substrate_rpc() {
     if [ -n "$startup_log" ] && [ -f "$startup_log" ]; then
         log_info "Recent log output:"
         tail -n 100 "$startup_log" || true
-    fi
-    return 1
-}
-
-eth_rpc_ready() {
-    curl -s \
-        -H "Content-Type: application/json" \
-        -d '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' \
-        "$ETH_RPC_HTTP" >/dev/null 2>&1
-}
-
-eth_rpc_block_producing() {
-    curl -s \
-        -H "Content-Type: application/json" \
-        -d '{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}' \
-        "$ETH_RPC_HTTP" | grep -Eq '"result":"0x[1-9a-fA-F][0-9a-fA-F]*"'
-}
-
-wait_for_eth_rpc() {
-    local eth_rpc_log
-    if [ -n "$NODE_DIR" ]; then
-        eth_rpc_log="$NODE_DIR/eth-rpc.log"
-    else
-        eth_rpc_log="$ZOMBIE_DIR/eth-rpc.log"
-    fi
-
-    log_info "Waiting for Ethereum RPC..."
-    for _ in $(seq 1 120); do
-        if eth_rpc_ready && { [ -n "$NODE_PID" ] || eth_rpc_block_producing; }; then
-            log_info "Ethereum RPC ready at $ETH_RPC_HTTP"
-            return 0
-        fi
-        if [ -n "$ETH_RPC_PID" ] && ! kill -0 "$ETH_RPC_PID" 2>/dev/null; then
-            log_error "eth-rpc stopped during startup."
-            if [ -f "$eth_rpc_log" ]; then
-                log_info "Recent log output:"
-                tail -n 100 "$eth_rpc_log" || true
-            fi
-            return 1
-        fi
-        sleep 1
-    done
-
-    log_error "Ethereum RPC did not become ready in time."
-    if [ -f "$eth_rpc_log" ]; then
-        log_info "Recent log output:"
-        tail -n 100 "$eth_rpc_log" || true
     fi
     return 1
 }
@@ -598,29 +517,6 @@ start_zombienet_background() {
     log_info "Zombienet log: $ZOMBIE_LOG"
 }
 
-start_local_node_background() {
-    require_command polkadot-omni-node
-    require_port_free "$STACK_SUBSTRATE_RPC_PORT"
-
-    NODE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/polkadot-stack-node.XXXXXX")"
-    NODE_LOG="$NODE_DIR/node.log"
-
-    polkadot-omni-node \
-        --chain "$CHAIN_SPEC" \
-        --tmp \
-        --alice \
-        --force-authoring \
-        --dev-block-time 3000 \
-        --no-prometheus \
-        --unsafe-force-node-key-generation \
-        --rpc-cors all \
-        --rpc-port "$STACK_SUBSTRATE_RPC_PORT" \
-        -- >"$NODE_LOG" 2>&1 &
-    NODE_PID=$!
-
-    log_info "Node log: $NODE_LOG"
-}
-
 run_local_node_foreground() {
     require_command polkadot-omni-node
     require_port_free "$STACK_SUBSTRATE_RPC_PORT"
@@ -636,55 +532,6 @@ run_local_node_foreground() {
         --rpc-cors all \
         --rpc-port "$STACK_SUBSTRATE_RPC_PORT" \
         --
-}
-
-run_zombienet_foreground() {
-    require_command zombienet
-    require_command polkadot
-    require_command polkadot-omni-node
-    validate_zombienet_ports
-
-    ZOMBIE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/polkadot-stack-zombienet.XXXXXX")"
-    ZOMBIE_LOG="$ZOMBIE_DIR/zombienet.log"
-    ZOMBIE_CONFIG="$ZOMBIE_DIR/zombienet.toml"
-    cp "$CHAIN_SPEC" "$ZOMBIE_DIR/chain_spec.json"
-    write_zombienet_config "$ZOMBIE_CONFIG"
-
-    log_info "Zombienet data dir: $ZOMBIE_DIR"
-    log_info "Zombienet config: $ZOMBIE_CONFIG"
-    log_info "Zombienet log: $ZOMBIE_LOG"
-
-    trap cleanup_zombienet EXIT INT TERM
-
-    cd "$ZOMBIE_DIR"
-    zombienet -p native -f -l text -d "$ZOMBIE_DIR" spawn zombienet.toml &
-    ZOMBIE_PID=$!
-    wait "$ZOMBIE_PID"
-}
-
-start_eth_rpc_background() {
-    require_command eth-rpc
-    require_port_free "$STACK_ETH_RPC_PORT"
-
-    local eth_rpc_log
-    local eth_rpc_dir
-    if [ -n "$NODE_DIR" ]; then
-        eth_rpc_dir="$NODE_DIR/eth-rpc"
-        eth_rpc_log="$NODE_DIR/eth-rpc.log"
-    else
-        eth_rpc_dir="$ZOMBIE_DIR/eth-rpc"
-        eth_rpc_log="$ZOMBIE_DIR/eth-rpc.log"
-    fi
-
-    eth-rpc \
-        --node-rpc-url "$SUBSTRATE_RPC_WS" \
-        --rpc-port "$STACK_ETH_RPC_PORT" \
-        --no-prometheus \
-        --rpc-cors all \
-        -d "$eth_rpc_dir" >"$eth_rpc_log" 2>&1 &
-    ETH_RPC_PID=$!
-
-    log_info "eth-rpc log: $eth_rpc_log"
 }
 
 cleanup_local_node() {
