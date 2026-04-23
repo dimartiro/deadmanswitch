@@ -8,6 +8,7 @@ import { stack_template } from "@polkadot-api/descriptors";
 import { formatDuration } from "../utils/format";
 import { submitAndWait } from "../utils/tx";
 import { ss58Decode } from "@polkadot-labs/hdkd-helpers";
+import { toast } from "../store/toastStore";
 
 // Compare two SS58 addresses by their pubkey, ignoring the address's
 // network prefix. Store-side addresses and on-chain addresses can be
@@ -101,7 +102,7 @@ export default function WillsPage() {
 	const { accounts, selected } = useAllAccounts();
 	const [wills, setWills] = useState<WillData[]>([]);
 	const [loading, setLoading] = useState(false);
-	const [actionStatus, setActionStatus] = useState<Record<string, string>>({});
+	const [pendingActions, setPendingActions] = useState<Set<string>>(new Set());
 	const [filter, setFilter] = useState<FilterKey>("all");
 
 	const fetchWills = useCallback(async () => {
@@ -151,7 +152,9 @@ export default function WillsPage() {
 
 	async function handleAction(willId: bigint, action: "heartbeat" | "cancel") {
 		const key = `${willId}-${action}`;
-		setActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
+		const pastLabel = action === "heartbeat" ? "Heartbeat sent" : "Will cancelled";
+		const failLabel = action === "heartbeat" ? "Heartbeat failed" : "Cancel failed";
+		setPendingActions((s) => new Set(s).add(key));
 		try {
 			if (!selected) throw new Error("No account selected");
 			const client = getClient(wsUrl);
@@ -163,19 +166,22 @@ export default function WillsPage() {
 					: api.tx.EstateExecutor.cancel({ id: willId });
 			const result = await submitAndWait(tx, signer, client);
 			if (result.ok) {
-				setActionStatus((s) => ({ ...s, [key]: "Done" }));
+				toast.success(pastLabel);
 				fetchWills();
 			} else {
-				setActionStatus((s) => ({
-					...s,
-					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
-				}));
+				toast.error(failLabel, result.errorMessage ?? "unknown");
 			}
 		} catch (e) {
-			setActionStatus((s) => ({
-				...s,
-				[key]: `Error: ${e instanceof Error ? e.message : String(e)}`,
-			}));
+			toast.error(
+				failLabel,
+				e instanceof Error ? e.message : String(e),
+			);
+		} finally {
+			setPendingActions((s) => {
+				const next = new Set(s);
+				next.delete(key);
+				return next;
+			});
 		}
 	}
 
@@ -360,7 +366,7 @@ export default function WillsPage() {
 								currentAccount={currentAccount}
 								isInheritance={isInheritance(w)}
 								onAction={handleAction}
-								actionStatus={actionStatus}
+								pendingActions={pendingActions}
 							/>
 						))}
 					</div>
@@ -437,14 +443,14 @@ function WillRow({
 	currentAccount,
 	isInheritance,
 	onAction,
-	actionStatus,
+	pendingActions,
 }: {
 	w: WillData;
 	blockNumber: number;
 	currentAccount: string;
 	isInheritance: boolean;
 	onAction: (id: bigint, action: "heartbeat" | "cancel") => void;
-	actionStatus: Record<string, string>;
+	pendingActions: Set<string>;
 }) {
 	const [expanded, setExpanded] = useState(false);
 	const isOwner = sameAccount(w.owner, currentAccount);
@@ -494,9 +500,6 @@ function WillRow({
 			>
 				<div className="flex-1 min-w-0">
 					<div className="flex items-center gap-2.5 mb-1 flex-wrap">
-						<span className="font-mono text-xs text-ink-400 tabular">
-							№{String(Number(w.id)).padStart(3, "0")}
-						</span>
 						{chip}
 						{isInheritance && (
 							<span className="chip-brass">Names you</span>
@@ -594,36 +597,25 @@ function WillRow({
 							{!isExpired && (
 								<button
 									onClick={() => onAction(w.id, "heartbeat")}
+									disabled={pendingActions.has(`${w.id}-heartbeat`)}
 									className="btn-accent btn-sm"
 								>
-									♥ Heartbeat
+									{pendingActions.has(`${w.id}-heartbeat`)
+										? "♥ Sending…"
+										: "♥ Heartbeat"}
 								</button>
 							)}
 							<button
 								onClick={() => onAction(w.id, "cancel")}
+								disabled={pendingActions.has(`${w.id}-cancel`)}
 								className="btn-danger btn-sm"
 							>
-								Cancel
+								{pendingActions.has(`${w.id}-cancel`)
+									? "Cancelling…"
+									: "Cancel"}
 							</button>
 						</div>
 					)}
-
-					{["heartbeat", "cancel"].map((action) => {
-						const key = `${w.id}-${action}`;
-						const status = actionStatus[key];
-						if (!status) return null;
-						const color = status.startsWith("Error")
-							? "text-danger"
-							: status === "Done"
-								? "text-positive"
-								: "text-caution";
-						return (
-							<p key={key} className={`text-xs ${color}`}>
-								<span className="font-semibold capitalize">{action}</span>:{" "}
-								{status}
-							</p>
-						);
-					})}
 				</div>
 			)}
 		</article>

@@ -8,6 +8,7 @@ import {
 import { useWalletAutoConnect } from "./hooks/useWalletAutoConnect";
 import { getClient } from "./hooks/useChain";
 import { LOCAL_WS_URL } from "./config/network";
+import ToastContainer from "./components/ToastContainer";
 
 export default function App() {
 	const location = useLocation();
@@ -88,6 +89,8 @@ export default function App() {
 			<main className="max-w-6xl mx-auto px-6 py-10 animate-fade-in relative z-10">
 				<Outlet />
 			</main>
+
+			<ToastContainer />
 
 			<footer className="border-t border-hairline mt-16">
 				<div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between text-[0.7rem] font-mono text-ink-500 uppercase tracking-wider">

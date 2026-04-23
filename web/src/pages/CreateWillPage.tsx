@@ -17,6 +17,7 @@ import { formatDuration } from "../utils/format";
 import { submitAndWait } from "../utils/tx";
 import { ss58Address } from "@polkadot-labs/hdkd-helpers";
 import { Dropdown } from "../components/Dropdown";
+import { toast } from "../store/toastStore";
 
 const ESTATE_SOVEREIGN_ON_ASSETHUB = (() => {
 	const buf = new Uint8Array(32);
@@ -268,7 +269,6 @@ export default function CreateWillPage() {
 		"s" | "min" | "h" | "d" | "w" | "mo" | "y"
 	>("s");
 	const [entries, setEntries] = useState<Entry[]>([newEntry()]);
-	const [status, setStatus] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
 	const [ownerAhBalance, setOwnerAhBalance] = useState<number>(0);
 	const [ownerAhLinked, setOwnerAhLinked] = useState<boolean>(false);
@@ -368,11 +368,10 @@ export default function CreateWillPage() {
 
 	async function handleSubmit() {
 		if (!connected) {
-			setStatus("Error: Not connected to chain.");
+			toast.error("Not connected", "Open the connection panel and dial a node.");
 			return;
 		}
 		setSubmitting(true);
-		setStatus("Submitting…");
 		try {
 			if (!selected) throw new Error("No account selected");
 			const client = getClient(wsUrl);
@@ -385,15 +384,22 @@ export default function CreateWillPage() {
 			});
 			const result = await submitAndWait(tx, signer, client);
 			if (result.ok) {
-				setStatus(`Registered in block №${result.block?.number ?? "?"}.`);
+				const blockNum = result.block?.number;
+				toast.success(
+					"Will registered",
+					blockNum !== undefined ? `Sealed in block №${blockNum}` : undefined,
+				);
 				setEntries([newEntry()]);
 				setTimeout(() => navigate("/dashboard"), 800);
 			} else {
-				setStatus(`Error: ${result.errorMessage ?? "unknown"}`);
+				toast.error("Registration failed", result.errorMessage ?? "unknown");
 			}
 		} catch (e) {
 			console.error("Create will failed:", e);
-			setStatus(`Error: ${e instanceof Error ? e.message : String(e)}`);
+			toast.error(
+				"Registration failed",
+				e instanceof Error ? e.message : String(e),
+			);
 		} finally {
 			setSubmitting(false);
 		}
@@ -772,19 +778,6 @@ export default function CreateWillPage() {
 						>
 							{submitting ? "Sealing…" : "Sign & register"}
 						</button>
-						{status && (
-							<p
-								className={`text-xs max-w-[260px] text-right ${
-									status.startsWith("Error")
-										? "text-danger"
-										: status.startsWith("Registered")
-											? "text-positive"
-											: "text-caution"
-								}`}
-							>
-								{status}
-							</p>
-						)}
 					</div>
 				</div>
 			</section>

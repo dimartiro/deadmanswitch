@@ -295,16 +295,17 @@
   /* ── Inputs ─────────────────────────────────────────────────────── */
 
   .input {
-    @apply block w-full bg-muted border border-hairline px-3.5 py-2.5;
+    @apply block w-full border border-hairline px-3.5 py-2.5;
     @apply text-ink-900 placeholder:text-ink-400;
     @apply transition-all outline-none;
+    background-color: #1C2127;
     font-family: "JetBrains Mono", monospace;
     font-size: 0.88rem;
     border-radius: 3px;
   }
   .input:focus {
     border-color: #00FFB3;
-    background: rgba(0, 255, 179, 0.03);
+    background-color: #1F252C;
     box-shadow: 0 0 0 3px rgba(0, 255, 179, 0.12);
   }
   .input-mono {

@@ -19,6 +19,7 @@ import {
 } from "polkadot-api/pjs-signer";
 import { Binary, FixedSizeBinary, type PolkadotSigner } from "polkadot-api";
 import { ss58Address } from "@polkadot-labs/hdkd-helpers";
+import { toast } from "../store/toastStore";
 
 const ESTATE_PARA_ID = 2000;
 function estateSovereignOnAssetHub(): string {
@@ -111,13 +112,25 @@ export default function AccountsPage() {
 	const [availableWallets, setAvailableWallets] = useState<string[]>([]);
 	const [extensionAccounts, setExtensionAccounts] = useState<InjectedPolkadotAccount[]>([]);
 	const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
-	const [fundStatus, setFundStatus] = useState<string | null>(null);
 	const FUND_AMOUNT = "10000";
 	const [accountInfos, setAccountInfos] = useState<Record<string, AccountInfo>>({});
 	const [identityStatuses, setIdentityStatuses] = useState<Record<string, IdentityStatus>>({});
-	const [identityActionStatus, setIdentityActionStatus] = useState<Record<string, string>>({});
+	const [pendingIdentity, setPendingIdentity] = useState<Set<string>>(new Set());
 	const [assetHubLinks, setAssetHubLinks] = useState<Record<string, AssetHubLinkStatus>>({});
-	const [linkActionStatus, setLinkActionStatus] = useState<Record<string, string>>({});
+	const [pendingLink, setPendingLink] = useState<Set<string>>(new Set());
+
+	function markPending(
+		setter: React.Dispatch<React.SetStateAction<Set<string>>>,
+		key: string,
+		on: boolean,
+	) {
+		setter((s) => {
+			const next = new Set(s);
+			if (on) next.add(key);
+			else next.delete(key);
+			return next;
+		});
+	}
 
 	const devDisplayAccounts: DisplayAccount[] = devAccounts.map((acc) => ({
 		name: acc.name,
@@ -258,7 +271,10 @@ export default function AccountsPage() {
 			});
 		} catch (e) {
 			console.error("Failed to connect wallet:", e);
-			setFundStatus(`Error connecting wallet: ${e instanceof Error ? e.message : e}`);
+			toast.error(
+				"Wallet connection failed",
+				e instanceof Error ? e.message : String(e),
+			);
 		}
 	}
 
@@ -290,12 +306,11 @@ export default function AccountsPage() {
 
 	async function fundAccount(ss58Address: string, accountName: string) {
 		if (!connected) {
-			setFundStatus("Error: Not connected to chain");
+			toast.error("Not connected", "Open the connection panel and dial a node.");
 			return;
 		}
 		try {
 			const amount = BigInt(FUND_AMOUNT) * 1_000_000_000_000n;
-			setFundStatus(`Funding ${accountName}…`);
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
 			const aliceSigner = devAccounts[0].signer;
@@ -307,20 +322,26 @@ export default function AccountsPage() {
 			});
 			const result = await submitAndWait(tx, aliceSigner, client);
 			if (!result.ok) {
-				setFundStatus(`Error: ${result.errorMessage ?? "unknown"}`);
+				toast.error(`Fund ${accountName} failed`, result.errorMessage ?? "unknown");
 				return;
 			}
-			setFundStatus(`Funded ${accountName} with ${FUND_AMOUNT} tokens`);
+			toast.success(
+				`Funded ${accountName}`,
+				`+${FUND_AMOUNT} tokens on Estate`,
+			);
 			fetchAccountInfos();
 		} catch (e) {
 			console.error("Fund failed:", e);
-			setFundStatus(`Error: ${e instanceof Error ? e.message : e}`);
+			toast.error(
+				`Fund ${accountName} failed`,
+				e instanceof Error ? e.message : String(e),
+			);
 		}
 	}
 
 	async function registerIdentity(acc: DisplayAccount) {
 		const key = `reg-${acc.ss58}`;
-		setIdentityActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
+		markPending(setPendingIdentity, key, true);
 		try {
 			const client = getPeopleChainClient();
 			const api = client.getTypedApi(people_chain);
@@ -352,50 +373,48 @@ export default function AccountsPage() {
 			const tx = api.tx.Identity.set_identity({ info });
 			const result = await submitAndWait(tx, acc.signer, client);
 			if (result.ok) {
-				setIdentityActionStatus((s) => ({ ...s, [key]: "Registered" }));
+				toast.success("Identity registered", acc.name);
 				fetchIdentities();
 			} else {
-				setIdentityActionStatus((s) => ({
-					...s,
-					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
-				}));
+				toast.error("Identity register failed", result.errorMessage ?? "unknown");
 			}
 		} catch (e) {
-			setIdentityActionStatus((s) => ({
-				...s,
-				[key]: `Error: ${e instanceof Error ? e.message : String(e)}`,
-			}));
+			toast.error(
+				"Identity register failed",
+				e instanceof Error ? e.message : String(e),
+			);
+		} finally {
+			markPending(setPendingIdentity, key, false);
 		}
 	}
 
 	async function clearIdentity(acc: DisplayAccount) {
 		const key = `clr-${acc.ss58}`;
-		setIdentityActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
+		markPending(setPendingIdentity, key, true);
 		try {
 			const client = getPeopleChainClient();
 			const api = client.getTypedApi(people_chain);
 			const tx = api.tx.Identity.clear_identity();
 			const result = await submitAndWait(tx, acc.signer, client);
 			if (result.ok) {
-				setIdentityActionStatus((s) => ({ ...s, [key]: "Cleared" }));
+				toast.success("Identity cleared", acc.name);
 				fetchIdentities();
 			} else {
-				setIdentityActionStatus((s) => ({
-					...s,
-					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
-				}));
+				toast.error("Identity clear failed", result.errorMessage ?? "unknown");
 			}
 		} catch (e) {
-			setIdentityActionStatus((s) => ({
-				...s,
-				[key]: `Error: ${e instanceof Error ? e.message : String(e)}`,
-			}));
+			toast.error(
+				"Identity clear failed",
+				e instanceof Error ? e.message : String(e),
+			);
+		} finally {
+			markPending(setPendingIdentity, key, false);
 		}
 	}
 
 	async function linkAssetHub(acc: DisplayAccount) {
 		const key = `link-${acc.ss58}`;
-		setLinkActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
+		markPending(setPendingLink, key, true);
 		try {
 			const client = getAssetHubClient();
 			const api = client.getTypedApi(asset_hub);
@@ -406,25 +425,24 @@ export default function AccountsPage() {
 			});
 			const result = await submitAndWait(tx, acc.signer, client);
 			if (result.ok) {
-				setLinkActionStatus((s) => ({ ...s, [key]: "Linked" }));
+				toast.success("Linked to Asset Hub", acc.name);
 				fetchAssetHubLinks();
 			} else {
-				setLinkActionStatus((s) => ({
-					...s,
-					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
-				}));
+				toast.error("Link failed", result.errorMessage ?? "unknown");
 			}
 		} catch (e) {
-			setLinkActionStatus((s) => ({
-				...s,
-				[key]: `Error: ${e instanceof Error ? e.message : String(e)}`,
-			}));
+			toast.error(
+				"Link failed",
+				e instanceof Error ? e.message : String(e),
+			);
+		} finally {
+			markPending(setPendingLink, key, false);
 		}
 	}
 
 	async function unlinkAssetHub(acc: DisplayAccount) {
 		const key = `unlink-${acc.ss58}`;
-		setLinkActionStatus((s) => ({ ...s, [key]: "Submitting…" }));
+		markPending(setPendingLink, key, true);
 		try {
 			const client = getAssetHubClient();
 			const api = client.getTypedApi(asset_hub);
@@ -435,19 +453,18 @@ export default function AccountsPage() {
 			});
 			const result = await submitAndWait(tx, acc.signer, client);
 			if (result.ok) {
-				setLinkActionStatus((s) => ({ ...s, [key]: "Unlinked" }));
+				toast.success("Unlinked from Asset Hub", acc.name);
 				fetchAssetHubLinks();
 			} else {
-				setLinkActionStatus((s) => ({
-					...s,
-					[key]: `Error: ${result.errorMessage ?? "unknown"}`,
-				}));
+				toast.error("Unlink failed", result.errorMessage ?? "unknown");
 			}
 		} catch (e) {
-			setLinkActionStatus((s) => ({
-				...s,
-				[key]: `Error: ${e instanceof Error ? e.message : String(e)}`,
-			}));
+			toast.error(
+				"Unlink failed",
+				e instanceof Error ? e.message : String(e),
+			);
+		} finally {
+			markPending(setPendingLink, key, false);
 		}
 	}
 
@@ -469,16 +486,6 @@ export default function AccountsPage() {
 					identities and link each account to Asset Hub for XCM flows.
 				</p>
 			</div>
-
-			{fundStatus && (
-				<div
-					className={
-						fundStatus.startsWith("Error") ? "alert-danger" : "alert-positive"
-					}
-				>
-					{fundStatus}
-				</div>
-			)}
 
 			{bypassIdentity && (
 				<div className="alert-caution">
@@ -506,12 +513,12 @@ export default function AccountsPage() {
 							account={acc}
 							info={accountInfos[acc.ss58]}
 							identity={identityStatuses[acc.ss58]}
-							identityActionStatus={identityActionStatus}
+							pendingIdentity={pendingIdentity}
 							connected={connected}
 							showIdentity={!bypassIdentity}
 							showAssetHub={showAssetHub}
 							link={assetHubLinks[acc.ss58]}
-							linkActionStatus={linkActionStatus}
+							pendingLink={pendingLink}
 							onFund={() => fundAccount(acc.ss58, acc.name)}
 							onRegisterIdentity={() => registerIdentity(acc)}
 							onClearIdentity={() => clearIdentity(acc)}
@@ -565,12 +572,12 @@ export default function AccountsPage() {
 									account={display}
 									info={accountInfos[acc.address]}
 									identity={identityStatuses[acc.address]}
-									identityActionStatus={identityActionStatus}
+									pendingIdentity={pendingIdentity}
 									connected={connected}
 									showIdentity={!bypassIdentity}
 									showAssetHub={showAssetHub}
 									link={assetHubLinks[display.ss58]}
-									linkActionStatus={linkActionStatus}
+									pendingLink={pendingLink}
 									onFund={() => fundAccount(acc.address, display.name)}
 									onRegisterIdentity={() => registerIdentity(display)}
 									onClearIdentity={() => clearIdentity(display)}
@@ -719,12 +726,12 @@ function AccountCard({
 	account,
 	info,
 	identity,
-	identityActionStatus,
+	pendingIdentity,
 	connected,
 	showIdentity,
 	showAssetHub,
 	link,
-	linkActionStatus,
+	pendingLink,
 	onFund,
 	onRegisterIdentity,
 	onClearIdentity,
@@ -734,12 +741,12 @@ function AccountCard({
 	account: DisplayAccount;
 	info?: AccountInfo;
 	identity?: IdentityStatus;
-	identityActionStatus: Record<string, string>;
+	pendingIdentity: Set<string>;
 	connected: boolean;
 	showIdentity: boolean;
 	showAssetHub: boolean;
 	link?: AssetHubLinkStatus;
-	linkActionStatus: Record<string, string>;
+	pendingLink: Set<string>;
 	onFund: () => void;
 	onRegisterIdentity: () => void;
 	onClearIdentity: () => void;
@@ -748,14 +755,12 @@ function AccountCard({
 }) {
 	const regKey = `reg-${account.ss58}`;
 	const clrKey = `clr-${account.ss58}`;
-	const pendingIdentityMsg =
-		identityActionStatus[regKey] ?? identityActionStatus[clrKey];
-	const clearing = identityActionStatus[clrKey] === "Submitting…";
+	const registering = pendingIdentity.has(regKey);
+	const clearing = pendingIdentity.has(clrKey);
 	const linkKey = `link-${account.ss58}`;
 	const unlinkKey = `unlink-${account.ss58}`;
-	const pendingLinkMsg =
-		linkActionStatus[linkKey] ?? linkActionStatus[unlinkKey];
-	const unlinking = linkActionStatus[unlinkKey] === "Submitting…";
+	const linking = pendingLink.has(linkKey);
+	const unlinking = pendingLink.has(unlinkKey);
 
 	const typeChipClass =
 		account.type === "dev" ? "chip-neutral" : "chip-estate";
@@ -851,25 +856,15 @@ function AccountCard({
 									dismissing={clearing}
 								/>
 							) : (
-								<button onClick={onRegisterIdentity} className="btn-outline btn-sm">
-									+ Create identity
+								<button
+									onClick={onRegisterIdentity}
+									disabled={registering}
+									className="btn-outline btn-sm"
+								>
+									{registering ? "Registering…" : "+ Create identity"}
 								</button>
 							)}
 						</div>
-						{pendingIdentityMsg && (
-							<p
-								className={`text-xs mt-2 ${
-									pendingIdentityMsg.startsWith("Error")
-										? "text-danger"
-										: pendingIdentityMsg === "Registered" ||
-											  pendingIdentityMsg === "Cleared"
-											? "text-positive"
-											: "text-caution"
-								}`}
-							>
-								{pendingIdentityMsg}
-							</p>
-						)}
 					</div>
 				) : (
 					<div className="p-5">
@@ -893,9 +888,10 @@ function AccountCard({
 								<>
 									<button
 										onClick={onLinkAssetHub}
+										disabled={linking}
 										className="btn-accent btn-sm"
 									>
-										+ Link to Asset Hub
+										{linking ? "Linking…" : "+ Link to Asset Hub"}
 									</button>
 									<InfoTooltip>
 										Adds Estate Protocol's sovereign account as a full proxy
@@ -906,20 +902,6 @@ function AccountCard({
 								</>
 							)}
 						</div>
-						{pendingLinkMsg && (
-							<p
-								className={`text-xs mt-2 ${
-									pendingLinkMsg.startsWith("Error")
-										? "text-danger"
-										: pendingLinkMsg === "Linked" ||
-											  pendingLinkMsg === "Unlinked"
-											? "text-positive"
-											: "text-caution"
-								}`}
-							>
-								{pendingLinkMsg}
-							</p>
-						)}
 					</div>
 				) : (
 					<div className="p-5">
