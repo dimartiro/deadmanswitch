@@ -92,6 +92,18 @@ pub mod pallet {
 	#[pallet::pallet]
 	pub struct Pallet<T>(_);
 
+	/// The `Bounded<Call, Hasher>` shape that `pallet-scheduler` wants for
+	/// an inlined preimage. Extracted as an alias because the fully
+	/// qualified form is an eyesore and trips `clippy::type_complexity`.
+	type SchedulerBoundedCall<T> = PreimageBounded<
+		<T as Config>::RuntimeCall,
+		<<T as Config>::Scheduler as ScheduleNamed<
+			BlockNumberFor<T>,
+			<T as Config>::RuntimeCall,
+			<T as Config>::PalletsOrigin,
+		>>::Hasher,
+	>;
+
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
 		type WeightInfo: WeightInfo;
@@ -375,14 +387,7 @@ pub mod pallet {
 				Call::<T>::execute_will { id }.into();
 			let pallets_origin: T::PalletsOrigin =
 				frame_system::RawOrigin::Root.into();
-			let bounded_call: PreimageBounded<
-				<T as Config>::RuntimeCall,
-				<T::Scheduler as ScheduleNamed<
-					BlockNumberFor<T>,
-					<T as Config>::RuntimeCall,
-					T::PalletsOrigin,
-				>>::Hasher,
-			> = PreimageBounded::Inline(
+			let bounded_call: SchedulerBoundedCall<T> = PreimageBounded::Inline(
 				BoundedVec::try_from(execute_call.encode())
 					.map_err(|_| Error::<T>::ScheduleFailed)?,
 			);

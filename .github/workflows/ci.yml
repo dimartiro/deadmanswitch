@@ -105,7 +105,7 @@ jobs:
           BIN_DIR="$HOME/.local/bin"
           mkdir -p "$BIN_DIR"
           cd "$BIN_DIR"
-          for bin in polkadot polkadot-execute-worker polkadot-prepare-worker polkadot-omni-node eth-rpc; do
+          for bin in polkadot polkadot-execute-worker polkadot-prepare-worker polkadot-omni-node polkadot-parachain eth-rpc; do
             echo "Fetching $bin..."
             curl --fail --location --retry 3 \
               -o "$bin" \
