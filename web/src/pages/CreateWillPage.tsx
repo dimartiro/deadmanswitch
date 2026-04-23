@@ -16,6 +16,7 @@ import {
 import { formatDuration } from "../utils/format";
 import { submitAndWait } from "../utils/tx";
 import { ss58Address } from "@polkadot-labs/hdkd-helpers";
+import { Dropdown } from "../components/Dropdown";
 
 const ESTATE_SOVEREIGN_ON_ASSETHUB = (() => {
 	const buf = new Uint8Array(32);
@@ -139,6 +140,15 @@ function AccountSelect({
 	const isCustom = value !== "" && !isKnown;
 	const [showCustom, setShowCustom] = useState(isCustom);
 
+	const options = [
+		...known.map((a) => ({
+			value: a.address,
+			label: a.name,
+			hint: `${a.address.slice(0, 6)}…${a.address.slice(-4)}`,
+		})),
+		{ value: "__custom__", label: "By address…" },
+	];
+
 	return (
 		<div>
 			{label && (
@@ -149,32 +159,20 @@ function AccountSelect({
 					)}
 				</div>
 			)}
-			<div className="select-wrap">
-				<select
-					value={showCustom ? "__custom__" : value}
-					onChange={(e) => {
-						const v = e.target.value;
-						if (v === "__custom__") {
-							setShowCustom(true);
-							onChange("");
-						} else {
-							setShowCustom(false);
-							onChange(v);
-						}
-					}}
-					className="input"
-				>
-					<option value="" disabled>
-						Select an account…
-					</option>
-					{known.map((acc) => (
-						<option key={acc.address} value={acc.address}>
-							{acc.name}
-						</option>
-					))}
-					<option value="__custom__">By address…</option>
-				</select>
-			</div>
+			<Dropdown
+				value={showCustom ? "__custom__" : value}
+				onChange={(v) => {
+					if (v === "__custom__") {
+						setShowCustom(true);
+						onChange("");
+					} else {
+						setShowCustom(false);
+						onChange(v);
+					}
+				}}
+				options={options}
+				placeholder="Select an account…"
+			/>
 			{showCustom && (
 				<input
 					type="text"
@@ -237,22 +235,18 @@ function DelegatesInput({
 					</div>
 				);
 			})}
-			<div className="select-wrap">
-				<select
-					value=""
-					onChange={(e) => add(e.target.value)}
-					className="input"
-				>
-					<option value="">Add a delegate…</option>
-					{known
-						.filter((a) => !value.includes(a.address))
-						.map((acc) => (
-							<option key={acc.address} value={acc.address}>
-								{acc.name}
-							</option>
-						))}
-				</select>
-			</div>
+			<Dropdown
+				value=""
+				onChange={(v) => add(v)}
+				placeholder="Add a delegate…"
+				options={known
+					.filter((a) => !value.includes(a.address))
+					.map((acc) => ({
+						value: acc.address,
+						label: acc.name,
+						hint: `${acc.address.slice(0, 6)}…${acc.address.slice(-4)}`,
+					}))}
+			/>
 		</div>
 	);
 }
@@ -499,23 +493,20 @@ export default function CreateWillPage() {
 								onChange={(e) => setIntervalAmount(e.target.value)}
 								className="input-mono w-28"
 							/>
-							<div className="select-wrap flex-1">
-								<select
-									value={intervalUnit}
-									onChange={(e) =>
-										setIntervalUnit(e.target.value as typeof intervalUnit)
-									}
-									className="input"
-								>
-									<option value="s">seconds</option>
-									<option value="min">minutes</option>
-									<option value="h">hours</option>
-									<option value="d">days</option>
-									<option value="w">weeks</option>
-									<option value="mo">months</option>
-									<option value="y">years</option>
-								</select>
-							</div>
+							<Dropdown
+								className="flex-1"
+								value={intervalUnit}
+								onChange={(v) => setIntervalUnit(v as typeof intervalUnit)}
+								options={[
+									{ value: "s", label: "seconds" },
+									{ value: "min", label: "minutes" },
+									{ value: "h", label: "hours" },
+									{ value: "d", label: "days" },
+									{ value: "w", label: "weeks" },
+									{ value: "mo", label: "months" },
+									{ value: "y", label: "years" },
+								]}
+							/>
 						</div>
 						<div className="flex flex-wrap gap-1.5">
 							{[
