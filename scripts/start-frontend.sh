@@ -10,8 +10,8 @@ echo ""
 log_info "This starts only the web app."
 log_info "Override ports with STACK_PORT_OFFSET or STACK_*_PORT environment variables."
 log_info "First run may take 1-2 minutes while npm dependencies install."
-log_info "Works with either ./scripts/start-dev.sh or ./scripts/start-local.sh."
-log_info "The Statement Store page requires the relay-backed path."
+log_info "Works with either ./scripts/start-dev.sh or ./scripts/start-zombienet.sh."
+log_info "Cross-chain features (XCM, identity) require the relay-backed path."
 echo ""
 
 require_port_free "$STACK_FRONTEND_PORT"
@@ -25,7 +25,7 @@ if curl -s -o /dev/null "$SUBSTRATE_RPC_HTTP" 2>/dev/null; then
     update_papi_descriptors
 else
     log_warn "Node not running at $SUBSTRATE_RPC_WS"
-    log_info "Start a chain first with ./scripts/start-dev.sh or ./scripts/start-local.sh"
+    log_info "Start a chain first with ./scripts/start-dev.sh or ./scripts/start-zombienet.sh"
     log_info "PAPI descriptors may be stale or missing."
     echo ""
 fi

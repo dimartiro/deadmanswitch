@@ -1,108 +1,135 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
-import { getClient } from "../hooks/useChain";
-import { stack_template } from "@polkadot-api/descriptors";
-import { formatDispatchError } from "../utils/format";
+import {
+	getClient,
+	getPeopleChainClient,
+	getAssetHubClient,
+} from "../hooks/useChain";
+import {
+	stack_template,
+	people_chain,
+	asset_hub,
+} from "@polkadot-api/descriptors";
+import { submitAndWait } from "../utils/tx";
+import { formatBalance, formatBalanceShort } from "../utils/format";
 import {
 	getInjectedExtensions,
 	connectInjectedExtension,
 	type InjectedPolkadotAccount,
 } from "polkadot-api/pjs-signer";
-import { injectSpektrExtension, SpektrExtensionName } from "@novasamatech/product-sdk";
-type HostEnvironment = "desktop-webview" | "web-iframe" | "standalone";
+import { Binary, FixedSizeBinary, type PolkadotSigner } from "polkadot-api";
+import { ss58Address } from "@polkadot-labs/hdkd-helpers";
+import { toast } from "../store/toastStore";
 
-function detectHostEnvironment(): HostEnvironment {
-	if (typeof window === "undefined") return "standalone";
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	if ((window as any).__HOST_WEBVIEW_MARK__) return "desktop-webview";
-	try {
-		if (window !== window.top) return "web-iframe";
-	} catch {
-		return "web-iframe";
-	}
-	return "standalone";
+const ESTATE_PARA_ID = 2000;
+function estateSovereignOnAssetHub(): string {
+	const buf = new Uint8Array(32);
+	buf.set(new TextEncoder().encode("sibl"), 0);
+	new DataView(buf.buffer).setUint32(4, ESTATE_PARA_ID, true);
+	return ss58Address(buf);
 }
+const ESTATE_SOVEREIGN_ON_ASSETHUB = estateSovereignOnAssetHub();
 
-function isInHost(): boolean {
-	return detectHostEnvironment() !== "standalone";
-}
+const FUND_AMOUNT = "10000";
 
 interface DisplayAccount {
 	name: string;
 	ss58: string;
-	type: "dev" | "extension" | "spektr";
+	type: "dev" | "extension";
+	signer: PolkadotSigner;
 }
-
 interface AccountInfo {
 	balance: bigint;
 	nonce: number;
 }
-
-function formatBalance(planck: bigint): string {
-	const whole = planck / 1_000_000_000_000n;
-	const frac = planck % 1_000_000_000_000n;
-	if (frac === 0n) return whole.toLocaleString();
-	const fracStr = frac.toString().padStart(12, "0").replace(/0+$/, "");
-	return `${whole.toLocaleString()}.${fracStr}`;
+interface IdentityStatus {
+	hasIdentity: boolean;
+	display?: string;
+}
+interface AssetHubLinkStatus {
+	linked: boolean;
+	balance?: bigint;
 }
 
-function CopyableAddress({ label, address }: { label: string; address: string }) {
-	const [copied, setCopied] = useState(false);
-	function handleCopy() {
-		navigator.clipboard.writeText(address);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 1500);
+function extractDisplayName(info: unknown): string | undefined {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const rawDisplay = (info as any)?.info?.display;
+	const type = rawDisplay?.type as string | undefined;
+	if (!type || !type.startsWith("Raw") || type === "Raw0") return undefined;
+	try {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const bin = rawDisplay.value as any;
+		if (typeof bin === "number") return String.fromCharCode(bin);
+		if (bin?.asText) return bin.asText();
+		if (bin instanceof Binary) return bin.asText();
+	} catch {
+		/* */
 	}
+	return undefined;
+}
+
+function CopyButton({ text }: { text: string }) {
+	const [copied, setCopied] = useState(false);
 	return (
-		<div
-			onClick={handleCopy}
-			className="flex items-center gap-2 cursor-pointer group"
-			title="Click to copy"
+		<button
+			onClick={() => {
+				navigator.clipboard.writeText(text);
+				setCopied(true);
+				setTimeout(() => setCopied(false), 1500);
+			}}
+			className="text-xs text-ink-400 hover:text-ink-700 transition-colors"
 		>
-			<span className="text-xs text-text-muted w-8 shrink-0 uppercase font-medium">
-				{label}
-			</span>
-			<code className="text-xs text-text-secondary font-mono break-all flex-1 group-hover:text-text-primary transition-colors">
-				{address}
-			</code>
-			<span className="text-xs text-text-muted group-hover:text-text-secondary shrink-0 transition-colors">
-				{copied ? "Copied!" : "Copy"}
-			</span>
-		</div>
+			{copied ? "Copied" : "Copy"}
+		</button>
 	);
 }
 
 export default function AccountsPage() {
-	const { wsUrl, connected } = useChainStore();
-	const spektrUnsubscribeRef = useRef<(() => void) | null>(null);
+	const {
+		wsUrl,
+		connected,
+		blockNumber,
+		peopleChainAvailable,
+		assetHubAvailable,
+	} = useChainStore();
+	const bypassIdentity = peopleChainAvailable === false;
+	const showAssetHub = assetHubAvailable === true;
 	const extensionUnsubscribeRef = useRef<(() => void) | null>(null);
 	const [availableWallets, setAvailableWallets] = useState<string[]>([]);
 	const [extensionAccounts, setExtensionAccounts] = useState<InjectedPolkadotAccount[]>([]);
 	const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
-	const [spektrAccounts, setSpektrAccounts] = useState<InjectedPolkadotAccount[]>([]);
-	const [spektrStatus, setSpektrStatus] = useState<
-		"detecting" | "injecting" | "connected" | "unavailable" | "failed"
-	>("detecting");
-	const [fundStatus, setFundStatus] = useState<string | null>(null);
-	const [fundAmount, setFundAmount] = useState("10000");
 	const [accountInfos, setAccountInfos] = useState<Record<string, AccountInfo>>({});
+	const [identityStatuses, setIdentityStatuses] = useState<Record<string, IdentityStatus>>({});
+	const [pendingIdentity, setPendingIdentity] = useState<Set<string>>(new Set());
+	const [assetHubLinks, setAssetHubLinks] = useState<Record<string, AssetHubLinkStatus>>({});
+	const [pendingLink, setPendingLink] = useState<Set<string>>(new Set());
 
-	// Build dev account display list
+	function markPending(
+		setter: React.Dispatch<React.SetStateAction<Set<string>>>,
+		key: string,
+		on: boolean,
+	) {
+		setter((s) => {
+			const next = new Set(s);
+			if (on) next.add(key);
+			else next.delete(key);
+			return next;
+		});
+	}
+
 	const devDisplayAccounts: DisplayAccount[] = devAccounts.map((acc) => ({
 		name: acc.name,
 		ss58: acc.address,
 		type: "dev",
+		signer: acc.signer,
 	}));
 
-	// All SS58 addresses to query
 	const allAddresses = [
 		...devAccounts.map((a) => a.address),
 		...extensionAccounts.map((a) => a.address),
-		...spektrAccounts.map((a) => a.address),
 	];
 
-	// Query balances and nonces
 	const fetchAccountInfos = useCallback(async () => {
 		if (!connected || allAddresses.length === 0) return;
 		try {
@@ -111,13 +138,12 @@ export default function AccountsPage() {
 			const infos: Record<string, AccountInfo> = {};
 			for (const addr of allAddresses) {
 				try {
-					const info = await api.query.System.Account.getValue(addr);
-					infos[addr] = {
-						balance: info.data.free,
-						nonce: info.nonce,
-					};
+					const info = await api.query.System.Account.getValue(addr, {
+						at: "best",
+					});
+					infos[addr] = { balance: info.data.free, nonce: info.nonce };
 				} catch {
-					// Skip accounts that fail
+					/* skip */
 				}
 			}
 			setAccountInfos(infos);
@@ -126,71 +152,93 @@ export default function AccountsPage() {
 		}
 	}, [connected, wsUrl, allAddresses.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
+	const fetchIdentities = useCallback(async () => {
+		if (allAddresses.length === 0) return;
+		if (bypassIdentity) {
+			setIdentityStatuses({});
+			return;
+		}
+		try {
+			const client = getPeopleChainClient();
+			const api = client.getTypedApi(people_chain);
+			const results = await Promise.all(
+				allAddresses.map(async (addr) => {
+					try {
+						const info = await api.query.Identity.IdentityOf.getValue(addr, {
+							at: "best",
+						});
+						const hasIdentity = info !== undefined;
+						const display = hasIdentity ? extractDisplayName(info) : undefined;
+						return [addr, { hasIdentity, display }] as const;
+					} catch {
+						return [addr, { hasIdentity: false }] as const;
+					}
+				}),
+			);
+			setIdentityStatuses(Object.fromEntries(results));
+		} catch {
+			/* */
+		}
+	}, [allAddresses.join(","), bypassIdentity]); // eslint-disable-line react-hooks/exhaustive-deps
+
+	const fetchAssetHubLinks = useCallback(async () => {
+		if (allAddresses.length === 0) return;
+		if (!showAssetHub) {
+			setAssetHubLinks({});
+			return;
+		}
+		try {
+			const client = getAssetHubClient();
+			const api = client.getTypedApi(asset_hub);
+			const results = await Promise.all(
+				allAddresses.map(async (addr) => {
+					try {
+						const [proxiesEntry, account] = await Promise.all([
+							api.query.Proxy.Proxies.getValue(addr, { at: "best" }),
+							api.query.System.Account.getValue(addr, { at: "best" }),
+						]);
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						const [delegates] = proxiesEntry as any;
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						const linked = (delegates as any[]).some(
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							(d: any) => d.delegate === ESTATE_SOVEREIGN_ON_ASSETHUB,
+						);
+						return [
+							addr,
+							{ linked, balance: account.data.free as bigint },
+						] as const;
+					} catch {
+						return [addr, { linked: false }] as const;
+					}
+				}),
+			);
+			setAssetHubLinks(Object.fromEntries(results));
+		} catch {
+			/* */
+		}
+	}, [allAddresses.join(","), showAssetHub]); // eslint-disable-line react-hooks/exhaustive-deps
+
 	useEffect(() => {
 		fetchAccountInfos();
-	}, [fetchAccountInfos]);
-
-	// Detect host environment and inject Spektr on mount
+	}, [fetchAccountInfos, blockNumber]);
 	useEffect(() => {
-		let cancelled = false;
+		fetchIdentities();
+	}, [fetchIdentities, blockNumber]);
+	useEffect(() => {
+		fetchAssetHubLinks();
+	}, [fetchAssetHubLinks, blockNumber]);
 
-		async function initSpektr() {
-			if (!isInHost()) {
-				setSpektrStatus("unavailable");
-				return;
-			}
-			setSpektrStatus("injecting");
-			try {
-				let injected = false;
-				for (let i = 0; i < 10; i++) {
-					if (await injectSpektrExtension()) {
-						injected = true;
-						break;
-					}
-					if (i < 9) await new Promise((r) => setTimeout(r, 500));
-				}
-				if (!injected) {
-					setSpektrStatus("failed");
-					return;
-				}
-				const ext = await connectInjectedExtension(SpektrExtensionName);
-				if (cancelled) {
-					ext.disconnect();
-					return;
-				}
-				const accounts = ext.getAccounts();
-				setSpektrAccounts(accounts);
-				setSpektrStatus("connected");
-				spektrUnsubscribeRef.current?.();
-				spektrUnsubscribeRef.current = ext.subscribe((updated) => {
-					setSpektrAccounts(updated);
-				});
-			} catch (e) {
-				console.error("[Spektr] Init failed:", e);
-				setSpektrStatus("failed");
-			}
-		}
-
-		initSpektr();
-
-		return () => {
-			cancelled = true;
-			spektrUnsubscribeRef.current?.();
-			spektrUnsubscribeRef.current = null;
-		};
-	}, []);
-
-	// Detect available browser extension wallets and auto-reconnect on mount
 	useEffect(() => {
 		try {
-			const wallets = getInjectedExtensions().filter((name) => name !== SpektrExtensionName);
+			const wallets = getInjectedExtensions();
 			setAvailableWallets(wallets);
 			const saved = localStorage.getItem("connected-wallet");
 			if (saved && wallets.includes(saved)) {
 				connectWallet(saved);
 			}
 		} catch {
-			// No injected extensions available
+			/* */
 		}
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -209,7 +257,10 @@ export default function AccountsPage() {
 			});
 		} catch (e) {
 			console.error("Failed to connect wallet:", e);
-			setFundStatus(`Error connecting wallet: ${e instanceof Error ? e.message : e}`);
+			toast.error(
+				"Wallet connection failed",
+				e instanceof Error ? e.message : String(e),
+			);
 		}
 	}
 
@@ -235,19 +286,17 @@ export default function AccountsPage() {
 
 	useEffect(() => {
 		return () => {
-			spektrUnsubscribeRef.current?.();
 			extensionUnsubscribeRef.current?.();
 		};
 	}, []);
 
 	async function fundAccount(ss58Address: string, accountName: string) {
 		if (!connected) {
-			setFundStatus("Error: Not connected to chain");
+			toast.error("Not connected", "Open the connection panel and dial a node.");
 			return;
 		}
 		try {
-			const amount = BigInt(fundAmount) * 1_000_000_000_000n;
-			setFundStatus(`Funding ${accountName}...`);
+			const amount = BigInt(FUND_AMOUNT) * 1_000_000_000_000n;
 			const client = getClient(wsUrl);
 			const api = client.getTypedApi(stack_template);
 			const aliceSigner = devAccounts[0].signer;
@@ -257,16 +306,151 @@ export default function AccountsPage() {
 					new_free: amount,
 				}).decodedCall,
 			});
-			const result = await tx.signAndSubmit(aliceSigner);
+			const result = await submitAndWait(tx, aliceSigner, client);
 			if (!result.ok) {
-				setFundStatus(`Error: ${formatDispatchError(result.dispatchError)}`);
+				toast.error(`Fund ${accountName} failed`, result.errorMessage ?? "unknown");
 				return;
 			}
-			setFundStatus(`Funded ${accountName} with ${fundAmount} tokens!`);
+			toast.success(
+				`Funded ${accountName}`,
+				`+${FUND_AMOUNT} tokens on Estate`,
+			);
 			fetchAccountInfos();
 		} catch (e) {
 			console.error("Fund failed:", e);
-			setFundStatus(`Error: ${e instanceof Error ? e.message : e}`);
+			toast.error(
+				`Fund ${accountName} failed`,
+				e instanceof Error ? e.message : String(e),
+			);
+		}
+	}
+
+	async function registerIdentity(acc: DisplayAccount) {
+		const key = `reg-${acc.ss58}`;
+		markPending(setPendingIdentity, key, true);
+		try {
+			const client = getPeopleChainClient();
+			const api = client.getTypedApi(people_chain);
+			const displayName = acc.name.slice(0, 32);
+			const bytes = new TextEncoder().encode(displayName).slice(0, 32);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			let display: any;
+			if (bytes.length === 0) display = { type: "None", value: undefined };
+			else if (bytes.length === 1) display = { type: "Raw1", value: bytes[0] };
+			else
+				display = {
+					type: `Raw${bytes.length}`,
+					value: FixedSizeBinary.fromBytes(bytes),
+				};
+			const none = { type: "None" as const, value: undefined };
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const info: any = {
+				display,
+				legal: none,
+				web: none,
+				matrix: none,
+				email: none,
+				pgp_fingerprint: undefined,
+				image: none,
+				twitter: none,
+				github: none,
+				discord: none,
+			};
+			const tx = api.tx.Identity.set_identity({ info });
+			const result = await submitAndWait(tx, acc.signer, client);
+			if (result.ok) {
+				toast.success("Identity registered", acc.name);
+				fetchIdentities();
+			} else {
+				toast.error("Identity register failed", result.errorMessage ?? "unknown");
+			}
+		} catch (e) {
+			toast.error(
+				"Identity register failed",
+				e instanceof Error ? e.message : String(e),
+			);
+		} finally {
+			markPending(setPendingIdentity, key, false);
+		}
+	}
+
+	async function clearIdentity(acc: DisplayAccount) {
+		const key = `clr-${acc.ss58}`;
+		markPending(setPendingIdentity, key, true);
+		try {
+			const client = getPeopleChainClient();
+			const api = client.getTypedApi(people_chain);
+			const tx = api.tx.Identity.clear_identity();
+			const result = await submitAndWait(tx, acc.signer, client);
+			if (result.ok) {
+				toast.success("Identity cleared", acc.name);
+				fetchIdentities();
+			} else {
+				toast.error("Identity clear failed", result.errorMessage ?? "unknown");
+			}
+		} catch (e) {
+			toast.error(
+				"Identity clear failed",
+				e instanceof Error ? e.message : String(e),
+			);
+		} finally {
+			markPending(setPendingIdentity, key, false);
+		}
+	}
+
+	async function linkAssetHub(acc: DisplayAccount) {
+		const key = `link-${acc.ss58}`;
+		markPending(setPendingLink, key, true);
+		try {
+			const client = getAssetHubClient();
+			const api = client.getTypedApi(asset_hub);
+			const tx = api.tx.Proxy.add_proxy({
+				delegate: { type: "Id", value: ESTATE_SOVEREIGN_ON_ASSETHUB },
+				proxy_type: { type: "Any", value: undefined },
+				delay: 0,
+			});
+			const result = await submitAndWait(tx, acc.signer, client);
+			if (result.ok) {
+				toast.success("Linked to Asset Hub", acc.name);
+				fetchAssetHubLinks();
+			} else {
+				toast.error("Link failed", result.errorMessage ?? "unknown");
+			}
+		} catch (e) {
+			toast.error(
+				"Link failed",
+				e instanceof Error ? e.message : String(e),
+			);
+		} finally {
+			markPending(setPendingLink, key, false);
+		}
+	}
+
+	async function unlinkAssetHub(acc: DisplayAccount) {
+		const key = `unlink-${acc.ss58}`;
+		markPending(setPendingLink, key, true);
+		try {
+			const client = getAssetHubClient();
+			const api = client.getTypedApi(asset_hub);
+			const tx = api.tx.Proxy.remove_proxy({
+				delegate: { type: "Id", value: ESTATE_SOVEREIGN_ON_ASSETHUB },
+				proxy_type: { type: "Any", value: undefined },
+				delay: 0,
+			});
+			const result = await submitAndWait(tx, acc.signer, client);
+			if (result.ok) {
+				toast.success("Unlinked from Asset Hub", acc.name);
+				fetchAssetHubLinks();
+			} else {
+				toast.error("Unlink failed", result.errorMessage ?? "unknown");
+			}
+		} catch (e) {
+			toast.error(
+				"Unlink failed",
+				e instanceof Error ? e.message : String(e),
+			);
+		} finally {
+			markPending(setPendingLink, key, false);
 		}
 	}
 
@@ -276,249 +460,435 @@ export default function AccountsPage() {
 		talisman: "Talisman",
 	};
 
-	const typeBadge: Record<string, { className: string; label: string }> = {
-		dev: {
-			className: "bg-accent-blue/10 text-accent-blue border border-accent-blue/20",
-			label: "Dev",
-		},
-		extension: {
-			className: "bg-accent-purple/10 text-accent-purple border border-accent-purple/20",
-			label: "Extension",
-		},
-		spektr: {
-			className: "bg-polka-500/10 text-polka-400 border border-polka-500/20",
-			label: "Host",
-		},
-	};
-
 	return (
-		<div className="space-y-6 animate-fade-in">
-			<div className="space-y-2">
-				<h1 className="page-title text-polka-400">Accounts</h1>
-				<p className="text-text-secondary">
-					Manage dev accounts, connect browser extension wallets, or use Polkadot Host
-					accounts. Fund accounts using Sudo on the dev chain.
+		<div className="space-y-8 stagger">
+			<div>
+				<div className="eyebrow mb-1">Keys</div>
+				<h1 className="h-display text-4xl md:text-5xl">
+					Your <span className="italic text-neon-500">accounts</span>
+				</h1>
+				<p className="text-sm text-ink-500 mt-2">
+					Manage dev accounts, connect browser wallets, register on-chain
+					identities and link each account to Asset Hub for XCM flows.
 				</p>
 			</div>
 
-			{/* Fund amount */}
-			<div className="card space-y-3">
-				<h2 className="section-title">Funding</h2>
-				<div className="flex gap-3 items-center">
-					<label className="text-sm text-text-secondary">Amount (tokens):</label>
-					<input
-						type="number"
-						value={fundAmount}
-						onChange={(e) => setFundAmount(e.target.value)}
-						className="input-field w-40"
-					/>
-					<button onClick={fetchAccountInfos} className="btn-secondary text-xs">
-						Refresh Balances
-					</button>
-				</div>
-				{fundStatus && (
-					<p
-						className={`text-sm font-medium ${fundStatus.startsWith("Error") ? "text-accent-red" : "text-accent-green"}`}
-					>
-						{fundStatus}
+			{bypassIdentity && (
+				<div className="alert-caution">
+					<p className="font-medium">Identity support disabled</p>
+					<p className="text-xs opacity-80 mt-1">
+						People Chain isn't reachable at{" "}
+						<span className="font-mono">ws://localhost:9946</span>. Identity
+						registration is hidden and checks are bypassed when creating
+						wills.
 					</p>
-				)}
-			</div>
+				</div>
+			)}
 
-			{/* Dev Accounts */}
-			<div className="card space-y-4">
-				<h2 className="section-title">Dev Accounts</h2>
-				<p className="text-sm text-text-muted">
-					Pre-funded accounts from the well-known dev seed phrase.
-				</p>
+			{/* DEV ACCOUNTS */}
+			<section>
+				<SectionHeader
+					eyebrow="Dev"
+					title="Development accounts"
+					subtitle="Pre-funded accounts from the well-known Substrate dev seed."
+				/>
 				<div className="space-y-3">
 					{devDisplayAccounts.map((acc) => (
 						<AccountCard
 							key={acc.ss58}
 							account={acc}
 							info={accountInfos[acc.ss58]}
-							badge={typeBadge[acc.type]}
-							onFund={() => fundAccount(acc.ss58, acc.name)}
+							identity={identityStatuses[acc.ss58]}
+							pendingIdentity={pendingIdentity}
 							connected={connected}
+							showIdentity={!bypassIdentity}
+							showAssetHub={showAssetHub}
+							link={assetHubLinks[acc.ss58]}
+							pendingLink={pendingLink}
+							onFund={() => fundAccount(acc.ss58, acc.name)}
+							onRegisterIdentity={() => registerIdentity(acc)}
+							onClearIdentity={() => clearIdentity(acc)}
+							onLinkAssetHub={() => linkAssetHub(acc)}
+							onUnlinkAssetHub={() => unlinkAssetHub(acc)}
 						/>
 					))}
 				</div>
-			</div>
+			</section>
 
-			{/* Polkadot Host Accounts */}
-			<div className="card space-y-4">
-				<h2 className="section-title">Polkadot Host Accounts</h2>
-				{spektrStatus === "detecting" && (
-					<p className="text-sm text-accent-yellow">
-						Detecting Polkadot host environment...
-					</p>
-				)}
-				{spektrStatus === "injecting" && (
-					<p className="text-sm text-accent-yellow">Connecting to Polkadot Host...</p>
-				)}
-				{spektrStatus === "unavailable" && (
-					<p className="text-sm text-text-muted">
-						Not running inside a Polkadot Host. These accounts are only available when
-						this app is loaded through a Polkadot Host client.
-					</p>
-				)}
-				{spektrStatus === "failed" && (
-					<p className="text-sm text-accent-red">
-						Failed to connect to Polkadot Host. The host environment may not be
-						available.
-					</p>
-				)}
-				{spektrStatus === "connected" && (
-					<div className="space-y-3">
-						<p className="text-sm text-accent-green font-medium">
-							Connected to Polkadot Host ({spektrAccounts.length} account
-							{spektrAccounts.length !== 1 ? "s" : ""})
-						</p>
-						{spektrAccounts.map((acc) => (
-							<AccountCard
-								key={acc.address}
-								account={{
-									name: acc.name || "Host Account",
-									ss58: acc.address,
-				
-									type: "spektr",
-								}}
-								info={accountInfos[acc.address]}
-								badge={typeBadge.spektr}
-								onFund={() => fundAccount(acc.address, acc.name || "Host account")}
-								connected={connected}
-							/>
-						))}
-					</div>
-				)}
-			</div>
-
-			{/* Extension Wallets */}
-			<div className="card space-y-4">
-				<h2 className="section-title">Browser Extension Wallets</h2>
+			{/* BROWSER EXTENSIONS */}
+			<section>
+				<SectionHeader
+					eyebrow="Wallets"
+					title="Browser wallets"
+					subtitle={
+						connectedWallet
+							? `Connected via ${walletNames[connectedWallet] ?? connectedWallet}.`
+							: availableWallets.length > 0
+								? "Connect a browser wallet to sign with its accounts."
+								: "Install Polkadot.js, Talisman, or SubWallet to unlock this section."
+					}
+				/>
 				{connectedWallet ? (
 					<div className="space-y-3">
-						<div className="flex items-center gap-3">
-							<span className="text-sm text-accent-green font-medium">
-								Connected to {walletNames[connectedWallet] || connectedWallet}
-							</span>
-							<button
-								onClick={disconnectWallet}
-								className="px-3 py-1 rounded-md bg-accent-red/10 text-accent-red text-xs font-medium hover:bg-accent-red/20 transition-colors"
-							>
+						<div className="card-padded flex items-center justify-between flex-wrap gap-3">
+							<div className="flex items-center gap-2">
+								<span className="chip-positive">
+									<span className="dot" />
+									{walletNames[connectedWallet] ?? connectedWallet}
+								</span>
+								<span className="text-sm text-ink-500">
+									{extensionAccounts.length} account
+									{extensionAccounts.length !== 1 ? "s" : ""}
+								</span>
+							</div>
+							<button onClick={disconnectWallet} className="btn-outline btn-sm">
 								Disconnect
 							</button>
 						</div>
-						{extensionAccounts.length === 0 ? (
-							<p className="text-sm text-text-muted">
-								No accounts found in this wallet.
-							</p>
-						) : (
-							extensionAccounts.map((acc) => (
+						{extensionAccounts.map((acc) => {
+							const display: DisplayAccount = {
+								name: acc.name || "Unnamed",
+								ss58: acc.address,
+								type: "extension",
+								signer: acc.polkadotSigner,
+							};
+							return (
 								<AccountCard
 									key={acc.address}
-									account={{
-										name: acc.name || "Unnamed",
-										ss58: acc.address,
-					
-										type: "extension",
-									}}
+									account={display}
 									info={accountInfos[acc.address]}
-									badge={typeBadge.extension}
-									onFund={() =>
-										fundAccount(acc.address, acc.name || "Extension account")
-									}
+									identity={identityStatuses[acc.address]}
+									pendingIdentity={pendingIdentity}
 									connected={connected}
+									showIdentity={!bypassIdentity}
+									showAssetHub={showAssetHub}
+									link={assetHubLinks[display.ss58]}
+									pendingLink={pendingLink}
+									onFund={() => fundAccount(acc.address, display.name)}
+									onRegisterIdentity={() => registerIdentity(display)}
+									onClearIdentity={() => clearIdentity(display)}
+									onLinkAssetHub={() => linkAssetHub(display)}
+									onUnlinkAssetHub={() => unlinkAssetHub(display)}
 								/>
-							))
-						)}
+							);
+						})}
 					</div>
 				) : availableWallets.length > 0 ? (
-					<div className="flex flex-wrap gap-2">
-						{availableWallets.map((name) => (
-							<button
-								key={name}
-								onClick={() => connectWallet(name)}
-								className="btn-primary"
-							>
-								Connect {walletNames[name] || name}
-							</button>
-						))}
+					<div className="card-padded">
+						<div className="flex flex-wrap gap-2">
+							{availableWallets.map((name) => (
+								<button
+									key={name}
+									onClick={() => connectWallet(name)}
+									className="btn-accent btn-sm"
+								>
+									Connect {walletNames[name] || name}
+								</button>
+							))}
+						</div>
 					</div>
 				) : (
-					<p className="text-sm text-text-muted">
-						No browser extension wallets detected. Install{" "}
-						<a
-							href="https://polkadot.js.org/extension/"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-polka-400 underline hover:text-polka-300"
-						>
-							Polkadot.js
-						</a>
-						,{" "}
-						<a
-							href="https://www.talisman.xyz/"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-polka-400 underline hover:text-polka-300"
-						>
-							Talisman
-						</a>
-						, or{" "}
-						<a
-							href="https://www.subwallet.app/"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-polka-400 underline hover:text-polka-300"
-						>
-							SubWallet
-						</a>{" "}
-						to connect.
-					</p>
+					<div className="card-padded">
+						<p className="text-sm text-ink-500">
+							No browser extension wallets detected. Install{" "}
+							<a
+								href="https://polkadot.js.org/extension/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-neon-500 underline"
+							>
+								Polkadot.js
+							</a>
+							,{" "}
+							<a
+								href="https://www.talisman.xyz/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-neon-500 underline"
+							>
+								Talisman
+							</a>
+							, or{" "}
+							<a
+								href="https://www.subwallet.app/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-neon-500 underline"
+							>
+								SubWallet
+							</a>
+							.
+						</p>
+					</div>
 				)}
-			</div>
+			</section>
 		</div>
+	);
+}
+
+function SectionHeader({
+	eyebrow,
+	title,
+	subtitle,
+}: {
+	eyebrow: string;
+	title: string;
+	subtitle: string;
+}) {
+	return (
+		<div className="mb-4">
+			<div className="eyebrow mb-1">{eyebrow}</div>
+			<h2 className="h-section">{title}</h2>
+			<p className="text-sm text-ink-500 mt-1">{subtitle}</p>
+		</div>
+	);
+}
+
+function DismissiblePill({
+	label,
+	onDismiss,
+	dismissing,
+}: {
+	label: string;
+	onDismiss: () => void;
+	dismissing: boolean;
+}) {
+	return (
+		<span
+			className="inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-1 py-1 text-xs font-medium text-positive border"
+			style={{
+				background: "rgba(79, 174, 110, 0.10)",
+				borderColor: "rgba(79, 174, 110, 0.25)",
+			}}
+		>
+			<span className="w-1.5 h-1.5 rounded-full bg-current" />
+			<span>{label}</span>
+			<button
+				onClick={onDismiss}
+				disabled={dismissing}
+				className="w-5 h-5 rounded-full hover:bg-[rgba(79,174,110,0.2)] flex items-center justify-center text-positive disabled:opacity-40 transition-colors"
+				title="Remove"
+			>
+				<svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+					<path d="M1.5 1.5 L8.5 8.5 M8.5 1.5 L1.5 8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+				</svg>
+			</button>
+		</span>
+	);
+}
+
+function InfoTooltip({ children }: { children: React.ReactNode }) {
+	return (
+		<span className="relative inline-flex items-center group">
+			<button
+				type="button"
+				className="w-4 h-4 rounded-full border border-hairline flex items-center justify-center text-[0.62rem] font-medium text-ink-400 hover:text-ink-900 hover:border-rule transition-colors"
+				aria-label="More info"
+			>
+				i
+			</button>
+			<span
+				className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 rounded-xl border border-hairline bg-paper shadow-card px-3 py-2.5 text-xs text-ink-700 leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50"
+				style={{ transitionDuration: "150ms" }}
+			>
+				{children}
+				<span
+					className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-paper border-r border-b border-hairline"
+					style={{ transform: "translate(-50%, -50%) rotate(45deg)" }}
+				/>
+			</span>
+		</span>
 	);
 }
 
 function AccountCard({
 	account,
 	info,
-	badge,
-	onFund,
+	identity,
+	pendingIdentity,
 	connected,
+	showIdentity,
+	showAssetHub,
+	link,
+	pendingLink,
+	onFund,
+	onRegisterIdentity,
+	onClearIdentity,
+	onLinkAssetHub,
+	onUnlinkAssetHub,
 }: {
 	account: DisplayAccount;
 	info?: AccountInfo;
-	badge: { className: string; label: string };
-	onFund: () => void;
+	identity?: IdentityStatus;
+	pendingIdentity: Set<string>;
 	connected: boolean;
+	showIdentity: boolean;
+	showAssetHub: boolean;
+	link?: AssetHubLinkStatus;
+	pendingLink: Set<string>;
+	onFund: () => void;
+	onRegisterIdentity: () => void;
+	onClearIdentity: () => void;
+	onLinkAssetHub: () => void;
+	onUnlinkAssetHub: () => void;
 }) {
+	const regKey = `reg-${account.ss58}`;
+	const clrKey = `clr-${account.ss58}`;
+	const registering = pendingIdentity.has(regKey);
+	const clearing = pendingIdentity.has(clrKey);
+	const linkKey = `link-${account.ss58}`;
+	const unlinkKey = `unlink-${account.ss58}`;
+	const linking = pendingLink.has(linkKey);
+	const unlinking = pendingLink.has(unlinkKey);
+
+	const typeChipClass =
+		account.type === "dev" ? "chip-neutral" : "chip-estate";
+	const typeLabel = account.type === "dev" ? "Dev" : "Extension";
+
 	return (
-		<div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 space-y-2">
-			<div className="flex items-center justify-between">
-				<span className="font-semibold text-text-primary">{account.name}</span>
-				<div className="flex gap-2 items-center">
-					{info && (
-						<span className="text-xs text-text-tertiary font-mono">
-							{formatBalance(info.balance)} | nonce: {info.nonce}
-						</span>
+		<article className="card">
+			{/* Header — Asset Hub balance is the hero number */}
+			<div className="px-6 py-5 border-b border-hairline flex items-start justify-between gap-6 flex-wrap">
+				<div className="flex items-start gap-3 min-w-0">
+					<div className="w-10 h-10 rounded-xl bg-ink-900 text-canvas flex items-center justify-center font-semibold text-sm shrink-0">
+						{account.name[0]?.toUpperCase() ?? "?"}
+					</div>
+					<div className="min-w-0">
+						<div className="flex items-center gap-2">
+							<h3 className="h-card truncate">{account.name}</h3>
+							<span className={typeChipClass}>{typeLabel}</span>
+						</div>
+						<div className="flex items-center gap-2 text-xs text-ink-400 font-mono mt-0.5 truncate">
+							<span className="truncate">{account.ss58}</span>
+							<CopyButton text={account.ss58} />
+						</div>
+					</div>
+				</div>
+
+				<div className="text-right shrink-0 flex flex-col items-end">
+					{showAssetHub && link?.balance !== undefined ? (
+						<>
+							<div className="text-[0.65rem] uppercase tracking-[0.12em] text-fuchsia-500 font-medium mb-0.5">
+								Asset Hub
+							</div>
+							<div className="font-semibold tabular text-2xl text-ink-900">
+								{formatBalanceShort(link.balance)}
+								<span className="text-sm text-ink-400 ml-1">ROC</span>
+							</div>
+						</>
+					) : showAssetHub ? (
+						<>
+							<div className="text-[0.65rem] uppercase tracking-[0.12em] text-ink-400 font-medium mb-0.5">
+								Asset Hub
+							</div>
+							<div className="text-sm text-ink-400">—</div>
+						</>
+					) : (
+						info && (
+							<>
+								<div className="eyebrow mb-0.5">On Estate</div>
+								<div className="font-mono tabular text-sm">
+									{formatBalance(info.balance)}
+								</div>
+							</>
+						)
 					)}
-					{connected && (
+					{showAssetHub && info && (
+						<div className="text-[0.7rem] text-ink-400 mt-1 font-mono tabular flex items-center gap-2">
+							<span>
+								{formatBalanceShort(info.balance)} on Estate · nonce {info.nonce}
+							</span>
+							{connected && (
+								<button
+									onClick={onFund}
+									className="text-[0.7rem] text-ink-400 hover:text-neon-500 transition-colors"
+									title="Top up dev balance on Estate"
+								>
+									＋fund
+								</button>
+							)}
+						</div>
+					)}
+					{!showAssetHub && info && connected && (
 						<button
 							onClick={onFund}
-							className="px-2 py-1 rounded-md bg-accent-yellow/10 text-accent-yellow text-xs font-medium hover:bg-accent-yellow/20 transition-colors"
+							className="text-[0.7rem] text-ink-400 hover:text-neon-500 transition-colors mt-1"
+							title="Top up dev balance on Estate"
 						>
-							Fund
+							＋fund
 						</button>
 					)}
-					<span className={`status-badge ${badge.className}`}>{badge.label}</span>
 				</div>
 			</div>
-			<div className="space-y-1">
-				<CopyableAddress label="SS58" address={account.ss58} />
+
+			{/* Actions row — identity + AH link side by side */}
+			<div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-hairline">
+				{/* Identity */}
+				{showIdentity ? (
+					<div className="p-5">
+						<div className="eyebrow mb-2">Identity</div>
+						<div className="flex items-center gap-2 flex-wrap min-h-[28px]">
+							{identity?.hasIdentity ? (
+								<DismissiblePill
+									label={identity.display ?? "registered"}
+									onDismiss={onClearIdentity}
+									dismissing={clearing}
+								/>
+							) : (
+								<button
+									onClick={onRegisterIdentity}
+									disabled={registering}
+									className="btn-outline btn-sm"
+								>
+									{registering ? "Registering…" : "+ Create identity"}
+								</button>
+							)}
+						</div>
+					</div>
+				) : (
+					<div className="p-5">
+						<div className="eyebrow mb-2">Identity</div>
+						<div className="text-xs text-ink-400">People Chain unavailable</div>
+					</div>
+				)}
+
+				{/* Asset Hub link */}
+				{showAssetHub ? (
+					<div className="p-5">
+						<div className="eyebrow mb-2">Asset Hub link</div>
+						<div className="flex items-center gap-2 flex-wrap min-h-[28px]">
+							{link?.linked ? (
+								<DismissiblePill
+									label="linked as proxy"
+									onDismiss={onUnlinkAssetHub}
+									dismissing={unlinking}
+								/>
+							) : (
+								<>
+									<button
+										onClick={onLinkAssetHub}
+										disabled={linking}
+										className="btn-accent btn-sm"
+									>
+										{linking ? "Linking…" : "+ Link to Asset Hub"}
+									</button>
+									<InfoTooltip>
+										Adds Estate Protocol's sovereign account as a full proxy
+										on your Asset Hub account. When a will executes, the
+										protocol signs calls (transfers, proxies, etc.) as you.
+										Revoke at any time by clicking the × on the pill.
+									</InfoTooltip>
+								</>
+							)}
+						</div>
+					</div>
+				) : (
+					<div className="p-5">
+						<div className="eyebrow mb-2">Asset Hub link</div>
+						<div className="text-xs text-ink-400">Not reachable</div>
+					</div>
+				)}
 			</div>
-		</div>
+		</article>
 	);
 }

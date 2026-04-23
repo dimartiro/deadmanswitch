@@ -1,5 +1,5 @@
 import { StorageDescriptor, PlainDescriptor, TxDescriptor, RuntimeDescriptor, Enum, ApisFromDef, QueryFromPalletsDef, TxFromPalletsDef, EventsFromPalletsDef, ErrorsFromPalletsDef, ConstFromPalletsDef, ViewFnsFromPalletsDef, SS58String, FixedSizeBinary, Binary, FixedSizeArray } from "polkadot-api";
-import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, Ip33dasgb3vr3, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, Iae97qb3heev3a, I9bin2jc70qt6q, TransactionPaymentReleases, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, Ifkp6g5ns4l6fh, I8qbv05tr0tcrs, I9p9lq3rej5bhc, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I834nfrf667ag1, I14i9pui8lc778, I8t4pajubp34g3, I10nrsmn0hji4l, I3oiqcurom3m43, I20ichc5j0l1u7, I1p16diuhde12h, Id4f5q01qh34o3, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, I3viv7peatsfn5, I8op0lqnpk3l0j, I8k3rnvpeeh4hv, I9283or271m3j, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, Ibde2r5jq660dc, I4ov6e94l79mbg, I11uimnk6a6nc3, Ifdtopefat0s6c, I2oa98tva0dcti, I8mjeo5oecbivt, I2eb501t8s6hsq, Ianmuoljk2sk1u, I2d94pt3emu90g, Ibikp6ubme8ces, I7cs7bea8fsmg1, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, Ida37oe44osb06, I6v02o6j4snahe, I27569neuh5t1o, Id92o6smntb9m5, I5nmb2hfkgk9ol, Iav55bcqlrqn51, I6o0473jchq0rn, I10ra4g1rl6k2f, I1uihehkdsggvp, Ia82mnkmeo2rhc, I4os89d3facqn6, Icbccs0ug47ilf, I855j4i3kr8ko1, I1restk9ts7lm8, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, I6jg6l5h5npvh5, I2jmih40lhlepi, I63acq8em4ic0p, Iph9c4rn81ub2, Ier2cke86dqbr2, I3b3beditib7cu, I5rtkmhm2dng4u, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I3uua81e9uvgnp, I6o83l7nvtm748, I7p099b5deqg11, I3nnlc4gk4povb, I9ekov8c3nr2cb, I51t9t70vnfsr2, Iadmn3p796mg65, I30an4pagav86d, I5si6c5m867t60, I2ur0oeqg495j8, Idg3gs8jbk37mt, I1bhd210c3phjj, Iep27ialq4a7o7, Iasu5jvoqr43mv, Icct89ak0s3l4o, I5qolde99acmd1, I8gtde5abn1g9a, I7svbvm6hg57aj, I8jhsbaiultviu, Ies5bskjnq2gqb, I5r8t4iaend96p, I5uect53ett682, I176ch6ftnp6d1, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I4gil44d08grh, I7u915mvkdsb08, I9llufrmculbl9, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Ic1d4u2opv3fst, Ico18ks790i2bl, I815pbp5omtss, I3ju6ot8lfmk90, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, I4totqt881mlti, I4s6vifaf8k998, I35p85j063s0il, Icq8o3dr41hprf, I9sijb8gfrns29, If0mcc5aqlg3hg, I6f9v7emp7t5ba, Ida7d8eqrkav55, Idmrtv8jbbitnu, I8bqtpa86m82mv, Ib1fsqnio4hgeh, I63nhnkgg114n5, I1l7ajs6s9ur3a, Ice9mpbhevl5b7, Idt5popft6i714, I512dtcl0pn07c, I4271lm07voush } from "./common-types";
+import { I5sesotjlssv2d, Iffmde3ekjedi9, I4mddgoa69c0a2, I7ore9mp2nrmr4, I95g6i7ilua7lq, Ieniouoqkq4icf, Phase, Ibgl04rn6nbfm6, I4q39t5hn830vp, I1v7jbnil3tjns, I8jgj1nhcr2dg8, Ifn6q3equiq9qi, Ia3sb0vgvovhtg, Iav8k1edbj86k7, Itom7fk49o0c9, I4i91h98n3cv1b, I4iumukclgj8ej, Iqnbvitf7a7l3, I48i407regf59r, I6r5cbv8ttrb09, I1q8tnt1cluu5j, I8ds64oj6581v0, Ia7pdug7cdsg8g, I63lqt6dl3kn9k, I9bin2jc70qt6q, TransactionPaymentReleases, I35oke5aiccrn, I56u24ncejr5kt, I9jd27rnpm8ttv, Ia2lhg7l2hilo3, Ifi4da1gej1fri, Ifvgo9568rpmqc, I82jm9g7pufuel, Ic5m5lp1oioo8r, I6cs1itejju2vv, Icgljjb6j82uhn, Ib77b0fp1a6mjr, I5g2vv0ckl2m8b, Ifup3lg9ro8a0f, I5qfubnuvrnqn6, I8t3u2dv73ahbd, I7vlvrrl2pnbgk, Ie0rpl5bahldfk, XcmPalletVersionMigrationStage, I7e5oaj2qi4kl1, Ie849h3gncgvok, Iat62vud7hlod2, Ict03eedr8de9s, Ici7ejds60vj52, XcmVersionedLocation, Idh2ug6ou4a8og, Iejeo53sea6n4q, I53esa2ms463bk, Ib4jhb8tt3uung, I6j4s4scthhrb3, I8f5h3nehu1u5e, I8qbv05tr0tcrs, I9p9lq3rej5bhc, Iag146hmjgqfgj, I8uo3fpd3bcc6f, I18m6a0sc4k7s9, Id32h28hjj1tch, I6ouflveob4eli, I7svnfko10tq2e, Ic9iokm15iigt6, I35m96p3u4vl0p, Iapmji0h53pmkn, Idrr42svup341f, I4ugih6gb4fmug, Ic9nev69d8grv1, Idac0t49lnd4ls, I72ndo6phms8ik, I834nfrf667ag1, I14i9pui8lc778, I8t4pajubp34g3, I10nrsmn0hji4l, I3oiqcurom3m43, I20ichc5j0l1u7, I1p16diuhde12h, Id4f5q01qh34o3, In7a38730s6qs, If15el53dd76v9, I9s0ave7t0vnrk, I4fo08joqmcqnm, XcmV5Junctions, Iasb8k6ash5mjn, I8ofcg5rbj0g2c, I4adgbll7gku4i, I6pjjpfvhvcfru, I9pj91mj79qekl, I39uah9nss64h9, Ik64dknsq7k08, Ib51vk42m1po4n, Ial23jn8hp0aen, Ifpj261e8s63m3, Idcr6u6361oad9, I4ktuaksf5i1gk, I9bqtpv2ii35mp, I9j7pagd6d4bda, I2h9pmio37r7fb, Ibmr18suc9ikh9, I9iq22t0burs89, I5u8olqbbvfnvf, I5utcetro501ir, I84a2nk2orbji5, I5266n6kd41g5s, I8k3rnvpeeh4hv, I4ifkccqhsvl32, I6nnijocnkjgp5, I5n4sebgkfr760, I5qblv1e2k5bef, Ifs1i5fk9cqvr6, I8elnui7i6s9a3, Ia3rosrlpdsknt, Ieg3fd8p4pkt10, I8kg5ll427kfqq, I467333262q1l9, Ifccifqltb5obi, Iadtsfv699cq8b, Ialpmgmhr3gk5r, I4cbvqmqadhrea, I3sdol54kg5jaq, I8fougodaj6di6, I81vt5eq60l4b6, I3vh014cqgmrfd, Ia5cotcvi888ln, I21jsa919m88fd, Iegif7m3upfe1k, I9kt8c221c83ln, Ic76kfh5ebqkpl, Icscpmubum33bq, I21d2olof7eb60, Ibgm4rnf22lal1, Ie68np0vpihith, I9bnv6lu0crf1q, Iauhjqifrdklq7, Ie1uso9m8rt5cf, I40pqum1mu8qg3, I1r4c2ghbtvjuc, I4cl0f6hqrk7ej, I4ov6e94l79mbg, Ibv8d24vm82781, Ifdtopefat0s6c, I2oa98tva0dcti, I8mjeo5oecbivt, I2eb501t8s6hsq, Ianmuoljk2sk1u, I90gnlregqu9oj, I8hduk4t7ggmnn, I3mrgd4hqc4ggi, Ideaemvoneh309, I3d9o9d7epp66v, I6lqh1vgb4mcja, I43aobns89nbkh, Iamd7rovec1hfb, I77ie723ncd4co, Ieebloeahma3ke, I4mbtpf4pu3rec, Iafkqus0ohh6l6, Ibgvkh96s68a66, If9vko7pv0231m, I1ahf3pvgsgbu, I736lv5q9m5bot, I9uapdn16emsti, Ie5i0q2glmr0md, I97qcg6i3l8gee, Ib5udrahak005b, Ib92t90p616grb, I1jj31tn29ie3c, I5llu6o6a0go5i, Ic8b8561e6t9ie, I93r2effh7od84, I6afd7fllr8otc, Icrkms46uh8tpb, I78u60nqh0etah, I6cu7obfo0rr0o, Ibqooroq6rr5kr, I6h88h8vba22v8, I1lso3vlgherue, Ia9cd4jqb5eecb, I19jiel1ftbcce, I26c8p47106toa, Iq82b3qvf20ne, Ic3j8ku6mbsms4, I3nvoqsi8f05ph, I4dr6q8duftm2l, I4da75oqso1rqj, Ida37oe44osb06, I6v02o6j4snahe, I27569neuh5t1o, Id92o6smntb9m5, I5nmb2hfkgk9ol, Iav55bcqlrqn51, I2gbnl5q85o7ul, I10ra4g1rl6k2f, I1uihehkdsggvp, Ia82mnkmeo2rhc, Ic43bru4oecnfd, Icbccs0ug47ilf, I855j4i3kr8ko1, Ifeuu7tnpbic7h, Idd7hd99u0ho0n, Iafscmv8tjf0ou, I100l07kaehdlp, I6gnbnvip5vvdi, Icv68aq8841478, Ic262ibdoec56a, Iflcfm9b6nlmdd, Ijrsf4mnp3eka, Id5fm4p8lj5qgi, I8tjvj9uq4b7hi, I3qt1hgg4djhgb, I4fooe9dun9o0t, I2sjgp7v0b4kr7, Iq8n5b8q00vqa, Iaa6lo6ksjs4p7, Iph9c4rn81ub2, Ier2cke86dqbr2, I4f5hj19d7s2kf, I5rtkmhm2dng4u, Ichutf6gbbjhuv, Ia3c82eadg79bj, Ienusoeb625ftq, Ibtsa3docbr9el, Idmiumkhb8j79l, I39t01nnod9109, I6v8sm60vvkmk7, I1qmtmbe5so8r3, Ih99m6ehpcar7, Idgorhsbgdq2ap, I9ubb2kqevnu6t, I2hq50pu2kdjpo, I9acqruh7322g2, I137t1cld92pod, I61d51nv4cou88, If8u5kl4h8070m, Ibmuil6p3vl83l, I7lul91g50ae87, Icl7nl1rfeog3i, Iasr6pj6shs0fl, I2uqmls7kcdnii, Idg69klialbkb8, I7r6b7145022pp, I30pg328m00nr3, Icmrn7bogp28cs, I7m9b5plj4h5ot, I9onhk772nfs4f, I3l6bnksrmt56r, Idh09k0l2pmdcg, I7uoiphbm0tj4r, I512p1n7qt24l8, I6s1nbislhk619, I3gghqnh2mj0is, I6iv852roh6t3h, I9oc2o6itbiopq, Ibslgga81p36aa, I1rvj4ubaplho0, Ia3uu7lqcc1q1i, I7crucfnonitkn, I7tmrp94r9sq4n, I3uua81e9uvgnp, I129n1andhkrr8, I7p099b5deqg11, I5sp6j0dcrjun8, I4ovs6liongile, I9h8j73phqu764, I202ei5bka3tk2, Idn17svagjrn3q, I30an4pagav86d, I5si6c5m867t60, I2ur0oeqg495j8, Idg3gs8jbk37mt, I1bhd210c3phjj, Iep27ialq4a7o7, Iasu5jvoqr43mv, Icr4fffis3jut7, I5qolde99acmd1, I8gtde5abn1g9a, I9gqanbbbe917p, Id1m1230297f7a, Ifvb1p5munhhv4, I46h83ilqeed3g, Icahse3uoi76n7, Ico8bnjc6taa27, I78i1bvlonei69, I5fjkvcb5vr6nb, I2gr1toekv86b9, I9i1f9mrso1hmf, I2v2ikqt2trp52, I9ksla2si91s56, If3057hi1g5qlo, Iaii5qf41d5n3d, Id9j7b85otvjru, Iaihk9pek2ajl9, Id9av23h47ufb2, Ib4kpnijas4jqp, I2vnu5k0u1i65h, I7svbvm6hg57aj, I8jhsbaiultviu, I6s4jjm8iu4j1a, I5r8t4iaend96p, Iehrj3kdjgfo5j, I176ch6ftnp6d1, Iaqet9jc3ihboe, Ic952bubvq4k7d, I2v50gu3s1aqk6, Iabpgqcjikia83, I4gil44d08grh, I7u915mvkdsb08, Ic3ask3jgs84f0, If7uv525tdvv7a, I2an1fs2eiebjp, TransactionValidityTransactionSource, I9ask1o4tfvcvs, Icerf8h8pdu8ss, I6spmpef2c7svf, Iei2mvq0mjvt81, Ic1d4u2opv3fst, Ico18ks790i2bl, I815pbp5omtss, I3ju6ot8lfmk90, Iafqnechp3omqg, Ie9sr1iqcg3cgm, I1mqgk2tmnn9i2, I6lr8sctk0bi4e, I4totqt881mlti, I4s6vifaf8k998, I35p85j063s0il, I2djjceu8dt4ha, I9sijb8gfrns29, Iujt3rhnedbr0, I6f9v7emp7t5ba, Ida7d8eqrkav55, Idmrtv8jbbitnu, Idi09uq5khm08t, I6ftipe9ubn5f8, I63nhnkgg114n5, I1l7ajs6s9ur3a, Ice9mpbhevl5b7, Idt5popft6i714, I512dtcl0pn07c, If5r96j2ibokne } from "./common-types";
 type AnonymousEnum<T extends {}> = T & {
     __anonymous: true;
 };
@@ -61,7 +61,7 @@ type IStorage = {
          * Events have a large in-memory size. Box the events to not go out-of-memory
          * just in case someone still reads them from within the runtime.
          */
-        Events: StorageDescriptor<[], Anonymize<Ip33dasgb3vr3>, false, never>;
+        Events: StorageDescriptor<[], Anonymize<I7ore9mp2nrmr4>, false, never>;
         /**
          * The number of events in the `Events<T>` list.
          */
@@ -361,7 +361,7 @@ type IStorage = {
         /**
          * Holds on account balances.
          */
-        Holds: StorageDescriptor<[Key: SS58String], Anonymize<Iae97qb3heev3a>, false, never>;
+        Holds: StorageDescriptor<[Key: SS58String], Anonymize<I63lqt6dl3kn9k>, false, never>;
         /**
          * Freeze locks on account balances.
          */
@@ -388,6 +388,27 @@ type IStorage = {
          * The `AccountId` of the sudo key.
          */
         Key: StorageDescriptor<[], SS58String, true, never>;
+    };
+    Scheduler: {
+        /**
+         * Block number at which the agenda began incomplete execution.
+         */
+        IncompleteSince: StorageDescriptor<[], number, true, never>;
+        /**
+         * Items to be executed, indexed by the block number that they should be executed on.
+         */
+        Agenda: StorageDescriptor<[Key: number], Anonymize<I35oke5aiccrn>, false, never>;
+        /**
+         * Retry configurations for items to be executed, indexed by task address.
+         */
+        Retries: StorageDescriptor<[Key: Anonymize<I9jd27rnpm8ttv>], Anonymize<I56u24ncejr5kt>, true, never>;
+        /**
+         * Lookup from a name to the block number and index of the task.
+         *
+         * For v3 -> v4 the previously unbounded identities are Blake2-256 hashed to form the v4
+         * identities.
+         */
+        Lookup: StorageDescriptor<[Key: FixedSizeBinary<32>], Anonymize<I9jd27rnpm8ttv>, true, never>;
     };
     Authorship: {
         /**
@@ -635,21 +656,26 @@ type IStorage = {
          */
         Pages: StorageDescriptor<Anonymize<Ib4jhb8tt3uung>, Anonymize<I53esa2ms463bk>, true, never>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * Auto-incrementing ID for the next switch.
+         * Auto-incrementing ID for the next will.
          */
-        NextSwitchId: StorageDescriptor<[], bigint, false, never>;
+        NextWillId: StorageDescriptor<[], bigint, false, never>;
         /**
-         * All deadman switches, keyed by SwitchId.
+         * All registered wills, keyed by WillId.
          */
-        Switches: StorageDescriptor<[Key: bigint], Anonymize<Ifkp6g5ns4l6fh>, true, never>;
+        Wills: StorageDescriptor<[Key: bigint], Anonymize<I6j4s4scthhrb3>, true, never>;
         /**
-         * Stored calls for each switch, keyed by SwitchId.
-         * Calls are stored as encoded bytes because RuntimeCall does not implement
-         * MaxEncodedLen. Each inner BoundedVec holds one encoded call.
+         * Typed bequests for each will.
          */
-        SwitchCalls: StorageDescriptor<[Key: bigint], Anonymize<Itom7fk49o0c9>, true, never>;
+        WillBequests: StorageDescriptor<[Key: bigint], Anonymize<I8f5h3nehu1u5e>, true, never>;
+        /**
+         * Remembered NFT-collection id for the inheritance certificates
+         * collection. Lazily set the first time a certificate is minted.
+         * The actual collection lives in `pallet-nfts` in the runtime; this
+         * storage just bookkeeps which id was assigned.
+         */
+        CertificateCollectionId: StorageDescriptor<[], number, true, never>;
     };
     Proxy: {
         /**
@@ -667,6 +693,72 @@ type IStorage = {
          * The set of open multisig operations.
          */
         Multisigs: StorageDescriptor<Anonymize<I8uo3fpd3bcc6f>, Anonymize<Iag146hmjgqfgj>, true, never>;
+    };
+    Nfts: {
+        /**
+         * Details of a collection.
+         */
+        Collection: StorageDescriptor<[Key: number], Anonymize<I18m6a0sc4k7s9>, true, never>;
+        /**
+         * The collection, if any, of which an account is willing to take ownership.
+         */
+        OwnershipAcceptance: StorageDescriptor<[Key: SS58String], number, true, never>;
+        /**
+         * The items held by any given account; set out this way so that items owned by a single
+         * account can be enumerated.
+         */
+        Account: StorageDescriptor<Anonymize<Id32h28hjj1tch>, null, true, never>;
+        /**
+         * The collections owned by any given account; set out this way so that collections owned by
+         * a single account can be enumerated.
+         */
+        CollectionAccount: StorageDescriptor<Anonymize<I6ouflveob4eli>, null, true, never>;
+        /**
+         * The items in existence and their ownership details.
+         * Stores collection roles as per account.
+         */
+        CollectionRoleOf: StorageDescriptor<Anonymize<I7svnfko10tq2e>, number, true, never>;
+        /**
+         * The items in existence and their ownership details.
+         */
+        Item: StorageDescriptor<Anonymize<I9jd27rnpm8ttv>, Anonymize<Ic9iokm15iigt6>, true, never>;
+        /**
+         * Metadata of a collection.
+         */
+        CollectionMetadataOf: StorageDescriptor<[Key: number], Anonymize<I35m96p3u4vl0p>, true, never>;
+        /**
+         * Metadata of an item.
+         */
+        ItemMetadataOf: StorageDescriptor<Anonymize<I9jd27rnpm8ttv>, Anonymize<Iapmji0h53pmkn>, true, never>;
+        /**
+         * Attributes of a collection.
+         */
+        Attribute: StorageDescriptor<Anonymize<I4ugih6gb4fmug>, Anonymize<Idrr42svup341f>, true, never>;
+        /**
+         * A price of an item.
+         */
+        ItemPriceOf: StorageDescriptor<Anonymize<I9jd27rnpm8ttv>, Anonymize<Ic9nev69d8grv1>, true, never>;
+        /**
+         * Item attribute approvals.
+         */
+        ItemAttributesApprovalsOf: StorageDescriptor<Anonymize<I9jd27rnpm8ttv>, Anonymize<Ia2lhg7l2hilo3>, false, never>;
+        /**
+         * Stores the `CollectionId` that is going to be used for the next collection.
+         * This gets incremented whenever a new collection is created.
+         */
+        NextCollectionId: StorageDescriptor<[], number, true, never>;
+        /**
+         * Handles all the pending swaps.
+         */
+        PendingSwapOf: StorageDescriptor<Anonymize<I9jd27rnpm8ttv>, Anonymize<Idac0t49lnd4ls>, true, never>;
+        /**
+         * Config of a collection.
+         */
+        CollectionConfigOf: StorageDescriptor<[Key: number], Anonymize<I72ndo6phms8ik>, true, never>;
+        /**
+         * Config of an item.
+         */
+        ItemConfigOf: StorageDescriptor<Anonymize<I9jd27rnpm8ttv>, bigint, true, never>;
     };
     Revive: {
         /**
@@ -956,7 +1048,7 @@ type ICalls = {
         /**
          * Authenticates the sudo key and dispatches a function call with `Root` origin.
          */
-        sudo: TxDescriptor<Anonymize<I3viv7peatsfn5>>;
+        sudo: TxDescriptor<Anonymize<I84a2nk2orbji5>>;
         /**
          * Authenticates the sudo key and dispatches a function call with `Root` origin.
          * This function does not check the weight of the call, and instead allows the
@@ -964,7 +1056,7 @@ type ICalls = {
          *
          * The dispatch origin for this call must be _Signed_.
          */
-        sudo_unchecked_weight: TxDescriptor<Anonymize<I8op0lqnpk3l0j>>;
+        sudo_unchecked_weight: TxDescriptor<Anonymize<I5266n6kd41g5s>>;
         /**
          * Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo
          * key.
@@ -976,13 +1068,77 @@ type ICalls = {
          *
          * The dispatch origin for this call must be _Signed_.
          */
-        sudo_as: TxDescriptor<Anonymize<I9283or271m3j>>;
+        sudo_as: TxDescriptor<Anonymize<I4ifkccqhsvl32>>;
         /**
          * Permanently removes the sudo key.
          *
          * **This cannot be un-done.**
          */
         remove_key: TxDescriptor<undefined>;
+    };
+    Scheduler: {
+        /**
+         * Anonymously schedule a task.
+         */
+        schedule: TxDescriptor<Anonymize<I6nnijocnkjgp5>>;
+        /**
+         * Cancel an anonymously scheduled task.
+         */
+        cancel: TxDescriptor<Anonymize<I5n4sebgkfr760>>;
+        /**
+         * Schedule a named task.
+         */
+        schedule_named: TxDescriptor<Anonymize<I5qblv1e2k5bef>>;
+        /**
+         * Cancel a named scheduled task.
+         */
+        cancel_named: TxDescriptor<Anonymize<Ifs1i5fk9cqvr6>>;
+        /**
+         * Anonymously schedule a task after a delay.
+         */
+        schedule_after: TxDescriptor<Anonymize<I8elnui7i6s9a3>>;
+        /**
+         * Schedule a named task after a delay.
+         */
+        schedule_named_after: TxDescriptor<Anonymize<Ia3rosrlpdsknt>>;
+        /**
+         * Set a retry configuration for a task so that, in case its scheduled run fails, it will
+         * be retried after `period` blocks, for a total amount of `retries` retries or until it
+         * succeeds.
+         *
+         * Tasks which need to be scheduled for a retry are still subject to weight metering and
+         * agenda space, same as a regular task. If a periodic task fails, it will be scheduled
+         * normally while the task is retrying.
+         *
+         * Tasks scheduled as a result of a retry for a periodic task are unnamed, non-periodic
+         * clones of the original task. Their retry configuration will be derived from the
+         * original task's configuration, but will have a lower value for `remaining` than the
+         * original `total_retries`.
+         */
+        set_retry: TxDescriptor<Anonymize<Ieg3fd8p4pkt10>>;
+        /**
+         * Set a retry configuration for a named task so that, in case its scheduled run fails, it
+         * will be retried after `period` blocks, for a total amount of `retries` retries or until
+         * it succeeds.
+         *
+         * Tasks which need to be scheduled for a retry are still subject to weight metering and
+         * agenda space, same as a regular task. If a periodic task fails, it will be scheduled
+         * normally while the task is retrying.
+         *
+         * Tasks scheduled as a result of a retry for a periodic task are unnamed, non-periodic
+         * clones of the original task. Their retry configuration will be derived from the
+         * original task's configuration, but will have a lower value for `remaining` than the
+         * original `total_retries`.
+         */
+        set_retry_named: TxDescriptor<Anonymize<I8kg5ll427kfqq>>;
+        /**
+         * Removes the retry configuration of a task.
+         */
+        cancel_retry: TxDescriptor<Anonymize<I467333262q1l9>>;
+        /**
+         * Cancel the retry configuration of a named task.
+         */
+        cancel_retry_named: TxDescriptor<Anonymize<Ifs1i5fk9cqvr6>>;
     };
     CollatorSelection: {
         /**
@@ -1445,39 +1601,37 @@ type ICalls = {
          */
         execute_overweight: TxDescriptor<Anonymize<I1r4c2ghbtvjuc>>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * Create a new deadman switch with stored calls.
+         * Register a new will with typed bequests.
          *
-         * Holds `trigger_reward` from the caller. On trigger, stored calls
-         * are dispatched as `Signed(owner)` (best-effort) and the caller
-         * receives the trigger reward.
-         *
-         * Stored calls are encoded at creation time. A runtime upgrade may
-         * invalidate them — cancel and recreate the switch if needed.
+         * Schedules `execute_will(id)` at `expiry_block + 1` via
+         * `pallet-scheduler`. The owner only pays the transaction fee.
          */
-        create_switch: TxDescriptor<Anonymize<Ibde2r5jq660dc>>;
+        create_will: TxDescriptor<Anonymize<I4cl0f6hqrk7ej>>;
         /**
-         * Send a heartbeat to reset the switch expiry block.
+         * Send a heartbeat to reset the will's expiry and reschedule the
+         * auto-execution task.
          *
-         * Only the owner can call this. The switch must be active and
-         * the expiry block must not have passed yet.
+         * Only the owner can call this. The will must be active and the
+         * expiry block must not have passed yet.
+         *
+         * This call is **feeless** when the signer is the current owner
+         * of an active will — keeping your own will alive never costs a
+         * fee.
          */
         heartbeat: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
         /**
-         * Trigger an expired switch.
-         *
-         * Anyone can call this once the expiry block has passed. Stored
-         * calls are dispatched as `Signed(owner)` — each call may succeed
-         * or fail independently (best-effort). The caller receives the
-         * trigger reward.
+         * Execute the will: translate each bequest to a RuntimeCall
+         * and dispatch as the owner (best-effort). Only callable with
+         * `Root` origin.
          */
-        trigger: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
+        execute_will: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
         /**
-         * Cancel an active switch and reclaim the trigger reward.
+         * Cancel an active will.
          *
-         * Only the owner can cancel. The switch must be active.
-         * Stored calls are removed from storage.
+         * Only the owner can cancel. The scheduled auto-execution is
+         * cancelled and the stored bequests are removed.
          */
         cancel: TxDescriptor<Anonymize<I4ov6e94l79mbg>>;
     };
@@ -1493,7 +1647,7 @@ type ICalls = {
          * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
          * - `call`: The call to be made by the `real` account.
          */
-        proxy: TxDescriptor<Anonymize<I11uimnk6a6nc3>>;
+        proxy: TxDescriptor<Anonymize<Ibv8d24vm82781>>;
         /**
          * Register a proxy account for the sender that is able to make calls on its behalf.
          *
@@ -1622,7 +1776,7 @@ type ICalls = {
          * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
          * - `call`: The call to be made by the `real` account.
          */
-        proxy_announced: TxDescriptor<Anonymize<I2d94pt3emu90g>>;
+        proxy_announced: TxDescriptor<Anonymize<I90gnlregqu9oj>>;
         /**
          * Poke / Adjust deposits made for proxies and announcements based on current values.
          * This can be used by accounts to possibly lower their locked amount.
@@ -1650,7 +1804,7 @@ type ICalls = {
          * ## Complexity
          * O(Z + C) where Z is the length of the call and C its execution weight.
          */
-        as_multi_threshold_1: TxDescriptor<Anonymize<Ibikp6ubme8ces>>;
+        as_multi_threshold_1: TxDescriptor<Anonymize<I8hduk4t7ggmnn>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -1692,7 +1846,7 @@ type ICalls = {
          * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
          * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
          */
-        as_multi: TxDescriptor<Anonymize<I7cs7bea8fsmg1>>;
+        as_multi: TxDescriptor<Anonymize<I3mrgd4hqc4ggi>>;
         /**
          * Register approval for a dispatch to be made from a deterministic composite account if
          * approved by a total of `threshold - 1` of `other_signatories`.
@@ -1766,6 +1920,627 @@ type ICalls = {
          * Emits `DepositPoked` if successful.
          */
         poke_deposit: TxDescriptor<Anonymize<I6lqh1vgb4mcja>>;
+    };
+    Nfts: {
+        /**
+         * Issue a new collection of non-fungible items from a public origin.
+         *
+         * This new collection has no items initially and its owner is the origin.
+         *
+         * The origin must be Signed and the sender must have sufficient funds free.
+         *
+         * `CollectionDeposit` funds of sender are reserved.
+         *
+         * Parameters:
+         * - `admin`: The admin of this collection. The admin is the initial address of each
+         * member of the collection's admin team.
+         *
+         * Emits `Created` event when successful.
+         *
+         * Weight: `O(1)`
+         */
+        create: TxDescriptor<Anonymize<I43aobns89nbkh>>;
+        /**
+         * Issue a new collection of non-fungible items from a privileged origin.
+         *
+         * This new collection has no items initially.
+         *
+         * The origin must conform to `ForceOrigin`.
+         *
+         * Unlike `create`, no funds are reserved.
+         *
+         * - `owner`: The owner of this collection of items. The owner has full superuser
+         * permissions over this item, but may later change and configure the permissions using
+         * `transfer_ownership` and `set_team`.
+         *
+         * Emits `ForceCreated` event when successful.
+         *
+         * Weight: `O(1)`
+         */
+        force_create: TxDescriptor<Anonymize<Iamd7rovec1hfb>>;
+        /**
+         * Destroy a collection of fungible items.
+         *
+         * The origin must conform to `ForceOrigin` or must be `Signed` and the sender must be the
+         * owner of the `collection`.
+         *
+         * NOTE: The collection must have 0 items to be destroyed.
+         *
+         * - `collection`: The identifier of the collection to be destroyed.
+         * - `witness`: Information on the items minted in the collection. This must be
+         * correct.
+         *
+         * Emits `Destroyed` event when successful.
+         *
+         * Weight: `O(m + c + a)` where:
+         * - `m = witness.item_metadatas`
+         * - `c = witness.item_configs`
+         * - `a = witness.attributes`
+         */
+        destroy: TxDescriptor<Anonymize<I77ie723ncd4co>>;
+        /**
+         * Mint an item of a particular collection.
+         *
+         * The origin must be Signed and the sender must comply with the `mint_settings` rules.
+         *
+         * - `collection`: The collection of the item to be minted.
+         * - `item`: An identifier of the new item.
+         * - `mint_to`: Account into which the item will be minted.
+         * - `witness_data`: When the mint type is `HolderOf(collection_id)`, then the owned
+         * item_id from that collection needs to be provided within the witness data object. If
+         * the mint price is set, then it should be additionally confirmed in the `witness_data`.
+         *
+         * Note: the deposit will be taken from the `origin` and not the `owner` of the `item`.
+         *
+         * Emits `Issued` event when successful.
+         *
+         * Weight: `O(1)`
+         */
+        mint: TxDescriptor<Anonymize<Ieebloeahma3ke>>;
+        /**
+         * Mint an item of a particular collection from a privileged origin.
+         *
+         * The origin must conform to `ForceOrigin` or must be `Signed` and the sender must be the
+         * Issuer of the `collection`.
+         *
+         * - `collection`: The collection of the item to be minted.
+         * - `item`: An identifier of the new item.
+         * - `mint_to`: Account into which the item will be minted.
+         * - `item_config`: A config of the new item.
+         *
+         * Emits `Issued` event when successful.
+         *
+         * Weight: `O(1)`
+         */
+        force_mint: TxDescriptor<Anonymize<I4mbtpf4pu3rec>>;
+        /**
+         * Destroy a single item.
+         *
+         * The origin must conform to `ForceOrigin` or must be Signed and the signing account must
+         * be the owner of the `item`.
+         *
+         * - `collection`: The collection of the item to be burned.
+         * - `item`: The item to be burned.
+         *
+         * Emits `Burned`.
+         *
+         * Weight: `O(1)`
+         */
+        burn: TxDescriptor<Anonymize<Iafkqus0ohh6l6>>;
+        /**
+         * Move an item from the sender account to another.
+         *
+         * Origin must be Signed and the signing account must be either:
+         * - the Owner of the `item`;
+         * - the approved delegate for the `item` (in this case, the approval is reset).
+         *
+         * Arguments:
+         * - `collection`: The collection of the item to be transferred.
+         * - `item`: The item to be transferred.
+         * - `dest`: The account to receive ownership of the item.
+         *
+         * Emits `Transferred`.
+         *
+         * Weight: `O(1)`
+         */
+        transfer: TxDescriptor<Anonymize<Ibgvkh96s68a66>>;
+        /**
+         * Re-evaluate the deposits on some items.
+         *
+         * Origin must be Signed and the sender should be the Owner of the `collection`.
+         *
+         * - `collection`: The collection of the items to be reevaluated.
+         * - `items`: The items of the collection whose deposits will be reevaluated.
+         *
+         * NOTE: This exists as a best-effort function. Any items which are unknown or
+         * in the case that the owner account does not have reservable funds to pay for a
+         * deposit increase are ignored. Generally the owner isn't going to call this on items
+         * whose existing deposit is less than the refreshed deposit as it would only cost them,
+         * so it's of little consequence.
+         *
+         * It will still return an error in the case that the collection is unknown or the signer
+         * is not permitted to call it.
+         *
+         * Weight: `O(items.len())`
+         */
+        redeposit: TxDescriptor<Anonymize<If9vko7pv0231m>>;
+        /**
+         * Disallow further unprivileged transfer of an item.
+         *
+         * Origin must be Signed and the sender should be the Freezer of the `collection`.
+         *
+         * - `collection`: The collection of the item to be changed.
+         * - `item`: The item to become non-transferable.
+         *
+         * Emits `ItemTransferLocked`.
+         *
+         * Weight: `O(1)`
+         */
+        lock_item_transfer: TxDescriptor<Anonymize<Iafkqus0ohh6l6>>;
+        /**
+         * Re-allow unprivileged transfer of an item.
+         *
+         * Origin must be Signed and the sender should be the Freezer of the `collection`.
+         *
+         * - `collection`: The collection of the item to be changed.
+         * - `item`: The item to become transferable.
+         *
+         * Emits `ItemTransferUnlocked`.
+         *
+         * Weight: `O(1)`
+         */
+        unlock_item_transfer: TxDescriptor<Anonymize<Iafkqus0ohh6l6>>;
+        /**
+         * Disallows specified settings for the whole collection.
+         *
+         * Origin must be Signed and the sender should be the Owner of the `collection`.
+         *
+         * - `collection`: The collection to be locked.
+         * - `lock_settings`: The settings to be locked.
+         *
+         * Note: it's possible to only lock(set) the setting, but not to unset it.
+         *
+         * Emits `CollectionLocked`.
+         *
+         * Weight: `O(1)`
+         */
+        lock_collection: TxDescriptor<Anonymize<I1ahf3pvgsgbu>>;
+        /**
+         * Change the Owner of a collection.
+         *
+         * Origin must be Signed and the sender should be the Owner of the `collection`.
+         *
+         * - `collection`: The collection whose owner should be changed.
+         * - `owner`: The new Owner of this collection. They must have called
+         * `set_accept_ownership` with `collection` in order for this operation to succeed.
+         *
+         * Emits `OwnerChanged`.
+         *
+         * Weight: `O(1)`
+         */
+        transfer_ownership: TxDescriptor<Anonymize<I736lv5q9m5bot>>;
+        /**
+         * Change the Issuer, Admin and Freezer of a collection.
+         *
+         * Origin must be either `ForceOrigin` or Signed and the sender should be the Owner of the
+         * `collection`.
+         *
+         * Note: by setting the role to `None` only the `ForceOrigin` will be able to change it
+         * after to `Some(account)`.
+         *
+         * - `collection`: The collection whose team should be changed.
+         * - `issuer`: The new Issuer of this collection.
+         * - `admin`: The new Admin of this collection.
+         * - `freezer`: The new Freezer of this collection.
+         *
+         * Emits `TeamChanged`.
+         *
+         * Weight: `O(1)`
+         */
+        set_team: TxDescriptor<Anonymize<I9uapdn16emsti>>;
+        /**
+         * Change the Owner of a collection.
+         *
+         * Origin must be `ForceOrigin`.
+         *
+         * - `collection`: The identifier of the collection.
+         * - `owner`: The new Owner of this collection.
+         *
+         * Emits `OwnerChanged`.
+         *
+         * Weight: `O(1)`
+         */
+        force_collection_owner: TxDescriptor<Anonymize<Ie5i0q2glmr0md>>;
+        /**
+         * Change the config of a collection.
+         *
+         * Origin must be `ForceOrigin`.
+         *
+         * - `collection`: The identifier of the collection.
+         * - `config`: The new config of this collection.
+         *
+         * Emits `CollectionConfigChanged`.
+         *
+         * Weight: `O(1)`
+         */
+        force_collection_config: TxDescriptor<Anonymize<I97qcg6i3l8gee>>;
+        /**
+         * Approve an item to be transferred by a delegated third-party account.
+         *
+         * Origin must be either `ForceOrigin` or Signed and the sender should be the Owner of the
+         * `item`.
+         *
+         * - `collection`: The collection of the item to be approved for delegated transfer.
+         * - `item`: The item to be approved for delegated transfer.
+         * - `delegate`: The account to delegate permission to transfer the item.
+         * - `maybe_deadline`: Optional deadline for the approval. Specified by providing the
+         * number of blocks after which the approval will expire
+         *
+         * Emits `TransferApproved` on success.
+         *
+         * Weight: `O(1)`
+         */
+        approve_transfer: TxDescriptor<Anonymize<Ib5udrahak005b>>;
+        /**
+         * Cancel one of the transfer approvals for a specific item.
+         *
+         * Origin must be either:
+         * - the `Force` origin;
+         * - `Signed` with the signer being the Owner of the `item`;
+         *
+         * Arguments:
+         * - `collection`: The collection of the item of whose approval will be cancelled.
+         * - `item`: The item of the collection of whose approval will be cancelled.
+         * - `delegate`: The account that is going to loose their approval.
+         *
+         * Emits `ApprovalCancelled` on success.
+         *
+         * Weight: `O(1)`
+         */
+        cancel_approval: TxDescriptor<Anonymize<Ib92t90p616grb>>;
+        /**
+         * Cancel all the approvals of a specific item.
+         *
+         * Origin must be either:
+         * - the `Force` origin;
+         * - `Signed` with the signer being the Owner of the `item`;
+         *
+         * Arguments:
+         * - `collection`: The collection of the item of whose approvals will be cleared.
+         * - `item`: The item of the collection of whose approvals will be cleared.
+         *
+         * Emits `AllApprovalsCancelled` on success.
+         *
+         * Weight: `O(1)`
+         */
+        clear_all_transfer_approvals: TxDescriptor<Anonymize<Iafkqus0ohh6l6>>;
+        /**
+         * Disallows changing the metadata or attributes of the item.
+         *
+         * Origin must be either `ForceOrigin` or Signed and the sender should be the Admin
+         * of the `collection`.
+         *
+         * - `collection`: The collection if the `item`.
+         * - `item`: An item to be locked.
+         * - `lock_metadata`: Specifies whether the metadata should be locked.
+         * - `lock_attributes`: Specifies whether the attributes in the `CollectionOwner` namespace
+         * should be locked.
+         *
+         * Note: `lock_attributes` affects the attributes in the `CollectionOwner` namespace only.
+         * When the metadata or attributes are locked, it won't be possible the unlock them.
+         *
+         * Emits `ItemPropertiesLocked`.
+         *
+         * Weight: `O(1)`
+         */
+        lock_item_properties: TxDescriptor<Anonymize<I1jj31tn29ie3c>>;
+        /**
+         * Set an attribute for a collection or item.
+         *
+         * Origin must be Signed and must conform to the namespace ruleset:
+         * - `CollectionOwner` namespace could be modified by the `collection` Admin only;
+         * - `ItemOwner` namespace could be modified by the `maybe_item` owner only. `maybe_item`
+         * should be set in that case;
+         * - `Account(AccountId)` namespace could be modified only when the `origin` was given a
+         * permission to do so;
+         *
+         * The funds of `origin` are reserved according to the formula:
+         * `AttributeDepositBase + DepositPerByte * (key.len + value.len)` taking into
+         * account any already reserved funds.
+         *
+         * - `collection`: The identifier of the collection whose item's metadata to set.
+         * - `maybe_item`: The identifier of the item whose metadata to set.
+         * - `namespace`: Attribute's namespace.
+         * - `key`: The key of the attribute.
+         * - `value`: The value to which to set the attribute.
+         *
+         * Emits `AttributeSet`.
+         *
+         * Weight: `O(1)`
+         */
+        set_attribute: TxDescriptor<Anonymize<I5llu6o6a0go5i>>;
+        /**
+         * Force-set an attribute for a collection or item.
+         *
+         * Origin must be `ForceOrigin`.
+         *
+         * If the attribute already exists and it was set by another account, the deposit
+         * will be returned to the previous owner.
+         *
+         * - `set_as`: An optional owner of the attribute.
+         * - `collection`: The identifier of the collection whose item's metadata to set.
+         * - `maybe_item`: The identifier of the item whose metadata to set.
+         * - `namespace`: Attribute's namespace.
+         * - `key`: The key of the attribute.
+         * - `value`: The value to which to set the attribute.
+         *
+         * Emits `AttributeSet`.
+         *
+         * Weight: `O(1)`
+         */
+        force_set_attribute: TxDescriptor<Anonymize<Ic8b8561e6t9ie>>;
+        /**
+         * Clear an attribute for a collection or item.
+         *
+         * Origin must be either `ForceOrigin` or Signed and the sender should be the Owner of the
+         * attribute.
+         *
+         * Any deposit is freed for the collection's owner.
+         *
+         * - `collection`: The identifier of the collection whose item's metadata to clear.
+         * - `maybe_item`: The identifier of the item whose metadata to clear.
+         * - `namespace`: Attribute's namespace.
+         * - `key`: The key of the attribute.
+         *
+         * Emits `AttributeCleared`.
+         *
+         * Weight: `O(1)`
+         */
+        clear_attribute: TxDescriptor<Anonymize<I93r2effh7od84>>;
+        /**
+         * Approve item's attributes to be changed by a delegated third-party account.
+         *
+         * Origin must be Signed and must be an owner of the `item`.
+         *
+         * - `collection`: A collection of the item.
+         * - `item`: The item that holds attributes.
+         * - `delegate`: The account to delegate permission to change attributes of the item.
+         *
+         * Emits `ItemAttributesApprovalAdded` on success.
+         */
+        approve_item_attributes: TxDescriptor<Anonymize<Ib92t90p616grb>>;
+        /**
+         * Cancel the previously provided approval to change item's attributes.
+         * All the previously set attributes by the `delegate` will be removed.
+         *
+         * Origin must be Signed and must be an owner of the `item`.
+         *
+         * - `collection`: Collection that the item is contained within.
+         * - `item`: The item that holds attributes.
+         * - `delegate`: The previously approved account to remove.
+         *
+         * Emits `ItemAttributesApprovalRemoved` on success.
+         */
+        cancel_item_attributes_approval: TxDescriptor<Anonymize<I6afd7fllr8otc>>;
+        /**
+         * Set the metadata for an item.
+         *
+         * Origin must be either `ForceOrigin` or Signed and the sender should be the Admin of the
+         * `collection`.
+         *
+         * If the origin is Signed, then funds of signer are reserved according to the formula:
+         * `MetadataDepositBase + DepositPerByte * data.len` taking into
+         * account any already reserved funds.
+         *
+         * - `collection`: The identifier of the collection whose item's metadata to set.
+         * - `item`: The identifier of the item whose metadata to set.
+         * - `data`: The general information of this item. Limited in length by `StringLimit`.
+         *
+         * Emits `ItemMetadataSet`.
+         *
+         * Weight: `O(1)`
+         */
+        set_metadata: TxDescriptor<Anonymize<Icrkms46uh8tpb>>;
+        /**
+         * Clear the metadata for an item.
+         *
+         * Origin must be either `ForceOrigin` or Signed and the sender should be the Admin of the
+         * `collection`.
+         *
+         * Any deposit is freed for the collection's owner.
+         *
+         * - `collection`: The identifier of the collection whose item's metadata to clear.
+         * - `item`: The identifier of the item whose metadata to clear.
+         *
+         * Emits `ItemMetadataCleared`.
+         *
+         * Weight: `O(1)`
+         */
+        clear_metadata: TxDescriptor<Anonymize<Iafkqus0ohh6l6>>;
+        /**
+         * Set the metadata for a collection.
+         *
+         * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Admin of
+         * the `collection`.
+         *
+         * If the origin is `Signed`, then funds of signer are reserved according to the formula:
+         * `MetadataDepositBase + DepositPerByte * data.len` taking into
+         * account any already reserved funds.
+         *
+         * - `collection`: The identifier of the item whose metadata to update.
+         * - `data`: The general information of this item. Limited in length by `StringLimit`.
+         *
+         * Emits `CollectionMetadataSet`.
+         *
+         * Weight: `O(1)`
+         */
+        set_collection_metadata: TxDescriptor<Anonymize<I78u60nqh0etah>>;
+        /**
+         * Clear the metadata for a collection.
+         *
+         * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Admin of
+         * the `collection`.
+         *
+         * Any deposit is freed for the collection's owner.
+         *
+         * - `collection`: The identifier of the collection whose metadata to clear.
+         *
+         * Emits `CollectionMetadataCleared`.
+         *
+         * Weight: `O(1)`
+         */
+        clear_collection_metadata: TxDescriptor<Anonymize<I6cu7obfo0rr0o>>;
+        /**
+         * Set (or reset) the acceptance of ownership for a particular account.
+         *
+         * Origin must be `Signed` and if `maybe_collection` is `Some`, then the signer must have a
+         * provider reference.
+         *
+         * - `maybe_collection`: The identifier of the collection whose ownership the signer is
+         * willing to accept, or if `None`, an indication that the signer is willing to accept no
+         * ownership transferal.
+         *
+         * Emits `OwnershipAcceptanceChanged`.
+         */
+        set_accept_ownership: TxDescriptor<Anonymize<Ibqooroq6rr5kr>>;
+        /**
+         * Set the maximum number of items a collection could have.
+         *
+         * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Owner of
+         * the `collection`.
+         *
+         * - `collection`: The identifier of the collection to change.
+         * - `max_supply`: The maximum number of items a collection could have.
+         *
+         * Emits `CollectionMaxSupplySet` event when successful.
+         */
+        set_collection_max_supply: TxDescriptor<Anonymize<I6h88h8vba22v8>>;
+        /**
+         * Update mint settings.
+         *
+         * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Issuer
+         * of the `collection`.
+         *
+         * - `collection`: The identifier of the collection to change.
+         * - `mint_settings`: The new mint settings.
+         *
+         * Emits `CollectionMintSettingsUpdated` event when successful.
+         */
+        update_mint_settings: TxDescriptor<Anonymize<I1lso3vlgherue>>;
+        /**
+         * Set (or reset) the price for an item.
+         *
+         * Origin must be Signed and must be the owner of the `item`.
+         *
+         * - `collection`: The collection of the item.
+         * - `item`: The item to set the price for.
+         * - `price`: The price for the item. Pass `None`, to reset the price.
+         * - `buyer`: Restricts the buy operation to a specific account.
+         *
+         * Emits `ItemPriceSet` on success if the price is not `None`.
+         * Emits `ItemPriceRemoved` on success if the price is `None`.
+         */
+        set_price: TxDescriptor<Anonymize<Ia9cd4jqb5eecb>>;
+        /**
+         * Allows to buy an item if it's up for sale.
+         *
+         * Origin must be Signed and must not be the owner of the `item`.
+         *
+         * - `collection`: The collection of the item.
+         * - `item`: The item the sender wants to buy.
+         * - `bid_price`: The price the sender is willing to pay.
+         *
+         * Emits `ItemBought` on success.
+         */
+        buy_item: TxDescriptor<Anonymize<I19jiel1ftbcce>>;
+        /**
+         * Allows to pay the tips.
+         *
+         * Origin must be Signed.
+         *
+         * - `tips`: Tips array.
+         *
+         * Emits `TipSent` on every tip transfer.
+         */
+        pay_tips: TxDescriptor<Anonymize<I26c8p47106toa>>;
+        /**
+         * Register a new atomic swap, declaring an intention to send an `item` in exchange for
+         * `desired_item` from origin to target on the current blockchain.
+         * The target can execute the swap during the specified `duration` of blocks (if set).
+         * Additionally, the price could be set for the desired `item`.
+         *
+         * Origin must be Signed and must be an owner of the `item`.
+         *
+         * - `collection`: The collection of the item.
+         * - `item`: The item an owner wants to give.
+         * - `desired_collection`: The collection of the desired item.
+         * - `desired_item`: The desired item an owner wants to receive.
+         * - `maybe_price`: The price an owner is willing to pay or receive for the desired `item`.
+         * - `duration`: A deadline for the swap. Specified by providing the number of blocks
+         * after which the swap will expire.
+         *
+         * Emits `SwapCreated` on success.
+         */
+        create_swap: TxDescriptor<Anonymize<Iq82b3qvf20ne>>;
+        /**
+         * Cancel an atomic swap.
+         *
+         * Origin must be Signed.
+         * Origin must be an owner of the `item` if the deadline hasn't expired.
+         *
+         * - `collection`: The collection of the item.
+         * - `item`: The item an owner wants to give.
+         *
+         * Emits `SwapCancelled` on success.
+         */
+        cancel_swap: TxDescriptor<Anonymize<Ic3j8ku6mbsms4>>;
+        /**
+         * Claim an atomic swap.
+         * This method executes a pending swap, that was created by a counterpart before.
+         *
+         * Origin must be Signed and must be an owner of the `item`.
+         *
+         * - `send_collection`: The collection of the item to be sent.
+         * - `send_item`: The item to be sent.
+         * - `receive_collection`: The collection of the item to be received.
+         * - `receive_item`: The item to be received.
+         * - `witness_price`: A price that was previously agreed on.
+         *
+         * Emits `SwapClaimed` on success.
+         */
+        claim_swap: TxDescriptor<Anonymize<I3nvoqsi8f05ph>>;
+        /**
+         * Mint an item by providing the pre-signed approval.
+         *
+         * Origin must be Signed.
+         *
+         * - `mint_data`: The pre-signed approval that consists of the information about the item,
+         * its metadata, attributes, who can mint it (`None` for anyone) and until what block
+         * number.
+         * - `signature`: The signature of the `data` object.
+         * - `signer`: The `data` object's signer. Should be an Issuer of the collection.
+         *
+         * Emits `Issued` on success.
+         * Emits `AttributeSet` if the attributes were provided.
+         * Emits `ItemMetadataSet` if the metadata was not empty.
+         */
+        mint_pre_signed: TxDescriptor<Anonymize<I4dr6q8duftm2l>>;
+        /**
+         * Set attributes for an item by providing the pre-signed approval.
+         *
+         * Origin must be Signed and must be an owner of the `data.item`.
+         *
+         * - `data`: The pre-signed approval that consists of the information about the item,
+         * attributes to update and until what block number.
+         * - `signature`: The signature of the `data` object.
+         * - `signer`: The `data` object's signer. Should be an Admin of the collection for the
+         * `CollectionOwner` namespace.
+         *
+         * Emits `AttributeSet` for each provided attribute.
+         * Emits `ItemAttributesApprovalAdded` if the approval wasn't set before.
+         * Emits `PreSignedAttributesSet` on success.
+         */
+        set_attributes_pre_signed: TxDescriptor<Anonymize<I4da75oqso1rqj>>;
     };
     Revive: {
         /**
@@ -1895,7 +2670,7 @@ type ICalls = {
          * * `call`: The Substrate runtime call to execute.
          * * `transaction_encoded`: The RLP encoding of the Ethereum transaction,
          */
-        eth_substrate_call: TxDescriptor<Anonymize<I6o0473jchq0rn>>;
+        eth_substrate_call: TxDescriptor<Anonymize<I2gbnl5q85o7ul>>;
         /**
          * Upload new `code` without instantiating a contract from it.
          *
@@ -1954,7 +2729,7 @@ type ICalls = {
          * is the `AccountId20` with the last 12 bytes set to `0xEE`. This is essentially a
          * recovery function in case an `AccountId20` was used without creating a mapping first.
          */
-        dispatch_as_fallback_account: TxDescriptor<Anonymize<I3viv7peatsfn5>>;
+        dispatch_as_fallback_account: TxDescriptor<Anonymize<I84a2nk2orbji5>>;
     };
 };
 type IEvent = {
@@ -1966,7 +2741,7 @@ type IEvent = {
         /**
          * An extrinsic failed.
          */
-        ExtrinsicFailed: PlainDescriptor<Anonymize<I4os89d3facqn6>>;
+        ExtrinsicFailed: PlainDescriptor<Anonymize<Ic43bru4oecnfd>>;
         /**
          * `:code` was updated.
          */
@@ -1990,7 +2765,7 @@ type IEvent = {
         /**
          * An invalid authorized upgrade was rejected while trying to apply it.
          */
-        RejectedInvalidAuthorizedUpgrade: PlainDescriptor<Anonymize<I1restk9ts7lm8>>;
+        RejectedInvalidAuthorizedUpgrade: PlainDescriptor<Anonymize<Ifeuu7tnpbic7h>>;
     };
     ParachainSystem: {
         /**
@@ -2120,23 +2895,23 @@ type IEvent = {
         /**
          * Some balance was placed on hold.
          */
-        Held: PlainDescriptor<Anonymize<I6jg6l5h5npvh5>>;
+        Held: PlainDescriptor<Anonymize<I2sjgp7v0b4kr7>>;
         /**
          * Held balance was burned from an account.
          */
-        BurnedHeld: PlainDescriptor<Anonymize<I6jg6l5h5npvh5>>;
+        BurnedHeld: PlainDescriptor<Anonymize<I2sjgp7v0b4kr7>>;
         /**
          * A transfer of `amount` on hold from `source` to `dest` was initiated.
          */
-        TransferOnHold: PlainDescriptor<Anonymize<I2jmih40lhlepi>>;
+        TransferOnHold: PlainDescriptor<Anonymize<Iq8n5b8q00vqa>>;
         /**
          * The `transferred` balance is placed on hold at the `dest` account.
          */
-        TransferAndHold: PlainDescriptor<Anonymize<I63acq8em4ic0p>>;
+        TransferAndHold: PlainDescriptor<Anonymize<Iaa6lo6ksjs4p7>>;
         /**
          * Some balance was released from hold.
          */
-        Released: PlainDescriptor<Anonymize<I6jg6l5h5npvh5>>;
+        Released: PlainDescriptor<Anonymize<I2sjgp7v0b4kr7>>;
         /**
          * An unexpected/defensive event was triggered.
          */
@@ -2153,7 +2928,7 @@ type IEvent = {
         /**
          * A sudo call just took place.
          */
-        Sudid: PlainDescriptor<Anonymize<I3b3beditib7cu>>;
+        Sudid: PlainDescriptor<Anonymize<I4f5hj19d7s2kf>>;
         /**
          * The sudo key has been updated.
          */
@@ -2165,7 +2940,56 @@ type IEvent = {
         /**
          * A [sudo_as](Pallet::sudo_as) call just took place.
          */
-        SudoAsDone: PlainDescriptor<Anonymize<I3b3beditib7cu>>;
+        SudoAsDone: PlainDescriptor<Anonymize<I4f5hj19d7s2kf>>;
+    };
+    Scheduler: {
+        /**
+         * Scheduled some task.
+         */
+        Scheduled: PlainDescriptor<Anonymize<I5n4sebgkfr760>>;
+        /**
+         * Canceled some task.
+         */
+        Canceled: PlainDescriptor<Anonymize<I5n4sebgkfr760>>;
+        /**
+         * Dispatched some task.
+         */
+        Dispatched: PlainDescriptor<Anonymize<Ichutf6gbbjhuv>>;
+        /**
+         * Set a retry configuration for some task.
+         */
+        RetrySet: PlainDescriptor<Anonymize<Ia3c82eadg79bj>>;
+        /**
+         * Cancel a retry configuration for some task.
+         */
+        RetryCancelled: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * The call for the provided hash was not found so the task has been aborted.
+         */
+        CallUnavailable: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * The given task was unable to be renewed since the agenda is full at that block.
+         */
+        PeriodicFailed: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * The given task was unable to be retried since the agenda is full at that block or there
+         * was not enough weight to reschedule it.
+         */
+        RetryFailed: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * The given task can never be executed since it is overweight.
+         */
+        PermanentlyOverweight: PlainDescriptor<Anonymize<Ienusoeb625ftq>>;
+        /**
+         * Agenda is incomplete from `when`.
+         */
+        AgendaIncomplete: PlainDescriptor<Anonymize<Ibtsa3docbr9el>>;
+    };
+    SkipFeelessPayment: {
+        /**
+         * A transaction fee was skipped.
+         */
+        FeeSkipped: PlainDescriptor<Anonymize<Idmiumkhb8j79l>>;
     };
     CollatorSelection: {
         /**
@@ -2428,33 +3252,43 @@ type IEvent = {
          */
         NewStatement: PlainDescriptor<Anonymize<I3uua81e9uvgnp>>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * A new deadman switch was created.
+         * A new will was registered and its auto-execution scheduled.
          */
-        SwitchCreated: PlainDescriptor<Anonymize<I6o83l7nvtm748>>;
+        WillCreated: PlainDescriptor<Anonymize<I129n1andhkrr8>>;
         /**
-         * The owner sent a heartbeat, resetting the expiry block.
+         * The owner sent a heartbeat; expiry and scheduled execution moved.
          */
         HeartbeatReceived: PlainDescriptor<Anonymize<I7p099b5deqg11>>;
         /**
-         * The switch was triggered — calls dispatched, reward paid to caller.
+         * The will executed — bequests dispatched (best-effort) and
+         * soulbound certificates minted to unique beneficiaries.
          */
-        SwitchTriggered: PlainDescriptor<Anonymize<I3nnlc4gk4povb>>;
+        WillExecuted: PlainDescriptor<Anonymize<I5sp6j0dcrjun8>>;
         /**
-         * A stored call was dispatched during trigger.
+         * A bequest was dispatched during execution.
          */
-        CallDispatched: PlainDescriptor<Anonymize<I9ekov8c3nr2cb>>;
+        BequestDispatched: PlainDescriptor<Anonymize<I4ovs6liongile>>;
         /**
-         * The switch was cancelled by the owner.
+         * An inheritance certificate NFT was successfully minted.
          */
-        SwitchCancelled: PlainDescriptor<Anonymize<I51t9t70vnfsr2>>;
+        InheritanceCertificateMinted: PlainDescriptor<Anonymize<I9h8j73phqu764>>;
+        /**
+         * Minting a certificate failed for this beneficiary. The rest of
+         * the execution still proceeded.
+         */
+        InheritanceCertificateFailed: PlainDescriptor<Anonymize<I202ei5bka3tk2>>;
+        /**
+         * The will was cancelled by the owner.
+         */
+        WillCancelled: PlainDescriptor<Anonymize<I4ov6e94l79mbg>>;
     };
     Proxy: {
         /**
          * A proxy was executed correctly, with the given.
          */
-        ProxyExecuted: PlainDescriptor<Anonymize<Iadmn3p796mg65>>;
+        ProxyExecuted: PlainDescriptor<Anonymize<Idn17svagjrn3q>>;
         /**
          * A pure account has been created by new proxy with given
          * disambiguation index and proxy type.
@@ -2493,7 +3327,7 @@ type IEvent = {
         /**
          * A multisig operation has been executed.
          */
-        MultisigExecuted: PlainDescriptor<Anonymize<Icct89ak0s3l4o>>;
+        MultisigExecuted: PlainDescriptor<Anonymize<Icr4fffis3jut7>>;
         /**
          * A multisig operation has been cancelled.
          */
@@ -2502,6 +3336,163 @@ type IEvent = {
          * The deposit for a multisig operation has been updated/poked.
          */
         DepositPoked: PlainDescriptor<Anonymize<I8gtde5abn1g9a>>;
+    };
+    Nfts: {
+        /**
+         * A `collection` was created.
+         */
+        Created: PlainDescriptor<Anonymize<I9gqanbbbe917p>>;
+        /**
+         * A `collection` was force-created.
+         */
+        ForceCreated: PlainDescriptor<Anonymize<Id1m1230297f7a>>;
+        /**
+         * A `collection` was destroyed.
+         */
+        Destroyed: PlainDescriptor<Anonymize<I6cu7obfo0rr0o>>;
+        /**
+         * An `item` was issued.
+         */
+        Issued: PlainDescriptor<Anonymize<Ifvb1p5munhhv4>>;
+        /**
+         * An `item` was transferred.
+         */
+        Transferred: PlainDescriptor<Anonymize<I46h83ilqeed3g>>;
+        /**
+         * An `item` was destroyed.
+         */
+        Burned: PlainDescriptor<Anonymize<Ifvb1p5munhhv4>>;
+        /**
+         * An `item` became non-transferable.
+         */
+        ItemTransferLocked: PlainDescriptor<Anonymize<Iafkqus0ohh6l6>>;
+        /**
+         * An `item` became transferable.
+         */
+        ItemTransferUnlocked: PlainDescriptor<Anonymize<Iafkqus0ohh6l6>>;
+        /**
+         * `item` metadata or attributes were locked.
+         */
+        ItemPropertiesLocked: PlainDescriptor<Anonymize<I1jj31tn29ie3c>>;
+        /**
+         * Some `collection` was locked.
+         */
+        CollectionLocked: PlainDescriptor<Anonymize<I6cu7obfo0rr0o>>;
+        /**
+         * The owner changed.
+         */
+        OwnerChanged: PlainDescriptor<Anonymize<Icahse3uoi76n7>>;
+        /**
+         * The management team changed.
+         */
+        TeamChanged: PlainDescriptor<Anonymize<Ico8bnjc6taa27>>;
+        /**
+         * An `item` of a `collection` has been approved by the `owner` for transfer by
+         * a `delegate`.
+         */
+        TransferApproved: PlainDescriptor<Anonymize<I78i1bvlonei69>>;
+        /**
+         * An approval for a `delegate` account to transfer the `item` of an item
+         * `collection` was cancelled by its `owner`.
+         */
+        ApprovalCancelled: PlainDescriptor<Anonymize<I5fjkvcb5vr6nb>>;
+        /**
+         * All approvals of an item got cancelled.
+         */
+        AllApprovalsCancelled: PlainDescriptor<Anonymize<Ifvb1p5munhhv4>>;
+        /**
+         * A `collection` has had its config changed by the `Force` origin.
+         */
+        CollectionConfigChanged: PlainDescriptor<Anonymize<I6cu7obfo0rr0o>>;
+        /**
+         * New metadata has been set for a `collection`.
+         */
+        CollectionMetadataSet: PlainDescriptor<Anonymize<I78u60nqh0etah>>;
+        /**
+         * Metadata has been cleared for a `collection`.
+         */
+        CollectionMetadataCleared: PlainDescriptor<Anonymize<I6cu7obfo0rr0o>>;
+        /**
+         * New metadata has been set for an item.
+         */
+        ItemMetadataSet: PlainDescriptor<Anonymize<Icrkms46uh8tpb>>;
+        /**
+         * Metadata has been cleared for an item.
+         */
+        ItemMetadataCleared: PlainDescriptor<Anonymize<Iafkqus0ohh6l6>>;
+        /**
+         * The deposit for a set of `item`s within a `collection` has been updated.
+         */
+        Redeposited: PlainDescriptor<Anonymize<I2gr1toekv86b9>>;
+        /**
+         * New attribute metadata has been set for a `collection` or `item`.
+         */
+        AttributeSet: PlainDescriptor<Anonymize<I5llu6o6a0go5i>>;
+        /**
+         * Attribute metadata has been cleared for a `collection` or `item`.
+         */
+        AttributeCleared: PlainDescriptor<Anonymize<I93r2effh7od84>>;
+        /**
+         * A new approval to modify item attributes was added.
+         */
+        ItemAttributesApprovalAdded: PlainDescriptor<Anonymize<I9i1f9mrso1hmf>>;
+        /**
+         * A new approval to modify item attributes was removed.
+         */
+        ItemAttributesApprovalRemoved: PlainDescriptor<Anonymize<I9i1f9mrso1hmf>>;
+        /**
+         * Ownership acceptance has changed for an account.
+         */
+        OwnershipAcceptanceChanged: PlainDescriptor<Anonymize<I2v2ikqt2trp52>>;
+        /**
+         * Max supply has been set for a collection.
+         */
+        CollectionMaxSupplySet: PlainDescriptor<Anonymize<I6h88h8vba22v8>>;
+        /**
+         * Mint settings for a collection had changed.
+         */
+        CollectionMintSettingsUpdated: PlainDescriptor<Anonymize<I6cu7obfo0rr0o>>;
+        /**
+         * Event gets emitted when the `NextCollectionId` gets incremented.
+         */
+        NextCollectionIdIncremented: PlainDescriptor<Anonymize<I9ksla2si91s56>>;
+        /**
+         * The price was set for the item.
+         */
+        ItemPriceSet: PlainDescriptor<Anonymize<If3057hi1g5qlo>>;
+        /**
+         * The price for the item was removed.
+         */
+        ItemPriceRemoved: PlainDescriptor<Anonymize<Iafkqus0ohh6l6>>;
+        /**
+         * An item was bought.
+         */
+        ItemBought: PlainDescriptor<Anonymize<Iaii5qf41d5n3d>>;
+        /**
+         * A tip was sent.
+         */
+        TipSent: PlainDescriptor<Anonymize<Id9j7b85otvjru>>;
+        /**
+         * An `item` swap intent was created.
+         */
+        SwapCreated: PlainDescriptor<Anonymize<Iaihk9pek2ajl9>>;
+        /**
+         * The swap was cancelled.
+         */
+        SwapCancelled: PlainDescriptor<Anonymize<Iaihk9pek2ajl9>>;
+        /**
+         * The swap has been claimed.
+         */
+        SwapClaimed: PlainDescriptor<Anonymize<Id9av23h47ufb2>>;
+        /**
+         * New attributes have been set for an `item` of the `collection`.
+         */
+        PreSignedAttributesSet: PlainDescriptor<Anonymize<Ib4kpnijas4jqp>>;
+        /**
+         * A new attribute in the `Pallet` namespace was set for the `collection` or an `item`
+         * within that `collection`.
+         */
+        PalletAttributeSet: PlainDescriptor<Anonymize<I2vnu5k0u1i65h>>;
     };
     Revive: {
         /**
@@ -2520,7 +3511,7 @@ type IEvent = {
          * To distinguish reverted calls from successful ones, this event is emitted
          * for failed Ethereum transactions.
          */
-        EthExtrinsicRevert: PlainDescriptor<Anonymize<Ies5bskjnq2gqb>>;
+        EthExtrinsicRevert: PlainDescriptor<Anonymize<I6s4jjm8iu4j1a>>;
     };
 };
 type IError = {
@@ -2648,6 +3639,28 @@ type IError = {
          * Sender must be the Sudo account.
          */
         RequireSudo: PlainDescriptor<undefined>;
+    };
+    Scheduler: {
+        /**
+         * Failed to schedule a call
+         */
+        FailedToSchedule: PlainDescriptor<undefined>;
+        /**
+         * Cannot find the scheduled call.
+         */
+        NotFound: PlainDescriptor<undefined>;
+        /**
+         * Given target block number is in the past.
+         */
+        TargetBlockNumberInPast: PlainDescriptor<undefined>;
+        /**
+         * Reschedule failed because it does not change scheduled time.
+         */
+        RescheduleNoChange: PlainDescriptor<undefined>;
+        /**
+         * Attempt to use a non-named function on a named task.
+         */
+        Named: PlainDescriptor<undefined>;
     };
     CollatorSelection: {
         /**
@@ -2925,27 +3938,23 @@ type IError = {
          */
         RecursiveDisallowed: PlainDescriptor<undefined>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * The switch does not exist.
+         * The will does not exist.
          */
-        SwitchNotFound: PlainDescriptor<undefined>;
+        WillNotFound: PlainDescriptor<undefined>;
         /**
          * Only the owner can perform this action.
          */
         NotOwner: PlainDescriptor<undefined>;
         /**
-         * The switch is not in Active status.
+         * The will is not in Active status.
          */
-        SwitchNotActive: PlainDescriptor<undefined>;
+        WillNotActive: PlainDescriptor<undefined>;
         /**
-         * The switch has not yet expired (expiry block not passed).
+         * The will has already expired — heartbeat rejected.
          */
-        NotYetExpired: PlainDescriptor<undefined>;
-        /**
-         * The switch has already expired.
-         */
-        SwitchExpired: PlainDescriptor<undefined>;
+        WillExpired: PlainDescriptor<undefined>;
         /**
          * The block interval must be greater than zero.
          */
@@ -2955,17 +3964,22 @@ type IError = {
          */
         BlockIntervalTooLarge: PlainDescriptor<undefined>;
         /**
-         * At least one call is required.
+         * At least one bequest is required.
          */
-        NoCalls: PlainDescriptor<undefined>;
+        NoBequests: PlainDescriptor<undefined>;
         /**
-         * Too many calls (exceeds MaxCalls).
+         * Too many bequests (exceeds MaxBequests).
          */
-        TooManyCalls: PlainDescriptor<undefined>;
+        TooManyBequests: PlainDescriptor<undefined>;
         /**
-         * A call exceeds the maximum encoded size.
+         * A beneficiary named in a bequest does not have a verified
+         * on-chain identity.
          */
-        CallTooLarge: PlainDescriptor<undefined>;
+        BeneficiaryNotVerified: PlainDescriptor<undefined>;
+        /**
+         * The scheduler refused to schedule or reschedule the task.
+         */
+        ScheduleFailed: PlainDescriptor<undefined>;
     };
     Proxy: {
         /**
@@ -3059,6 +4073,188 @@ type IError = {
          * The data to be stored is already stored.
          */
         AlreadyStored: PlainDescriptor<undefined>;
+    };
+    Nfts: {
+        /**
+         * The signing account has no permission to do the operation.
+         */
+        NoPermission: PlainDescriptor<undefined>;
+        /**
+         * The given item ID is unknown.
+         */
+        UnknownCollection: PlainDescriptor<undefined>;
+        /**
+         * The item ID has already been used for an item.
+         */
+        AlreadyExists: PlainDescriptor<undefined>;
+        /**
+         * The approval had a deadline that expired, so the approval isn't valid anymore.
+         */
+        ApprovalExpired: PlainDescriptor<undefined>;
+        /**
+         * The owner turned out to be different to what was expected.
+         */
+        WrongOwner: PlainDescriptor<undefined>;
+        /**
+         * The witness data given does not match the current state of the chain.
+         */
+        BadWitness: PlainDescriptor<undefined>;
+        /**
+         * Collection ID is already taken.
+         */
+        CollectionIdInUse: PlainDescriptor<undefined>;
+        /**
+         * Items within that collection are non-transferable.
+         */
+        ItemsNonTransferable: PlainDescriptor<undefined>;
+        /**
+         * The provided account is not a delegate.
+         */
+        NotDelegate: PlainDescriptor<undefined>;
+        /**
+         * The delegate turned out to be different to what was expected.
+         */
+        WrongDelegate: PlainDescriptor<undefined>;
+        /**
+         * No approval exists that would allow the transfer.
+         */
+        Unapproved: PlainDescriptor<undefined>;
+        /**
+         * The named owner has not signed ownership acceptance of the collection.
+         */
+        Unaccepted: PlainDescriptor<undefined>;
+        /**
+         * The item is locked (non-transferable).
+         */
+        ItemLocked: PlainDescriptor<undefined>;
+        /**
+         * Item's attributes are locked.
+         */
+        LockedItemAttributes: PlainDescriptor<undefined>;
+        /**
+         * Collection's attributes are locked.
+         */
+        LockedCollectionAttributes: PlainDescriptor<undefined>;
+        /**
+         * Item's metadata is locked.
+         */
+        LockedItemMetadata: PlainDescriptor<undefined>;
+        /**
+         * Collection's metadata is locked.
+         */
+        LockedCollectionMetadata: PlainDescriptor<undefined>;
+        /**
+         * All items have been minted.
+         */
+        MaxSupplyReached: PlainDescriptor<undefined>;
+        /**
+         * The max supply is locked and can't be changed.
+         */
+        MaxSupplyLocked: PlainDescriptor<undefined>;
+        /**
+         * The provided max supply is less than the number of items a collection already has.
+         */
+        MaxSupplyTooSmall: PlainDescriptor<undefined>;
+        /**
+         * The given item ID is unknown.
+         */
+        UnknownItem: PlainDescriptor<undefined>;
+        /**
+         * Swap doesn't exist.
+         */
+        UnknownSwap: PlainDescriptor<undefined>;
+        /**
+         * The given item has no metadata set.
+         */
+        MetadataNotFound: PlainDescriptor<undefined>;
+        /**
+         * The provided attribute can't be found.
+         */
+        AttributeNotFound: PlainDescriptor<undefined>;
+        /**
+         * Item is not for sale.
+         */
+        NotForSale: PlainDescriptor<undefined>;
+        /**
+         * The provided bid is too low.
+         */
+        BidTooLow: PlainDescriptor<undefined>;
+        /**
+         * The item has reached its approval limit.
+         */
+        ReachedApprovalLimit: PlainDescriptor<undefined>;
+        /**
+         * The deadline has already expired.
+         */
+        DeadlineExpired: PlainDescriptor<undefined>;
+        /**
+         * The duration provided should be less than or equal to `MaxDeadlineDuration`.
+         */
+        WrongDuration: PlainDescriptor<undefined>;
+        /**
+         * The method is disabled by system settings.
+         */
+        MethodDisabled: PlainDescriptor<undefined>;
+        /**
+         * The provided setting can't be set.
+         */
+        WrongSetting: PlainDescriptor<undefined>;
+        /**
+         * Item's config already exists and should be equal to the provided one.
+         */
+        InconsistentItemConfig: PlainDescriptor<undefined>;
+        /**
+         * Config for a collection or an item can't be found.
+         */
+        NoConfig: PlainDescriptor<undefined>;
+        /**
+         * Some roles were not cleared.
+         */
+        RolesNotCleared: PlainDescriptor<undefined>;
+        /**
+         * Mint has not started yet.
+         */
+        MintNotStarted: PlainDescriptor<undefined>;
+        /**
+         * Mint has already ended.
+         */
+        MintEnded: PlainDescriptor<undefined>;
+        /**
+         * The provided Item was already used for claiming.
+         */
+        AlreadyClaimed: PlainDescriptor<undefined>;
+        /**
+         * The provided data is incorrect.
+         */
+        IncorrectData: PlainDescriptor<undefined>;
+        /**
+         * The extrinsic was sent by the wrong origin.
+         */
+        WrongOrigin: PlainDescriptor<undefined>;
+        /**
+         * The provided signature is incorrect.
+         */
+        WrongSignature: PlainDescriptor<undefined>;
+        /**
+         * The provided metadata might be too long.
+         */
+        IncorrectMetadata: PlainDescriptor<undefined>;
+        /**
+         * Can't set more attributes per one call.
+         */
+        MaxAttributesLimitReached: PlainDescriptor<undefined>;
+        /**
+         * The provided namespace isn't supported in this call.
+         */
+        WrongNamespace: PlainDescriptor<undefined>;
+        /**
+         * Can't delete non-empty collections.
+         */
+        CollectionNotEmpty: PlainDescriptor<undefined>;
+        /**
+         * The witness data should be provided.
+         */
+        WitnessRequired: PlainDescriptor<undefined>;
     };
     Revive: {
         /**
@@ -3420,6 +4616,20 @@ type IConstants = {
          */
         OperationalFeeMultiplier: PlainDescriptor<number>;
     };
+    Scheduler: {
+        /**
+         * The maximum weight that may be scheduled per block for any dispatchables.
+         */
+        MaximumWeight: PlainDescriptor<Anonymize<I4q39t5hn830vp>>;
+        /**
+         * The maximum number of scheduled calls in the queue for a single block.
+         *
+         * NOTE:
+         * + Dependent pallets' benchmarks might require a higher limit for the setting. Set a
+         * higher limit under `runtime-benchmarks` feature.
+         */
+        MaxScheduledPerBlock: PlainDescriptor<number>;
+    };
     CollatorSelection: {
         /**
          * Account Identifier from which the internal Pot is generated.
@@ -3572,15 +4782,11 @@ type IConstants = {
          */
         MaxAllowedBytes: PlainDescriptor<number>;
     };
-    DeadmanSwitchPallet: {
+    EstateExecutor: {
         /**
-         * Maximum number of stored calls per switch.
+         * Maximum number of bequests per will.
          */
-        MaxCalls: PlainDescriptor<number>;
-        /**
-         * Maximum encoded size (bytes) of a single stored call.
-         */
-        MaxCallSize: PlainDescriptor<number>;
+        MaxBequests: PlainDescriptor<number>;
     };
     Proxy: {
         /**
@@ -3641,6 +4847,65 @@ type IConstants = {
          * The maximum amount of signatories allowed in the multisig.
          */
         MaxSignatories: PlainDescriptor<number>;
+    };
+    Nfts: {
+        /**
+         * The basic amount of funds that must be reserved for collection.
+         */
+        CollectionDeposit: PlainDescriptor<bigint>;
+        /**
+         * The basic amount of funds that must be reserved for an item.
+         */
+        ItemDeposit: PlainDescriptor<bigint>;
+        /**
+         * The basic amount of funds that must be reserved when adding metadata to your item.
+         */
+        MetadataDepositBase: PlainDescriptor<bigint>;
+        /**
+         * The basic amount of funds that must be reserved when adding an attribute to an item.
+         */
+        AttributeDepositBase: PlainDescriptor<bigint>;
+        /**
+         * The additional funds that must be reserved for the number of bytes store in metadata,
+         * either "normal" metadata or attribute metadata.
+         */
+        DepositPerByte: PlainDescriptor<bigint>;
+        /**
+         * The maximum length of data stored on-chain.
+         */
+        StringLimit: PlainDescriptor<number>;
+        /**
+         * The maximum length of an attribute key.
+         */
+        KeyLimit: PlainDescriptor<number>;
+        /**
+         * The maximum length of an attribute value.
+         */
+        ValueLimit: PlainDescriptor<number>;
+        /**
+         * The maximum approvals an item could have.
+         */
+        ApprovalsLimit: PlainDescriptor<number>;
+        /**
+         * The maximum attributes approvals an item could have.
+         */
+        ItemAttributesApprovalsLimit: PlainDescriptor<number>;
+        /**
+         * The max number of tips a user could send.
+         */
+        MaxTips: PlainDescriptor<number>;
+        /**
+         * The max duration in blocks for deadlines.
+         */
+        MaxDeadlineDuration: PlainDescriptor<number>;
+        /**
+         * The max number of attributes a user could set per call.
+         */
+        MaxAttributesPerCall: PlainDescriptor<number>;
+        /**
+         * Disables some of pallet's features.
+         */
+        Features: PlainDescriptor<bigint>;
     };
     Revive: {
         /**
@@ -3750,7 +5015,7 @@ type IViewFns = {
         /**
          * Check if a `RuntimeCall` is allowed for a given `ProxyType`.
          */
-        check_permissions: RuntimeDescriptor<[call: Anonymize<I5uect53ett682>, proxy_type: Anonymize<I176ch6ftnp6d1>], boolean>;
+        check_permissions: RuntimeDescriptor<[call: Anonymize<Iehrj3kdjgfo5j>, proxy_type: Anonymize<I176ch6ftnp6d1>], boolean>;
         /**
          * Check if one `ProxyType` is a subset of another `ProxyType`.
          */
@@ -3861,7 +5126,7 @@ type IRuntimeCalls = {
          * Returns an inclusion outcome which specifies if this extrinsic is included in
          * this block or not.
          */
-        apply_extrinsic: RuntimeDescriptor<[extrinsic: Binary], Anonymize<I9llufrmculbl9>>;
+        apply_extrinsic: RuntimeDescriptor<[extrinsic: Binary], Anonymize<Ic3ask3jgs84f0>>;
         /**
          * Finish the current block.
          */
@@ -3959,11 +5224,11 @@ type IRuntimeCalls = {
         /**
          * Query information of a dispatch class, weight, and fee of a given encoded `Call`.
          */
-        query_call_info: RuntimeDescriptor<[call: Anonymize<I5uect53ett682>, len: number], Anonymize<I6spmpef2c7svf>>;
+        query_call_info: RuntimeDescriptor<[call: Anonymize<Iehrj3kdjgfo5j>, len: number], Anonymize<I6spmpef2c7svf>>;
         /**
          * Query fee details of a given encoded `Call`.
          */
-        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<I5uect53ett682>, len: number], Anonymize<Iei2mvq0mjvt81>>;
+        query_call_fee_details: RuntimeDescriptor<[call: Anonymize<Iehrj3kdjgfo5j>, len: number], Anonymize<Iei2mvq0mjvt81>>;
         /**
          * Query the output of the current `WeightToFee` given some input.
          */
@@ -3997,6 +5262,17 @@ type IRuntimeCalls = {
          * Validate the statement.
          */
         validate_statement: RuntimeDescriptor<[source: Anonymize<Ico18ks790i2bl>, statement: Anonymize<I815pbp5omtss>], Anonymize<I3ju6ot8lfmk90>>;
+    };
+    /**
+     * Estate Executor runtime API.
+     */
+    EstateExecutorApi: {
+        /**
+         * Returns the IDs of all currently active wills that name
+         * `account` as a beneficiary. Active means the will exists and
+         * has not yet been executed or cancelled.
+         */
+        inheritances_of: RuntimeDescriptor<[account: SS58String], Anonymize<Iafqnechp3omqg>>;
     };
     /**
      * API to interact with `RuntimeGenesisConfig` for the runtime
@@ -4083,13 +5359,13 @@ type IRuntimeCalls = {
          *
          * See [`crate::Pallet::bare_call`].
          */
-        call: RuntimeDescriptor<[origin: SS58String, dest: FixedSizeBinary<20>, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, input_data: Binary], Anonymize<Icq8o3dr41hprf>>;
+        call: RuntimeDescriptor<[origin: SS58String, dest: FixedSizeBinary<20>, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, input_data: Binary], Anonymize<I2djjceu8dt4ha>>;
         /**
          * Instantiate a new contract.
          *
          * See `[crate::Pallet::bare_instantiate]`.
          */
-        instantiate: RuntimeDescriptor<[origin: SS58String, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, code: Anonymize<I9sijb8gfrns29>, data: Binary, salt: Anonymize<I4s6vifaf8k998>], Anonymize<If0mcc5aqlg3hg>>;
+        instantiate: RuntimeDescriptor<[origin: SS58String, value: bigint, gas_limit: Anonymize<Iasb8k6ash5mjn>, storage_deposit_limit: Anonymize<I35p85j063s0il>, code: Anonymize<I9sijb8gfrns29>, data: Binary, salt: Anonymize<I4s6vifaf8k998>], Anonymize<Iujt3rhnedbr0>>;
         /**
          * Perform an Ethereum call.
          *
@@ -4108,7 +5384,7 @@ type IRuntimeCalls = {
          *
          * See [`crate::Pallet::bare_upload_code`].
          */
-        upload_code: RuntimeDescriptor<[origin: SS58String, code: Binary, storage_deposit_limit: Anonymize<I35p85j063s0il>], Anonymize<I8bqtpa86m82mv>>;
+        upload_code: RuntimeDescriptor<[origin: SS58String, code: Binary, storage_deposit_limit: Anonymize<I35p85j063s0il>], Anonymize<Idi09uq5khm08t>>;
         /**
          * Query a given storage key in a given contract.
          *
@@ -4116,7 +5392,7 @@ type IRuntimeCalls = {
          * specified account and `Ok(None)` if it doesn't. If the account specified by the address
          * doesn't exist, or doesn't have a contract then `Err` is returned.
          */
-        get_storage: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: FixedSizeBinary<32>], Anonymize<Ib1fsqnio4hgeh>>;
+        get_storage: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: FixedSizeBinary<32>], Anonymize<I6ftipe9ubn5f8>>;
         /**
          * Query a given variable-sized storage key in a given contract.
          *
@@ -4124,7 +5400,7 @@ type IRuntimeCalls = {
          * specified account and `Ok(None)` if it doesn't. If the account specified by the address
          * doesn't exist, or doesn't have a contract then `Err` is returned.
          */
-        get_storage_var_key: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: Binary], Anonymize<Ib1fsqnio4hgeh>>;
+        get_storage_var_key: RuntimeDescriptor<[address: FixedSizeBinary<20>, key: Binary], Anonymize<I6ftipe9ubn5f8>>;
         /**
          * Traces the execution of an entire block and returns call traces.
          *
@@ -4175,7 +5451,7 @@ type IRuntimeCalls = {
         new_balance_with_dust: RuntimeDescriptor<[balance: Anonymize<I4totqt881mlti>], Anonymize<I512dtcl0pn07c>>;
     };
 };
-export type Stack_templateDispatchError = Anonymize<I4271lm07voush>;
+export type Stack_templateDispatchError = Anonymize<If5r96j2ibokne>;
 type IAsset = PlainDescriptor<void>;
 export type Stack_templateExtensions = {};
 type PalletsTypedef = {
@@ -4206,7 +5482,7 @@ export type Stack_templateEvents = EventsFromPalletsDef<PalletsTypedef>;
 export type Stack_templateErrors = ErrorsFromPalletsDef<PalletsTypedef>;
 export type Stack_templateConstants = ConstFromPalletsDef<PalletsTypedef>;
 export type Stack_templateViewFns = ViewFnsFromPalletsDef<PalletsTypedef>;
-export type Stack_templateCallData = Anonymize<I5uect53ett682> & {
+export type Stack_templateCallData = Anonymize<Iehrj3kdjgfo5j> & {
     value: {
         type: string;
     };
@@ -4220,6 +5496,7 @@ type AllInteractions = {
         Balances: ['TotalIssuance', 'InactiveIssuance', 'Account', 'Locks', 'Reserves', 'Holds', 'Freezes'];
         TransactionPayment: ['NextFeeMultiplier', 'StorageVersion', 'TxPaymentCredit'];
         Sudo: ['Key'];
+        Scheduler: ['IncompleteSince', 'Agenda', 'Retries', 'Lookup'];
         Authorship: ['Author'];
         CollatorSelection: ['Invulnerables', 'CandidateList', 'LastAuthoredBlock', 'DesiredCandidates', 'CandidacyBond'];
         Session: ['Validators', 'CurrentIndex', 'QueuedChanged', 'QueuedKeys', 'DisabledValidators', 'NextKeys', 'KeyOwner', 'ExternallySetKeys'];
@@ -4228,9 +5505,10 @@ type AllInteractions = {
         XcmpQueue: ['InboundXcmpSuspended', 'OutboundXcmpStatus', 'OutboundXcmpMessages', 'SignalMessages', 'QueueConfig', 'QueueSuspended', 'DeliveryFeeFactor'];
         PolkadotXcm: ['QueryCounter', 'Queries', 'AssetTraps', 'SafeXcmVersion', 'SupportedVersion', 'VersionNotifiers', 'VersionNotifyTargets', 'VersionDiscoveryQueue', 'CurrentMigration', 'RemoteLockedFungibles', 'LockedFungibles', 'XcmExecutionSuspended', 'ShouldRecordXcm', 'RecordedXcm', 'AuthorizedAliases'];
         MessageQueue: ['BookStateFor', 'ServiceHead', 'Pages'];
-        DeadmanSwitchPallet: ['NextSwitchId', 'Switches', 'SwitchCalls'];
+        EstateExecutor: ['NextWillId', 'Wills', 'WillBequests', 'CertificateCollectionId'];
         Proxy: ['Proxies', 'Announcements'];
         Multisig: ['Multisigs'];
+        Nfts: ['Collection', 'OwnershipAcceptance', 'Account', 'CollectionAccount', 'CollectionRoleOf', 'Item', 'CollectionMetadataOf', 'ItemMetadataOf', 'Attribute', 'ItemPriceOf', 'ItemAttributesApprovalsOf', 'NextCollectionId', 'PendingSwapOf', 'CollectionConfigOf', 'ItemConfigOf'];
         Revive: ['PristineCode', 'CodeInfoOf', 'AccountInfoOf', 'ImmutableDataOf', 'DeletionQueue', 'DeletionQueueCounter', 'OriginalAccount', 'EthereumBlock', 'BlockHash', 'ReceiptInfoData', 'EthBlockBuilderIR', 'EthBlockBuilderFirstValues', 'DebugSettingsOf'];
     };
     tx: {
@@ -4239,14 +5517,16 @@ type AllInteractions = {
         Timestamp: ['set'];
         Balances: ['transfer_allow_death', 'force_transfer', 'transfer_keep_alive', 'transfer_all', 'force_unreserve', 'upgrade_accounts', 'force_set_balance', 'force_adjust_total_issuance', 'burn'];
         Sudo: ['sudo', 'sudo_unchecked_weight', 'set_key', 'sudo_as', 'remove_key'];
+        Scheduler: ['schedule', 'cancel', 'schedule_named', 'cancel_named', 'schedule_after', 'schedule_named_after', 'set_retry', 'set_retry_named', 'cancel_retry', 'cancel_retry_named'];
         CollatorSelection: ['set_invulnerables', 'set_desired_candidates', 'set_candidacy_bond', 'register_as_candidate', 'leave_intent', 'add_invulnerable', 'remove_invulnerable', 'update_bond', 'take_candidate_slot'];
         Session: ['set_keys', 'purge_keys'];
         XcmpQueue: ['suspend_xcm_execution', 'resume_xcm_execution', 'update_suspend_threshold', 'update_drop_threshold', 'update_resume_threshold'];
         PolkadotXcm: ['send', 'teleport_assets', 'reserve_transfer_assets', 'execute', 'force_xcm_version', 'force_default_xcm_version', 'force_subscribe_version_notify', 'force_unsubscribe_version_notify', 'limited_reserve_transfer_assets', 'limited_teleport_assets', 'force_suspension', 'transfer_assets', 'claim_assets', 'transfer_assets_using_type_and_then', 'add_authorized_alias', 'remove_authorized_alias', 'remove_all_authorized_aliases'];
         MessageQueue: ['reap_page', 'execute_overweight'];
-        DeadmanSwitchPallet: ['create_switch', 'heartbeat', 'trigger', 'cancel'];
+        EstateExecutor: ['create_will', 'heartbeat', 'execute_will', 'cancel'];
         Proxy: ['proxy', 'add_proxy', 'remove_proxy', 'remove_proxies', 'create_pure', 'kill_pure', 'announce', 'remove_announcement', 'reject_announcement', 'proxy_announced', 'poke_deposit'];
         Multisig: ['as_multi_threshold_1', 'as_multi', 'approve_as_multi', 'cancel_as_multi', 'poke_deposit'];
+        Nfts: ['create', 'force_create', 'destroy', 'mint', 'force_mint', 'burn', 'transfer', 'redeposit', 'lock_item_transfer', 'unlock_item_transfer', 'lock_collection', 'transfer_ownership', 'set_team', 'force_collection_owner', 'force_collection_config', 'approve_transfer', 'cancel_approval', 'clear_all_transfer_approvals', 'lock_item_properties', 'set_attribute', 'force_set_attribute', 'clear_attribute', 'approve_item_attributes', 'cancel_item_attributes_approval', 'set_metadata', 'clear_metadata', 'set_collection_metadata', 'clear_collection_metadata', 'set_accept_ownership', 'set_collection_max_supply', 'update_mint_settings', 'set_price', 'buy_item', 'pay_tips', 'create_swap', 'cancel_swap', 'claim_swap', 'mint_pre_signed', 'set_attributes_pre_signed'];
         Revive: ['eth_transact', 'call', 'instantiate', 'instantiate_with_code', 'eth_instantiate_with_code', 'eth_call', 'eth_substrate_call', 'upload_code', 'remove_code', 'set_code', 'map_account', 'unmap_account', 'dispatch_as_fallback_account'];
     };
     events: {
@@ -4255,6 +5535,8 @@ type AllInteractions = {
         Balances: ['Endowed', 'DustLost', 'Transfer', 'BalanceSet', 'Reserved', 'Unreserved', 'ReserveRepatriated', 'Deposit', 'Withdraw', 'Slashed', 'Minted', 'MintedCredit', 'Burned', 'BurnedDebt', 'Suspended', 'Restored', 'Upgraded', 'Issued', 'Rescinded', 'Locked', 'Unlocked', 'Frozen', 'Thawed', 'TotalIssuanceForced', 'Held', 'BurnedHeld', 'TransferOnHold', 'TransferAndHold', 'Released', 'Unexpected'];
         TransactionPayment: ['TransactionFeePaid'];
         Sudo: ['Sudid', 'KeyChanged', 'KeyRemoved', 'SudoAsDone'];
+        Scheduler: ['Scheduled', 'Canceled', 'Dispatched', 'RetrySet', 'RetryCancelled', 'CallUnavailable', 'PeriodicFailed', 'RetryFailed', 'PermanentlyOverweight', 'AgendaIncomplete'];
+        SkipFeelessPayment: ['FeeSkipped'];
         CollatorSelection: ['NewInvulnerables', 'InvulnerableAdded', 'InvulnerableRemoved', 'NewDesiredCandidates', 'NewCandidacyBond', 'CandidateAdded', 'CandidateBondUpdated', 'CandidateRemoved', 'CandidateReplaced', 'InvalidInvulnerableSkipped'];
         Session: ['NewSession', 'NewQueued', 'ValidatorDisabled', 'ValidatorReenabled'];
         XcmpQueue: ['XcmpMessageSent'];
@@ -4262,9 +5544,10 @@ type AllInteractions = {
         CumulusXcm: ['InvalidFormat', 'UnsupportedVersion', 'ExecutedDownward'];
         MessageQueue: ['ProcessingFailed', 'Processed', 'OverweightEnqueued', 'PageReaped'];
         Statement: ['NewStatement'];
-        DeadmanSwitchPallet: ['SwitchCreated', 'HeartbeatReceived', 'SwitchTriggered', 'CallDispatched', 'SwitchCancelled'];
+        EstateExecutor: ['WillCreated', 'HeartbeatReceived', 'WillExecuted', 'BequestDispatched', 'InheritanceCertificateMinted', 'InheritanceCertificateFailed', 'WillCancelled'];
         Proxy: ['ProxyExecuted', 'PureCreated', 'PureKilled', 'Announced', 'ProxyAdded', 'ProxyRemoved', 'DepositPoked'];
         Multisig: ['NewMultisig', 'MultisigApproval', 'MultisigExecuted', 'MultisigCancelled', 'DepositPoked'];
+        Nfts: ['Created', 'ForceCreated', 'Destroyed', 'Issued', 'Transferred', 'Burned', 'ItemTransferLocked', 'ItemTransferUnlocked', 'ItemPropertiesLocked', 'CollectionLocked', 'OwnerChanged', 'TeamChanged', 'TransferApproved', 'ApprovalCancelled', 'AllApprovalsCancelled', 'CollectionConfigChanged', 'CollectionMetadataSet', 'CollectionMetadataCleared', 'ItemMetadataSet', 'ItemMetadataCleared', 'Redeposited', 'AttributeSet', 'AttributeCleared', 'ItemAttributesApprovalAdded', 'ItemAttributesApprovalRemoved', 'OwnershipAcceptanceChanged', 'CollectionMaxSupplySet', 'CollectionMintSettingsUpdated', 'NextCollectionIdIncremented', 'ItemPriceSet', 'ItemPriceRemoved', 'ItemBought', 'TipSent', 'SwapCreated', 'SwapCancelled', 'SwapClaimed', 'PreSignedAttributesSet', 'PalletAttributeSet'];
         Revive: ['ContractEmitted', 'Instantiated', 'EthExtrinsicRevert'];
     };
     errors: {
@@ -4272,14 +5555,16 @@ type AllInteractions = {
         ParachainSystem: ['OverlappingUpgrades', 'ProhibitedByPolkadot', 'TooBig', 'ValidationDataNotAvailable', 'HostConfigurationNotAvailable', 'NotScheduled'];
         Balances: ['VestingBalance', 'LiquidityRestrictions', 'InsufficientBalance', 'ExistentialDeposit', 'Expendability', 'ExistingVestingSchedule', 'DeadAccount', 'TooManyReserves', 'TooManyHolds', 'TooManyFreezes', 'IssuanceDeactivated', 'DeltaZero'];
         Sudo: ['RequireSudo'];
+        Scheduler: ['FailedToSchedule', 'NotFound', 'TargetBlockNumberInPast', 'RescheduleNoChange', 'Named'];
         CollatorSelection: ['TooManyCandidates', 'TooFewEligibleCollators', 'AlreadyCandidate', 'NotCandidate', 'TooManyInvulnerables', 'AlreadyInvulnerable', 'NotInvulnerable', 'NoAssociatedValidatorId', 'ValidatorNotRegistered', 'InsertToCandidateListFailed', 'RemoveFromCandidateListFailed', 'DepositTooLow', 'UpdateCandidateListFailed', 'InsufficientBond', 'TargetIsNotCandidate', 'IdenticalDeposit', 'InvalidUnreserve'];
         Session: ['InvalidProof', 'NoAssociatedValidatorId', 'DuplicatedKey', 'NoKeys', 'NoAccount'];
         XcmpQueue: ['BadQueueConfig', 'AlreadySuspended', 'AlreadyResumed', 'TooManyActiveOutboundChannels', 'TooBig'];
         PolkadotXcm: ['Unreachable', 'SendFailure', 'Filtered', 'UnweighableMessage', 'DestinationNotInvertible', 'Empty', 'CannotReanchor', 'TooManyAssets', 'InvalidOrigin', 'BadVersion', 'BadLocation', 'NoSubscription', 'AlreadySubscribed', 'CannotCheckOutTeleport', 'LowBalance', 'TooManyLocks', 'AccountNotSovereign', 'FeesNotMet', 'LockNotFound', 'InUse', 'InvalidAssetUnknownReserve', 'InvalidAssetUnsupportedReserve', 'TooManyReserves', 'LocalExecutionIncomplete', 'TooManyAuthorizedAliases', 'ExpiresInPast', 'AliasNotFound', 'LocalExecutionIncompleteWithError'];
         MessageQueue: ['NotReapable', 'NoPage', 'NoMessage', 'AlreadyProcessed', 'Queued', 'InsufficientWeight', 'TemporarilyUnprocessable', 'QueuePaused', 'RecursiveDisallowed'];
-        DeadmanSwitchPallet: ['SwitchNotFound', 'NotOwner', 'SwitchNotActive', 'NotYetExpired', 'SwitchExpired', 'InvalidInterval', 'BlockIntervalTooLarge', 'NoCalls', 'TooManyCalls', 'CallTooLarge'];
+        EstateExecutor: ['WillNotFound', 'NotOwner', 'WillNotActive', 'WillExpired', 'InvalidInterval', 'BlockIntervalTooLarge', 'NoBequests', 'TooManyBequests', 'BeneficiaryNotVerified', 'ScheduleFailed'];
         Proxy: ['TooMany', 'NotFound', 'NotProxy', 'Unproxyable', 'Duplicate', 'NoPermission', 'Unannounced', 'NoSelfProxy'];
         Multisig: ['MinimumThreshold', 'AlreadyApproved', 'NoApprovalsNeeded', 'TooFewSignatories', 'TooManySignatories', 'SignatoriesOutOfOrder', 'SenderInSignatories', 'NotFound', 'NotOwner', 'NoTimepoint', 'WrongTimepoint', 'UnexpectedTimepoint', 'MaxWeightTooLow', 'AlreadyStored'];
+        Nfts: ['NoPermission', 'UnknownCollection', 'AlreadyExists', 'ApprovalExpired', 'WrongOwner', 'BadWitness', 'CollectionIdInUse', 'ItemsNonTransferable', 'NotDelegate', 'WrongDelegate', 'Unapproved', 'Unaccepted', 'ItemLocked', 'LockedItemAttributes', 'LockedCollectionAttributes', 'LockedItemMetadata', 'LockedCollectionMetadata', 'MaxSupplyReached', 'MaxSupplyLocked', 'MaxSupplyTooSmall', 'UnknownItem', 'UnknownSwap', 'MetadataNotFound', 'AttributeNotFound', 'NotForSale', 'BidTooLow', 'ReachedApprovalLimit', 'DeadlineExpired', 'WrongDuration', 'MethodDisabled', 'WrongSetting', 'InconsistentItemConfig', 'NoConfig', 'RolesNotCleared', 'MintNotStarted', 'MintEnded', 'AlreadyClaimed', 'IncorrectData', 'WrongOrigin', 'WrongSignature', 'IncorrectMetadata', 'MaxAttributesLimitReached', 'WrongNamespace', 'CollectionNotEmpty', 'WitnessRequired'];
         Revive: ['InvalidSchedule', 'InvalidCallFlags', 'OutOfGas', 'TransferFailed', 'MaxCallDepthReached', 'ContractNotFound', 'CodeNotFound', 'CodeInfoNotFound', 'OutOfBounds', 'DecodingFailed', 'ContractTrapped', 'ValueTooLarge', 'TerminatedWhileReentrant', 'InputForwarded', 'TooManyTopics', 'DuplicateContract', 'TerminatedInConstructor', 'ReentranceDenied', 'ReenteredPallet', 'StateChangeDenied', 'StorageDepositNotEnoughFunds', 'StorageDepositLimitExhausted', 'CodeInUse', 'ContractReverted', 'CodeRejected', 'BlobTooLarge', 'StaticMemoryTooLarge', 'BasicBlockTooLarge', 'InvalidInstruction', 'MaxDelegateDependenciesReached', 'DelegateDependencyNotFound', 'DelegateDependencyAlreadyExists', 'CannotAddSelfAsDelegateDependency', 'OutOfTransientStorage', 'InvalidSyscall', 'InvalidStorageFlags', 'ExecutionFailed', 'BalanceConversionFailed', 'InvalidImmutableAccess', 'AccountUnmapped', 'AccountAlreadyMapped', 'InvalidGenericTransaction', 'RefcountOverOrUnderflow', 'UnsupportedPrecompileAddress', 'CallDataTooLarge', 'ReturnDataTooLarge', 'InvalidJump', 'StackUnderflow', 'StackOverflow', 'TxFeeOverdraw', 'EvmConstructorNonEmptyData', 'EvmConstructedFromHash', 'StorageRefundNotEnoughFunds', 'StorageRefundLocked', 'PrecompileDelegateDenied', 'EcdsaRecoveryFailed'];
     };
     constants: {
@@ -4288,6 +5573,7 @@ type AllInteractions = {
         Timestamp: ['MinimumPeriod'];
         Balances: ['ExistentialDeposit', 'MaxLocks', 'MaxReserves', 'MaxFreezes'];
         TransactionPayment: ['OperationalFeeMultiplier'];
+        Scheduler: ['MaximumWeight', 'MaxScheduledPerBlock'];
         CollatorSelection: ['PotId', 'MaxCandidates', 'MinEligibleCollators', 'MaxInvulnerables', 'KickThreshold', 'pot_account'];
         Session: ['KeyDeposit'];
         Aura: ['SlotDuration'];
@@ -4295,9 +5581,10 @@ type AllInteractions = {
         PolkadotXcm: ['UniversalLocation', 'AdvertisedXcmVersion', 'MaxLockers', 'MaxRemoteLockConsumers'];
         MessageQueue: ['HeapSize', 'MaxStale', 'ServiceWeight', 'IdleMaxServiceWeight'];
         Statement: ['StatementCost', 'ByteCost', 'MinAllowedStatements', 'MaxAllowedStatements', 'MinAllowedBytes', 'MaxAllowedBytes'];
-        DeadmanSwitchPallet: ['MaxCalls', 'MaxCallSize'];
+        EstateExecutor: ['MaxBequests'];
         Proxy: ['ProxyDepositBase', 'ProxyDepositFactor', 'MaxProxies', 'MaxPending', 'AnnouncementDepositBase', 'AnnouncementDepositFactor'];
         Multisig: ['DepositBase', 'DepositFactor', 'MaxSignatories'];
+        Nfts: ['CollectionDeposit', 'ItemDeposit', 'MetadataDepositBase', 'AttributeDepositBase', 'DepositPerByte', 'StringLimit', 'KeyLimit', 'ValueLimit', 'ApprovalsLimit', 'ItemAttributesApprovalsLimit', 'MaxTips', 'MaxDeadlineDuration', 'MaxAttributesPerCall', 'Features'];
         Revive: ['DepositPerByte', 'DepositPerItem', 'DepositPerChildTrieItem', 'CodeHashLockupDepositPercent', 'UnsafeUnstableInterface', 'AllowEVMBytecode', 'ChainId', 'NativeToEthRatio', 'MaxEthExtrinsicWeight', 'DebugEnabled', 'GasScale'];
     };
     viewFns: {
@@ -4318,6 +5605,7 @@ type AllInteractions = {
         TransactionPaymentCallApi: ['query_call_info', 'query_call_fee_details', 'query_weight_to_fee', 'query_length_to_fee'];
         CollectCollationInfo: ['collect_collation_info'];
         ValidateStatement: ['validate_statement'];
+        EstateExecutorApi: ['inheritances_of'];
         GenesisBuilder: ['build_state', 'get_preset', 'preset_names'];
         ReviveApi: ['eth_block', 'eth_block_hash', 'eth_receipt_data', 'block_gas_limit', 'balance', 'gas_price', 'nonce', 'call', 'instantiate', 'eth_transact', 'eth_transact_with_config', 'upload_code', 'get_storage', 'get_storage_var_key', 'trace_block', 'trace_tx', 'trace_call', 'block_author', 'address', 'account_id', 'runtime_pallets_address', 'code', 'new_balance_with_dust'];
     };

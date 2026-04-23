@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
 	"blockchain/runtime",
-	"blockchain/pallets/deadman-switch",
+	"blockchain/pallets/estate-executor",
 ]
 
 [workspace.package]
@@ -12,7 +12,7 @@ edition = "2021"
 
 [workspace.dependencies]
 # Local crates
-pallet-deadman-switch = { path = "./blockchain/pallets/deadman-switch", default-features = false }
+pallet-estate-executor = { path = "./blockchain/pallets/estate-executor", default-features = false }
 
 # Common dependencies
 codec = { version = "3.7.4", default-features = false, package = "parity-scale-codec" }

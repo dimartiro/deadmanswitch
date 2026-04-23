@@ -57,7 +57,11 @@ pub type TxExtension = cumulus_pallet_weight_reclaim::StorageWeightReclaim<
 		frame_system::CheckEra<Runtime>,
 		frame_system::CheckNonce<Runtime>,
 		frame_system::CheckWeight<Runtime>,
-		pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
+		pallet_estate_executor::BoostUrgentHeartbeats<Runtime>,
+		pallet_skip_feeless_payment::SkipCheckIfFeeless<
+			Runtime,
+			pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
+		>,
 		frame_metadata_hash_extension::CheckMetadataHash<Runtime>,
 		pallet_revive::evm::tx_extension::SetOrigin<Runtime>,
 	),
@@ -80,7 +84,10 @@ impl pallet_revive::evm::runtime::EthExtra for EthExtraImpl {
 			frame_system::CheckMortality::from(generic::Era::Immortal),
 			frame_system::CheckNonce::<Runtime>::from(nonce),
 			frame_system::CheckWeight::<Runtime>::new(),
-			pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
+			pallet_estate_executor::BoostUrgentHeartbeats::<Runtime>::new(),
+			pallet_skip_feeless_payment::SkipCheckIfFeeless::from(
+				pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
+			),
 			frame_metadata_hash_extension::CheckMetadataHash::<Runtime>::new(false),
 			pallet_revive::evm::tx_extension::SetOrigin::<Runtime>::new_from_eth_transaction(),
 		)
@@ -148,7 +155,10 @@ impl_opaque_keys! {
 // bottom of this file, because that macro generates RUNTIME_API_VERSIONS.
 
 mod block_times {
-	pub const MILLI_SECS_PER_BLOCK: u64 = 6000;
+	// 2s parachain blocks (three per relay slot) via async backing.
+	// See `BLOCK_PROCESSING_VELOCITY` below — must stay consistent with
+	// `relay_slot_duration_millis / parachain_slot_duration_millis`.
+	pub const MILLI_SECS_PER_BLOCK: u64 = 2000;
 	pub const SLOT_DURATION: u64 = MILLI_SECS_PER_BLOCK;
 }
 pub use block_times::*;
@@ -173,7 +183,8 @@ const MAXIMUM_BLOCK_WEIGHT: Weight = Weight::from_parts(
 
 mod async_backing_params {
 	pub(crate) const UNINCLUDED_SEGMENT_CAPACITY: u32 = 3;
-	pub(crate) const BLOCK_PROCESSING_VELOCITY: u32 = 1;
+	// Three parachain blocks per relay slot (6000ms / 2000ms = 3).
+	pub(crate) const BLOCK_PROCESSING_VELOCITY: u32 = 3;
 	pub(crate) const RELAY_CHAIN_SLOT_DURATION_MILLIS: u32 = 6000;
 }
 pub(crate) use async_backing_params::*;
@@ -225,6 +236,10 @@ mod runtime {
 
 	#[runtime::pallet_index(15)]
 	pub type Sudo = pallet_sudo;
+	#[runtime::pallet_index(16)]
+	pub type Scheduler = pallet_scheduler;
+	#[runtime::pallet_index(17)]
+	pub type SkipFeelessPayment = pallet_skip_feeless_payment;
 
 	#[runtime::pallet_index(20)]
 	pub type Authorship = pallet_authorship;
@@ -250,12 +265,14 @@ mod runtime {
 	pub type Statement = pallet_statement;
 
 	#[runtime::pallet_index(50)]
-	pub type DeadmanSwitchPallet = pallet_deadman_switch;
+	pub type EstateExecutor = pallet_estate_executor;
 
 	#[runtime::pallet_index(60)]
 	pub type Proxy = pallet_proxy;
 	#[runtime::pallet_index(61)]
 	pub type Multisig = pallet_multisig;
+	#[runtime::pallet_index(70)]
+	pub type Nfts = pallet_nfts;
 
 	// Smart contracts (EVM + PVM via pallet-revive)
 	#[runtime::pallet_index(90)]
@@ -376,6 +393,12 @@ pallet_revive::impl_runtime_apis_plus_revive_traits!(
 		}
 	}
 
+	impl pallet_estate_executor::runtime_api::EstateExecutorApi<Block, AccountId> for Runtime {
+		fn inheritances_of(account: AccountId) -> Vec<pallet_estate_executor::WillId> {
+			EstateExecutor::inheritances_of(&account)
+		}
+	}
+
 	#[cfg(feature = "try-runtime")]
 	impl frame_try_runtime::TryRuntime<Block> for Runtime {
 		fn on_runtime_upgrade(checks: frame_try_runtime::UpgradeCheckSelect) -> (frame_support::weights::Weight, frame_support::weights::Weight) {
@@ -440,8 +463,8 @@ pallet_revive::impl_runtime_apis_plus_revive_traits!(
 
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: alloc::borrow::Cow::Borrowed("deadman-switch-runtime"),
-	impl_name: alloc::borrow::Cow::Borrowed("deadman-switch-runtime"),
+	spec_name: alloc::borrow::Cow::Borrowed("estate-protocol-runtime"),
+	impl_name: alloc::borrow::Cow::Borrowed("estate-protocol-runtime"),
 	authoring_version: 1,
 	spec_version: 1,
 	impl_version: 0,

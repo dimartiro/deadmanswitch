@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  # Version of the polkadot-sdk release whose prebuilt binaries the
+  # e2e job downloads. Must match the upstream tag the project tracks
+  # (see scripts/common.sh install hints).
+  POLKADOT_SDK_TAG: polkadot-stable2512-3
+
+jobs:
+  rust-clippy:
+    name: cargo clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler clang cmake libssl-dev pkg-config
+
+      - name: Install Rust toolchain
+        run: |
+          rustup show active-toolchain || rustup toolchain install
+          rustup component add rust-src clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: clippy
+          cache-on-failure: true
+
+      - name: cargo clippy --workspace --all-targets
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+  estate-protocol-tests:
+    name: Estate Protocol tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler clang cmake libssl-dev pkg-config
+
+      - name: Install Rust toolchain
+        run: |
+          rustup show active-toolchain || rustup toolchain install
+          rustup component add rust-src
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: estate-protocol-tests
+          cache-on-failure: true
+
+      - name: cargo test --workspace
+        run: cargo test --workspace --locked
+
+  e2e-tests:
+    name: E2E tests (zombienet)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: estate-protocol-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler clang cmake libssl-dev pkg-config jq curl
+
+      - name: Install Rust toolchain
+        run: |
+          rustup show active-toolchain || rustup toolchain install
+          rustup component add rust-src
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: e2e
+          cache-on-failure: true
+
+      - name: Install chain-spec-builder
+        run: |
+          if ! command -v chain-spec-builder >/dev/null; then
+            cargo install --locked staging-chain-spec-builder
+          fi
+
+      - name: Download polkadot-sdk binaries (${{ env.POLKADOT_SDK_TAG }})
+        run: |
+          BIN_DIR="$HOME/.local/bin"
+          mkdir -p "$BIN_DIR"
+          cd "$BIN_DIR"
+          for bin in polkadot polkadot-execute-worker polkadot-prepare-worker polkadot-omni-node polkadot-parachain eth-rpc; do
+            echo "Fetching $bin..."
+            curl --fail --location --retry 3 \
+              -o "$bin" \
+              "https://github.com/paritytech/polkadot-sdk/releases/download/${POLKADOT_SDK_TAG}/${bin}"
+            chmod +x "$bin"
+          done
+          echo "$BIN_DIR" >> "$GITHUB_PATH"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install zombienet
+        run: npm install -g @zombienet/cli
+
+      - name: Install web deps
+        working-directory: web
+        run: npm ci
+
+      - name: Run e2e suite
+        run: ./scripts/test-zombienet.sh
+
+      - name: Upload zombienet logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zombienet-logs
+          path: |
+            /tmp/zombie-*/**/*.log
+          retention-days: 7
+          if-no-files-found: ignore

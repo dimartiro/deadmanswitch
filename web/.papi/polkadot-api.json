@@ -6,7 +6,19 @@
       "wsUrl": "ws://127.0.0.1:9944",
       "metadata": ".papi/metadata/stack_template.scale",
       "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545",
-      "codeHash": "0xa091b6173a12e3e1b9150dcb92c29b6e22d37df7c6cb3cdb2f13d5a781ee6f30"
+      "codeHash": "0xc483cb56467f666de7b186be6e1267f27d4bed39445608e4f310cb6d331e3f0e"
+    },
+    "people_chain": {
+      "wsUrl": "ws://127.0.0.1:9946",
+      "metadata": ".papi/metadata/people_chain.scale",
+      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545",
+      "codeHash": "0x8244706f1d9dc6d5f6ebcf8b91e92f431a98e9c3ba5db88e77445e1c6292db16"
+    },
+    "asset_hub": {
+      "wsUrl": "ws://127.0.0.1:9948",
+      "metadata": ".papi/metadata/asset_hub.scale",
+      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545",
+      "codeHash": "0x289e09fc2b2cb9989575679a8ca1b9df661f14d7465da403026d09986a2d2e45"
     },
     "bulletin": {
       "wsUrl": "wss://paseo-bulletin-rpc.polkadot.io",

@@ -1,1 +1,1 @@
-{"cliVersion":"0.18.1","whitelist":null,"chains":{"stack_template":"0x9805d4094c50c31bce2f71df51b5af3d","bulletin":"0x5c7968c489c7a9fdf8a9e25bec077512"},"contracts":{"ink":{},"sol":{}}}
+{"cliVersion":"0.18.1","whitelist":null,"chains":{"stack_template":"0x35d9e11e278baa36478f9abb72037d57","people_chain":"0x19caee51e57b14b2abf73889c18a84a6","asset_hub":"0x95b7337ed0b34c56219015ee4eb3bd1e","bulletin":"0x5c7968c489c7a9fdf8a9e25bec077512"},"contracts":{"ink":{},"sol":{}}}

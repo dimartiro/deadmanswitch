@@ -25,6 +25,6 @@ echo "  Chain spec written to blockchain/chain_spec.json"
 # Start the local node
 echo "[3/3] Starting local omni-node..."
 log_info "RPC endpoint: $SUBSTRATE_RPC_WS"
-log_info "Use start-all.sh for the full stack, or start-local.sh for just the relay-backed network."
+log_info "Use start-zombienet.sh for the relay-backed network with Asset Hub and People Chain."
 echo ""
 run_local_node_foreground

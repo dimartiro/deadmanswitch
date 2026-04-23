@@ -1,6 +1,6 @@
 [package]
-name = "pallet-deadman-switch"
-description = "A deadman switch pallet: lock funds with a heartbeat-based release to beneficiaries."
+name = "pallet-estate-executor"
+description = "Executor pallet for the Estate Protocol: stores arbitrary runtime calls (a 'will') that auto-execute on the owner's behalf if periodic heartbeats stop."
 version = "0.1.0"
 license.workspace = true
 authors.workspace = true
@@ -15,9 +15,15 @@ scale-info = { features = ["derive"], workspace = true }
 [dev-dependencies]
 frame = { workspace = true, features = ["std", "experimental", "runtime"] }
 sp-io = { workspace = true, features = ["std"] }
-pallet-balances = { version = "46.0.0", default-features = false, features = ["std"] }
-pallet-proxy = { version = "45.0.0", default-features = false, features = ["std"] }
-pallet-multisig = { version = "45.0.0", default-features = false, features = ["std"] }
+# Test pallets come from the polkadot-sdk meta-crate so their internal
+# frame-support/frame-system versions always match `frame` above.
+polkadot-sdk = { workspace = true, features = [
+	"std",
+	"pallet-balances",
+	"pallet-proxy",
+	"pallet-multisig",
+	"pallet-scheduler",
+] }
 
 [features]
 default = ["std"]
