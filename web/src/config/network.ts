@@ -15,7 +15,7 @@ export const PEOPLE_CHAIN_WS_URL =
 export const ASSET_HUB_WS_URL =
 	import.meta.env.VITE_ASSET_HUB_WS_URL || "ws://localhost:9948";
 
-export const TESTNET_WS_URL = "wss://services.polkadothub-rpc.com/testnet";
+export const TESTNET_WS_URL = "wss://asset-hub-paseo.dotters.network";
 
 function isLocalHost() {
 	if (typeof window === "undefined") {
