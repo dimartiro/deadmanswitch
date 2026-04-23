@@ -55,7 +55,11 @@ export function useConnectionManagement() {
 	const initialWsUrlRef = useRef(wsUrl);
 
 	useEffect(() => {
-		connect(initialWsUrlRef.current).catch(() => {});
+		const setInitialConnectComplete =
+			useChainStore.getState().setInitialConnectComplete;
+		connect(initialWsUrlRef.current)
+			.catch(() => {})
+			.finally(() => setInitialConnectComplete(true));
 		// Probe sibling parachains. If they respond in time, their
 		// features are enabled; if not, we're in solo-node dev mode
 		// (start-dev.sh) and related UI is hidden / bypassed.
