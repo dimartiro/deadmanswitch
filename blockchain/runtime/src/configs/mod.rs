@@ -28,7 +28,6 @@ use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_runtime::{traits::BlakeTwo256, Perbill, RuntimeDebug};
 use sp_version::RuntimeVersion;
 use xcm::latest::prelude::*;
-use xcm::VersionedXcm;
 
 use super::{
 	weights::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight},
@@ -401,14 +400,14 @@ fn ah_wrap_proxy(real: &AccountId, inner: alloc::vec::Vec<u8>) -> alloc::vec::Ve
 /// Wraps the call in `Proxy.proxy` so Asset Hub executes it as `owner`
 /// (requires ESP sovereign to be a proxy of `owner` — the "Link to
 /// Asset Hub" flow).
-fn build_ah_proxy_xcm(owner: &AccountId, inner_call: alloc::vec::Vec<u8>) -> VersionedXcm<()> {
+fn build_ah_proxy_xcm(owner: &AccountId, inner_call: alloc::vec::Vec<u8>) -> Xcm<()> {
 	// Fees paid on Asset Hub in its native token (relay-native, i.e.
 	// Parent location). 100 ROC is conservative dev-mode slack;
 	// unused balance ends up in the Asset Hub AssetTrap.
 	let fee_amount: u128 = 100_000_000_000_000;
 	let fees: Asset = (Location::parent(), fee_amount).into();
 	let proxy_call = ah_wrap_proxy(owner, inner_call);
-	let message: Xcm<()> = Xcm(alloc::vec![
+	Xcm(alloc::vec![
 		WithdrawAsset(fees.clone().into()),
 		BuyExecution { fees, weight_limit: WeightLimit::Unlimited },
 		Transact {
@@ -416,13 +415,13 @@ fn build_ah_proxy_xcm(owner: &AccountId, inner_call: alloc::vec::Vec<u8>) -> Ver
 			call: proxy_call.into(),
 			fallback_max_weight: None,
 		},
-	]);
-	VersionedXcm::from(message)
+	])
 }
 
-// Our parachain's para_id on the relay chain. Kept in sync with
-// `blockchain/runtime/src/genesis_config_presets.rs::PARACHAIN_ID`.
-pub const ESTATE_EXECUTOR_PALLET_ID_PARA_ID: u32 = 2000;
+/// Asset Hub's para_id on the relay chain. Same across Rococo, Paseo,
+/// Kusama and Polkadot — the XCM target stays stable regardless of
+/// which relay we're running under.
+const ASSET_HUB_PARA_ID: u32 = 1000;
 
 impl pallet_estate_executor::BequestBuilder<Runtime> for RuntimeBequestBuilder {
 	fn dispatch(
@@ -449,16 +448,14 @@ impl pallet_estate_executor::BequestBuilder<Runtime> for RuntimeBequestBuilder {
 			},
 		};
 
-		let target: Location = Location::new(1, [Parachain(1000)]);
-		let message_inner: Xcm<()> = match build_ah_proxy_xcm(owner, inner_call) {
-			VersionedXcm::V5(m) => m,
-			_ => return Err(sp_runtime::DispatchError::Other(
-				"unsupported xcm version",
-			)),
-		};
-		pallet_xcm::Pallet::<Runtime>::send_xcm(Here, target, message_inner)
-			.map(|_| ())
-			.map_err(|_| sp_runtime::DispatchError::Other("xcm send failed"))
+		let target: Location = Location::new(1, [Parachain(ASSET_HUB_PARA_ID)]);
+		pallet_xcm::Pallet::<Runtime>::send_xcm(
+			Here,
+			target,
+			build_ah_proxy_xcm(owner, inner_call),
+		)
+		.map(|_| ())
+		.map_err(|_| sp_runtime::DispatchError::Other("xcm send failed"))
 	}
 }
 
