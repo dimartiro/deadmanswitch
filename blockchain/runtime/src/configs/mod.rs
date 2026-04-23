@@ -442,7 +442,7 @@ impl pallet_estate_executor::BequestBuilder<Runtime> for RuntimeBequestBuilder {
 			Bequest::Proxy { delegate } => ah_proxy_add_proxy(delegate),
 			Bequest::MultisigProxy { delegates, threshold } => {
 				let multisig = pallet_multisig::Pallet::<Runtime>::multi_account_id(
-					&delegates.to_vec(),
+					delegates.as_ref(),
 					*threshold,
 				);
 				ah_proxy_add_proxy(&multisig)
@@ -573,6 +573,7 @@ impl pallet_estate_executor::Config for Runtime {
 
 /// Proxy types available in the runtime.
 #[derive(
+	Default,
 	Copy,
 	Clone,
 	Eq,
@@ -588,15 +589,10 @@ impl pallet_estate_executor::Config for Runtime {
 )]
 pub enum ProxyType {
 	/// Unrestricted — can execute any call.
+	#[default]
 	Any,
 	/// Can only execute balance transfers.
 	Transfers,
-}
-
-impl Default for ProxyType {
-	fn default() -> Self {
-		Self::Any
-	}
 }
 
 impl frame_support::traits::InstanceFilter<RuntimeCall> for ProxyType {

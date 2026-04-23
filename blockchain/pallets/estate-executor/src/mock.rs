@@ -3,13 +3,13 @@ use frame::{
 	prelude::*,
 	runtime::prelude::*,
 	testing_prelude::*,
-	traits::Dispatchable,
 };
 use polkadot_sdk::{pallet_balances, pallet_multisig, pallet_proxy, pallet_scheduler};
 use core::cell::RefCell;
 
 /// Proxy type for the mock runtime.
 #[derive(
+	Default,
 	Copy,
 	Clone,
 	Eq,
@@ -24,13 +24,8 @@ use core::cell::RefCell;
 	scale_info::TypeInfo,
 )]
 pub enum ProxyType {
+	#[default]
 	Any,
-}
-
-impl Default for ProxyType {
-	fn default() -> Self {
-		Self::Any
-	}
 }
 
 impl frame::traits::InstanceFilter<RuntimeCall> for ProxyType {
@@ -132,7 +127,7 @@ impl crate::bequest::BequestBuilder<Test> for TestBequestBuilder {
 				AhOp::AddProxy { owner: *owner, delegate: *delegate },
 			Bequest::MultisigProxy { delegates, threshold } => {
 				let multisig = pallet_multisig::Pallet::<Test>::multi_account_id(
-					&delegates.to_vec(),
+					delegates.as_ref(),
 					*threshold,
 				);
 				AhOp::AddProxy { owner: *owner, delegate: multisig }
@@ -154,10 +149,10 @@ impl crate::identity::IdentityCheck<Test> for MockIdentityCheck {
 	}
 }
 
-/// Mock certificate minter: records each mint call in a thread-local
-/// bucket so tests can assert exactly which `(will_id, beneficiary)`
-/// pairs received a certificate. The real pallet-nfts is NOT required
-/// to be in the mock.
+// Mock certificate minter: records each mint call in a thread-local
+// bucket so tests can assert exactly which `(will_id, beneficiary)`
+// pairs received a certificate. The real pallet-nfts is NOT required
+// to be in the mock.
 thread_local! {
 	static MINTED: RefCell<std::vec::Vec<(crate::WillId, u64)>> =
 		const { RefCell::new(std::vec::Vec::new()) };
