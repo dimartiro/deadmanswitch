@@ -9,7 +9,8 @@ use frame_support::{
 	dispatch::DispatchClass,
 	parameter_types,
 	traits::{
-		ConstBool, ConstU32, ConstU64, ConstU8, EitherOfDiverse, TransformOrigin, VariantCountOf,
+		tokens::imbalance::SplitTwoWays, ConstBool, ConstU32, ConstU64, ConstU8, Currency,
+		EitherOfDiverse, OnUnbalanced, TransformOrigin, VariantCountOf,
 	},
 	weights::{ConstantMultiplier, Weight},
 	PalletId,
@@ -25,7 +26,7 @@ use polkadot_runtime_common::{
 };
 use codec::{Encode, Decode, MaxEncodedLen};
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_runtime::{traits::BlakeTwo256, Perbill, RuntimeDebug};
+use sp_runtime::{traits::BlakeTwo256, Perbill, Permill, RuntimeDebug};
 use sp_version::RuntimeVersion;
 use xcm::latest::prelude::*;
 
@@ -35,7 +36,7 @@ use super::{
 	MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Runtime, RuntimeCall,
 	RuntimeEvent, RuntimeFreezeReason, RuntimeHoldReason, RuntimeOrigin, RuntimeTask, Scheduler,
 	Session, SessionKeys, Signature, System, Timestamp, XcmpQueue, AVERAGE_ON_INITIALIZE_RATIO,
-	EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT, MICRO_UNIT, NORMAL_DISPATCH_RATIO,
+	EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT, MICRO_UNIT, MILLI_UNIT, NORMAL_DISPATCH_RATIO,
 	SLOT_DURATION, VERSION,
 };
 use xcm_config::{RelayLocation, XcmOriginToTransactDispatchOrigin};
@@ -554,6 +555,50 @@ impl pallet_estate_executor::CertificateMinter<Runtime> for RuntimeCertificateMi
 	}
 }
 
+// Flat fee for amount-less bequests. The trigger reward is capped at
+// this same value so the caller can never earn more than a single
+// bequest's worth — independent of how large the will actually is.
+const ESTATE_FLAT_BEQUEST_FEE: Balance = 10 * MILLI_UNIT;
+
+// Distinct from ESTATE_EXECUTOR_PALLET_ID (NFT sovereign); this one
+// accumulates protocol revenue from the 70% treasury share of every
+// routed fee.
+pub const ESTATE_TREASURY_PALLET_ID: PalletId = PalletId(*b"estatefe");
+
+parameter_types! {
+	pub const EstateFeePerBlock: Balance = 10 * MICRO_UNIT;
+	pub const EstateProtocolFeePermill: Permill = Permill::from_percent(1);
+	pub const EstateFlatBequestFee: Balance = ESTATE_FLAT_BEQUEST_FEE;
+	pub const EstateTriggerRewardPerBlock: Balance = 100 * MICRO_UNIT;
+	pub const EstateTriggerRewardCap: Balance = ESTATE_FLAT_BEQUEST_FEE;
+	pub EstateTreasuryAccount: AccountId = {
+		use sp_runtime::traits::AccountIdConversion;
+		ESTATE_TREASURY_PALLET_ID.into_account_truncating()
+	};
+}
+
+type NegativeImbalance =
+	<Balances as Currency<AccountId>>::NegativeImbalance;
+
+/// Deposits a negative imbalance into the Estate treasury account.
+pub struct EstateTreasuryDeposit;
+impl OnUnbalanced<NegativeImbalance> for EstateTreasuryDeposit {
+	fn on_nonzero_unbalanced(imb: NegativeImbalance) {
+		Balances::resolve_creating(&EstateTreasuryAccount::get(), imb);
+	}
+}
+
+/// 30 % burn (dropped imbalance → total issuance drops) + 70 % to
+/// `EstateTreasuryAccount`.
+type EstateFeeRouter = SplitTwoWays<
+	Balance,
+	NegativeImbalance,
+	(),
+	EstateTreasuryDeposit,
+	30,
+	70,
+>;
+
 impl pallet_estate_executor::Config for Runtime {
 	type WeightInfo = pallet_estate_executor::weights::SubstrateWeight<Runtime>;
 	type Balance = Balance;
@@ -564,6 +609,13 @@ impl pallet_estate_executor::Config for Runtime {
 	type IdentityCheck = IdentityCheckStub;
 	type CertificateMinter = RuntimeCertificateMinter;
 	type MaxBequests = ConstU32<5>;
+	type Currency = Balances;
+	type FeeRouter = EstateFeeRouter;
+	type FeePerBlock = EstateFeePerBlock;
+	type ProtocolFeePermill = EstateProtocolFeePermill;
+	type FlatBequestFee = EstateFlatBequestFee;
+	type TriggerRewardPerBlock = EstateTriggerRewardPerBlock;
+	type TriggerRewardCap = EstateTriggerRewardCap;
 }
 
 // ── pallet-proxy ──────────────────────────────────────────────────────

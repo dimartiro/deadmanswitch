@@ -47,9 +47,10 @@ fn create_will_with_transfer() {
 		assert_eq!(will.status, WillStatus::Active);
 		assert_eq!(will.expiry_block, 11);
 		assert!(WillBequests::<Test>::get(0).is_some());
-		// No local balance movement at create time: the bequest will
-		// eventually execute against Asset Hub.
-		assert_eq!(Balances::free_balance(1), free_before);
+		// Bequest amounts move on Asset Hub only; the local balance
+		// movement here is the longevity fee (10) + the execution-fee
+		// reserve (10% of 100 = 10).
+		assert_eq!(Balances::free_balance(1), free_before - 10 - 10);
 	});
 }
 
@@ -178,6 +179,170 @@ fn create_will_fails_with_multisig_too_few_delegates() {
 				10,
 			),
 			Error::<Test>::TooFewDelegates,
+		);
+	});
+}
+
+// ── longevity fee ──────────────────────────────────────────────────────
+
+#[test]
+fn create_will_charges_longevity_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		let before = Balances::free_balance(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 25,
+		));
+		// Longevity 25 + execution-fee reserve 10 (10% of 100) = 35
+		assert_eq!(Balances::free_balance(1), before - 25 - 10);
+	});
+}
+
+#[test]
+fn create_will_fee_scales_with_interval() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		let before = Balances::free_balance(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		let after_short = Balances::free_balance(1);
+
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10_000,
+		));
+		let after_long = Balances::free_balance(1);
+
+		// Each create reserves 10 of execution fee on top of longevity.
+		assert_eq!(before - after_short, 10 + 10);
+		assert_eq!(after_short - after_long, 10_000 + 10);
+	});
+}
+
+#[test]
+fn heartbeat_recharges_longevity_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		let after_create = Balances::free_balance(1);
+		System::set_block_number(5);
+		assert_ok!(EstateExecutor::heartbeat(RuntimeOrigin::signed(1), 0));
+		assert_eq!(Balances::free_balance(1), after_create - 10);
+	});
+}
+
+#[test]
+fn cancel_does_not_refund_longevity_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		let before = Balances::free_balance(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 50,
+		));
+		assert_ok!(EstateExecutor::cancel(RuntimeOrigin::signed(1), 0));
+		assert_eq!(Balances::free_balance(1), before - 50);
+	});
+}
+
+// ── execution fee ──────────────────────────────────────────────────────
+
+#[test]
+fn create_will_reserves_execution_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		// Transfer(100) → fee 10 (10% of 100). Longevity 10 withdrawn
+		// upfront; reserve 10 on top.
+		let free_before = Balances::free_balance(1);
+		let reserved_before = Balances::reserved_balance(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		assert_eq!(Balances::reserved_balance(1), reserved_before + 10);
+		assert_eq!(Balances::free_balance(1), free_before - 10 /*longevity*/ - 10 /*reserved*/);
+	});
+}
+
+#[test]
+fn cancel_refunds_execution_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		assert_ok!(EstateExecutor::cancel(RuntimeOrigin::signed(1), 0));
+		// Only the longevity fee (10) is gone; the reserved execution
+		// fee (10) is returned to free balance.
+		assert_eq!(Balances::reserved_balance(1), 0);
+	});
+}
+
+#[test]
+fn execute_will_routes_execution_fee_through_router() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		let treasury_before = Balances::free_balance(TREASURY_ACCOUNT);
+
+		// Drive the scheduler to the expiry + 1 to trigger execute_will.
+		run_to_block(12);
+
+		// Fee was 10. SplitTwoWays 30/70 → burn 3, treasury 7.
+		assert_eq!(Balances::free_balance(TREASURY_ACCOUNT) - treasury_before, 7);
+		assert_eq!(Balances::reserved_balance(1), 0);
+	});
+}
+
+#[test]
+fn execute_will_charges_flat_fee_for_proxy_bequest() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![proxy(2)], 10,
+		));
+		let treasury_before = Balances::free_balance(TREASURY_ACCOUNT);
+
+		run_to_block(12);
+
+		// Flat fee 7 → burn 2 (30% of 7 = 2), treasury 5 (rounded down by mul).
+		// SplitTwoWays computes amount1 = 7 * 30 / 100 = 2 (u64 integer
+		// division), so Target1 (burn) gets 2 and Target2 (treasury) gets 5.
+		assert_eq!(Balances::free_balance(TREASURY_ACCOUNT) - treasury_before, 5);
+	});
+}
+
+#[test]
+fn create_will_reserve_adds_to_longevity_for_insufficient_balance_check() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		// Longevity (10) + reserve (10) = 20. Alice has 1M. Plenty.
+		// Crank the amount so ProtocolFeePermill * amount exceeds free.
+		// Alice has ~1M free after a couple of prior fees; 20M transfer
+		// → 2M reserve → reserve fails.
+		let huge = 20_000_000u64;
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1), vec![transfer(2, huge)], 10,
+			),
+			Error::<Test>::InsufficientFeeBalance,
+		);
+	});
+}
+
+#[test]
+fn create_will_fails_with_insufficient_fee_balance() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		// Account 1 holds 1_000_000; an interval of 2_000_000 produces
+		// a longevity fee that exceeds the free balance.
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1), vec![transfer(2, 100)], 2_000_000,
+			),
+			Error::<Test>::InsufficientFeeBalance,
 		);
 	});
 }
@@ -398,7 +563,91 @@ fn scheduled_execution_runs_only_once() {
 		run_to_block(12);
 		assert_noop!(
 			EstateExecutor::execute_will(RuntimeOrigin::root(), 0),
-			Error::<Test>::WillNotActive,
+			Error::<Test>::AlreadyExecuted,
+		);
+	});
+}
+
+// ── trigger (manual fallback) ─────────────────────────────────────────
+
+#[test]
+fn trigger_fails_before_expiry() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		// expiry = 11; trigger at 11 is still too early (now > expiry).
+		System::set_block_number(11);
+		assert_noop!(
+			EstateExecutor::trigger(RuntimeOrigin::signed(3), 0),
+			Error::<Test>::TooEarlyToTrigger,
+		);
+	});
+}
+
+#[test]
+fn trigger_succeeds_right_after_expiry_and_pays_scaled_reward() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		let caller_before = Balances::free_balance(3);
+		// expiry = 11; trigger at 12 → 1 block overdue → 1 * 1 = 1.
+		System::set_block_number(12);
+		assert_ok!(EstateExecutor::trigger(RuntimeOrigin::signed(3), 0));
+		assert_eq!(Wills::<Test>::get(0).unwrap().status, WillStatus::Executed);
+		assert_eq!(Balances::free_balance(3) - caller_before, 1);
+	});
+}
+
+#[test]
+fn trigger_reward_scales_with_overdue_blocks_up_to_cap() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		let caller_before = Balances::free_balance(3);
+		// expiry = 11; at block 20 → 9 blocks overdue. PerBlock=1, Cap=7.
+		// scaled = 9, capped to 7. Fee (10) ≥ 7, so reward = 7.
+		System::set_block_number(20);
+		assert_ok!(EstateExecutor::trigger(RuntimeOrigin::signed(3), 0));
+		assert_eq!(Balances::free_balance(3) - caller_before, 7);
+	});
+}
+
+#[test]
+fn trigger_reward_never_exceeds_collected_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		// TransferAll has no amount → flat fee 7. Cap 7.
+		// At 100 blocks overdue scaled is 100, capped to 7, fee also 7.
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer_all(2)], 10,
+		));
+		let caller_before = Balances::free_balance(3);
+		System::set_block_number(112);
+		assert_ok!(EstateExecutor::trigger(RuntimeOrigin::signed(3), 0));
+		// Reward = min(cap 7, scaled 101, fee 7) = 7.
+		assert_eq!(Balances::free_balance(3) - caller_before, 7);
+	});
+}
+
+#[test]
+fn trigger_fails_if_already_executed() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		run_to_block(12);
+		// Scheduler fired at 12; trigger can't run it again.
+		System::set_block_number(13);
+		assert_noop!(
+			EstateExecutor::trigger(RuntimeOrigin::signed(3), 0),
+			Error::<Test>::AlreadyExecuted,
 		);
 	});
 }
@@ -416,7 +665,8 @@ fn cancel_removes_will_and_bequests() {
 		assert_ok!(EstateExecutor::cancel(RuntimeOrigin::signed(1), 0));
 		assert!(Wills::<Test>::get(0).is_none());
 		assert!(WillBequests::<Test>::get(0).is_none());
-		assert_eq!(Balances::free_balance(1), free_before);
+		// Longevity fee (10 * 1) is not refunded on cancel.
+		assert_eq!(Balances::free_balance(1), free_before - 10);
 	});
 }
 
