@@ -137,10 +137,23 @@ export default function WillsPage() {
 		fetchWills();
 	}, [fetchWills, blockNumber]);
 
-	async function handleAction(willId: bigint, action: "heartbeat" | "cancel") {
+	async function handleAction(
+		willId: bigint,
+		action: "heartbeat" | "cancel" | "trigger",
+	) {
 		const key = `${willId}-${action}`;
-		const pastLabel = action === "heartbeat" ? "Heartbeat sent" : "Will cancelled";
-		const failLabel = action === "heartbeat" ? "Heartbeat failed" : "Cancel failed";
+		const pastLabel =
+			action === "heartbeat"
+				? "Heartbeat sent"
+				: action === "cancel"
+					? "Will cancelled"
+					: "Will triggered";
+		const failLabel =
+			action === "heartbeat"
+				? "Heartbeat failed"
+				: action === "cancel"
+					? "Cancel failed"
+					: "Trigger failed";
 		setPendingActions((s) => new Set(s).add(key));
 		try {
 			if (!selected) throw new Error("No account selected");
@@ -150,7 +163,13 @@ export default function WillsPage() {
 			const tx =
 				action === "heartbeat"
 					? api.tx.EstateExecutor.heartbeat({ id: willId })
-					: api.tx.EstateExecutor.cancel({ id: willId });
+					: action === "cancel"
+						? api.tx.EstateExecutor.cancel({ id: willId })
+						: // `trigger` is new — the checked-in PAPI descriptors are
+							// from before the runtime change. Regenerating with
+							// `update_papi_descriptors` removes this cast.
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							(api.tx.EstateExecutor as any).trigger({ id: willId });
 			const result = await submitAndWait(tx, signer, client);
 			if (result.ok) {
 				toast.success(pastLabel);
@@ -526,7 +545,7 @@ function WillRow({
 	blockNumber: number;
 	currentAccount: string;
 	isInheritance: boolean;
-	onAction: (id: bigint, action: "heartbeat" | "cancel") => void;
+	onAction: (id: bigint, action: "heartbeat" | "cancel" | "trigger") => void;
 	onRequestCancel: (will: WillData) => void;
 	pendingActions: Set<string>;
 }) {
@@ -672,9 +691,9 @@ function WillRow({
 						</div>
 					)}
 
-					{isActive && isOwner && (
+					{isActive && (
 						<div className="flex flex-wrap gap-2 pt-2">
-							{!isExpired && (
+							{isOwner && !isExpired && (
 								<button
 									onClick={() => onAction(w.id, "heartbeat")}
 									disabled={pendingActions.has(`${w.id}-heartbeat`)}
@@ -685,15 +704,29 @@ function WillRow({
 										: "♥ Heartbeat"}
 								</button>
 							)}
-							<button
-								onClick={() => onRequestCancel(w)}
-								disabled={pendingActions.has(`${w.id}-cancel`)}
-								className="btn-danger btn-sm"
-							>
-								{pendingActions.has(`${w.id}-cancel`)
-									? "Cancelling…"
-									: "Cancel"}
-							</button>
+							{isOwner && (
+								<button
+									onClick={() => onRequestCancel(w)}
+									disabled={pendingActions.has(`${w.id}-cancel`)}
+									className="btn-danger btn-sm"
+								>
+									{pendingActions.has(`${w.id}-cancel`)
+										? "Cancelling…"
+										: "Cancel"}
+								</button>
+							)}
+							{isExpired && (
+								<button
+									onClick={() => onAction(w.id, "trigger")}
+									disabled={pendingActions.has(`${w.id}-trigger`)}
+									className="btn-accent btn-sm"
+									title="Scheduler is late — anyone can fire this now and earn the reward."
+								>
+									{pendingActions.has(`${w.id}-trigger`)
+										? "Triggering…"
+										: "⚡ Trigger"}
+								</button>
+							)}
 						</div>
 					)}
 				</div>

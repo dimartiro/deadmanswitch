@@ -13,11 +13,16 @@ import {
 	people_chain,
 	asset_hub,
 } from "@polkadot-api/descriptors";
-import { formatDuration } from "../utils/format";
+import { formatBalanceWithUnit, formatDuration } from "../utils/format";
 import { submitAndWait } from "../utils/tx";
 import { ss58Address, ss58Decode } from "@polkadot-labs/hdkd-helpers";
 import { Dropdown } from "../components/Dropdown";
 import { toast } from "../store/toastStore";
+import {
+	FLAT_BEQUEST_FEE_PLANCK,
+	longevityFeePlanck,
+	transferExecutionFeePlanck,
+} from "../config/fees";
 
 // Mirrors the pallet-side limits in pallets/estate-executor so the UI
 // rejects the same shapes the runtime would: MaxMultisigDelegates is 10,
@@ -476,6 +481,17 @@ export default function CreateWillPage() {
 	const blockInterval = Math.max(1, Math.round(estimatedTime / blockTime));
 	const entryErrors = entries.map(validateEntry);
 	const allEntriesValid = entryErrors.every((e) => e === null);
+
+	const longevityFee = longevityFeePlanck(blockInterval);
+	const executionFee = entries.reduce((acc, e) => {
+		if (e.kind === "Transfer") {
+			const amountPlanck = BigInt(
+				Math.floor(parseFloat(e.amount || "0") * 1e12),
+			);
+			return acc + transferExecutionFeePlanck(amountPlanck);
+		}
+		return acc + FLAT_BEQUEST_FEE_PLANCK;
+	}, 0n);
 	const canSubmit =
 		!submitting &&
 		connected &&
@@ -812,6 +828,20 @@ export default function CreateWillPage() {
 						<p className="text-sm text-ink-500 mt-1 max-w-lg">
 							Execution is scheduled at creation — no keeper required.
 						</p>
+						<dl className="mt-4 space-y-1 text-xs font-mono text-ink-500">
+							<div className="flex gap-2">
+								<dt className="w-40">Longevity fee</dt>
+								<dd className="text-ink-700 tabular">
+									{formatBalanceWithUnit(longevityFee)}
+								</dd>
+							</div>
+							<div className="flex gap-2">
+								<dt className="w-40">Execution fee (at run)</dt>
+								<dd className="text-ink-700 tabular">
+									{formatBalanceWithUnit(executionFee)}
+								</dd>
+							</div>
+						</dl>
 						{bypassIdentity && (
 							<p className="text-xs text-caution mt-3">
 								⚠ Identities are bypassed — People Chain unreachable, so
