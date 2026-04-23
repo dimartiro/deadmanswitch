@@ -12,6 +12,7 @@ import {
 	asset_hub,
 } from "@polkadot-api/descriptors";
 import { submitAndWait } from "../utils/tx";
+import { formatBalance, formatBalanceShort } from "../utils/format";
 import {
 	getInjectedExtensions,
 	connectInjectedExtension,
@@ -30,6 +31,8 @@ function estateSovereignOnAssetHub(): string {
 }
 const ESTATE_SOVEREIGN_ON_ASSETHUB = estateSovereignOnAssetHub();
 
+const FUND_AMOUNT = "10000";
+
 interface DisplayAccount {
 	name: string;
 	ss58: string;
@@ -47,22 +50,6 @@ interface IdentityStatus {
 interface AssetHubLinkStatus {
 	linked: boolean;
 	balance?: bigint;
-}
-
-function formatBalance(planck: bigint): string {
-	const whole = planck / 1_000_000_000_000n;
-	const frac = planck % 1_000_000_000_000n;
-	if (frac === 0n) return whole.toLocaleString();
-	const fracStr = frac.toString().padStart(12, "0").replace(/0+$/, "");
-	return `${whole.toLocaleString()}.${fracStr}`;
-}
-
-function formatBalanceShort(planck: bigint): string {
-	const whole = planck / 1_000_000_000_000n;
-	const frac = planck % 1_000_000_000_000n;
-	if (frac === 0n) return whole.toLocaleString();
-	const fracStr = frac.toString().padStart(12, "0").slice(0, 4);
-	return `${whole.toLocaleString()}.${fracStr.replace(/0+$/, "") || "0"}`;
 }
 
 function extractDisplayName(info: unknown): string | undefined {
@@ -112,7 +99,6 @@ export default function AccountsPage() {
 	const [availableWallets, setAvailableWallets] = useState<string[]>([]);
 	const [extensionAccounts, setExtensionAccounts] = useState<InjectedPolkadotAccount[]>([]);
 	const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
-	const FUND_AMOUNT = "10000";
 	const [accountInfos, setAccountInfos] = useState<Record<string, AccountInfo>>({});
 	const [identityStatuses, setIdentityStatuses] = useState<Record<string, IdentityStatus>>({});
 	const [pendingIdentity, setPendingIdentity] = useState<Set<string>>(new Set());
@@ -594,7 +580,7 @@ export default function AccountsPage() {
 								<button
 									key={name}
 									onClick={() => connectWallet(name)}
-									className="btn-primary btn-sm"
+									className="btn-accent btn-sm"
 								>
 									Connect {walletNames[name] || name}
 								</button>
@@ -662,25 +648,18 @@ function DismissiblePill({
 	label,
 	onDismiss,
 	dismissing,
-	tone = "positive",
 }: {
 	label: string;
 	onDismiss: () => void;
 	dismissing: boolean;
-	tone?: "positive";
 }) {
-	const bg =
-		tone === "positive"
-			? "rgba(79, 174, 110, 0.10)"
-			: "rgba(79, 174, 110, 0.10)";
-	const border =
-		tone === "positive"
-			? "rgba(79, 174, 110, 0.25)"
-			: "rgba(79, 174, 110, 0.25)";
 	return (
 		<span
 			className="inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-1 py-1 text-xs font-medium text-positive border"
-			style={{ background: bg, borderColor: border }}
+			style={{
+				background: "rgba(79, 174, 110, 0.10)",
+				borderColor: "rgba(79, 174, 110, 0.25)",
+			}}
 		>
 			<span className="w-1.5 h-1.5 rounded-full bg-current" />
 			<span>{label}</span>

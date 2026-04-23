@@ -1,10 +1,10 @@
 import { stack_template } from "@polkadot-api/descriptors";
 import { blake2b256, ss58Decode } from "@polkadot-labs/hdkd-helpers";
 import { useCallback, useEffect, useState } from "react";
-import { devAccounts } from "../hooks/useAccount";
 import { useAllAccounts } from "../hooks/useAllAccounts";
 import { getClient } from "../hooks/useChain";
 import { useChainStore } from "../store/chainStore";
+import { accountLabel, formatBalanceWithUnit } from "../utils/format";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Bequest = any;
@@ -17,28 +17,13 @@ interface Certificate {
 	receivedBequests: Bequest[];
 }
 
-function truncateAddress(addr: string): string {
-	return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-}
-function accountLabel(addr: string): string {
-	const dev = devAccounts.find((a) => a.address === addr);
-	return dev ? dev.name : truncateAddress(addr);
-}
-function formatBalanceUnit(planck: bigint): string {
-	const whole = planck / 1_000_000_000_000n;
-	const frac = planck % 1_000_000_000_000n;
-	if (frac === 0n) return whole.toString() + " ROC";
-	const fracStr = frac.toString().padStart(12, "0").replace(/0+$/, "");
-	return `${whole}.${fracStr} ROC`;
-}
-
 function renderReceivedBequest(bequest: Bequest, owner?: string): string {
 	const from = owner ? accountLabel(owner) : "the owner";
 	const type = bequest.type as string;
 	const value = bequest.value;
 	switch (type) {
 		case "Transfer":
-			return `Received ${formatBalanceUnit(value.amount)} from ${from}`;
+			return `Received ${formatBalanceWithUnit(value.amount)} from ${from}`;
 		case "TransferAll":
 			return `Received ${from}'s entire Asset Hub balance`;
 		case "Proxy":
@@ -155,7 +140,7 @@ export default function CertificatesPage() {
 		} finally {
 			setLoading(false);
 		}
-	}, [connected, wsUrl, selected?.address]);
+	}, [connected, wsUrl, selected]);
 
 	useEffect(() => {
 		fetchCertificates();

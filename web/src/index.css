@@ -226,14 +226,6 @@
     border-radius: 3px;
     @apply disabled:opacity-35 disabled:cursor-not-allowed disabled:shadow-none;
   }
-  .btn-primary {
-    @apply btn bg-ink-900 text-canvas px-5 py-2.5;
-    border: 1px solid #E6EDF5;
-  }
-  .btn-primary:not(:disabled):hover {
-    background: #FFFFFF;
-    box-shadow: 0 0 16px rgba(230, 237, 245, 0.25);
-  }
   /* Accent — the main "go" button. Neon aqua. */
   .btn-accent {
     @apply btn text-canvas px-5 py-2.5 font-semibold;

@@ -1,7 +1,6 @@
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
 export const LOCAL_WS_URL = import.meta.env.VITE_LOCAL_WS_URL || "ws://localhost:9944";
-export const LOCAL_ETH_RPC_URL = import.meta.env.VITE_LOCAL_ETH_RPC_URL || "http://localhost:8545";
 
 /// WebSocket endpoint for People Chain (the Polkadot system parachain
 /// that hosts `pallet-identity`). Identity registration and verification
@@ -17,9 +16,6 @@ export const ASSET_HUB_WS_URL =
 	import.meta.env.VITE_ASSET_HUB_WS_URL || "ws://localhost:9948";
 
 export const TESTNET_WS_URL = "wss://services.polkadothub-rpc.com/testnet";
-export const TESTNET_ETH_RPC_URL = "https://services.polkadothub-rpc.com/testnet";
-
-export type NetworkPreset = "local" | "testnet";
 
 function isLocalHost() {
 	if (typeof window === "undefined") {
@@ -31,25 +27,6 @@ function isLocalHost() {
 
 export function getDefaultWsUrl() {
 	return import.meta.env.VITE_WS_URL || (isLocalHost() ? LOCAL_WS_URL : TESTNET_WS_URL);
-}
-
-export function getDefaultEthRpcUrl() {
-	return (
-		import.meta.env.VITE_ETH_RPC_URL ||
-		(isLocalHost() ? LOCAL_ETH_RPC_URL : TESTNET_ETH_RPC_URL)
-	);
-}
-
-export function getNetworkPresetEndpoints(preset: NetworkPreset) {
-	return preset === "local"
-		? {
-				wsUrl: LOCAL_WS_URL,
-				ethRpcUrl: LOCAL_ETH_RPC_URL,
-			}
-		: {
-				wsUrl: TESTNET_WS_URL,
-				ethRpcUrl: TESTNET_ETH_RPC_URL,
-			};
 }
 
 function getStoredUrl(storageKey: string, defaultKey: string, defaultValue: string) {
@@ -66,8 +43,4 @@ function getStoredUrl(storageKey: string, defaultKey: string, defaultValue: stri
 
 export function getStoredWsUrl() {
 	return getStoredUrl("ws-url", "default-ws-url", getDefaultWsUrl());
-}
-
-export function getStoredEthRpcUrl() {
-	return getStoredUrl("eth-rpc-url", "default-eth-rpc-url", getDefaultEthRpcUrl());
 }

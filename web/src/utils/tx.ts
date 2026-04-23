@@ -31,6 +31,10 @@ export async function submitAndWait(
 		block: { number: number; hash?: string };
 		dispatchError?: unknown;
 	}>((resolve, reject) => {
+		// Using let + `?.` (not const) is intentional: the `next` handler
+		// could, in principle, fire synchronously from inside subscribe()
+		// before the assignment lands, and we'd hit a TDZ on `const`.
+		// eslint-disable-next-line prefer-const
 		let sub: { unsubscribe: () => void } | undefined;
 		const timer = setTimeout(() => {
 			sub?.unsubscribe();

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChainStore } from "../store/chainStore";
 import { devAccounts } from "../hooks/useAccount";
@@ -347,23 +347,28 @@ export default function CreateWillPage() {
 					(d: any) => d.delegate === ESTATE_SOVEREIGN_ON_ASSETHUB,
 				),
 			);
-		} catch {
+		} catch (e) {
+			console.warn("Failed to fetch Asset Hub balance / proxy state:", e);
 			setOwnerAhBalance(0);
 			setOwnerAhLinked(false);
 		}
-	}, [selected?.address, showAssetHub]);
+	}, [selected, showAssetHub]);
 
 	useEffect(() => {
 		fetchAhBalance();
 	}, [fetchAhBalance, blockNumber]);
 
-	const allRecipients = Array.from(
-		new Set(
-			entries.flatMap((e) => {
-				if (e.kind === "MultisigProxy") return e.delegates;
-				return e.dest ? [e.dest] : [];
-			}),
-		),
+	const allRecipients = useMemo(
+		() =>
+			Array.from(
+				new Set(
+					entries.flatMap((e) => {
+						if (e.kind === "MultisigProxy") return e.delegates;
+						return e.dest ? [e.dest] : [];
+					}),
+				),
+			),
+		[entries],
 	);
 
 	useEffect(() => {
@@ -397,7 +402,7 @@ export default function CreateWillPage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [allRecipients.join(","), blockNumber, bypassIdentity]);
+	}, [allRecipients, blockNumber, bypassIdentity]);
 
 	function isVerified(addr: string): boolean {
 		if (bypassIdentity) return true;

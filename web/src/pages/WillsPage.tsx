@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useChainStore } from "../store/chainStore";
-import { devAccounts } from "../hooks/useAccount";
 import { useAllAccounts } from "../hooks/useAllAccounts";
 import { getClient } from "../hooks/useChain";
 import { stack_template } from "@polkadot-api/descriptors";
-import { formatDuration } from "../utils/format";
+import {
+	accountLabel,
+	formatBalanceWithUnit,
+	formatDuration,
+} from "../utils/format";
 import { submitAndWait } from "../utils/tx";
 import { ss58Decode } from "@polkadot-labs/hdkd-helpers";
 import { toast } from "../store/toastStore";
@@ -43,29 +46,12 @@ interface WillData {
 
 type FilterKey = "all" | "mine" | "inherits" | "expired" | "executed";
 
-function formatBalanceUnit(planck: bigint): string {
-	const whole = planck / 1_000_000_000_000n;
-	const frac = planck % 1_000_000_000_000n;
-	if (frac === 0n) return whole.toString() + " ROC";
-	const fracStr = frac.toString().padStart(12, "0").replace(/0+$/, "");
-	return `${whole}.${fracStr} ROC`;
-}
-
-function truncateAddress(addr: string): string {
-	return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-}
-
-function accountLabel(addr: string): string {
-	const dev = devAccounts.find((a) => a.address === addr);
-	return dev ? dev.name : truncateAddress(addr);
-}
-
 function renderBequest(bequest: Bequest): string {
 	const type = bequest.type as string;
 	const value = bequest.value;
 	switch (type) {
 		case "Transfer":
-			return `Transfer ${formatBalanceUnit(value.amount)} to ${accountLabel(value.dest)}`;
+			return `Transfer ${formatBalanceWithUnit(value.amount)} to ${accountLabel(value.dest)}`;
 		case "TransferAll":
 			return `Transfer entire Asset Hub balance to ${accountLabel(value.dest)}`;
 		case "Proxy":
@@ -588,6 +574,8 @@ function WillRow({
 		<article className={rowClass}>
 			<button
 				onClick={() => setExpanded(!expanded)}
+				aria-expanded={expanded}
+				aria-label={`${expanded ? "Collapse" : "Expand"} will by ${ownerLabel}, ${w.bequestCount} ${w.bequestCount === 1 ? "instruction" : "instructions"}`}
 				className="w-full text-left flex items-center gap-4"
 			>
 				<div className="flex-1 min-w-0">
