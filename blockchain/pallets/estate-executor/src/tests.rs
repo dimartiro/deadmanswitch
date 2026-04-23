@@ -563,7 +563,91 @@ fn scheduled_execution_runs_only_once() {
 		run_to_block(12);
 		assert_noop!(
 			EstateExecutor::execute_will(RuntimeOrigin::root(), 0),
-			Error::<Test>::WillNotActive,
+			Error::<Test>::AlreadyExecuted,
+		);
+	});
+}
+
+// ── trigger (manual fallback) ─────────────────────────────────────────
+
+#[test]
+fn trigger_fails_before_expiry() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		// expiry = 11; trigger at 11 is still too early (now > expiry).
+		System::set_block_number(11);
+		assert_noop!(
+			EstateExecutor::trigger(RuntimeOrigin::signed(3), 0),
+			Error::<Test>::TooEarlyToTrigger,
+		);
+	});
+}
+
+#[test]
+fn trigger_succeeds_right_after_expiry_and_pays_scaled_reward() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		let caller_before = Balances::free_balance(3);
+		// expiry = 11; trigger at 12 → 1 block overdue → 1 * 1 = 1.
+		System::set_block_number(12);
+		assert_ok!(EstateExecutor::trigger(RuntimeOrigin::signed(3), 0));
+		assert_eq!(Wills::<Test>::get(0).unwrap().status, WillStatus::Executed);
+		assert_eq!(Balances::free_balance(3) - caller_before, 1);
+	});
+}
+
+#[test]
+fn trigger_reward_scales_with_overdue_blocks_up_to_cap() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		let caller_before = Balances::free_balance(3);
+		// expiry = 11; at block 20 → 9 blocks overdue. PerBlock=1, Cap=7.
+		// scaled = 9, capped to 7. Fee (10) ≥ 7, so reward = 7.
+		System::set_block_number(20);
+		assert_ok!(EstateExecutor::trigger(RuntimeOrigin::signed(3), 0));
+		assert_eq!(Balances::free_balance(3) - caller_before, 7);
+	});
+}
+
+#[test]
+fn trigger_reward_never_exceeds_collected_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		// TransferAll has no amount → flat fee 7. Cap 7.
+		// At 100 blocks overdue scaled is 100, capped to 7, fee also 7.
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer_all(2)], 10,
+		));
+		let caller_before = Balances::free_balance(3);
+		System::set_block_number(112);
+		assert_ok!(EstateExecutor::trigger(RuntimeOrigin::signed(3), 0));
+		// Reward = min(cap 7, scaled 101, fee 7) = 7.
+		assert_eq!(Balances::free_balance(3) - caller_before, 7);
+	});
+}
+
+#[test]
+fn trigger_fails_if_already_executed() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		run_to_block(12);
+		// Scheduler fired at 12; trigger can't run it again.
+		System::set_block_number(13);
+		assert_noop!(
+			EstateExecutor::trigger(RuntimeOrigin::signed(3), 0),
+			Error::<Test>::AlreadyExecuted,
 		);
 	});
 }

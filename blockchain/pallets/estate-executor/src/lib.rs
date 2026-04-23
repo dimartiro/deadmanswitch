@@ -183,6 +183,17 @@ pub mod pallet {
 		/// create time (`TransferAll`, `Proxy`, `MultisigProxy`).
 		#[pallet::constant]
 		type FlatBequestFee: Get<BalanceOf<Self>>;
+
+		/// Reward paid to a `trigger` caller per block of overdue.
+		/// Effective reward is `min(per_block * blocks_overdue, cap,
+		/// total_fee_collected)` — linearly growing until capped.
+		#[pallet::constant]
+		type TriggerRewardPerBlock: Get<BalanceOf<Self>>;
+
+		/// Absolute cap on the trigger reward regardless of how long
+		/// the will sat overdue.
+		#[pallet::constant]
+		type TriggerRewardCap: Get<BalanceOf<Self>>;
 	}
 
 	/// Unique identifier for each will.
@@ -299,6 +310,10 @@ pub mod pallet {
 		ExecutionFeeReserved { id: WillId, who: T::AccountId, amount: BalanceOf<T> },
 		/// Execution fee bundle routed through `FeeRouter` at execute time.
 		ExecutionFeeCharged { id: WillId, amount: BalanceOf<T> },
+		/// `trigger` fallback fired the will.
+		ManuallyTriggered { id: WillId, by: T::AccountId },
+		/// Reward paid to a `trigger` caller out of the collected fee.
+		TriggerRewardPaid { id: WillId, to: T::AccountId, amount: BalanceOf<T> },
 	}
 
 	#[pallet::error]
@@ -334,6 +349,10 @@ pub mod pallet {
 		TooFewDelegates,
 		/// Owner cannot cover the protocol fee being charged.
 		InsufficientFeeBalance,
+		/// `trigger` called before the will has expired.
+		TooEarlyToTrigger,
+		/// execute_will / trigger invoked on a will already executed.
+		AlreadyExecuted,
 		/// The scheduler refused to schedule or reschedule the task.
 		ScheduleFailed,
 	}
@@ -510,83 +529,27 @@ pub mod pallet {
 		#[pallet::weight(T::WeightInfo::execute_will())]
 		pub fn execute_will(origin: OriginFor<T>, id: WillId) -> DispatchResult {
 			ensure_root(origin)?;
-			let mut will = Wills::<T>::get(id).ok_or(Error::<T>::WillNotFound)?;
-			ensure!(will.status == WillStatus::Active, Error::<T>::WillNotActive);
+			let will = Wills::<T>::get(id).ok_or(Error::<T>::WillNotFound)?;
+			ensure!(will.status == WillStatus::Active, Error::<T>::AlreadyExecuted);
+			Self::do_execute(id, will, None)
+		}
 
-			let mut bequests_executed = 0u32;
-			let mut bequests_failed = 0u32;
-			// Collect the deduplicated recipient set so we mint exactly one
-			// certificate per (will, beneficiary) pair even if a recipient
-			// appears across multiple bequests.
-			let mut unique_recipients: Vec<T::AccountId> = Vec::new();
-			if let Some(stored) = WillBequests::<T>::get(id) {
-				Self::collect_execution_fee(&will.owner, id, &stored);
-				for (i, dist) in stored.iter().enumerate() {
-					let dispatch_result =
-						T::BequestBuilder::dispatch(dist, &will.owner);
-					if dispatch_result.is_ok() {
-						bequests_executed += 1;
-					} else {
-						bequests_failed += 1;
-					}
-					Self::deposit_event(Event::BequestDispatched {
-						id,
-						index: i as u32,
-						result: dispatch_result,
-					});
-					for r in dist.recipients() {
-						if !unique_recipients.contains(&r) {
-							unique_recipients.push(r);
-						}
-					}
-				}
-			}
-
-			will.status = WillStatus::Executed;
-			let executed_block = frame_system::Pallet::<T>::block_number();
-			will.executed_block = executed_block;
-			Wills::<T>::insert(id, will.clone());
-
-			// Mint one inheritance certificate per unique recipient.
-			// Individual mint failures are logged but do not revert the
-			// whole execution — the bequests themselves already dispatched
-			// as best-effort above.
-			let mut certificates_minted = 0u32;
-			let mut certificates_failed = 0u32;
-			for beneficiary in unique_recipients.into_iter() {
-				let mint_result = T::CertificateMinter::mint_inheritance_certificate(
-					id,
-					beneficiary.clone(),
-					executed_block,
-					will.owner.clone(),
-				);
-				match mint_result {
-					Ok(()) => {
-						certificates_minted += 1;
-						Self::deposit_event(Event::InheritanceCertificateMinted {
-							id,
-							beneficiary,
-						});
-					},
-					Err(e) => {
-						certificates_failed += 1;
-						Self::deposit_event(Event::InheritanceCertificateFailed {
-							id,
-							beneficiary,
-							error: e,
-						});
-					},
-				}
-			}
-
-			Self::deposit_event(Event::WillExecuted {
-				id,
-				bequests_executed,
-				bequests_failed,
-				certificates_minted,
-				certificates_failed,
-			});
-			Ok(())
+		/// Manually fire an expired will. Caller earns `TriggerReward`
+		/// out of the collected execution fee.
+		#[pallet::call_index(4)]
+		#[pallet::weight(T::WeightInfo::execute_will())]
+		pub fn trigger(origin: OriginFor<T>, id: WillId) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+			let will = Wills::<T>::get(id).ok_or(Error::<T>::WillNotFound)?;
+			ensure!(will.status == WillStatus::Active, Error::<T>::AlreadyExecuted);
+			let now = frame_system::Pallet::<T>::block_number();
+			ensure!(now > will.expiry_block, Error::<T>::TooEarlyToTrigger);
+			let blocks_overdue: u32 = (now - will.expiry_block).saturated_into();
+			let scaled = T::TriggerRewardPerBlock::get()
+				.saturating_mul(blocks_overdue.into());
+			let desired_reward = scaled.min(T::TriggerRewardCap::get());
+			Self::deposit_event(Event::ManuallyTriggered { id, by: who.clone() });
+			Self::do_execute(id, will, Some((who, desired_reward)))
 		}
 
 		/// Cancel an active will.
@@ -653,6 +616,82 @@ pub mod pallet {
 				.collect()
 		}
 
+		/// Shared execute path. `trigger_reward` is `Some((caller,
+		/// desired_amount))` for `trigger`, `None` for the scheduler.
+		pub(crate) fn do_execute(
+			id: WillId,
+			mut will: Will<T>,
+			trigger_reward: Option<(T::AccountId, BalanceOf<T>)>,
+		) -> DispatchResult {
+			let mut bequests_executed = 0u32;
+			let mut bequests_failed = 0u32;
+			let mut unique_recipients: Vec<T::AccountId> = Vec::new();
+			if let Some(stored) = WillBequests::<T>::get(id) {
+				Self::collect_execution_fee(&will.owner, id, &stored, trigger_reward.as_ref());
+				for (i, dist) in stored.iter().enumerate() {
+					let dispatch_result =
+						T::BequestBuilder::dispatch(dist, &will.owner);
+					if dispatch_result.is_ok() {
+						bequests_executed += 1;
+					} else {
+						bequests_failed += 1;
+					}
+					Self::deposit_event(Event::BequestDispatched {
+						id,
+						index: i as u32,
+						result: dispatch_result,
+					});
+					for r in dist.recipients() {
+						if !unique_recipients.contains(&r) {
+							unique_recipients.push(r);
+						}
+					}
+				}
+			}
+
+			will.status = WillStatus::Executed;
+			let executed_block = frame_system::Pallet::<T>::block_number();
+			will.executed_block = executed_block;
+			Wills::<T>::insert(id, will.clone());
+
+			let mut certificates_minted = 0u32;
+			let mut certificates_failed = 0u32;
+			for beneficiary in unique_recipients.into_iter() {
+				let mint_result = T::CertificateMinter::mint_inheritance_certificate(
+					id,
+					beneficiary.clone(),
+					executed_block,
+					will.owner.clone(),
+				);
+				match mint_result {
+					Ok(()) => {
+						certificates_minted += 1;
+						Self::deposit_event(Event::InheritanceCertificateMinted {
+							id,
+							beneficiary,
+						});
+					},
+					Err(e) => {
+						certificates_failed += 1;
+						Self::deposit_event(Event::InheritanceCertificateFailed {
+							id,
+							beneficiary,
+							error: e,
+						});
+					},
+				}
+			}
+
+			Self::deposit_event(Event::WillExecuted {
+				id,
+				bequests_executed,
+				bequests_failed,
+				certificates_minted,
+				certificates_failed,
+			});
+			Ok(())
+		}
+
 		/// Protocol fee for a single bequest at execution time.
 		pub(crate) fn execution_fee_for(b: &Bequest<T>) -> BalanceOf<T> {
 			match b {
@@ -707,18 +746,37 @@ pub mod pallet {
 			let _ = T::Currency::unreserve(who, total);
 		}
 
-		/// Slashes the reserved bundle and routes the imbalance through
-		/// `FeeRouter`. Called at execute time.
+		/// Slashes the reserved bundle, pays the trigger reward (capped
+		/// at the collected total so we never drain beyond what was
+		/// paid in), routes the rest through `FeeRouter`.
 		pub(crate) fn collect_execution_fee(
 			who: &T::AccountId,
 			id: WillId,
 			bequests: &[Bequest<T>],
+			trigger_reward: Option<&(T::AccountId, BalanceOf<T>)>,
 		) {
+			use frame::deps::frame_support::traits::Imbalance;
+
 			let total = Self::total_execution_fee_for(bequests);
 			if total.is_zero() {
 				return;
 			}
-			let (imbalance, _missing) = T::Currency::slash_reserved(who, total);
+			let (mut imbalance, _missing) = T::Currency::slash_reserved(who, total);
+
+			if let Some((caller, desired)) = trigger_reward {
+				let reward = (*desired).min(total);
+				if !reward.is_zero() {
+					let (to_caller, rest) = imbalance.split(reward);
+					T::Currency::resolve_creating(caller, to_caller);
+					imbalance = rest;
+					Self::deposit_event(Event::TriggerRewardPaid {
+						id,
+						to: caller.clone(),
+						amount: reward,
+					});
+				}
+			}
+
 			T::FeeRouter::on_unbalanced(imbalance);
 			Self::deposit_event(Event::ExecutionFeeCharged { id, amount: total });
 		}

@@ -25,7 +25,7 @@ use polkadot_runtime_common::{
 };
 use codec::{Encode, Decode, MaxEncodedLen};
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_runtime::{traits::BlakeTwo256, Perbill, RuntimeDebug};
+use sp_runtime::{traits::BlakeTwo256, Perbill, Permill, RuntimeDebug};
 use sp_version::RuntimeVersion;
 use xcm::latest::prelude::*;
 
@@ -554,9 +554,17 @@ impl pallet_estate_executor::CertificateMinter<Runtime> for RuntimeCertificateMi
 	}
 }
 
+// Flat fee for amount-less bequests. The trigger reward is capped at
+// this same value so the caller can never earn more than a single
+// bequest's worth — independent of how large the will actually is.
+const ESTATE_FLAT_BEQUEST_FEE: Balance = 10 * MILLI_UNIT;
+
 parameter_types! {
-	// 10 µUNIT/block → 1-day ≈ 0.14 UNIT, 1-year ≈ 52 UNIT.
 	pub const EstateFeePerBlock: Balance = 10 * MICRO_UNIT;
+	pub const EstateProtocolFeePermill: Permill = Permill::from_percent(1);
+	pub const EstateFlatBequestFee: Balance = ESTATE_FLAT_BEQUEST_FEE;
+	pub const EstateTriggerRewardPerBlock: Balance = 100 * MICRO_UNIT;
+	pub const EstateTriggerRewardCap: Balance = ESTATE_FLAT_BEQUEST_FEE;
 }
 
 impl pallet_estate_executor::Config for Runtime {
@@ -572,6 +580,10 @@ impl pallet_estate_executor::Config for Runtime {
 	type Currency = Balances;
 	type FeeRouter = ();
 	type FeePerBlock = EstateFeePerBlock;
+	type ProtocolFeePermill = EstateProtocolFeePermill;
+	type FlatBequestFee = EstateFlatBequestFee;
+	type TriggerRewardPerBlock = EstateTriggerRewardPerBlock;
+	type TriggerRewardCap = EstateTriggerRewardCap;
 }
 
 // ── pallet-proxy ──────────────────────────────────────────────────────

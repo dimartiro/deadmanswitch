@@ -238,6 +238,8 @@ impl crate::Config for Test {
 	type FeePerBlock = ConstU64<1>;
 	type ProtocolFeePermill = TestProtocolFeePermill;
 	type FlatBequestFee = ConstU64<7>;
+	type TriggerRewardPerBlock = ConstU64<1>;
+	type TriggerRewardCap = ConstU64<7>;
 }
 
 impl pallet_proxy::Config for Test {
