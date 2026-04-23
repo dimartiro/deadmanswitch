@@ -47,9 +47,6 @@ No new protocol token — everything is in the native chain token. The trigger r
 ## Quick start
 
 ```bash
-# Solo dev node — fastest loop, no XCM
-./scripts/start-dev.sh
-
 # Full topology: relay + Estate + Asset Hub + People Chain
 ./scripts/start-zombienet.sh
 

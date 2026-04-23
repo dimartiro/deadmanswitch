@@ -18,6 +18,6 @@ cargo build -p estate-protocol-runtime --release
 # Pallet unit tests
 cargo test -p pallet-estate-executor
 
-# Run local dev node
-./scripts/start-dev.sh
+# Run the full local topology (relay + Estate + Asset Hub + People Chain)
+./scripts/start-zombienet.sh
 ```

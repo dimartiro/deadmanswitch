@@ -6,16 +6,13 @@ Bash helpers that build, boot, seed and test the full Estate Protocol stack loca
 ./scripts/<script-name>.sh
 ```
 
-## Topologies
+## Topology
 
-Two supported local topologies, picked per workflow:
+Estate Protocol requires the full relay + Estate + Asset Hub + People Chain topology — XCM bequests, identity checks and proxy linking are all cross-chain, so there is no solo-node mode.
 
-| Mode | Script | Relay | Para 2000 (Estate) | Para 1000 (Asset Hub) | Para 1004 (People) | XCM | Identity |
-|---|---|---|---|---|---|---|---|
-| **Solo dev** | `start-dev.sh` | — | omni-node | — | — | — | — |
-| **Zombienet** | `start-zombienet.sh` | rococo-local (6 validators) | ✓ | ✓ | ✓ | ✓ | ✓ |
-
-Solo dev is the fastest pallet/runtime loop — ~2 min first boot, under 10s after. Zombienet is required for anything that crosses chains (proxy linking, remote transfers, identity checks).
+| Script | Relay | Para 2000 (Estate) | Para 1000 (Asset Hub) | Para 1004 (People) |
+|---|---|---|---|---|
+| `start-zombienet.sh` | rococo-local (6 validators) | ✓ | ✓ | ✓ |
 
 ## Zombienet Network
 
@@ -93,7 +90,6 @@ All wrapped in `Proxy.proxy(owner, None, inner)` so Asset Hub dispatches as `own
 
 | Script | What it does |
 | --- | --- |
-| `start-dev.sh` | Builds the runtime, generates chain spec, starts a solo omni-node on `ws://127.0.0.1:9944`. Fastest loop; no XCM or identity support. |
 | `start-zombienet.sh` | Builds runtime, generates chain spec, spawns the full relay + 3-parachain topology, seeds dev identities. Foreground process with cleanup on `Ctrl+C`. |
 | `start-frontend.sh` | Installs web deps, regenerates PAPI descriptors against the running node, starts Vite on `http://127.0.0.1:5173`. |
 | `test-zombienet.sh` | CI-style end-to-end: starts zombienet, runs `open-hrmp.sh` + `setup-asset-hub-proxies.sh`, then executes `e2e-tests.sh` against the live stack. Auto-cleanup on exit. |
@@ -143,8 +139,7 @@ flowchart TB
 
 ## Requirements
 
-- `cargo`, `chain-spec-builder`, `polkadot-omni-node` — for `start-dev.sh`
-- `zombienet`, `polkadot`, `polkadot-parachain`, `polkadot-omni-node` — for `start-zombienet.sh`
+- `cargo`, `chain-spec-builder`, `zombienet`, `polkadot`, `polkadot-parachain`, `polkadot-omni-node` — for `start-zombienet.sh`
 - `node` (v22) and `npm` — for `start-frontend.sh`, `test-zombienet.sh`, `e2e-tests.sh`
 - `curl`, `lsof` — used by readiness probes and port checks
 

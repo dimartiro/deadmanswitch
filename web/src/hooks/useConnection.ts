@@ -61,8 +61,8 @@ export function useConnectionManagement() {
 			.catch(() => {})
 			.finally(() => setInitialConnectComplete(true));
 		// Probe sibling parachains. If they respond in time, their
-		// features are enabled; if not, we're in solo-node dev mode
-		// (start-dev.sh) and related UI is hidden / bypassed.
+		// features are enabled; if not (e.g. remote node without
+		// HRMP), the related UI is hidden / bypassed.
 		const setPeopleChainAvailable =
 			useChainStore.getState().setPeopleChainAvailable;
 		const setAssetHubAvailable =

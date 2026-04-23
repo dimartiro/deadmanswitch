@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Shared helpers for the repo's two supported local topologies:
-# - Solo dev mode (`start-dev.sh`) for the fastest runtime/pallet loop
-# - Relay-backed Zombienet mode (`start-zombienet.sh`) for the full feature set
+# Shared helpers for the local zombienet topology (`start-zombienet.sh`).
+# Estate Protocol requires the relay + Asset Hub + People Chain to do
+# anything meaningful, so there is no solo-node mode.
 
 COMMON_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$COMMON_DIR/.." && pwd)"
@@ -47,9 +47,6 @@ ZOMBIE_DIR="${ZOMBIE_DIR:-}"
 ZOMBIE_LOG="${ZOMBIE_LOG:-}"
 ZOMBIE_PID="${ZOMBIE_PID:-}"
 ZOMBIE_CONFIG="${ZOMBIE_CONFIG:-}"
-NODE_DIR="${NODE_DIR:-}"
-NODE_LOG="${NODE_LOG:-}"
-NODE_PID="${NODE_PID:-}"
 
 export STACK_PORT_OFFSET
 export STACK_SUBSTRATE_RPC_PORT
@@ -301,17 +298,12 @@ seed_dev_identities() {
 }
 
 startup_log_path() {
-    if [ -n "$NODE_LOG" ]; then
-        echo "$NODE_LOG"
-    elif [ -n "$ZOMBIE_LOG" ]; then
+    if [ -n "$ZOMBIE_LOG" ]; then
         echo "$ZOMBIE_LOG"
     fi
 }
 
 startup_service_stopped() {
-    if [ -n "$NODE_PID" ] && ! kill -0 "$NODE_PID" 2>/dev/null; then
-        return 0
-    fi
     if [ -n "$ZOMBIE_PID" ] && ! kill -0 "$ZOMBIE_PID" 2>/dev/null; then
         return 0
     fi
@@ -325,10 +317,6 @@ wait_for_substrate_rpc() {
     log_info "Waiting for local node RPCs..."
     local max_wait="${STACK_RPC_TIMEOUT:-180}"
     for _ in $(seq 1 "$max_wait"); do
-        if [ -n "$NODE_PID" ] && basic_substrate_rpc_ready && substrate_block_producing; then
-            log_info "Node ready at $SUBSTRATE_RPC_WS"
-            return 0
-        fi
         if [ -n "$ZOMBIE_PID" ] && substrate_statement_store_ready && substrate_block_producing; then
             log_info "Node ready at $SUBSTRATE_RPC_WS (Statement Store RPCs enabled)"
             return 0
@@ -509,33 +497,6 @@ start_zombienet_background() {
     log_info "Zombienet data dir: $ZOMBIE_DIR"
     log_info "Zombienet config: $ZOMBIE_CONFIG"
     log_info "Zombienet log: $ZOMBIE_LOG"
-}
-
-run_local_node_foreground() {
-    require_command polkadot-omni-node
-    require_port_free "$STACK_SUBSTRATE_RPC_PORT"
-
-    polkadot-omni-node \
-        --chain "$CHAIN_SPEC" \
-        --tmp \
-        --alice \
-        --force-authoring \
-        --dev-block-time 3000 \
-        --no-prometheus \
-        --unsafe-force-node-key-generation \
-        --rpc-cors all \
-        --rpc-port "$STACK_SUBSTRATE_RPC_PORT" \
-        --
-}
-
-cleanup_local_node() {
-    if [ -n "$NODE_PID" ]; then
-        kill "$NODE_PID" 2>/dev/null || true
-        wait "$NODE_PID" 2>/dev/null || true
-    fi
-    if [ -n "$NODE_DIR" ]; then
-        rm -rf "$NODE_DIR"
-    fi
 }
 
 cleanup_zombienet() {
