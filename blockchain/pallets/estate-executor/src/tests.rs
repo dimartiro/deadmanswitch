@@ -47,9 +47,10 @@ fn create_will_with_transfer() {
 		assert_eq!(will.status, WillStatus::Active);
 		assert_eq!(will.expiry_block, 11);
 		assert!(WillBequests::<Test>::get(0).is_some());
-		// No local balance movement at create time: the bequest will
-		// eventually execute against Asset Hub.
-		assert_eq!(Balances::free_balance(1), free_before);
+		// Bequest amounts move on Asset Hub only; the local balance
+		// movement here is the longevity fee (interval * FeePerBlock =
+		// 10 * 1 = 10).
+		assert_eq!(Balances::free_balance(1), free_before - 10);
 	});
 }
 
@@ -178,6 +179,83 @@ fn create_will_fails_with_multisig_too_few_delegates() {
 				10,
 			),
 			Error::<Test>::TooFewDelegates,
+		);
+	});
+}
+
+// ── longevity fee ──────────────────────────────────────────────────────
+
+#[test]
+fn create_will_charges_longevity_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		let before = Balances::free_balance(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 25,
+		));
+		// FeePerBlock = 1, interval = 25 → fee = 25
+		assert_eq!(Balances::free_balance(1), before - 25);
+	});
+}
+
+#[test]
+fn create_will_fee_scales_with_interval() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		let before = Balances::free_balance(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		let after_short = Balances::free_balance(1);
+
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10_000,
+		));
+		let after_long = Balances::free_balance(1);
+
+		assert_eq!(before - after_short, 10);
+		assert_eq!(after_short - after_long, 10_000);
+	});
+}
+
+#[test]
+fn heartbeat_recharges_longevity_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 10,
+		));
+		let after_create = Balances::free_balance(1);
+		System::set_block_number(5);
+		assert_ok!(EstateExecutor::heartbeat(RuntimeOrigin::signed(1), 0));
+		assert_eq!(Balances::free_balance(1), after_create - 10);
+	});
+}
+
+#[test]
+fn cancel_does_not_refund_longevity_fee() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		let before = Balances::free_balance(1);
+		assert_ok!(EstateExecutor::create_will(
+			RuntimeOrigin::signed(1), vec![transfer(2, 100)], 50,
+		));
+		assert_ok!(EstateExecutor::cancel(RuntimeOrigin::signed(1), 0));
+		assert_eq!(Balances::free_balance(1), before - 50);
+	});
+}
+
+#[test]
+fn create_will_fails_with_insufficient_fee_balance() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		// Account 1 holds 1_000_000; an interval of 2_000_000 produces
+		// a longevity fee that exceeds the free balance.
+		assert_noop!(
+			EstateExecutor::create_will(
+				RuntimeOrigin::signed(1), vec![transfer(2, 100)], 2_000_000,
+			),
+			Error::<Test>::InsufficientFeeBalance,
 		);
 	});
 }
@@ -416,7 +494,8 @@ fn cancel_removes_will_and_bequests() {
 		assert_ok!(EstateExecutor::cancel(RuntimeOrigin::signed(1), 0));
 		assert!(Wills::<Test>::get(0).is_none());
 		assert!(WillBequests::<Test>::get(0).is_none());
-		assert_eq!(Balances::free_balance(1), free_before);
+		// Longevity fee (10 * 1) is not refunded on cancel.
+		assert_eq!(Balances::free_balance(1), free_before - 10);
 	});
 }
 

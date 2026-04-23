@@ -205,6 +205,9 @@ impl crate::Config for Test {
 	type IdentityCheck = MockIdentityCheck;
 	type CertificateMinter = MockCertificateMinter;
 	type MaxBequests = MaxBequests;
+	type Currency = Balances;
+	type FeeRouter = ();
+	type FeePerBlock = ConstU64<1>;
 }
 
 impl pallet_proxy::Config for Test {

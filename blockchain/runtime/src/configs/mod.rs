@@ -554,6 +554,11 @@ impl pallet_estate_executor::CertificateMinter<Runtime> for RuntimeCertificateMi
 	}
 }
 
+parameter_types! {
+	// 10 µUNIT/block → 1-day ≈ 0.14 UNIT, 1-year ≈ 52 UNIT.
+	pub const EstateFeePerBlock: Balance = 10 * MICRO_UNIT;
+}
+
 impl pallet_estate_executor::Config for Runtime {
 	type WeightInfo = pallet_estate_executor::weights::SubstrateWeight<Runtime>;
 	type Balance = Balance;
@@ -564,6 +569,9 @@ impl pallet_estate_executor::Config for Runtime {
 	type IdentityCheck = IdentityCheckStub;
 	type CertificateMinter = RuntimeCertificateMinter;
 	type MaxBequests = ConstU32<5>;
+	type Currency = Balances;
+	type FeeRouter = ();
+	type FeePerBlock = EstateFeePerBlock;
 }
 
 // ── pallet-proxy ──────────────────────────────────────────────────────

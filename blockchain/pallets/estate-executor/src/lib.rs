@@ -86,8 +86,17 @@ pub mod pallet {
 	use frame::prelude::*;
 	use frame::traits::schedule::v3::Named as ScheduleNamed;
 	use frame::traits::schedule::DispatchTime;
-	use frame::deps::frame_support::traits::Bounded as PreimageBounded;
+	use frame::deps::frame_support::traits::{
+		Bounded as PreimageBounded, Currency, ExistenceRequirement, OnUnbalanced,
+		WithdrawReasons,
+	};
 	use frame::traits::tokens::Balance as BalanceT;
+
+	pub type BalanceOf<T> =
+		<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
+	pub type NegativeImbalanceOf<T> = <<T as Config>::Currency as Currency<
+		<T as frame_system::Config>::AccountId,
+	>>::NegativeImbalance;
 
 	#[pallet::pallet]
 	pub struct Pallet<T>(_);
@@ -152,6 +161,18 @@ pub mod pallet {
 		/// Maximum number of bequests per will.
 		#[pallet::constant]
 		type MaxBequests: Get<u32>;
+
+		/// Native-token adapter used to charge protocol fees.
+		type Currency: Currency<Self::AccountId>;
+
+		/// Sink for the negative imbalance produced by fee withdrawals.
+		/// Runtime decides: burn, treasury, split.
+		type FeeRouter: OnUnbalanced<NegativeImbalanceOf<Self>>;
+
+		/// Per-block longevity fee. Total charge on create/heartbeat is
+		/// `block_interval * FeePerBlock`.
+		#[pallet::constant]
+		type FeePerBlock: Get<BalanceOf<Self>>;
 	}
 
 	/// Unique identifier for each will.
@@ -262,6 +283,8 @@ pub mod pallet {
 		},
 		/// The will was cancelled by the owner.
 		WillCancelled { id: WillId },
+		/// Longevity fee charged to the owner on create/heartbeat.
+		LongevityFeeCharged { id: WillId, who: T::AccountId, amount: BalanceOf<T> },
 	}
 
 	#[pallet::error]
@@ -295,6 +318,8 @@ pub mod pallet {
 		/// A `MultisigProxy` bequest has fewer than the minimum number
 		/// of delegates (2) required for a meaningful multisig.
 		TooFewDelegates,
+		/// Owner cannot cover the protocol fee being charged.
+		InsufficientFeeBalance,
 		/// The scheduler refused to schedule or reschedule the task.
 		ScheduleFailed,
 	}
@@ -371,6 +396,12 @@ pub mod pallet {
 				.ok_or(Error::<T>::BlockIntervalTooLarge)?;
 
 			let id = NextWillId::<T>::get();
+
+			// After all validation (no charge for a rejected will),
+			// before storage writes (an InsufficientFeeBalance bails
+			// out clean).
+			Self::charge_longevity_fee(&who, id, block_interval)?;
+
 			NextWillId::<T>::put(id + 1);
 
 			let bequest_count = bounded_bequests.len() as u32;
@@ -415,15 +446,11 @@ pub mod pallet {
 			Ok(())
 		}
 
-		/// Send a heartbeat to reset the will's expiry and reschedule the
-		/// auto-execution task.
+		/// Reset the will's expiry and reschedule auto-execution.
 		///
-		/// Only the owner can call this. The will must be active and the
-		/// expiry block must not have passed yet.
-		///
-		/// This call is **feeless** when the signer is the current owner
-		/// of an active will — keeping your own will alive never costs a
-		/// fee.
+		/// Feeless at the tx-payment layer when called by the owner of
+		/// an active will. A separate protocol **longevity fee** is
+		/// still levied (another `block_interval * FeePerBlock`).
 		#[pallet::call_index(1)]
 		#[pallet::weight(T::WeightInfo::heartbeat())]
 		#[pallet::feeless_if(|origin: &OriginFor<T>, id: &WillId| -> bool {
@@ -448,6 +475,8 @@ pub mod pallet {
 			let dispatch_at = new_expiry_block
 				.checked_add(&One::one())
 				.ok_or(Error::<T>::BlockIntervalTooLarge)?;
+
+			Self::charge_longevity_fee(&who, id, will.block_interval)?;
 
 			will.expiry_block = new_expiry_block;
 			Wills::<T>::insert(id, will);
@@ -602,6 +631,40 @@ pub mod pallet {
 					if names_account { Some(id) } else { None }
 				})
 				.collect()
+		}
+
+		/// Withdraws `block_interval * FeePerBlock` from `who` and routes
+		/// the imbalance through `FeeRouter`. Zero-fee configs no-op.
+		pub(crate) fn charge_longevity_fee(
+			who: &T::AccountId,
+			id: WillId,
+			block_interval: BlockNumberFor<T>,
+		) -> Result<(), DispatchError> {
+			let interval: BalanceOf<T> =
+				block_interval.saturated_into::<u32>().into();
+			let fee = interval
+				.checked_mul(&T::FeePerBlock::get())
+				.ok_or(Error::<T>::BlockIntervalTooLarge)?;
+
+			if fee.is_zero() {
+				return Ok(());
+			}
+
+			let imbalance = T::Currency::withdraw(
+				who,
+				fee,
+				WithdrawReasons::FEE,
+				ExistenceRequirement::KeepAlive,
+			)
+			.map_err(|_| Error::<T>::InsufficientFeeBalance)?;
+			T::FeeRouter::on_unbalanced(imbalance);
+
+			Self::deposit_event(Event::LongevityFeeCharged {
+				id,
+				who: who.clone(),
+				amount: fee,
+			});
+			Ok(())
 		}
 	}
 }
