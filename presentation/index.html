@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		/>
+		<title>Estate Protocol</title>
+
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css" />
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css"
+			id="theme"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css"
+		/>
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<!-- 1. TITLE -->
+				<section class="brand-slide" data-background-color="#07090B">
+					<h1 class="brand">Estate<span class="neon">.</span>Protocol</h1>
+					<p class="muted">
+						On-chain digital legacy. Heartbeat while you can — the chain settles when
+						you can't.
+					</p>
+					<aside class="notes">
+						Hi, I'm Diego. In the next 5 minutes I'll show you Estate Protocol — a
+						Polkadot parachain that lets you register an on-chain will that
+						auto-executes if you stop sending heartbeats. I'll walk you through the
+						problem, the architecture across three chains, and close with a quick demo.
+					</aside>
+				</section>
+
+				<!-- 2. PROBLEM -->
+				<section class="meme-slide" data-background-color="#07090B">
+					<p class="eyebrow">the problem</p>
+					<h2>
+						Keys die <span class="fuchsia">with you</span>
+						<span class="ded-inline"
+							><span class="eye">×</span><span class="mouth">_</span
+							><span class="eye">×</span></span
+						>
+					</h2>
+					<div class="meme">
+						<p class="meme-equation">
+							<span>🔑</span> <span class="op">+</span> <span>💀</span>
+							<span class="op">=</span> <span class="stuck">🔒 forever</span>
+						</p>
+					</div>
+					<aside class="notes">
+						Crypto has a quiet inheritance problem. Private keys die with their owner.
+						There's no probate, no executor, no legal framework that can reach cold
+						storage. Multisigs and custodial exchanges exist as workarounds, but they
+						either require you to pre-select heirs today and give them a key right now,
+						or they re-introduce the counterparty risk Web3 was built to remove. We need
+						an on-chain, non-custodial answer.
+					</aside>
+				</section>
+
+				<!-- 3. SOLUTION -->
+				<section data-background-color="#07090B">
+					<p class="eyebrow">the solution</p>
+					<h2>A <span class="neon">programmable</span> will.</h2>
+					<p class="muted">Silence is the trigger. Heartbeats keep it alive.</p>
+					<div class="lifecycle">
+						<svg
+							class="lifecycle-edges"
+							viewBox="0 0 1160 420"
+							preserveAspectRatio="xMidYMid meet"
+							aria-hidden="true"
+						>
+							<defs>
+								<filter id="lc-glow" x="-50%" y="-50%" width="200%" height="200%">
+									<feGaussianBlur stdDeviation="4" result="b" />
+									<feMerge>
+										<feMergeNode in="b" />
+										<feMergeNode in="SourceGraphic" />
+									</feMerge>
+								</filter>
+								<marker
+									id="lc-arrow-neon"
+									viewBox="0 0 10 10"
+									refX="9"
+									refY="5"
+									markerWidth="7"
+									markerHeight="7"
+									orient="auto-start-reverse"
+								>
+									<path d="M0,0 L10,5 L0,10 z" fill="#00FFB3" />
+								</marker>
+								<marker
+									id="lc-arrow-fuchsia"
+									viewBox="0 0 10 10"
+									refX="9"
+									refY="5"
+									markerWidth="7"
+									markerHeight="7"
+									orient="auto-start-reverse"
+								>
+									<path d="M0,0 L10,5 L0,10 z" fill="#FF2E93" />
+								</marker>
+							</defs>
+							<g filter="url(#lc-glow)">
+								<!-- start → active -->
+								<line
+									x1="95"
+									y1="190"
+									x2="405"
+									y2="190"
+									stroke="#00FFB3"
+									stroke-width="2"
+									marker-end="url(#lc-arrow-neon)"
+								/>
+								<!-- heartbeat self-loop above active (lands back on the top edge) -->
+								<path
+									d="M 475 140 C 475 45, 605 45, 605 140"
+									fill="none"
+									stroke="#00FFB3"
+									stroke-width="2"
+									marker-end="url(#lc-arrow-neon)"
+								/>
+								<!-- active → cancelled (upper right branch) -->
+								<path
+									d="M 700 175 C 830 175, 880 110, 975 110"
+									fill="none"
+									stroke="#FF2E93"
+									stroke-width="2"
+									marker-end="url(#lc-arrow-fuchsia)"
+								/>
+								<!-- active → executed (lower right branch) -->
+								<path
+									d="M 700 205 C 830 205, 880 310, 975 310"
+									fill="none"
+									stroke="#00FFB3"
+									stroke-width="2"
+									marker-end="url(#lc-arrow-neon)"
+								/>
+							</g>
+						</svg>
+
+						<!-- Edge labels as HTML so they render above the node cards -->
+						<div class="lc-edge-label" style="left: 230px; top: 172px; color: #8b95a4">
+							create_will
+						</div>
+						<div
+							class="lc-edge-label"
+							style="
+								left: 590px;
+								top: 28px;
+								color: #00ffb3;
+								width: 160px;
+								margin-left: -80px;
+								text-align: center;
+							"
+						>
+							heartbeat
+						</div>
+						<div class="lc-edge-label" style="left: 850px; top: 128px; color: #ff2e93">
+							cancel
+						</div>
+						<div class="lc-edge-label" style="left: 800px; top: 318px; color: #00ffb3">
+							silence &gt; interval
+						</div>
+
+						<div class="lc-node lc-start" style="left: 60px; top: 200px">
+							<span class="lc-dot"></span>
+							<span class="lc-label">start</span>
+						</div>
+
+						<div class="lc-node lc-active" style="left: 460px; top: 148px">
+							<div class="lc-title">ACTIVE</div>
+							<div class="lc-sub">expires at block N</div>
+						</div>
+
+						<div
+							class="lc-node lc-terminal lc-cancelled"
+							style="left: 1085px; top: 78px"
+						>
+							<div class="lc-title">CANCELLED</div>
+							<div class="lc-sub">task removed</div>
+						</div>
+
+						<div
+							class="lc-node lc-terminal lc-executed"
+							style="left: 1085px; top: 308px"
+						>
+							<div class="lc-title">EXECUTED</div>
+							<div class="lc-sub">NFT minted</div>
+						</div>
+					</div>
+					<aside class="notes">
+						Register a will — a typed list of actions, each naming a beneficiary. You
+						heartbeat periodically; every heartbeat reschedules the expiry. If you go
+						silent past the interval, the runtime's scheduler deterministically fires
+						the will. Each beneficiary gets a soulbound NFT — a permanent on-chain
+						receipt of inheritance. You can cancel at any time.
+					</aside>
+				</section>
+
+				<!-- 4. ARCHITECTURE -->
+				<section data-background-color="#07090B">
+					<p class="eyebrow">architecture</p>
+					<h2>Three chains. <span class="neon">One relay</span>.</h2>
+					<div class="arch">
+						<svg
+							class="arch-edges"
+							viewBox="0 0 1160 420"
+							preserveAspectRatio="xMidYMid meet"
+							aria-hidden="true"
+						>
+							<defs>
+								<filter id="ar-glow" x="-50%" y="-50%" width="200%" height="200%">
+									<feGaussianBlur stdDeviation="4" result="b" />
+									<feMerge>
+										<feMergeNode in="b" />
+										<feMergeNode in="SourceGraphic" />
+									</feMerge>
+								</filter>
+								<marker
+									id="ar-arrow-neon"
+									viewBox="0 0 10 10"
+									refX="9"
+									refY="5"
+									markerWidth="7"
+									markerHeight="7"
+									orient="auto-start-reverse"
+								>
+									<path d="M0,0 L10,5 L0,10 z" fill="#00FFB3" />
+								</marker>
+								<marker
+									id="ar-arrow-fuchsia"
+									viewBox="0 0 10 10"
+									refX="9"
+									refY="5"
+									markerWidth="7"
+									markerHeight="7"
+									orient="auto-start-reverse"
+								>
+									<path d="M0,0 L10,5 L0,10 z" fill="#FF2E93" />
+								</marker>
+							</defs>
+
+							<!-- Faint parachain ↔ relay links (dashed, low opacity) -->
+							<g
+								stroke="#5B6572"
+								stroke-width="1.2"
+								stroke-dasharray="4 4"
+								opacity="0.55"
+								fill="none"
+							>
+								<line x1="270" y1="210" x2="555" y2="210" />
+								<line x1="1005" y1="115" x2="665" y2="188" />
+								<line x1="1005" y1="295" x2="665" y2="232" />
+							</g>
+
+							<!-- Prominent cross-parachain arrows -->
+							<g filter="url(#ar-glow)">
+								<!-- estate → people (identity, curves above the relay) -->
+								<path
+									d="M 270 135 C 450 0, 700 -30, 890 45"
+									fill="none"
+									stroke="#00FFB3"
+									stroke-width="2"
+									marker-end="url(#ar-arrow-neon)"
+								/>
+								<!-- estate → asset hub (XCM, curves below the relay) -->
+								<path
+									d="M 270 245 C 450 380, 700 390, 890 315"
+									fill="none"
+									stroke="#FF2E93"
+									stroke-width="2"
+									marker-end="url(#ar-arrow-fuchsia)"
+								/>
+							</g>
+						</svg>
+
+						<!-- Edge labels -->
+						<div
+							class="lc-edge-label"
+							style="
+								left: 714px;
+								top: -24px;
+								color: #00ffb3;
+								width: 200px;
+								margin-left: -100px;
+								text-align: center;
+							"
+						>
+							identity check
+						</div>
+						<div
+							class="lc-edge-label"
+							style="
+								left: 714px;
+								top: 420px;
+								color: #ff2e93;
+								width: 200px;
+								margin-left: -100px;
+								text-align: center;
+							"
+						>
+							XCM Transact
+						</div>
+
+						<!-- Nodes -->
+						<div
+							class="lc-node arch-hub arch-chain-estate"
+							style="left: 40px; top: 155px"
+						>
+							<div class="lc-title">ESTATE</div>
+							<div class="lc-sub">protocol</div>
+						</div>
+
+						<div class="lc-node arch-relay" style="left: 614px; top: 202px">
+							<div class="lc-title">RELAY</div>
+						</div>
+
+						<div
+							class="lc-node arch-chain arch-chain-neon"
+							style="left: 890px; top: 55px"
+						>
+							<div class="lc-title">PEOPLE CHAIN</div>
+							<div class="lc-sub">identity</div>
+						</div>
+
+						<div
+							class="lc-node arch-chain arch-chain-neon"
+							style="left: 890px; top: 255px"
+						>
+							<div class="lc-title">ASSET HUB</div>
+							<div class="lc-sub">balances + proxy</div>
+						</div>
+					</div>
+					<aside class="notes">
+						Estate Protocol is our parachain — it holds the will state and runs the
+						scheduler. People Chain is the Polkadot system parachain that hosts
+						pallet-identity; we consult it to verify every heir has a real identity.
+						Asset Hub is where the assets actually live. When a will fires, Estate sends
+						an XCM message to Asset Hub that dispatches the inheritance as the owner.
+						The heir also gets a soulbound NFT minted back on Estate.
+					</aside>
+				</section>
+
+				<!-- 5. XCM -->
+				<section class="top-aligned" data-background-color="#07090B">
+					<p class="eyebrow">xcm</p>
+					<h2>Assets <span class="neon">never</span> leave Asset Hub.</h2>
+					<p class="muted">One-time proxy grant. Estate dispatches as you.</p>
+					<!-- prettier-ignore -->
+					<pre class="mermaid">
+sequenceDiagram
+    participant O as Owner
+    participant E as Estate
+    participant AH as Asset Hub
+    Note over O,AH: setup (once)
+    O->>AH: add_proxy(Estate sovereign, Any)
+    Note over O,E: ... silence exceeds interval ...
+    E->>E: scheduler fires execute_will
+    E->>AH: XCM Transact · Proxy.proxy(owner, _, call)
+    AH->>AH: dispatch as Owner
+    AH-->>E: ✓ settled
+					</pre>
+					<aside class="notes">
+						The key design decision: Estate Protocol never custodies your assets. They
+						stay on Asset Hub. What you do once is grant our sovereign account a
+						ProxyType::Any over your Asset Hub account — the same primitive every wallet
+						already uses. When a will executes, we send an XCM Transact to Asset Hub
+						wrapped in Proxy.proxy so it dispatches as you. If anything ever went wrong
+						with Estate, you revoke the proxy and your assets are untouched.
+					</aside>
+				</section>
+
+				<!-- 6. ECONOMICS -->
+				<section class="econ-slide" data-background-color="#07090B">
+					<p class="eyebrow">economics</p>
+					<h2>Self-sustaining. <span class="neon">Native token</span>.</h2>
+
+					<div class="econ">
+						<!-- Left column: inputs -->
+						<div class="econ-inputs">
+							<div class="econ-card">
+								<div class="econ-label">LONGEVITY FEE</div>
+								<div class="econ-formula">interval × FeePerBlock</div>
+								<div class="econ-when">on create</div>
+							</div>
+							<div class="econ-card">
+								<div class="econ-label">EXECUTION FEE</div>
+								<div class="econ-formula">flat, per action</div>
+								<div class="econ-when">reserved at create · slashed on fire</div>
+							</div>
+							<div class="econ-card econ-card-free">
+								<div class="econ-label">HEARTBEATS</div>
+								<div class="econ-formula">free · feeless tx</div>
+								<div class="econ-when">keep your own will alive at no cost</div>
+							</div>
+						</div>
+
+						<!-- Center: fee pot -->
+						<div class="econ-pot">
+							<div class="econ-pot-ring"></div>
+							<div class="econ-pot-label">FEE POT</div>
+							<div class="econ-pot-sub">native token</div>
+						</div>
+
+						<!-- Right column: distribution -->
+						<div class="econ-split">
+							<div class="econ-bar">
+								<div class="econ-bar-burn"><span>30%</span></div>
+								<div class="econ-bar-treasury"><span>70%</span></div>
+							</div>
+							<div class="econ-bar-legend">
+								<div><span class="swatch burn"></span>🔥 <strong>BURN</strong> — deflationary</div>
+								<div><span class="swatch treasury"></span>💰 <strong>TREASURY</strong> — governable PalletId account</div>
+							</div>
+							<div class="econ-skim">
+								<span class="arrow">↳</span>
+								<span>trigger caller gets up to <strong>one flat fee</strong> off the top.</span>
+							</div>
+						</div>
+					</div>
+
+					<aside class="notes">
+						Three fees keep the protocol self-sustaining. A longevity fee per heartbeat,
+						an execution fee reserved at create and charged when the will fires, and a
+						trigger reward paid out of that same execution fee if someone has to
+						manually fire an overdue will. All in the native token — no new asset.
+						Everything flows into a SplitTwoWays router: 30% burns, 70% goes to a
+						PalletId-derived treasury. The trigger reward is FLAT-capped — a million-ROC
+						will and a one-ROC will pay the same maximum bounty, so big wills are never
+						coercion targets, and the payout is always bounded by what the owner
+						actually paid in.
+					</aside>
+				</section>
+
+				<!-- 7. UNDER THE HOOD -->
+				<section class="code-slide" data-background-color="#07090B">
+					<p class="eyebrow">under the hood</p>
+					<h2>Standard pallets, <span class="neon">custom wiring</span>.</h2>
+
+					<pre class="code-pre"><code class="language-rust" data-trim data-line-numbers="3|5|7-9|10-11|15-20|22-29|32-42">impl pallet_estate_executor::Config for Runtime {
+    type Currency              = Balances;
+    type Scheduler             = Scheduler;                       // pallet-scheduler fires the will
+    type BequestBuilder        = RuntimeBequestBuilder;
+    type IdentityCheck         = IdentityCheckStub;
+    type CertificateMinter     = RuntimeCertificateMinter;
+    type FeeRouter             = EstateFeeRouter;
+    type FeePerBlock           = EstateFeePerBlock;
+    type FlatBequestFee        = EstateFlatBequestFee;
+    type TriggerRewardPerBlock = EstateTriggerRewardPerBlock;
+    type TriggerRewardCap      = EstateTriggerRewardCap;
+    type MaxBequests           = EstateMaxBequests;
+}
+
+type EstateFeeRouter = SplitTwoWays&lt;
+    Balance, NegativeImbalance,
+    (),                    // burn     30
+    EstateTreasuryDeposit, // treasury 70
+    30, 70,
+&gt;;
+
+#[pallet::feeless_if(|origin, id: &amp;WillId| {
+    Wills::&lt;T&gt;::get(id)
+        .map(|w| w.owner == who &amp;&amp; w.active())
+        .unwrap_or(false)
+})]
+pub fn heartbeat(origin, id: WillId) -&gt; DispatchResult { /* reschedule */ }
+
+// Scheduler-first. If congestion makes it miss the block,
+// *anyone* can fire an overdue will and collect a bounty
+// that scales with lateness — capped at one flat fee.
+pub fn trigger(origin, id: WillId) -&gt; DispatchResult {
+    let who  = ensure_signed(origin)?;
+    let will = Wills::&lt;T&gt;::get(id).ok_or(Error::WillNotFound)?;
+    ensure!(will.active(), Error::AlreadyExecuted);
+    ensure!(now &gt; will.expiry_block, Error::TooEarlyToTrigger);
+    let reward = TriggerRewardPerBlock::get()
+        .saturating_mul(blocks_overdue.into())
+        .min(TriggerRewardCap::get());
+    Self::do_execute(id, will, Some((who, reward)))
+}</code></pre>
+
+					<aside class="notes">
+						Seven quick steps through one Config impl. One: Scheduler is
+						pallet-scheduler — it's what actually fires execute_will at
+						expiry_block + 1; create_will schedules the task, heartbeat
+						reschedules it. Two: IdentityCheck is the hook that verifies every
+						heir has a real identity on People Chain. Three: the three fee
+						parameters — FeeRouter, FeePerBlock for the longevity fee, and the
+						flat per-bequest fee. Four: the two reward parameters for the
+						manual trigger — per-block rate and a hard cap. Five: FeeRouter is
+						just SplitTwoWays from frame_support — 30 parts burn, 70 parts
+						into the treasury. Six: feeless_if lets the owner heartbeat for
+						zero tx fee, by the one predicate shown. Seven: trigger is the
+						manual fallback — if the scheduler misses the block, any account
+						can fire an overdue will and collect a bounty that scales with
+						lateness but is capped at one flat fee. The cap is the safety rail:
+						a one-ROC will and a one-million-ROC will pay the same maximum
+						bounty, so large wills are never coercion targets. Every knob is a
+						runtime constant, governance-tunable without touching the pallet.
+					</aside>
+				</section>
+
+				<!-- 8. THE XCM BUILD — signature moment -->
+				<section class="code-slide" data-background-color="#07090B">
+					<p class="eyebrow">the xcm</p>
+					<h2>Dispatch as the owner. <span class="neon">No custody</span>.</h2>
+
+					<pre class="code-pre"><code class="language-rust" data-trim data-line-numbers="1-9|14-23">pub enum Bequest&lt;T: Config&gt; {
+    Transfer      { dest: T::AccountId, amount: T::Balance },
+    TransferAll   { dest: T::AccountId },
+    Proxy         { delegate: T::AccountId },
+    MultisigProxy {
+        delegates: BoundedVec&lt;T::AccountId, MaxMultisigDelegates&gt;,
+        threshold: u16,
+    },
+}
+
+// Build the XCM that runs on Asset Hub as the owner.
+fn build_ah_proxy_xcm(owner: &amp;AccountId, inner: Vec&lt;u8&gt;) -&gt; Xcm&lt;()&gt; {
+    let fees: Asset = (Location::parent(), 100 * ROC).into();
+    let proxy_call = ah_wrap_proxy(owner, inner);  // Proxy.proxy(owner, _, call)
+    Xcm(vec![
+        WithdrawAsset(fees.clone().into()),
+        BuyExecution { fees, weight_limit: WeightLimit::Unlimited },
+        Transact {
+            origin_kind: OriginKind::SovereignAccount,
+            call: proxy_call.into(),
+            fallback_max_weight: None,
+        },
+    ])
+}</code></pre>
+
+					<aside class="notes">
+						Two steps. One: the Bequest enum — the typed menu of what a will
+						can do. A fixed-amount transfer, sweep all, hand a proxy to a single
+						delegate, or to a multisig threshold of delegates. Two: when a will
+						fires, build_ah_proxy_xcm assembles three XCM instructions.
+						WithdrawAsset and BuyExecution pay for dispatch on Asset Hub out of
+						our sovereign's AH balance. Transact carries a
+						Proxy.proxy(owner, _, call) wrap — that's the critical piece. Asset
+						Hub's proxy pallet dispatches the inner call as the owner, not as
+						our parachain. Net effect: the owner's assets move, signed by the
+						owner, without Estate ever touching them. If anything ever went
+						wrong with Estate, the owner revokes the proxy and their assets are
+						untouched.
+					</aside>
+				</section>
+
+				<!-- 9. DEMO title -->
+				<section
+					class="brand-slide"
+					data-background-color="#07090B"
+					data-background-transition="fade"
+				>
+					<div style="text-align: center">
+						<p class="eyebrow" style="text-align: center">live</p>
+						<h1 class="huge">DEMO</h1>
+					</div>
+					<aside class="notes">
+						Pause for a beat, then advance to the live app. 60-second plan: 1. Wills
+						dashboard — counts of active / executed. 2. New will → Alice owner, 1-minute
+						interval. Add Transfer 1 ROC to Bob. Point at the live Protocol-fee preview.
+						3. Sign. Row appears in the dashboard. 4. Switch to Bob — "names you" chip.
+						5. If time: let one expire, click Trigger from a third account, show the
+						reward toast. Fallback if the node is down: talk through the speaker notes
+						and skip the next slide.
+					</aside>
+				</section>
+
+				<!-- 10. DEMO iframe (chromeless) -->
+				<section
+					class="demo-iframe"
+					data-background-color="#07090B"
+					data-background-iframe="http://localhost:5173/#/"
+					data-background-interactive
+					data-preload
+				>
+					<aside class="notes">
+						Live frontend embedded at localhost:5173. Start with
+						./scripts/start-zombienet.sh then ./scripts/start-frontend.sh. Press B to
+						blackout the screen if you need to cut back to the speaker view quickly.
+					</aside>
+				</section>
+
+				<!-- 11. CLOSE -->
+				<section data-background-color="#07090B">
+					<p class="eyebrow">what's next</p>
+					<h2>Where this <span class="neon">goes</span>.</h2>
+
+					<div class="roadmap">
+						<div class="roadmap-card">
+							<div class="roadmap-title">OCW execution</div>
+							<div class="roadmap-sub">no public target block</div>
+						</div>
+						<div class="roadmap-card">
+							<div class="roadmap-title">Death-proof oracles</div>
+							<div class="roadmap-sub">optional attestation</div>
+						</div>
+						<div class="roadmap-card">
+							<div class="roadmap-title">Governance</div>
+							<div class="roadmap-sub">treasury + fees</div>
+						</div>
+					</div>
+
+					<p class="muted" style="text-align: center; margin-top: 36pt">
+						<span class="neon">Thank you.</span>
+					</p>
+					<aside class="notes">
+						Next steps: move scheduled execution to an off-chain worker so the target
+						block isn't public — closes the scheduler-congestion side-channel.
+						Optional death-proof oracles for users who want verification beyond
+						silence. Governance over the fee parameters and treasury. Happy to
+						take questions.
+					</aside>
+				</section>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+		<script type="module">
+			import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+			mermaid.initialize({
+				startOnLoad: true,
+				theme: "base",
+				themeVariables: {
+					background: "#07090B",
+					primaryColor: "#0f2a23",
+					primaryBorderColor: "#00FFB3",
+					primaryTextColor: "#E6EDF5",
+					secondaryColor: "#42102d",
+					secondaryBorderColor: "#FF2E93",
+					secondaryTextColor: "#FFC6DD",
+					tertiaryColor: "#14181D",
+					tertiaryBorderColor: "#5B6572",
+					tertiaryTextColor: "#E6EDF5",
+					lineColor: "#00FFB3",
+					textColor: "#E6EDF5",
+					mainBkg: "#0f2a23",
+					fontFamily: "'JetBrains Mono', monospace",
+					fontSize: "18px",
+				},
+				flowchart: { curve: "basis", padding: 20 },
+				sequence: { actorMargin: 80, boxMargin: 10, messageMargin: 40 },
+			});
+			window.Reveal.initialize({
+				hash: true,
+				slideNumber: "c/t",
+				controls: false,
+				progress: true,
+				center: true,
+				transition: "fade",
+				width: 1280,
+				height: 800,
+				margin: 0.04,
+				plugins: [window.RevealNotes, window.RevealHighlight],
+			});
+		</script>
+	</body>
+</html>

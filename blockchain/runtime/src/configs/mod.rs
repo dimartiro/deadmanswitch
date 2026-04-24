@@ -571,6 +571,7 @@ parameter_types! {
 	pub const EstateFlatBequestFee: Balance = ESTATE_FLAT_BEQUEST_FEE;
 	pub const EstateTriggerRewardPerBlock: Balance = 100 * MICRO_UNIT;
 	pub const EstateTriggerRewardCap: Balance = ESTATE_FLAT_BEQUEST_FEE;
+	pub const EstateMaxBequests: u32 = 5;
 	pub EstateTreasuryAccount: AccountId = {
 		use sp_runtime::traits::AccountIdConversion;
 		ESTATE_TREASURY_PALLET_ID.into_account_truncating()
@@ -608,7 +609,7 @@ impl pallet_estate_executor::Config for Runtime {
 	type BequestBuilder = RuntimeBequestBuilder;
 	type IdentityCheck = IdentityCheckStub;
 	type CertificateMinter = RuntimeCertificateMinter;
-	type MaxBequests = ConstU32<5>;
+	type MaxBequests = EstateMaxBequests;
 	type Currency = Balances;
 	type FeeRouter = EstateFeeRouter;
 	type FeePerBlock = EstateFeePerBlock;

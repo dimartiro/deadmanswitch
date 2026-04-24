@@ -1,0 +1,732 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --canvas: #07090B;
+    --paper: #0E1114;
+    --mist: #1C2127;
+    --hairline: #202731;
+    --ink-900: #E6EDF5;
+    --ink-500: #8B95A4;
+    --ink-400: #5B6572;
+    --neon: #00FFB3;
+    --neon-dim: #229077;
+    --fuchsia: #FF2E93;
+    --fuchsia-dim: #A02168;
+    --danger: #FF3860;
+
+    --heading-font: 'Oxanium', 'Space Grotesk', system-ui, sans-serif;
+    --body-font: 'JetBrains Mono', 'Fira Code', monospace;
+
+    --base-font-size: 32px;
+    --text-size: 20pt;
+    --h1-size: 88pt;
+    --h2-size: 54pt;
+    --h3-size: 28pt;
+}
+
+html, body {
+    background: var(--canvas);
+}
+
+.reveal {
+    font-family: var(--body-font);
+    color: var(--ink-900);
+    background: var(--canvas);
+}
+
+.reveal .slides {
+    text-align: left;
+}
+
+.reveal .slides section {
+    padding: 40pt 60pt;
+}
+
+.reveal h1, .reveal h2, .reveal h3 {
+    font-family: var(--heading-font);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--ink-900);
+    text-transform: none;
+    margin: 0 0 12pt 0;
+}
+
+.reveal h1 { font-size: var(--h1-size); }
+.reveal h2 { font-size: var(--h2-size); }
+.reveal h3 { font-size: var(--h3-size); }
+
+.reveal p,
+.reveal li {
+    font-size: var(--text-size);
+    color: var(--ink-900);
+    line-height: 1.4;
+}
+
+.reveal .neon { color: var(--neon); }
+.reveal .fuchsia { color: var(--fuchsia); }
+
+.reveal .eyebrow {
+    font-family: var(--body-font);
+    font-size: 14pt;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--neon);
+    margin-bottom: 16pt;
+}
+.reveal .eyebrow::before { content: "> "; opacity: 0.6; }
+
+.reveal .muted {
+    color: var(--ink-500);
+    font-size: 18pt;
+    margin-top: 12pt;
+}
+
+.reveal .small { font-size: 14pt; color: var(--ink-500); }
+
+.reveal .brand {
+    font-size: 88pt;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.reveal .huge {
+    font-size: 180pt;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+    font-weight: 800;
+    color: var(--neon);
+    text-shadow: 0 0 32pt rgba(0, 255, 179, 0.35);
+}
+
+/* Mermaid container — push diagrams to the visual centre of content slides */
+.reveal .mermaid,
+.reveal pre.mermaid {
+    margin: 24pt 0 0 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-family: var(--body-font);
+    font-size: 16pt;
+    line-height: 1.3;
+    text-align: left;
+    white-space: pre;
+}
+.reveal .mermaid svg,
+.reveal pre.mermaid svg {
+    max-width: 100%;
+    max-height: 430pt;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Accent hairline under titles */
+.reveal h2::after {
+    content: "";
+    display: block;
+    width: 80pt;
+    height: 2pt;
+    background: linear-gradient(
+        90deg,
+        var(--neon) 0%,
+        rgba(0, 255, 179, 0) 100%
+    );
+    margin-top: 18pt;
+}
+
+/* No accent line after the title/closing slide brand */
+.reveal .brand-slide h2::after,
+.reveal h1::after {
+    display: none;
+}
+
+/* Brand slide is centred horizontally + vertically inside the slide
+ * container (reveal.js gives us a fixed 1280x800 box, so we fill it
+ * with flex and centre on both axes). */
+.reveal section.brand-slide {
+    text-align: center;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+}
+.reveal section.brand-slide > * { width: 100%; }
+.reveal section.brand-slide .eyebrow { margin: 0 auto 16pt; }
+.reveal section.brand-slide .muted { max-width: 720pt; margin-left: auto; margin-right: auto; }
+
+/* Keyboard shortcut pill */
+.reveal kbd {
+    padding: 2pt 8pt;
+    background: rgba(0, 255, 179, 0.08);
+    border: 1pt solid rgba(0, 255, 179, 0.35);
+    border-radius: 3pt;
+    color: var(--neon);
+    font-family: var(--body-font);
+    font-size: 14pt;
+    letter-spacing: 0.08em;
+}
+
+/* Slide number + progress chrome — match palette */
+.reveal .progress { color: var(--neon); height: 3pt; }
+.reveal .slide-number {
+    background: transparent;
+    color: var(--ink-400);
+    font-family: var(--body-font);
+    font-size: 11pt;
+    letter-spacing: 0.15em;
+}
+
+/* Scanline overlay for cyberpunk feel — on every slide via body::after */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 2pt,
+        rgba(0, 255, 179, 0.012) 2pt,
+        rgba(0, 255, 179, 0.012) 3pt
+    );
+    mix-blend-mode: screen;
+}
+
+/* Lifecycle (slide 3) — custom terminal-pipeline visualization */
+.reveal .lifecycle {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1160 / 420;
+    margin: 32pt 0 0 -40pt;
+}
+.reveal .lifecycle-edges {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+.reveal .lc-node {
+    position: absolute;
+    font-family: var(--body-font);
+    text-align: center;
+    z-index: 2;
+}
+.reveal .lc-edge-label {
+    position: absolute;
+    font-family: var(--body-font);
+    font-size: 10pt;
+    letter-spacing: 0.15em;
+    z-index: 3;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.reveal .lc-node .lc-title {
+    font-family: var(--heading-font);
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+.reveal .lc-node .lc-sub {
+    font-family: var(--body-font);
+    font-size: 10pt;
+    color: var(--ink-400);
+    margin-top: 4pt;
+    letter-spacing: 0.05em;
+}
+
+/* Start dot */
+.reveal .lc-start {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6pt;
+}
+.reveal .lc-start .lc-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 14pt rgba(0, 255, 179, 0.7);
+}
+.reveal .lc-start .lc-label {
+    font-size: 9pt;
+    color: var(--ink-400);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+/* Active node — the hero */
+.reveal .lc-active {
+    width: 240px;
+    padding: 18pt 10pt;
+    background: linear-gradient(180deg, rgba(0, 255, 179, 0.08), rgba(0, 255, 179, 0.02));
+    border: 1pt solid rgba(0, 255, 179, 0.55);
+    border-radius: 4pt;
+    box-shadow:
+        inset 0 0 0 1pt rgba(0, 255, 179, 0.15),
+        0 0 32pt rgba(0, 255, 179, 0.25);
+    animation: lc-active-pulse 2.6s ease-in-out infinite;
+}
+.reveal .lc-active .lc-title {
+    color: var(--neon);
+    font-size: 28pt;
+    text-shadow: 0 0 16pt rgba(0, 255, 179, 0.5);
+}
+
+@keyframes lc-active-pulse {
+    0%, 100% { box-shadow: inset 0 0 0 1pt rgba(0, 255, 179, 0.15), 0 0 28pt rgba(0, 255, 179, 0.22); }
+    50%      { box-shadow: inset 0 0 0 1pt rgba(0, 255, 179, 0.3),  0 0 44pt rgba(0, 255, 179, 0.42); }
+}
+
+/* Terminal nodes */
+.reveal .lc-terminal {
+    width: 170px;
+    padding: 10pt 8pt;
+    background: rgba(14, 17, 20, 0.85);
+    border: 1pt solid rgba(255, 255, 255, 0.1);
+    border-radius: 4pt;
+}
+.reveal .lc-terminal .lc-title {
+    font-size: 16pt;
+}
+.reveal .lc-cancelled {
+    border-color: rgba(255, 46, 147, 0.45);
+    box-shadow: 0 0 20pt rgba(255, 46, 147, 0.15);
+}
+.reveal .lc-cancelled .lc-title {
+    color: var(--fuchsia);
+    text-shadow: 0 0 12pt rgba(255, 46, 147, 0.5);
+}
+.reveal .lc-executed {
+    border-color: rgba(0, 255, 179, 0.45);
+    box-shadow: 0 0 20pt rgba(0, 255, 179, 0.15);
+}
+.reveal .lc-executed .lc-title {
+    color: var(--neon);
+    text-shadow: 0 0 12pt rgba(0, 255, 179, 0.5);
+}
+
+/* Architecture (slide 4) — Estate hub + chains + people */
+.reveal .arch {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1160 / 420;
+    margin: 32pt 0 0 -40pt;
+}
+.reveal .arch-edges {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.reveal .arch-hub {
+    width: 230px;
+    padding: 18pt 12pt;
+    background: linear-gradient(180deg, rgba(0, 255, 179, 0.1), rgba(0, 255, 179, 0.02));
+    border: 1pt solid rgba(0, 255, 179, 0.6);
+    border-radius: 4pt;
+    box-shadow:
+        inset 0 0 0 1pt rgba(0, 255, 179, 0.2),
+        0 0 32pt rgba(0, 255, 179, 0.28);
+    animation: lc-active-pulse 2.6s ease-in-out infinite;
+}
+.reveal .arch-hub .lc-title {
+    color: var(--neon);
+    font-size: 24pt;
+    text-shadow: 0 0 16pt rgba(0, 255, 179, 0.5);
+}
+
+/* Relay chain — smaller, calmer, in the middle */
+.reveal .arch-relay {
+    width: 110px;
+    padding: 10pt 8pt;
+    background: rgba(14, 17, 20, 0.85);
+    border: 1pt solid rgba(255, 255, 255, 0.18);
+    border-radius: 4pt;
+    text-align: center;
+}
+.reveal .arch-relay .lc-title {
+    color: var(--ink-500);
+    font-size: 14pt;
+    letter-spacing: 0.2em;
+}
+.reveal .arch-relay .lc-sub {
+    color: var(--ink-400);
+    font-size: 9pt;
+}
+
+.reveal .arch-chain {
+    width: 210px;
+    padding: 10pt 10pt;
+    background: rgba(14, 17, 20, 0.9);
+    border: 1pt solid rgba(0, 255, 179, 0.45);
+    border-radius: 4pt;
+    box-shadow: 0 0 18pt rgba(0, 255, 179, 0.12);
+}
+.reveal .arch-chain .lc-title {
+    color: var(--neon);
+    font-size: 15pt;
+    text-shadow: 0 0 10pt rgba(0, 255, 179, 0.4);
+}
+
+/* Owner / Heir — amber people dots */
+.reveal .arch-person {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6pt;
+}
+.reveal .arch-person .lc-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #FFBE0B;
+    box-shadow: 0 0 14pt rgba(255, 190, 11, 0.65);
+}
+.reveal .arch-person .lc-label {
+    font-size: 10pt;
+    color: #FFEBB0;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+/* Economics (slide 6) — left-aligned with the title */
+.reveal .econ {
+    display: grid;
+    grid-template-columns: 300pt 190px 300pt;
+    gap: 40pt;
+    align-items: center;
+    margin: 28pt 0 0 0;
+    justify-content: start;
+}
+.reveal .econ-inputs,
+.reveal .econ-split { min-width: 0; }
+.reveal .econ-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 14pt;
+}
+.reveal .econ-card {
+    padding: 12pt 14pt;
+    background: rgba(14, 17, 20, 0.85);
+    border: 1pt solid rgba(255, 190, 11, 0.35);
+    border-left: 3pt solid #FFBE0B;
+    border-radius: 3pt;
+}
+.reveal .econ-card-free {
+    border-color: rgba(0, 255, 179, 0.35);
+    border-left-color: var(--neon);
+    background: rgba(0, 255, 179, 0.04);
+}
+.reveal .econ-card-free .econ-label { color: var(--neon); }
+.reveal .econ-card-free .econ-formula { color: var(--neon); }
+.reveal .econ-label {
+    font-family: var(--heading-font);
+    font-weight: 800;
+    font-size: 14pt;
+    letter-spacing: 0.15em;
+    color: #FFBE0B;
+}
+.reveal .econ-formula {
+    font-family: var(--body-font);
+    font-size: 12pt;
+    color: var(--ink-900);
+    margin-top: 4pt;
+    letter-spacing: 0.05em;
+}
+.reveal .econ-when {
+    font-family: var(--body-font);
+    font-size: 9pt;
+    color: var(--ink-500);
+    margin-top: 3pt;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+/* Pot */
+.reveal .econ-pot {
+    position: relative;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, rgba(0, 255, 179, 0.25), rgba(0, 255, 179, 0.05) 60%, transparent 75%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        inset 0 0 0 1pt rgba(0, 255, 179, 0.4),
+        0 0 40pt rgba(0, 255, 179, 0.25);
+    justify-self: center;
+}
+.reveal .econ-pot-ring {
+    position: absolute;
+    inset: 8pt;
+    border-radius: 50%;
+    border: 1pt dashed rgba(0, 255, 179, 0.3);
+    animation: econ-ring 8s linear infinite;
+}
+@keyframes econ-ring {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.reveal .econ-pot-label {
+    font-family: var(--heading-font);
+    font-weight: 800;
+    color: var(--neon);
+    font-size: 18pt;
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 14pt rgba(0, 255, 179, 0.5);
+    z-index: 1;
+}
+.reveal .econ-pot-sub {
+    font-family: var(--body-font);
+    font-size: 9pt;
+    color: var(--ink-500);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 2pt;
+    z-index: 1;
+}
+
+/* Split bar + legend */
+.reveal .econ-split {
+    display: flex;
+    flex-direction: column;
+    gap: 14pt;
+}
+.reveal .econ-bar {
+    display: flex;
+    height: 36pt;
+    border-radius: 3pt;
+    overflow: hidden;
+    box-shadow: 0 0 24pt rgba(0, 255, 179, 0.12);
+}
+.reveal .econ-bar > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--heading-font);
+    font-weight: 800;
+    font-size: 18pt;
+    letter-spacing: 0.08em;
+}
+.reveal .econ-bar-burn {
+    flex: 30;
+    background: linear-gradient(90deg, rgba(255, 46, 147, 0.18), rgba(255, 46, 147, 0.35));
+    color: var(--fuchsia);
+    border-right: 1pt solid rgba(7, 9, 11, 0.6);
+    text-shadow: 0 0 10pt rgba(255, 46, 147, 0.5);
+}
+.reveal .econ-bar-treasury {
+    flex: 70;
+    background: linear-gradient(90deg, rgba(0, 255, 179, 0.2), rgba(0, 255, 179, 0.42));
+    color: var(--canvas);
+    text-shadow: none;
+}
+.reveal .econ-bar-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6pt;
+    font-family: var(--body-font);
+    font-size: 12pt;
+    color: var(--ink-900);
+}
+.reveal .econ-bar-legend .swatch {
+    display: inline-block;
+    width: 12pt;
+    height: 12pt;
+    border-radius: 2pt;
+    margin-right: 6pt;
+    vertical-align: -1pt;
+}
+.reveal .econ-bar-legend .swatch.burn { background: var(--fuchsia); }
+.reveal .econ-bar-legend .swatch.treasury { background: var(--neon); }
+
+.reveal .econ-skim {
+    font-family: var(--body-font);
+    font-size: 11pt;
+    color: var(--ink-500);
+    padding: 8pt 12pt;
+    background: rgba(14, 17, 20, 0.6);
+    border: 1pt dashed rgba(255, 190, 11, 0.3);
+    border-radius: 3pt;
+    margin-top: 2pt;
+}
+.reveal .econ-skim .arrow {
+    color: #FFBE0B;
+    margin-right: 6pt;
+    font-family: var(--heading-font);
+    font-weight: 800;
+}
+
+.reveal .econ-footer {
+    margin-top: 22pt !important;
+    text-align: center;
+    font-family: var(--body-font);
+    font-size: 13pt !important;
+    color: var(--ink-500) !important;
+    letter-spacing: 0.05em;
+}
+
+/* Meme slide (slide 2) — ×_× next to title + equation below */
+.reveal section.meme-slide .meme {
+    margin-top: 40pt;
+}
+.reveal .ded-inline {
+    display: inline-block;
+    color: var(--fuchsia);
+    text-shadow: 0 0 28pt rgba(255, 46, 147, 0.55);
+    font-family: var(--heading-font);
+    font-weight: 800;
+    margin-left: 18pt;
+    vertical-align: -0.05em;
+    user-select: none;
+}
+.reveal .ded-inline .eye { font-size: 1em; }
+.reveal .ded-inline .mouth {
+    font-size: 0.85em;
+    margin: 0 -0.05em;
+    letter-spacing: -0.1em;
+    display: inline-block;
+    transform: translateY(-0.12em);
+}
+.reveal .meme-caption {
+    font-family: var(--body-font);
+    font-size: 18pt;
+    color: var(--ink-500);
+    margin-top: 28pt;
+    font-style: italic;
+}
+.reveal .meme-equation {
+    font-size: 40pt;
+    margin-top: 14pt;
+    letter-spacing: 0.05em;
+}
+.reveal .meme-equation .op {
+    color: var(--ink-500);
+    margin: 0 10pt;
+    font-family: var(--heading-font);
+    font-weight: 600;
+}
+.reveal .meme-equation .stuck {
+    color: var(--fuchsia);
+    font-family: var(--heading-font);
+    font-weight: 700;
+    font-size: 32pt;
+    margin-left: 8pt;
+}
+
+/* Slide-level utility: opt a single slide out of reveal's vertical centring. */
+.reveal .slides > section.top-aligned {
+    top: 0 !important;
+    transform: translate(0, 0) !important;
+    padding-top: 0 !important;
+}
+.reveal section.top-aligned .eyebrow { margin-top: 0; }
+.reveal section.top-aligned .muted { margin-top: 4pt; }
+.reveal section.top-aligned h2 { margin-top: 8pt; }
+.reveal section.top-aligned .mermaid,
+.reveal section.top-aligned pre.mermaid {
+    margin-top: 0;
+}
+
+/* Slide 7 code block — style the card/frame AROUND reveal's default
+ * <pre><code>, without touching pre/code layout. Reveal handles its own
+ * max-height + overflow for scroll-on-fragment; any override here risks
+ * breaking the scroll math. */
+.reveal pre.code-pre {
+    background: rgba(14, 17, 20, 0.85);
+    border: 1pt solid rgba(0, 255, 179, 0.45);
+    border-left: 3pt solid var(--neon);
+    border-radius: 3pt;
+    box-shadow: 0 0 18pt rgba(0, 255, 179, 0.12);
+    font-size: 0.5em;  /* reveal default is quite large; tone it down */
+    margin: 0;
+    padding: 0;
+}
+.reveal pre.code-pre code {
+    font-family: var(--body-font);
+    line-height: 1.5;
+    padding: 0 !important;
+}
+.reveal pre.code-pre .hljs-ln-numbers {
+    color: var(--ink-400);
+    border-right: 1pt solid var(--hairline);
+    padding-right: 0.75em;
+    text-align: right;
+    user-select: none;
+}
+.reveal pre.code-pre .hljs-ln-code {
+    padding-left: 0.75em;
+}
+/* Cyberpunk syntax accents */
+.reveal pre.code-pre .hljs-keyword,
+.reveal pre.code-pre .hljs-built_in { color: var(--fuchsia); }
+.reveal pre.code-pre .hljs-type,
+.reveal pre.code-pre .hljs-title.class_,
+.reveal pre.code-pre .hljs-title.function_ { color: var(--neon); }
+.reveal pre.code-pre .hljs-string { color: #FFD560; }
+.reveal pre.code-pre .hljs-number { color: #FFC6DD; }
+.reveal pre.code-pre .hljs-comment { color: var(--ink-400); font-style: italic; }
+.reveal pre.code-pre .hljs-meta { color: #FFBE0B; }
+
+/* Closing slide — "Where this goes" roadmap cards */
+.reveal .roadmap {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22pt;
+    margin-top: 32pt;
+    padding: 0 36pt;
+}
+.reveal .roadmap-card {
+    background: linear-gradient(180deg, var(--mist) 0%, #15191F 100%);
+    border: 1pt solid rgba(0, 255, 179, 0.55);
+    border-top: 3pt solid var(--neon);
+    border-radius: 4pt;
+    padding: 22pt 16pt;
+    text-align: center;
+    box-shadow:
+        0 0 24pt rgba(0, 255, 179, 0.14),
+        0 8pt 24pt rgba(0, 0, 0, 0.5);
+}
+.reveal .roadmap-card:nth-child(even) {
+    border-color: rgba(255, 46, 147, 0.55);
+    border-top-color: var(--fuchsia);
+    box-shadow:
+        0 0 24pt rgba(255, 46, 147, 0.14),
+        0 8pt 24pt rgba(0, 0, 0, 0.5);
+}
+.reveal .roadmap-title {
+    font-family: var(--heading-font);
+    font-weight: 800;
+    font-size: 18pt;
+    letter-spacing: 0.08em;
+    color: var(--neon);
+    text-shadow: 0 0 14pt rgba(0, 255, 179, 0.45);
+}
+.reveal .roadmap-card:nth-child(even) .roadmap-title {
+    color: var(--fuchsia);
+    text-shadow: 0 0 14pt rgba(255, 46, 147, 0.45);
+}
+.reveal .roadmap-sub {
+    font-family: var(--body-font);
+    font-size: 11pt;
+    color: var(--ink-500);
+    margin-top: 8pt;
+    letter-spacing: 0.04em;
+}
+
+/* Iframe-only demo slide — strip chrome so the live app owns the viewport */
+.reveal section.demo-iframe {
+    padding: 0;
+}
+.reveal section.demo-iframe::before,
+.reveal section.demo-iframe::after {
+    display: none;
+}
