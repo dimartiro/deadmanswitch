@@ -209,7 +209,7 @@
 						</div>
 					</div>
 					<aside class="notes">
-						<strong>[by 1:00]</strong> A programmable will — silence is the trigger.
+						<strong>[by 1:05]</strong> A programmable will — silence is the trigger.
 						create_will puts it Active; every heartbeat reschedules the expiry. Two ways
 						out: cancel, or the scheduler fires on silence and mints a soulbound NFT
 						certificate for each heir.
@@ -351,7 +351,7 @@
 						</div>
 					</div>
 					<aside class="notes">
-						<strong>[by 1:20]</strong> The architecture is three parachains. Estate
+						<strong>[by 1:30]</strong> The architecture is three parachains. Estate
 						Protocol holds will state and the scheduler. People Chain provides identity.
 						Asset Hub holds the assets — and pallet-proxy lets us dispatch as the owner.
 						Identity check up, XCM Transact down.
@@ -378,11 +378,11 @@ sequenceDiagram
     AH-->>E: ✓ settled
 					</pre>
 					<aside class="notes">
-						<strong>[by 1:45]</strong> The protocol never takes custody of assets. You link
-						your Asset Hub account once, by granting our Estate sovereign a proxy. When
-						a will is executed, Estate sends an XCM Transact wrapped in Proxy.proxy,
-						and Asset Hub dispatches the call on behalf of the owner. Revoke the proxy
-						anytime.
+						<strong>[by 1:55]</strong> The protocol never takes custody of assets. You
+						link your Asset Hub account once, by granting our Estate sovereign a proxy.
+						When a will is executed, Estate sends an XCM Transact wrapped in
+						Proxy.proxy, and Asset Hub dispatches the call on behalf of the owner.
+						Revoke the proxy anytime.
 					</aside>
 				</section>
 
@@ -461,7 +461,7 @@ sequenceDiagram
 
 					<pre
 						class="code-pre"
-					><code class="language-rust" data-trim data-line-numbers="3|5|6|7|8-12|15-20|22-29|32-42">impl pallet_estate_executor::Config for Runtime {
+					><code class="language-rust" data-trim data-line-numbers="3|5|6|7|8-12|15-20|22-34">impl pallet_estate_executor::Config for Runtime {
     type Currency              = Balances;
     type Scheduler             = Scheduler;                       // pallet-scheduler fires the will
     type BequestBuilder        = RuntimeBequestBuilder;
@@ -482,13 +482,6 @@ type EstateFeeRouter = SplitTwoWays&lt;
     30, 70,
 &gt;;
 
-#[pallet::feeless_if(|origin, id: &amp;WillId| {
-    Wills::&lt;T&gt;::get(id)
-        .map(|w| w.owner == who &amp;&amp; w.active())
-        .unwrap_or(false)
-})]
-pub fn heartbeat(origin, id: WillId) -&gt; DispatchResult { /* reschedule */ }
-
 // Scheduler-first. If congestion makes it miss the block,
 // *anyone* can fire an overdue will and collect a bounty
 // that scales with lateness — capped at one flat fee.
@@ -504,79 +497,49 @@ pub fn trigger(origin, id: WillId) -&gt; DispatchResult {
 }</code></pre>
 
 					<aside class="notes">
-						<strong>[by 2:50]</strong> pallet_estate_executor wires
-						together the scheduler for auto-firing, an identity
-						check against People Chain, the NFT pallet for
-						certificates, a fee router, and a few runtime
-						constants. Fees split 30/70 — burn and treasury — via
-						SplitTwoWays. Heartbeats are feeless. And the manual
-						trigger rewards its caller, scaling with block overdue,
-						so scheduler delays get cleaned up fast.
+						<strong>[by 2:45]</strong> pallet_estate_executor wires together the
+						scheduler for auto-firing, an identity check against People Chain, the NFT
+						pallet for certificates, a fee router, and a few runtime constants. Fees
+						split 30/70 — burn and treasury — via SplitTwoWays. And the manual trigger
+						rewards its caller, scaling with block overdue, so scheduler delays get
+						cleaned up fast.
 					</aside>
 				</section>
 
-				<!-- 8. THE XCM BUILD — signature moment -->
+				<!-- 8. TRANSACTION EXTENSIONS -->
 				<section class="code-slide" data-background-color="#07090B">
-					<p class="eyebrow">the xcm</p>
-					<h2>Dispatch as the owner. <span class="neon">No custody</span>.</h2>
+					<p class="eyebrow">transaction extensions</p>
+					<h2>Plugged into the pipeline. <span class="neon">Hand-wired</span>.</h2>
 
 					<pre
 						class="code-pre"
-					><code class="language-rust" data-trim data-line-numbers="1-9|14-23">pub enum Bequest&lt;T: Config&gt; {
-    Transfer      { dest: T::AccountId, amount: T::Balance },
-    TransferAll   { dest: T::AccountId },
-    Proxy         { delegate: T::AccountId },
-    MultisigProxy {
-        delegates: BoundedVec&lt;T::AccountId, MaxMultisigDelegates&gt;,
-        threshold: u16,
-    },
-}
+					><code class="language-rust" data-trim data-line-numbers="|9-13|31-33|39-43|45-50">pub type TxExtension = (
+    frame_system::CheckNonZeroSender&lt;Runtime&gt;,
+    frame_system::CheckSpecVersion&lt;Runtime&gt;,
+    frame_system::CheckTxVersion&lt;Runtime&gt;,
+    frame_system::CheckGenesis&lt;Runtime&gt;,
+    frame_system::CheckEra&lt;Runtime&gt;,
+    frame_system::CheckNonce&lt;Runtime&gt;,
+    frame_system::CheckWeight&lt;Runtime&gt;,
+    // ──── custom ────────────────────────────────────────────
+    pallet_estate_executor::BoostUrgentHeartbeats&lt;Runtime&gt;,        // u64::MAX for near-expiry heartbeats
+    pallet_skip_feeless_payment::SkipCheckIfFeeless&lt;                // #[feeless_if] makes heartbeat free
+        Runtime, ChargeTransactionPayment&lt;Runtime&gt;,
+    &gt;,
+    // ────────────────────────────────────────────────────────
+    frame_metadata_hash_extension::CheckMetadataHash&lt;Runtime&gt;,
+    pallet_revive::evm::tx_extension::SetOrigin&lt;Runtime&gt;,
+);
 
-// Build the XCM that runs on Asset Hub as the owner.
-fn build_ah_proxy_xcm(owner: &amp;AccountId, inner: Vec&lt;u8&gt;) -&gt; Xcm&lt;()&gt; {
-    let fees: Asset = (Location::parent(), 100 * ROC).into();
-    let proxy_call = ah_wrap_proxy(owner, inner);  // Proxy.proxy(owner, _, call)
-    Xcm(vec![
-        WithdrawAsset(fees.clone().into()),
-        BuyExecution { fees, weight_limit: WeightLimit::Unlimited },
-        Transact {
-            origin_kind: OriginKind::SovereignAccount,
-            call: proxy_call.into(),
-            fallback_max_weight: None,
-        },
-    ])
-}</code></pre>
-
-					<aside class="notes">
-						<strong>[by 3:15]</strong> The Bequest enum lists every
-						action we can dispatch on Asset Hub — transfer, sweep,
-						proxy, multisig. When a will fires, we build an XCM
-						Transact carrying a Proxy.proxy wrap, so Asset Hub
-						dispatches as the owner. Estate Protocol never touches
-						the assets.
-					</aside>
-				</section>
-
-				<!-- 9. TRANSACTION EXTENSION -->
-				<section class="code-slide" data-background-color="#07090B">
-					<p class="eyebrow">transaction extension</p>
-					<h2>Heartbeats under pressure. <span class="neon">Priority MAX</span>.</h2>
-
-					<pre
-						class="code-pre"
-					><code class="language-rust" data-trim data-line-numbers="1|3-9|11-12|14-22|24-28">const URGENCY_WINDOW: u32 = 10; // blocks before expiry
+const URGENCY_WINDOW: u32 = 10; // blocks before expiry
 
 #[derive(
     Encode, Decode, DecodeWithMemTracking, TypeInfo,
-    CloneNoBound, DebugNoBound, DefaultNoBound,   // *NoBound: no T: Clone/Debug/Default bound
-    EqNoBound, PartialEqNoBound,
+    CloneNoBound, DebugNoBound, DefaultNoBound, EqNoBound, PartialEqNoBound,
 )]
-#[scale_info(skip_type_params(T))]
 pub struct BoostUrgentHeartbeats&lt;T&gt;(PhantomData&lt;T&gt;);
 
 impl&lt;T: Config&gt; TransactionExtension&lt;T::RuntimeCall&gt; for BoostUrgentHeartbeats&lt;T&gt; {
-    const IDENTIFIER: &amp;'static str = "BoostUrgentHeartbeats";
-
     fn validate(&amp;self, origin, call, ..) -&gt; ValidateResult&lt;..&gt; {
         let mut valid = ValidTransaction::default();
         if let Some(Call::heartbeat { id }) = call.is_sub_type() {
@@ -592,20 +555,29 @@ fn is_heartbeat_urgent&lt;T: Config&gt;(id: WillId) -&gt; bool {
     let Some(will) = Wills::&lt;T&gt;::get(id) else { return false };
     let until = will.expiry_block.saturating_sub(frame_system::Pallet::&lt;T&gt;::block_number());
     will.status == WillStatus::Active &amp;&amp; until &lt;= URGENCY_WINDOW.into()
-}</code></pre>
+}
+
+#[pallet::feeless_if(|origin, id: &amp;WillId| {
+    Wills::&lt;T&gt;::get(id)
+        .map(|w| w.owner == who &amp;&amp; w.active())
+        .unwrap_or(false)
+})]
+pub fn heartbeat(origin, id: WillId) -&gt; DispatchResult { /* reschedule */ }</code></pre>
 
 					<aside class="notes">
-						<strong>[by 3:40]</strong> If a block is congested, a heartbeat could arrive
-						too late and the will fires on a living owner. BoostUrgentHeartbeats is a
-						hand-written TransactionExtension — not a wrapper, built from the raw trait —
-						that detects heartbeats within ten blocks of expiry and sets pool priority
-						to u64::MAX. Collators order the pool by priority, so the urgent heartbeat
-						jumps ahead of spam. Raises the cost of a congestion attack without
-						closing it entirely.
+						<strong>[by 3:25]</strong> Two hand-wired transaction extensions in the
+						runtime pipeline — BoostUrgentHeartbeats and SkipCheckIfFeeless.
+						SkipCheckIfFeeless is triggered by this feeless_if predicate on the
+						heartbeat call: if the caller is the owner of an active will, the charge is
+						skipped. Then zoom into BoostUrgentHeartbeats: ten-block urgency window, the
+						FRAME *NoBound derives so we don't bound T, and a validate that pattern-
+						matches on the heartbeat call. If the will is close to expiry, priority
+						jumps to u64::MAX — collators order the pool by priority, so urgent
+						heartbeats jump ahead of spam.
 					</aside>
 				</section>
 
-				<!-- 11. DEMO title -->
+				<!-- 9. DEMO title -->
 				<section
 					class="brand-slide"
 					data-background-color="#07090B"
@@ -622,7 +594,7 @@ fn is_heartbeat_urgent&lt;T: Config&gt;(id: WillId) -&gt; bool {
 					</aside>
 				</section>
 
-				<!-- 12. DEMO iframe (chromeless) — no speaker notes; you drive
+				<!-- 10. DEMO iframe (chromeless) — no speaker notes; you drive
 				     the live app here, no script to distract from. -->
 				<section
 					class="demo-iframe"
@@ -632,7 +604,7 @@ fn is_heartbeat_urgent&lt;T: Config&gt;(id: WillId) -&gt; bool {
 					data-preload
 				></section>
 
-				<!-- 13. CLOSE -->
+				<!-- 11. CLOSE -->
 				<section data-background-color="#07090B">
 					<p class="eyebrow">what's next</p>
 					<h2>Where this <span class="neon">goes</span>.</h2>
@@ -656,12 +628,11 @@ fn is_heartbeat_urgent&lt;T: Config&gt;(id: WillId) -&gt; bool {
 						<span class="neon">Thank you.</span>
 					</p>
 					<aside class="notes">
-						<strong>[by 5:00]</strong> Three things on the roadmap.
-						Off-chain workers, so scheduled firing isn't tied to a
-						public target block. Death-proof oracles — optional
-						attestation for users who want verification beyond
-						pure silence. And governance, to let token holders
-						decide the future of the protocol. Thanks.
+						<strong>[by 5:00]</strong> Three things on the roadmap. Off-chain workers,
+						so scheduled firing isn't tied to a public target block. Death-proof oracles
+						— optional attestation for users who want verification beyond pure silence.
+						And governance, to let token holders decide the future of the protocol.
+						Thanks.
 					</aside>
 				</section>
 			</div>
