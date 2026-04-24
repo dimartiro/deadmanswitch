@@ -47,10 +47,9 @@
 						you can't.
 					</p>
 					<aside class="notes">
-						<strong>[by 0:20]</strong> Hi — I'm Diego. In the next five minutes I'll
-						walk you through Estate Protocol: a Polkadot parachain for on-chain wills
-						that auto-execute when you stop heartbeating. Problem, solution,
-						architecture, and a live demo.
+						<strong>[by 0:20]</strong> Hi — I'm Diego. Estate Protocol is a Polkadot
+						parachain that automates digital estate planning on-chain. In the next five
+						minutes: problem, solution, architecture, and a live demo.
 					</aside>
 				</section>
 
@@ -379,10 +378,11 @@ sequenceDiagram
     AH-->>E: ✓ settled
 					</pre>
 					<aside class="notes">
-						<strong>[by 1:45]</strong> Assets never leave Asset Hub. You link your Asset
-						Hub account once, by granting our Estate sovereign a proxy. When a will is
-						executed, Estate sends an XCM Transact wrapped in Proxy.proxy, and Asset Hub
-						dispatches the call on behalf of the owner. Revoke the proxy anytime.
+						<strong>[by 1:45]</strong> The protocol never takes custody of assets. You link
+						your Asset Hub account once, by granting our Estate sovereign a proxy. When
+						a will is executed, Estate sends an XCM Transact wrapped in Proxy.proxy,
+						and Asset Hub dispatches the call on behalf of the owner. Revoke the proxy
+						anytime.
 					</aside>
 				</section>
 
@@ -557,7 +557,55 @@ fn build_ah_proxy_xcm(owner: &amp;AccountId, inner: Vec&lt;u8&gt;) -&gt; Xcm&lt;
 					</aside>
 				</section>
 
-				<!-- 9. DEMO title -->
+				<!-- 9. TRANSACTION EXTENSION -->
+				<section class="code-slide" data-background-color="#07090B">
+					<p class="eyebrow">transaction extension</p>
+					<h2>Heartbeats under pressure. <span class="neon">Priority MAX</span>.</h2>
+
+					<pre
+						class="code-pre"
+					><code class="language-rust" data-trim data-line-numbers="1|3-9|11-12|14-22|24-28">const URGENCY_WINDOW: u32 = 10; // blocks before expiry
+
+#[derive(
+    Encode, Decode, DecodeWithMemTracking, TypeInfo,
+    CloneNoBound, DebugNoBound, DefaultNoBound,   // *NoBound: no T: Clone/Debug/Default bound
+    EqNoBound, PartialEqNoBound,
+)]
+#[scale_info(skip_type_params(T))]
+pub struct BoostUrgentHeartbeats&lt;T&gt;(PhantomData&lt;T&gt;);
+
+impl&lt;T: Config&gt; TransactionExtension&lt;T::RuntimeCall&gt; for BoostUrgentHeartbeats&lt;T&gt; {
+    const IDENTIFIER: &amp;'static str = "BoostUrgentHeartbeats";
+
+    fn validate(&amp;self, origin, call, ..) -&gt; ValidateResult&lt;..&gt; {
+        let mut valid = ValidTransaction::default();
+        if let Some(Call::heartbeat { id }) = call.is_sub_type() {
+            if is_heartbeat_urgent::&lt;T&gt;(*id) {
+                valid.priority = TransactionPriority::MAX; // u64::MAX
+            }
+        }
+        Ok((valid, (), origin))
+    }
+}
+
+fn is_heartbeat_urgent&lt;T: Config&gt;(id: WillId) -&gt; bool {
+    let Some(will) = Wills::&lt;T&gt;::get(id) else { return false };
+    let until = will.expiry_block.saturating_sub(frame_system::Pallet::&lt;T&gt;::block_number());
+    will.status == WillStatus::Active &amp;&amp; until &lt;= URGENCY_WINDOW.into()
+}</code></pre>
+
+					<aside class="notes">
+						<strong>[by 3:40]</strong> If a block is congested, a heartbeat could arrive
+						too late and the will fires on a living owner. BoostUrgentHeartbeats is a
+						hand-written TransactionExtension — not a wrapper, built from the raw trait —
+						that detects heartbeats within ten blocks of expiry and sets pool priority
+						to u64::MAX. Collators order the pool by priority, so the urgent heartbeat
+						jumps ahead of spam. Raises the cost of a congestion attack without
+						closing it entirely.
+					</aside>
+				</section>
+
+				<!-- 11. DEMO title -->
 				<section
 					class="brand-slide"
 					data-background-color="#07090B"
@@ -574,7 +622,7 @@ fn build_ah_proxy_xcm(owner: &amp;AccountId, inner: Vec&lt;u8&gt;) -&gt; Xcm&lt;
 					</aside>
 				</section>
 
-				<!-- 10. DEMO iframe (chromeless) — no speaker notes; you drive
+				<!-- 12. DEMO iframe (chromeless) — no speaker notes; you drive
 				     the live app here, no script to distract from. -->
 				<section
 					class="demo-iframe"
@@ -584,7 +632,7 @@ fn build_ah_proxy_xcm(owner: &amp;AccountId, inner: Vec&lt;u8&gt;) -&gt; Xcm&lt;
 					data-preload
 				></section>
 
-				<!-- 11. CLOSE -->
+				<!-- 13. CLOSE -->
 				<section data-background-color="#07090B">
 					<p class="eyebrow">what's next</p>
 					<h2>Where this <span class="neon">goes</span>.</h2>
