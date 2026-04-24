@@ -27,6 +27,18 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
+				<!-- 0. SETUP SCREEN — duplicate of the title, intentionally without
+				     speaker notes. Use this while hooking up the projector or
+				     screen-sharing so onlookers don't see the opening script yet.
+				     Advance to slide 1 when you're ready to present. -->
+				<section class="brand-slide" data-background-color="#07090B">
+					<h1 class="brand">Estate<span class="neon">.</span>Protocol</h1>
+					<p class="muted">
+						On-chain digital legacy. Heartbeat while you can — the chain settles when
+						you can't.
+					</p>
+				</section>
+
 				<!-- 1. TITLE -->
 				<section class="brand-slide" data-background-color="#07090B">
 					<h1 class="brand">Estate<span class="neon">.</span>Protocol</h1>
@@ -35,10 +47,10 @@
 						you can't.
 					</p>
 					<aside class="notes">
-						Hi, I'm Diego. In the next 5 minutes I'll show you Estate Protocol — a
-						Polkadot parachain that lets you register an on-chain will that
-						auto-executes if you stop sending heartbeats. I'll walk you through the
-						problem, the architecture across three chains, and close with a quick demo.
+						<strong>[by 0:20]</strong> Hi — I'm Diego. In the next five minutes I'll
+						walk you through Estate Protocol: a Polkadot parachain for on-chain wills
+						that auto-execute when you stop heartbeating. Problem, solution,
+						architecture, and a live demo.
 					</aside>
 				</section>
 
@@ -59,12 +71,10 @@
 						</p>
 					</div>
 					<aside class="notes">
-						Crypto has a quiet inheritance problem. Private keys die with their owner.
-						There's no probate, no executor, no legal framework that can reach cold
-						storage. Multisigs and custodial exchanges exist as workarounds, but they
-						either require you to pre-select heirs today and give them a key right now,
-						or they re-introduce the counterparty risk Web3 was built to remove. We need
-						an on-chain, non-custodial answer.
+						<strong>[by 0:40]</strong> Crypto has a quiet inheritance problem. Keys die
+						with their owner — and the tokens stay locked forever. Multisigs and
+						exchanges try to solve it, but both are imperfect. We need an on-chain,
+						non-custodial answer.
 					</aside>
 				</section>
 
@@ -200,18 +210,17 @@
 						</div>
 					</div>
 					<aside class="notes">
-						Register a will — a typed list of actions, each naming a beneficiary. You
-						heartbeat periodically; every heartbeat reschedules the expiry. If you go
-						silent past the interval, the runtime's scheduler deterministically fires
-						the will. Each beneficiary gets a soulbound NFT — a permanent on-chain
-						receipt of inheritance. You can cancel at any time.
+						<strong>[by 1:00]</strong> A programmable will — silence is the trigger.
+						create_will puts it Active; every heartbeat reschedules the expiry. Two ways
+						out: cancel, or the scheduler fires on silence and mints a soulbound NFT
+						certificate for each heir.
 					</aside>
 				</section>
 
 				<!-- 4. ARCHITECTURE -->
 				<section data-background-color="#07090B">
 					<p class="eyebrow">architecture</p>
-					<h2>Three chains. <span class="neon">One relay</span>.</h2>
+					<h2>Three chains. <span class="neon">One will</span>.</h2>
 					<div class="arch">
 						<svg
 							class="arch-edges"
@@ -343,12 +352,10 @@
 						</div>
 					</div>
 					<aside class="notes">
-						Estate Protocol is our parachain — it holds the will state and runs the
-						scheduler. People Chain is the Polkadot system parachain that hosts
-						pallet-identity; we consult it to verify every heir has a real identity.
-						Asset Hub is where the assets actually live. When a will fires, Estate sends
-						an XCM message to Asset Hub that dispatches the inheritance as the owner.
-						The heir also gets a soulbound NFT minted back on Estate.
+						<strong>[by 1:20]</strong> The architecture is three parachains. Estate
+						Protocol holds will state and the scheduler. People Chain provides identity.
+						Asset Hub holds the assets — and pallet-proxy lets us dispatch as the owner.
+						Identity check up, XCM Transact down.
 					</aside>
 				</section>
 
@@ -372,19 +379,17 @@ sequenceDiagram
     AH-->>E: ✓ settled
 					</pre>
 					<aside class="notes">
-						The key design decision: Estate Protocol never custodies your assets. They
-						stay on Asset Hub. What you do once is grant our sovereign account a
-						ProxyType::Any over your Asset Hub account — the same primitive every wallet
-						already uses. When a will executes, we send an XCM Transact to Asset Hub
-						wrapped in Proxy.proxy so it dispatches as you. If anything ever went wrong
-						with Estate, you revoke the proxy and your assets are untouched.
+						<strong>[by 1:45]</strong> Assets never leave Asset Hub. You link your Asset
+						Hub account once, by granting our Estate sovereign a proxy. When a will is
+						executed, Estate sends an XCM Transact wrapped in Proxy.proxy, and Asset Hub
+						dispatches the call on behalf of the owner. Revoke the proxy anytime.
 					</aside>
 				</section>
 
 				<!-- 6. ECONOMICS -->
 				<section class="econ-slide" data-background-color="#07090B">
 					<p class="eyebrow">economics</p>
-					<h2>Self-sustaining. <span class="neon">Native token</span>.</h2>
+					<h2>Revenue model. <span class="neon">Native token</span>.</h2>
 
 					<div class="econ">
 						<!-- Left column: inputs -->
@@ -420,26 +425,32 @@ sequenceDiagram
 								<div class="econ-bar-treasury"><span>70%</span></div>
 							</div>
 							<div class="econ-bar-legend">
-								<div><span class="swatch burn"></span>🔥 <strong>BURN</strong> — deflationary</div>
-								<div><span class="swatch treasury"></span>💰 <strong>TREASURY</strong> — governable PalletId account</div>
+								<div>
+									<span class="swatch burn"></span>🔥 <strong>BURN</strong> —
+									deflationary
+								</div>
+								<div>
+									<span class="swatch treasury"></span>💰
+									<strong>TREASURY</strong> — governable PalletId account
+								</div>
 							</div>
 							<div class="econ-skim">
 								<span class="arrow">↳</span>
-								<span>trigger caller gets up to <strong>one flat fee</strong> off the top.</span>
+								<span
+									>trigger caller gets up to <strong>one flat fee</strong> off the
+									top.</span
+								>
 							</div>
 						</div>
 					</div>
 
 					<aside class="notes">
-						Three fees keep the protocol self-sustaining. A longevity fee per heartbeat,
-						an execution fee reserved at create and charged when the will fires, and a
-						trigger reward paid out of that same execution fee if someone has to
-						manually fire an overdue will. All in the native token — no new asset.
-						Everything flows into a SplitTwoWays router: 30% burns, 70% goes to a
-						PalletId-derived treasury. The trigger reward is FLAT-capped — a million-ROC
-						will and a one-ROC will pay the same maximum bounty, so big wills are never
-						coercion targets, and the payout is always bounded by what the owner
-						actually paid in.
+						<strong>[by 2:20]</strong> How the economics work. Longevity fee on create —
+						it scales with the interval, so year-long wills pay more for the scheduler
+						slot they hold. Flat execution fee, reserved at create and slashed when the
+						will fires. Heartbeats are feeless. Fees split 30/70 — burn and treasury —
+						via SplitTwoWays. And a bounty for whoever calls the manual trigger if the
+						scheduler ever misses the block.
 					</aside>
 				</section>
 
@@ -448,7 +459,9 @@ sequenceDiagram
 					<p class="eyebrow">under the hood</p>
 					<h2>Standard pallets, <span class="neon">custom wiring</span>.</h2>
 
-					<pre class="code-pre"><code class="language-rust" data-trim data-line-numbers="3|5|7-9|10-11|15-20|22-29|32-42">impl pallet_estate_executor::Config for Runtime {
+					<pre
+						class="code-pre"
+					><code class="language-rust" data-trim data-line-numbers="3|5|6|7|8-12|15-20|22-29|32-42">impl pallet_estate_executor::Config for Runtime {
     type Currency              = Balances;
     type Scheduler             = Scheduler;                       // pallet-scheduler fires the will
     type BequestBuilder        = RuntimeBequestBuilder;
@@ -491,23 +504,14 @@ pub fn trigger(origin, id: WillId) -&gt; DispatchResult {
 }</code></pre>
 
 					<aside class="notes">
-						Seven quick steps through one Config impl. One: Scheduler is
-						pallet-scheduler — it's what actually fires execute_will at
-						expiry_block + 1; create_will schedules the task, heartbeat
-						reschedules it. Two: IdentityCheck is the hook that verifies every
-						heir has a real identity on People Chain. Three: the three fee
-						parameters — FeeRouter, FeePerBlock for the longevity fee, and the
-						flat per-bequest fee. Four: the two reward parameters for the
-						manual trigger — per-block rate and a hard cap. Five: FeeRouter is
-						just SplitTwoWays from frame_support — 30 parts burn, 70 parts
-						into the treasury. Six: feeless_if lets the owner heartbeat for
-						zero tx fee, by the one predicate shown. Seven: trigger is the
-						manual fallback — if the scheduler misses the block, any account
-						can fire an overdue will and collect a bounty that scales with
-						lateness but is capped at one flat fee. The cap is the safety rail:
-						a one-ROC will and a one-million-ROC will pay the same maximum
-						bounty, so large wills are never coercion targets. Every knob is a
-						runtime constant, governance-tunable without touching the pallet.
+						<strong>[by 2:50]</strong> pallet_estate_executor wires
+						together the scheduler for auto-firing, an identity
+						check against People Chain, the NFT pallet for
+						certificates, a fee router, and a few runtime
+						constants. Fees split 30/70 — burn and treasury — via
+						SplitTwoWays. Heartbeats are feeless. And the manual
+						trigger rewards its caller, scaling with block overdue,
+						so scheduler delays get cleaned up fast.
 					</aside>
 				</section>
 
@@ -516,7 +520,9 @@ pub fn trigger(origin, id: WillId) -&gt; DispatchResult {
 					<p class="eyebrow">the xcm</p>
 					<h2>Dispatch as the owner. <span class="neon">No custody</span>.</h2>
 
-					<pre class="code-pre"><code class="language-rust" data-trim data-line-numbers="1-9|14-23">pub enum Bequest&lt;T: Config&gt; {
+					<pre
+						class="code-pre"
+					><code class="language-rust" data-trim data-line-numbers="1-9|14-23">pub enum Bequest&lt;T: Config&gt; {
     Transfer      { dest: T::AccountId, amount: T::Balance },
     TransferAll   { dest: T::AccountId },
     Proxy         { delegate: T::AccountId },
@@ -542,18 +548,12 @@ fn build_ah_proxy_xcm(owner: &amp;AccountId, inner: Vec&lt;u8&gt;) -&gt; Xcm&lt;
 }</code></pre>
 
 					<aside class="notes">
-						Two steps. One: the Bequest enum — the typed menu of what a will
-						can do. A fixed-amount transfer, sweep all, hand a proxy to a single
-						delegate, or to a multisig threshold of delegates. Two: when a will
-						fires, build_ah_proxy_xcm assembles three XCM instructions.
-						WithdrawAsset and BuyExecution pay for dispatch on Asset Hub out of
-						our sovereign's AH balance. Transact carries a
-						Proxy.proxy(owner, _, call) wrap — that's the critical piece. Asset
-						Hub's proxy pallet dispatches the inner call as the owner, not as
-						our parachain. Net effect: the owner's assets move, signed by the
-						owner, without Estate ever touching them. If anything ever went
-						wrong with Estate, the owner revokes the proxy and their assets are
-						untouched.
+						<strong>[by 3:15]</strong> The Bequest enum lists every
+						action we can dispatch on Asset Hub — transfer, sweep,
+						proxy, multisig. When a will fires, we build an XCM
+						Transact carrying a Proxy.proxy wrap, so Asset Hub
+						dispatches as the owner. Estate Protocol never touches
+						the assets.
 					</aside>
 				</section>
 
@@ -568,30 +568,21 @@ fn build_ah_proxy_xcm(owner: &amp;AccountId, inner: Vec&lt;u8&gt;) -&gt; Xcm&lt;
 						<h1 class="huge">DEMO</h1>
 					</div>
 					<aside class="notes">
-						Pause for a beat, then advance to the live app. 60-second plan: 1. Wills
-						dashboard — counts of active / executed. 2. New will → Alice owner, 1-minute
-						interval. Add Transfer 1 ROC to Bob. Point at the live Protocol-fee preview.
-						3. Sign. Row appears in the dashboard. 4. Switch to Bob — "names you" chip.
-						5. If time: let one expire, click Trigger from a third account, show the
-						reward toast. Fallback if the node is down: talk through the speaker notes
-						and skip the next slide.
+						<strong>[by 3:30]</strong> Transition beat. Breathe, click to reveal the
+						live app. If the node is down, stay here and narrate the happy path — then
+						skip past the iframe.
 					</aside>
 				</section>
 
-				<!-- 10. DEMO iframe (chromeless) -->
+				<!-- 10. DEMO iframe (chromeless) — no speaker notes; you drive
+				     the live app here, no script to distract from. -->
 				<section
 					class="demo-iframe"
 					data-background-color="#07090B"
 					data-background-iframe="http://localhost:5173/#/"
 					data-background-interactive
 					data-preload
-				>
-					<aside class="notes">
-						Live frontend embedded at localhost:5173. Start with
-						./scripts/start-zombienet.sh then ./scripts/start-frontend.sh. Press B to
-						blackout the screen if you need to cut back to the speaker view quickly.
-					</aside>
-				</section>
+				></section>
 
 				<!-- 11. CLOSE -->
 				<section data-background-color="#07090B">
@@ -617,11 +608,12 @@ fn build_ah_proxy_xcm(owner: &amp;AccountId, inner: Vec&lt;u8&gt;) -&gt; Xcm&lt;
 						<span class="neon">Thank you.</span>
 					</p>
 					<aside class="notes">
-						Next steps: move scheduled execution to an off-chain worker so the target
-						block isn't public — closes the scheduler-congestion side-channel.
-						Optional death-proof oracles for users who want verification beyond
-						silence. Governance over the fee parameters and treasury. Happy to
-						take questions.
+						<strong>[by 5:00]</strong> Three things on the roadmap.
+						Off-chain workers, so scheduled firing isn't tied to a
+						public target block. Death-proof oracles — optional
+						attestation for users who want verification beyond
+						pure silence. And governance, to let token holders
+						decide the future of the protocol. Thanks.
 					</aside>
 				</section>
 			</div>
@@ -649,6 +641,11 @@ fn build_ah_proxy_xcm(owner: &amp;AccountId, inner: Vec&lt;u8&gt;) -&gt; Xcm&lt;
 					lineColor: "#00FFB3",
 					textColor: "#E6EDF5",
 					mainBkg: "#0f2a23",
+					// Notes ("setup (once)", "... silence exceeds interval ...")
+					// on slide 5's sequence diagram — match deck palette.
+					noteBkgColor: "#1C2127",
+					noteBorderColor: "#00FFB3",
+					noteTextColor: "#E6EDF5",
 					fontFamily: "'JetBrains Mono', monospace",
 					fontSize: "18px",
 				},
