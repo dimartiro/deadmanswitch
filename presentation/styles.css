@@ -681,8 +681,10 @@ body::after {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 22pt;
-    margin-top: 32pt;
-    padding: 0 36pt;
+    margin: 32pt 0 0 0;
+    padding: 0;
+    width: 800pt;
+    justify-self: start;
 }
 .reveal .roadmap-card {
     background: linear-gradient(180deg, var(--mist) 0%, #15191F 100%);
